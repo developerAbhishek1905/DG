@@ -91,6 +91,18 @@
 
 export type DealerStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
 
+export type LedgerAccountType =
+  | "STANDARD"
+  | "OTHER_EXPENSE_IN_INVOICE"
+  | "BANK"
+  | "TAX_CODE"
+  | "SALE_PURCHASE_ACCOUNT";
+
+export type OpeningBalanceType =
+  | "DR"
+  | "CR";
+
+
 export interface DealerCapacity {
   total: number;
   used: number;
@@ -116,43 +128,89 @@ export interface DealerRates {
   other: number;
 }
 
-export interface Dealer {
+// export interface Dealer {
+//   id: string;
+//   dealerCode: string;
+//   name: string;
+//   ownerName: string;
+//   email: string;
+//   phone: string;
+
+//   city: string;
+//   state: string;
+//   address: string;
+//   pincode: string;
+
+//   supportedProducts: string[];
+
+//   capacity: DealerCapacity;
+
+//   status: DealerStatus;
+
+//   performance: DealerPerformance;
+
+//   rates: DealerRates;
+
+//   createdAt: string;
+//   updatedAt: string;
+// }
+
+export interface DealerFormData {
+  headCode: string;
+  groupHead: string;
+  headName: string;
+  grade?: string;
+
+  address?: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  stateCode?: string;
+  pinCode?: string;
+  zone?: string;
+
+  contactPerson?: string;
+  phoneNumbers?: string;
+  mobileNumber?: string;
+  email?: string;
+
+  taxApply?: string;
+  gstNumber?: string;
+  tinNumber?: string;
+  uinNumber?: string;
+  panNumber?: string;
+
+  gstApplicable?: string;
+  gstRate?: number;
+  hsnCode?: string;
+
+  reverseChargeLimit?: number;
+  taxInputPayable?: string;
+  vat15Column?: string;
+
+  segment?: string;
+
+  creditDays?: number;
+  creditLimit?: number;
+
+  accountType: LedgerAccountType;
+
+  isDealer: boolean;
+  disableChallan: boolean;
+  ledgerSummaryOnly: boolean;
+  accountDeactivated: boolean;
+
+  otherInfo?: string;
+  rating?: number;
+
+  openingBalance?: number;
+  openingBalanceType: OpeningBalanceType;
+}
+
+export interface Dealer
+  extends DealerFormData {
   id: string;
-  dealerCode: string;
-  name: string;
-  ownerName: string;
-  email: string;
-  phone: string;
-
-  city: string;
-  state: string;
-  address: string;
-  pincode: string;
-
-  supportedProducts: string[];
-
-  capacity: DealerCapacity;
-
-  status: DealerStatus;
-
-  performance: DealerPerformance;
-
-  rates: DealerRates;
 
   createdAt: string;
   updatedAt: string;
-}
-
-export interface DealerFormData {
-  name: string;
-  ownerName: string;
-  email: string;
-  phone: string;
-  city: string;
-  state: string;
-  address: string;
-  pincode: string;
-  supportedProducts: string[];
-  totalCapacity: number;
-  status: DealerStatus;
 }
