@@ -20,7 +20,9 @@ import {
   BadgeCheck,
   BookOpenText,
   Scale,
-  MapPinned
+  MapPinned,
+    Tags,
+  PackageSearch,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -51,6 +53,17 @@ const menuItems = [
     icon: Users,
     path: "/dealers",
   },
+  {
+  label: "Category Master",
+  icon: Tags,
+  path: "/category-master",
+},
+
+{
+  label: "Item Master",
+  icon: PackageSearch,
+  path: "/item-master",
+},
 
   {
     label: "Appointments",

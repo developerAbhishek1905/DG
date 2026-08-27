@@ -110,6 +110,7 @@ import {
   PermissionSettingsPage,
 } from "../modules/settings";
 
+
 import { AreaMasterPage, CreateEditAreaPage } from "../modules/areaMaster";
 
 import { AllocationPage, AllocationHistoryPage } from "../modules/allocation";
@@ -117,7 +118,8 @@ import { AllocationPage, AllocationHistoryPage } from "../modules/allocation";
 import { DashboardPage } from "../modules/dashboard";
 
 import { Navigate } from "react-router-dom";
-
+import { CategoryMasterPage,CreateEditCategoryPage, } from "../modules/categoryMaster";
+import { ItemMasterPage,CreateEditItemPage } from "../modules/itemMaster";
 function Dashboard() {
   return (
     <div>
@@ -336,6 +338,47 @@ export default function AppRoutes() {
             element={<PermissionSettingsPage />}
           />
 
+<Route
+  path="/category-master"
+  element={
+    <CategoryMasterPage />
+  }
+/>
+
+<Route
+  path="/category-master/create"
+  element={
+    <CreateEditCategoryPage />
+  }
+/>
+
+<Route
+  path="/category-master/:id/edit"
+  element={
+    <CreateEditCategoryPage />
+  }
+/>
+
+<Route
+  path="/item-master"
+  element={
+    <ItemMasterPage />
+  }
+/>
+
+<Route
+  path="/item-master/create"
+  element={
+    <CreateEditItemPage />
+  }
+/>
+
+<Route
+  path="/item-master/:id/edit"
+  element={
+    <CreateEditItemPage />
+  }
+/>
           {/* <Route
   element={
     <ProtectedRoute
