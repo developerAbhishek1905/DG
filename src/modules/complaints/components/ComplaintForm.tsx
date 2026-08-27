@@ -12,10 +12,10 @@ import {
   useForm,
 } from "react-hook-form";
 
-import {
-  COMPLAINT_CATEGORY_OPTIONS,
-  COMPLAINT_PRIORITY_OPTIONS,
-} from "../constants/complaint.constants";
+// import {
+//   COMPLAINT_CATEGORY_OPTIONS,
+//   COMPLAINT_PRIORITY_OPTIONS,
+// } from "../constants/complaint.constants";
 
 import {
   createComplaint,
@@ -23,10 +23,9 @@ import {
 } from "../services/complaintApi";
 
 import type {
-    Complaint,
-  ComplaintCategory,
+  Complaint,
   ComplaintHistoryItem,
-  ComplaintPriority,
+  ComplaintStatus,
   ComplaintType,
   Customer,
 } from "../types/complaint.types";
@@ -38,87 +37,112 @@ interface ComplaintFormProps {
 }
 
 interface ComplaintFormData {
-  customerId?: string;
-  customerCode?: string;
+  complaintNumber: string;
+  complaintDateTime: string;
 
-  customerName: string;
+  customerId?: string;
+
   customerPhone: string;
+  customerName: string;
   alternatePhone?: string;
-  customerEmail?: string;
 
   address: string;
   city: string;
-  district?: string;
+  district: string;
   state: string;
-  pincode?: string;
+  pincode: string;
   contactInfo?: string;
 
   productName: string;
   units: number;
   quoteAmount?: number;
-  productDescription?: string;
 
   faultReported: string;
-
-  category: ComplaintCategory;
-  priority: ComplaintPriority;
   complaintType: ComplaintType;
 
   adName?: string;
-  repeatComplaintNumber?: string;
 
-  subject: string;
-  description: string;
+  status: ComplaintStatus;
+
+  repeatComplaintNumber?: string;
 }
 
+const formatComplaintDate = (
+  date: Date
+) => {
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
 
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
 
+  const year = String(
+    date.getFullYear()
+  ).slice(-2);
+
+  return `${day}${month}${year}`;
+};
+
+const generateComplaintNumber = () => {
+  const now = new Date();
+
+  const datePart =
+    formatComplaintDate(now);
+
+  // Temporary frontend sequence
+  // Backend should generate this later
+  const sequence = "0001";
+
+  return `CMP${datePart}/${sequence}`;
+};
 
 export default function ComplaintForm({
   onComplaintCreated,
 }: ComplaintFormProps) {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    control,
-    formState: { errors },
-  } = useForm<ComplaintFormData>({
-    defaultValues: {
-      customerId: "",
-      customerCode: "",
+const {
+  register,
+  handleSubmit,
+  watch,
+  setValue,
+  formState: { errors },
+} = useForm<ComplaintFormData>({
+  defaultValues: {
+    complaintNumber:
+      generateComplaintNumber(),
 
-      customerName: "",
-      customerPhone: "",
-      alternatePhone: "",
-      customerEmail: "",
+    complaintDateTime:
+      new Date().toISOString(),
 
-      address: "",
-      city: "",
-      district: "",
-      state: "",
-      pincode: "",
-      contactInfo: "",
+    customerId: "",
 
-      productName: "",
-      units: 1,
-      quoteAmount: undefined,
-      productDescription: "",
+    customerPhone: "",
+    customerName: "",
+    alternatePhone: "",
 
-      faultReported: "",
+    address: "",
+    city: "",
+    district: "",
+    state: "",
+    pincode: "",
+    contactInfo: "",
 
-      category: "REPAIR",
-      priority: "MEDIUM",
-      complaintType: "REGULAR",
+    productName: "",
+    units: 1,
+    quoteAmount: undefined,
 
-      adName: "",
-      repeatComplaintNumber: "",
+    faultReported: "",
 
-      subject: "",
-      description: "",
-    },
-  });
+    complaintType: "REGULAR",
+
+    adName: "",
+
+    status: "REGISTERED",
+
+    repeatComplaintNumber: "",
+  },
+});
 
   const customerPhone = watch("customerPhone");
   const alternatePhone = watch("alternatePhone");
@@ -141,6 +165,25 @@ export default function ComplaintForm({
   const [submitting, setSubmitting] =
     useState(false);
 
+    const [currentDateTime, setCurrentDateTime] =
+  useState(new Date());
+
+  useEffect(() => {
+  const timer = setInterval(() => {
+    const now = new Date();
+
+    setCurrentDateTime(now);
+
+    setValue(
+      "complaintDateTime",
+      now.toISOString()
+    );
+  }, 1000);
+
+  return () => {
+    clearInterval(timer);
+  };
+}, [setValue]);
   /*
   |--------------------------------------------------------------------------
   | Registered Mobile Lookup
@@ -164,11 +207,32 @@ export default function ComplaintForm({
     return () => clearTimeout(timer);
   }, [customerPhone]);
 
+
+  const formatComplaintDate = (
+  date: Date
+) => {
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  const year = String(
+    date.getFullYear()
+  ).slice(-2);
+
+  return `${day}${month}${year}`;
+};
+
+
   /*
   |--------------------------------------------------------------------------
   | Alternate Mobile Lookup
   |--------------------------------------------------------------------------
   */
+
 
   useEffect(() => {
     const phone = alternatePhone?.trim();
@@ -238,69 +302,59 @@ const response =
   |--------------------------------------------------------------------------
   */
 
-  const fillCustomerDetails = (
-    customer: Customer
-  ) => {
-    setValue(
-      "customerId",
-      customer.id
-    );
+const fillCustomerDetails = (
+  customer: Customer
+) => {
+  setValue(
+    "customerId",
+    customer.id
+  );
 
-    setValue(
-      "customerCode",
-      customer.customerCode || ""
-    );
+  setValue(
+    "customerName",
+    customer.name || ""
+  );
 
-    setValue(
-      "customerName",
-      customer.name || ""
-    );
+  setValue(
+    "customerPhone",
+    customer.phone || ""
+  );
 
-    setValue(
-      "customerPhone",
-      customer.phone || ""
-    );
+  setValue(
+    "alternatePhone",
+    customer.alternatePhone || ""
+  );
 
-    setValue(
-      "alternatePhone",
-      customer.alternatePhone || ""
-    );
+  setValue(
+    "address",
+    customer.address || ""
+  );
 
-    setValue(
-      "customerEmail",
-      customer.email || ""
-    );
+  setValue(
+    "city",
+    customer.city || ""
+  );
 
-    setValue(
-      "address",
-      customer.address || ""
-    );
+  setValue(
+    "district",
+    customer.district || ""
+  );
 
-    setValue(
-      "city",
-      customer.city || ""
-    );
+  setValue(
+    "state",
+    customer.state || ""
+  );
 
-    setValue(
-      "district",
-      customer.district || ""
-    );
+  setValue(
+    "pincode",
+    customer.pincode || ""
+  );
 
-    setValue(
-      "state",
-      customer.state || ""
-    );
-
-    setValue(
-      "pincode",
-      customer.pincode || ""
-    );
-
-    setValue(
-      "contactInfo",
-      customer.contactInfo || ""
-    );
-  };
+  setValue(
+    "contactInfo",
+    customer.contactInfo || ""
+  );
+};
 
   /*
   |--------------------------------------------------------------------------
@@ -389,633 +443,433 @@ onComplaintCreated?.(
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(
-        onSubmit
-      )}
-      className="space-y-6"
-    >
-      {/* =====================================
-          CUSTOMER INFORMATION
-      ====================================== */}
+<form
+  onSubmit={handleSubmit(onSubmit)}
+  className="space-y-6"
+>
+  {/* =====================================
+      COMPLAINT INFORMATION
+  ====================================== */}
 
-      <Section title="Customer Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<Section title="Complaint Information">
+  <div className="grid gap-4 md:grid-cols-2">
 
-          {/* Registered Mobile */}
+    <div>
+      <label className="mb-1 block text-sm font-medium text-gray-700">
+        Complaint Number
+      </label>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Registered Mobile Number
-              <span className="ml-1 text-red-500">
-                *
-              </span>
-            </label>
+      <input
+        {...register(
+          "complaintNumber"
+        )}
+        readOnly
+        className={`${inputClass} cursor-not-allowed bg-gray-50 font-medium text-[#123B7A]`}
+      />
+    </div>
 
-            <div className="relative">
-              <input
-                {...register(
-                  "customerPhone",
-                  {
-                    required:
-                      "Phone number is required",
+    <div>
+      <label className="mb-1 block text-sm font-medium text-gray-700">
+        Date / Time
+      </label>
 
-                    pattern: {
-                      value:
-                        /^[0-9]{10}$/,
-                      message:
-                        "Enter valid 10 digit mobile number",
-                    },
-                  }
-                )}
-                maxLength={10}
-                inputMode="numeric"
-                placeholder="9988776655"
-                className={inputClass}
-              />
+      <input
+        value={currentDateTime.toLocaleString(
+          "en-IN",
+          {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
 
-              {lookupLoading && (
-                <Loader2
-                  size={17}
-                  className="absolute right-3 top-3 animate-spin text-gray-400"
-                />
-              )}
-            </div>
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
 
-            {errors.customerPhone && (
-              <ErrorText>
-                {
-                  errors
-                    .customerPhone
-                    .message
-                }
-              </ErrorText>
-            )}
-          </div>
+            hour12: true,
+          }
+        )}
+        readOnly
+        className={`${inputClass} cursor-not-allowed bg-gray-50`}
+      />
+    </div>
 
-          {/* Alternate Mobile */}
+  </div>
+</Section>
 
-          <Input
-            label="Alternate Mobile Number"
+  {/* =====================================
+      CUSTOMER INFORMATION
+  ====================================== */}
+
+  <Section title="Customer Information">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+      {/* Registered Mobile */}
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Registered Mobile Number
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        </label>
+
+        <div className="relative">
+          <input
+            {...register("customerPhone", {
+              required:
+                "Registered mobile number is required",
+
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message:
+                  "Enter valid 10 digit mobile number",
+              },
+            })}
             maxLength={10}
             inputMode="numeric"
-            placeholder="9988776644"
-            error={
-              errors.alternatePhone
-                ?.message
-            }
-            {...register(
-              "alternatePhone",
-              {
-                pattern: {
-                  value:
-                    /^$|^[0-9]{10}$/,
-                  message:
-                    "Enter valid 10 digit mobile number",
-                },
-              }
-            )}
+            placeholder="9876543210"
+            className={inputClass}
           />
 
-          {/* Customer Code */}
-
-          <Input
-            label="Customer Code"
-            placeholder="Customer code"
-            {...register(
-              "customerCode"
-            )}
-          />
-
-          {/* Customer Name */}
-
-          <Input
-            label="Customer Name"
-            placeholder="Customer name"
-            error={
-              errors.customerName
-                ?.message
-            }
-            {...register(
-              "customerName",
-              {
-                required:
-                  "Customer name is required",
-              }
-            )}
-          />
-
-          {/* Email */}
-
-          <Input
-            label="Email"
-            type="email"
-            placeholder="Customer email"
-            {...register(
-              "customerEmail"
-            )}
-          />
-
-          {/* Pincode */}
-
-          <Input
-            label="Pin Code"
-            maxLength={6}
-            inputMode="numeric"
-            placeholder="Pin code"
-            {...register(
-              "pincode"
-            )}
-          />
-
-          {/* Address */}
-
-          <div className="md:col-span-2">
-            <Input
-              label="Customer Address"
-              placeholder="Customer address"
-              error={
-                errors.address
-                  ?.message
-              }
-              {...register(
-                "address",
-                {
-                  required:
-                    "Address is required",
-                }
-              )}
-            />
-          </div>
-
-          {/* City */}
-
-          <Input
-            label="City"
-            placeholder="City"
-            error={
-              errors.city?.message
-            }
-            {...register(
-              "city",
-              {
-                required:
-                  "City is required",
-              }
-            )}
-          />
-
-          {/* District */}
-
-          <Input
-            label="District"
-            placeholder="District"
-            {...register(
-              "district"
-            )}
-          />
-
-          {/* State */}
-
-          <Input
-            label="State"
-            placeholder="State"
-            error={
-              errors.state?.message
-            }
-            {...register(
-              "state",
-              {
-                required:
-                  "State is required",
-              }
-            )}
-          />
-
-          {/* Contact Info */}
-
-          <Input
-            label="Contact Info"
-            placeholder="Additional contact information"
-            {...register(
-              "contactInfo"
-            )}
-          />
-        </div>
-
-        {/* ===============================
-            CUSTOMER LOOKUP STATUS
-        ================================ */}
-
-        {lookupError && (
-          <div className="mt-5 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle
-              size={18}
-            />
-
-            {lookupError}
-          </div>
-        )}
-
-        {lookupDone &&
-          !lookupError && (
-            <div className="mt-5">
-              {existingCustomer ? (
-                <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
-                  <UserCheck
-                    size={21}
-                    className="mt-0.5 shrink-0 text-green-600"
-                  />
-
-                  <div>
-                    <p className="font-medium text-green-800">
-                      Existing Customer
-                      Found
-                    </p>
-
-                    <p className="mt-1 text-sm text-green-700">
-                      {
-                        existingCustomer.name
-                      }
-
-                      {existingCustomer.customerCode
-                        ? ` • Customer Code: ${existingCustomer.customerCode}`
-                        : ""}
-                    </p>
-
-                    <p className="mt-1 text-xs text-green-600">
-                      Customer
-                      information has
-                      been filled
-                      automatically.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
-                  No existing
-                  customer found with
-                  this mobile number.
-                  You can register a
-                  new customer with
-                  this complaint.
-                </div>
-              )}
-            </div>
-          )}
-      </Section>
-
-      {/* =====================================
-          PRODUCT / COMPLAINT INFORMATION
-      ====================================== */}
-
-      <Section title="Complaint Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
-          {/* Product */}
-
-          <Input
-            label="Product"
-            placeholder="Product name"
-            error={
-              errors.productName
-                ?.message
-            }
-            {...register(
-              "productName",
-              {
-                required:
-                  "Product is required",
-              }
-            )}
-          />
-
-          {/* Units */}
-
-          <Input
-            label="Units"
-            type="number"
-            min={1}
-            error={
-              errors.units?.message
-            }
-            {...register(
-              "units",
-              {
-                required:
-                  "Units are required",
-
-                valueAsNumber:
-                  true,
-
-                min: {
-                  value: 1,
-                  message:
-                    "Minimum 1 unit required",
-                },
-              }
-            )}
-          />
-
-          {/* Quote Amount */}
-
-          <Input
-            label="Quote Amount"
-            type="number"
-            min={0}
-            placeholder="0"
-            {...register(
-              "quoteAmount",
-              {
-                valueAsNumber:
-                  true,
-              }
-            )}
-          />
-
-          {/* Complaint Type */}
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Complaint Type
-            </label>
-
-            <select
-              {...register(
-                "complaintType"
-              )}
-              className={inputClass}
-            >
-              <option value="REGULAR">
-                Regular
-              </option>
-
-              <option value="REPEAT">
-                Repeat
-              </option>
-
-              <option value="WARRANTY">
-                Warranty
-              </option>
-
-              <option value="PAID_SERVICE">
-                Paid Service
-              </option>
-            </select>
-          </div>
-
-          {/* Product Description */}
-
-          <div className="md:col-span-2">
-            <Input
-              label="Product Description"
-              placeholder="Example: LED Repair"
-              {...register(
-                "productDescription"
-              )}
-            />
-          </div>
-
-          {/* Fault Reported */}
-
-          <div className="md:col-span-2">
-            <Input
-              label="Fault Reported"
-              placeholder="Describe reported fault"
-              error={
-                errors.faultReported
-                  ?.message
-              }
-              {...register(
-                "faultReported",
-                {
-                  required:
-                    "Fault reported is required",
-                }
-              )}
-            />
-          </div>
-
-          {/* Category */}
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Category
-              <span className="ml-1 text-red-500">
-                *
-              </span>
-            </label>
-
-            <select
-              {...register(
-                "category",
-                {
-                  required:
-                    "Category is required",
-                }
-              )}
-              className={inputClass}
-            >
-              <option value="">
-                Select category
-              </option>
-
-              {COMPLAINT_CATEGORY_OPTIONS.map(
-                (option) => (
-                  <option
-                    key={
-                      option.value
-                    }
-                    value={
-                      option.value
-                    }
-                  >
-                    {
-                      option.label
-                    }
-                  </option>
-                )
-              )}
-            </select>
-
-            {errors.category && (
-              <ErrorText>
-                {
-                  errors.category
-                    .message
-                }
-              </ErrorText>
-            )}
-          </div>
-
-          {/* Priority */}
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Priority
-              <span className="ml-1 text-red-500">
-                *
-              </span>
-            </label>
-
-            <select
-              {...register(
-                "priority",
-                {
-                  required:
-                    "Priority is required",
-                }
-              )}
-              className={inputClass}
-            >
-              <option value="">
-                Select priority
-              </option>
-
-              {COMPLAINT_PRIORITY_OPTIONS.map(
-                (option) => (
-                  <option
-                    key={
-                      option.value
-                    }
-                    value={
-                      option.value
-                    }
-                  >
-                    {
-                      option.label
-                    }
-                  </option>
-                )
-              )}
-            </select>
-
-            {errors.priority && (
-              <ErrorText>
-                {
-                  errors.priority
-                    .message
-                }
-              </ErrorText>
-            )}
-          </div>
-
-          {/* Ad Name */}
-
-          <Input
-            label="Ad. Name"
-            placeholder="Ad name"
-            {...register(
-              "adName"
-            )}
-          />
-
-          {/* Repeat Complaint Number */}
-
-          <Input
-            label="Repeat Complaint No."
-            placeholder="Previous complaint number"
-            {...register(
-              "repeatComplaintNumber"
-            )}
-          />
-
-          {/* Subject */}
-
-          <div className="md:col-span-2">
-            <Input
-              label="Subject"
-              placeholder="Complaint subject"
-              error={
-                errors.subject
-                  ?.message
-              }
-              {...register(
-                "subject",
-                {
-                  required:
-                    "Subject is required",
-                }
-              )}
-            />
-          </div>
-
-          {/* Description */}
-
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-sm font-medium">
-              Description
-              <span className="ml-1 text-red-500">
-                *
-              </span>
-            </label>
-
-            <textarea
-              rows={4}
-              placeholder="Enter complaint details..."
-              {...register(
-                "description",
-                {
-                  required:
-                    "Description is required",
-                }
-              )}
-              className={`${inputClass} resize-none`}
-            />
-
-            {errors.description && (
-              <ErrorText>
-                {
-                  errors.description
-                    .message
-                }
-              </ErrorText>
-            )}
-          </div>
-        </div>
-      </Section>
-
-      {/* =====================================
-          COMPLAINT HISTORY
-      ====================================== */}
-
-      <ComplaintHistoryTable
-        history={
-          complaintHistory
-        }
-        loading={
-          lookupLoading
-        }
-        lookupDone={
-          lookupDone
-        }
-      />
-
-      {/* =====================================
-          ACTION BUTTON
-      ====================================== */}
-
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={
-            submitting
-          }
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {submitting && (
+          {lookupLoading && (
             <Loader2
               size={17}
-              className="animate-spin"
+              className="absolute right-3 top-3 animate-spin text-gray-400"
             />
           )}
+        </div>
 
-          {submitting
-            ? "Creating..."
-            : "Create Complaint"}
-        </button>
+        {errors.customerPhone && (
+          <ErrorText>
+            {errors.customerPhone.message}
+          </ErrorText>
+        )}
       </div>
-    </form>
+
+      {/* Customer Name */}
+
+      <Input
+        label="Customer Name"
+        placeholder="Customer name"
+        error={errors.customerName?.message}
+        {...register("customerName", {
+          required:
+            "Customer name is required",
+        })}
+      />
+
+      {/* Alternative Phone */}
+
+      <Input
+        label="Alternative Phone No."
+        placeholder="9876543210"
+        maxLength={10}
+        inputMode="numeric"
+        error={errors.alternatePhone?.message}
+        {...register("alternatePhone", {
+          pattern: {
+            value: /^$|^[0-9]{10}$/,
+            message:
+              "Enter valid 10 digit mobile number",
+          },
+        })}
+      />
+
+      {/* Address */}
+
+      <div className="md:col-span-2 lg:col-span-3">
+        <Input
+          label="Customer Address"
+          placeholder="Enter customer address"
+          error={errors.address?.message}
+          {...register("address", {
+            required:
+              "Customer address is required",
+          })}
+        />
+      </div>
+
+      {/* City */}
+
+      <Input
+        label="City"
+        placeholder="City"
+        error={errors.city?.message}
+        {...register("city", {
+          required:
+            "City is required",
+        })}
+      />
+
+      {/* District */}
+
+      <Input
+        label="District"
+        placeholder="District"
+        {...register("district")}
+      />
+
+      {/* State */}
+
+      <Input
+        label="State"
+        placeholder="State"
+        error={errors.state?.message}
+        {...register("state", {
+          required:
+            "State is required",
+        })}
+      />
+
+      {/* Pin Code */}
+
+      <Input
+        label="Pin Code"
+        placeholder="452001"
+        maxLength={6}
+        inputMode="numeric"
+        error={errors.pincode?.message}
+        {...register("pincode", {
+          pattern: {
+            value: /^[0-9]{6}$/,
+            message:
+              "Enter valid 6 digit pin code",
+          },
+        })}
+      />
+
+      {/* Contact Info */}
+
+      <div className="md:col-span-2">
+        <Input
+          label="Contact Info"
+          placeholder="Additional contact information"
+          {...register("contactInfo")}
+        />
+      </div>
+
+    </div>
+
+    {/* Existing Customer Status */}
+
+    {lookupError && (
+      <div className="mt-5 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <AlertCircle size={18} />
+
+        {lookupError}
+      </div>
+    )}
+
+    {lookupDone &&
+      !lookupError && (
+        <div className="mt-5">
+          {existingCustomer ? (
+            <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+              <UserCheck
+                size={21}
+                className="mt-0.5 text-green-600"
+              />
+
+              <div>
+                <p className="font-medium text-green-800">
+                  Existing Customer Found
+                </p>
+
+                <p className="mt-1 text-sm text-green-700">
+                  {existingCustomer.name}
+                  {" • "}
+                  {existingCustomer.phone}
+                </p>
+
+                <p className="mt-1 text-xs text-green-600">
+                  Customer details have been filled
+                  automatically.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
+              No existing customer found with this
+              mobile number. Enter customer details
+              to continue.
+            </div>
+          )}
+        </div>
+      )}
+  </Section>
+
+  {/* =====================================
+      PRODUCT INFORMATION
+  ====================================== */}
+
+  <Section title="Product & Complaint Details">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+      <Input
+        label="Product"
+        placeholder="Product"
+        error={errors.productName?.message}
+        {...register("productName", {
+          required:
+            "Product is required",
+        })}
+      />
+
+      <Input
+        label="Unit"
+        type="number"
+        min={1}
+        error={errors.units?.message}
+        {...register("units", {
+          valueAsNumber: true,
+
+          required:
+            "Unit is required",
+
+          min: {
+            value: 1,
+            message:
+              "Minimum 1 unit required",
+          },
+        })}
+      />
+
+      <Input
+        label="Quote"
+        type="number"
+        min={0}
+        placeholder="0"
+        {...register("quoteAmount", {
+          valueAsNumber: true,
+        })}
+      />
+
+      <div className="md:col-span-2">
+        <Input
+          label="Fault Reported"
+          placeholder="Enter fault reported by customer"
+          error={errors.faultReported?.message}
+          {...register("faultReported", {
+            required:
+              "Fault reported is required",
+          })}
+        />
+      </div>
+
+      {/* Type */}
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Type
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        </label>
+
+        <select
+          {...register("complaintType", {
+            required:
+              "Complaint type is required",
+          })}
+          className={inputClass}
+        >
+          <option value="REGULAR">
+            Regular
+          </option>
+
+          <option value="REPEAT">
+            Repeat
+          </option>
+
+          <option value="WARRANTY">
+            Warranty
+          </option>
+
+          <option value="PAID_SERVICE">
+            Paid Service
+          </option>
+        </select>
+      </div>
+
+    </div>
+  </Section>
+
+  {/* =====================================
+      OTHER INFORMATION
+  ====================================== */}
+
+  <Section title="Other Information">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+      <Input
+        label="Ad. Name"
+        placeholder="Ad. name"
+        {...register("adName")}
+      />
+
+      {/* Status */}
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Status
+        </label>
+
+        <select
+          {...register("status")}
+          className={inputClass}
+        >
+          <option value="REGISTERED">
+            Registered
+          </option>
+
+          <option value="PENDING">
+            Pending
+          </option>
+
+          <option value="CANCELLED">
+            Cancelled
+          </option>
+        </select>
+      </div>
+
+      <Input
+        label="Repeat Complaint No."
+        placeholder="Previous complaint number"
+        {...register(
+          "repeatComplaintNumber"
+        )}
+      />
+
+    </div>
+  </Section>
+
+  {/* Existing complaint history */}
+
+  <ComplaintHistoryTable
+    history={complaintHistory}
+    loading={lookupLoading}
+    lookupDone={lookupDone}
+  />
+
+  <div className="flex justify-end">
+    <button
+      type="submit"
+      disabled={submitting}
+      className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {submitting && (
+        <Loader2
+          size={17}
+          className="animate-spin"
+        />
+      )}
+
+      {submitting
+        ? "Creating..."
+        : "Create Complaint"}
+    </button>
+  </div>
+</form>
   );
 }
 
