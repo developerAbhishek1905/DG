@@ -312,6 +312,117 @@ export const mockComplaints: Complaint[] = [
       },
     ],
   },
+
+  {
+  id: "4",
+
+  complaintNumber: "CMP-2026-0004",
+
+  customer: {
+    id: "CUS-002",
+
+    customerCode: "170218",
+
+    name: "Priya Verma",
+
+    phone: "9988776655",
+
+    alternatePhone: "9988776644",
+
+    email: "priya@example.com",
+
+    address: "Vijay Nagar",
+
+    city: "Indore",
+
+    district: "Indore",
+
+    state: "Madhya Pradesh",
+
+    pincode: "452010",
+  },
+
+  product: {
+    id: "PRD-004",
+
+    name: "Washing Machine",
+
+    model: "WM-8KG",
+
+    serialNumber: "WM778899",
+
+    warrantyStatus: "ACTIVE",
+  },
+
+  dealer: {
+    id: "DLR-002",
+
+    name: "XYZ Appliances",
+
+    code: "DLR-002",
+
+    phone: "9123456789",
+
+    city: "Indore",
+  },
+
+  category: "SERVICE",
+
+  complaintType: "WARRANTY",
+
+  subject: "Washing machine warranty service",
+
+  description:
+    "Customer reported washing machine issue while product is under warranty.",
+
+  faultReported: "Machine stops during wash cycle",
+
+  units: 1,
+
+  quoteAmount: 0,
+
+  status: "CLOSED",
+
+  priority: "MEDIUM",
+
+  createdAt: "2026-08-10T10:00:00",
+
+  updatedAt: "2026-08-11T15:30:00",
+
+  slaDueAt: "2026-08-12T10:00:00",
+
+  timeline: [
+    {
+      id: "TL-006",
+
+      status: "REGISTERED",
+
+      title: "Warranty Complaint Registered",
+
+      description:
+        "Warranty service complaint registered successfully.",
+
+      timestamp: "2026-08-10T10:00:00",
+
+      user: "Admin",
+    },
+
+    {
+      id: "TL-007",
+
+      status: "CLOSED",
+
+      title: "Warranty Service Completed",
+
+      description:
+        "Warranty issue resolved successfully.",
+
+      timestamp: "2026-08-11T15:30:00",
+
+      user: "Rajesh Technician",
+    },
+  ],
+},
 ];
 
 /* =====================================================

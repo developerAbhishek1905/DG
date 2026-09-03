@@ -1,250 +1,84 @@
-import type {
-  AppUser,
-  UserFormData,
-} from "../types/user.types";
+import api from "../../../services/api/axios";
+import type { AppUser, UserFormData } from "../types/user.types";
 
-const delay = (ms = 300) =>
-  new Promise((resolve) =>
-    setTimeout(resolve, ms)
+
+// const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function getUsers(): Promise<AppUser[]> {
+  const response = await api.get("/users");
+
+  // Depending on backend response structure
+  return (
+    response.data?.data ??
+    response.data?.users ??
+    response.data ??
+    []
   );
-
-let users: AppUser[] = [
-  {
-    id: "USR-001",
-
-    name: "Abhishek Admin",
-
-    email: "admin@dg.com",
-
-    phone: "9876543210",
-
-    roleId: "ROLE-001",
-
-    roleName: "Super Admin",
-
-    status: "ACTIVE",
-
-    lastLogin:
-      "2026-08-25T09:30:00",
-
-    createdAt:
-      "2026-01-10T10:00:00",
-
-    updatedAt:
-      "2026-08-20T10:00:00",
-  },
-
-  {
-    id: "USR-002",
-
-    name: "Rahul Sharma",
-
-    email: "rahul@dg.com",
-
-    phone: "9876500001",
-
-    roleId: "ROLE-002",
-
-    roleName: "DG Team",
-
-    status: "ACTIVE",
-
-    lastLogin:
-      "2026-08-24T11:00:00",
-
-    createdAt:
-      "2026-02-15T09:00:00",
-
-    updatedAt:
-      "2026-08-24T11:00:00",
-  },
-
-  {
-    id: "USR-003",
-
-    name: "Amit Verma",
-
-    email: "dealer@dg.com",
-
-    phone: "9876500002",
-
-    roleId: "ROLE-004",
-
-    roleName: "Dealer",
-
-    dealerId: "DLR-001",
-
-    dealerName:
-      "ABC Service Center",
-
-    status: "ACTIVE",
-
-    lastLogin:
-      "2026-08-23T16:00:00",
-
-    createdAt:
-      "2026-03-12T10:00:00",
-
-    updatedAt:
-      "2026-08-23T16:00:00",
-  },
-
-  {
-    id: "USR-004",
-
-    name: "Pooja Jain",
-
-    email: "accounts@dg.com",
-
-    phone: "9876500003",
-
-    roleId: "ROLE-005",
-
-    roleName: "Accounts",
-
-    status: "ACTIVE",
-
-    lastLogin:
-      "2026-08-24T15:00:00",
-
-    createdAt:
-      "2026-04-18T10:00:00",
-
-    updatedAt:
-      "2026-08-24T15:00:00",
-  },
-
-  {
-    id: "USR-005",
-
-    name: "Rakesh Singh",
-
-    email: "rakesh@dg.com",
-
-    phone: "9876500004",
-
-    roleId: "ROLE-003",
-
-    roleName: "Service Manager",
-
-    status: "SUSPENDED",
-
-    createdAt:
-      "2026-05-20T10:00:00",
-
-    updatedAt:
-      "2026-08-10T10:00:00",
-  },
-];
-
-export async function getUsers() {
-  await delay();
-
-  return [...users];
 }
 
-export async function getUserById(
-  id: string
-) {
-  await delay();
+export async function getUserById(id: string): Promise<AppUser | undefined> {
+  const response = await api.get(`/users/${id}`);
 
-  return users.find(
-    (user) => user.id === id
+  return (
+    response.data?.data ??
+    response.data?.user ??
+    response.data
   );
 }
 
 export async function createUser(
   data: UserFormData,
-  roleName: string
-) {
-  await delay();
-
-  const user: AppUser = {
-    id: `USR-${String(
-      users.length + 1
-    ).padStart(3, "0")}`,
-
+  _roleName?: string
+): Promise<AppUser> {
+  const payload = {
     name: data.name,
-
     email: data.email,
-
     phone: data.phone,
-
+    password: data.password,
     roleId: data.roleId,
-
-    roleName,
-
-    dealerId:
-      data.dealerId || undefined,
-
     status: data.status,
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString(),
+    ...(data.dealerId && {
+      dealerId: data.dealerId,
+    }),
   };
 
-  users = [...users, user];
+  const response = await api.post("/users", payload);
 
-  return user;
+  return (
+    response.data?.data ??
+    response.data?.user ??
+    response.data
+  );
 }
 
 export async function updateUser(
   id: string,
   data: UserFormData,
-  roleName: string
-) {
-  await delay();
-
-  const index = users.findIndex(
-    (user) => user.id === id
-  );
-
-  if (index === -1) {
-    return undefined;
-  }
-
-  users[index] = {
-    ...users[index],
-
+  _roleName?: string
+): Promise<AppUser> {
+  const payload = {
     name: data.name,
-
     email: data.email,
-
     phone: data.phone,
-
     roleId: data.roleId,
-
-    roleName,
-
-    dealerId:
-      data.dealerId || undefined,
-
     status: data.status,
-
-    updatedAt:
-      new Date().toISOString(),
+    ...(data.dealerId && {
+      dealerId: data.dealerId,
+    }),
   };
 
-  return users[index];
+  const response = await api.put(`/users/${id}`, payload);
+
+  return (
+    response.data?.data ??
+    response.data?.user ??
+    response.data
+  );
 }
 
-export async function deleteUser(
-  id: string
-) {
-  await delay();
 
-  const exists = users.some(
-    (user) => user.id === id
-  );
-
-  if (!exists) return false;
-
-  users = users.filter(
-    (user) => user.id !== id
-  );
+export async function deleteUser(id: string): Promise<boolean> {
+  await api.delete(`/users/${id}`);
 
   return true;
 }
@@ -252,19 +86,14 @@ export async function deleteUser(
 export async function changeUserStatus(
   id: string,
   status: AppUser["status"]
-) {
-  await delay();
+): Promise<AppUser> {
+  const response = await api.put(`/users/${id}`, {
+    status,
+  });
 
-  const user = users.find(
-    (item) => item.id === id
+  return (
+    response.data?.data ??
+    response.data?.user ??
+    response.data
   );
-
-  if (!user) return undefined;
-
-  user.status = status;
-
-  user.updatedAt =
-    new Date().toISOString();
-
-  return user;
 }

@@ -1,5 +1,6 @@
+import api from "../../../services/api/axios";
 import {
-  PERMISSIONS,
+//   PERMISSIONS,
   PERMISSION_LIST,
 } from "../constants/permission.constants";
 
@@ -9,358 +10,322 @@ import type {
   RoleFormData,
 } from "../types/accessControl.types";
 
-const delay = (ms = 300) =>
-  new Promise((resolve) =>
-    setTimeout(resolve, ms)
-  );
+const ROLE_API = "/roles";
 
-let roles: Role[] = [
-  {
-    id: "ROLE-001",
 
-    name: "Super Admin",
+// const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    code:
-      "SUPER_ADMIN",
+// let roles: Role[] = [
+//   {
+//     id: "ROLE-001",
 
-    description:
-      "Full access to the entire application.",
+//     name: "Super Admin",
 
-    permissions:
-      Object.values(
-        PERMISSIONS
-      ),
+//     code: "SUPER_ADMIN",
 
-    scopes: {
-      complaints: "ALL",
-      dealers: "ALL",
-      users: "ALL",
-    },
+//     description: "Full access to the entire application.",
 
-    isSystemRole: true,
+//     permissions: Object.values(PERMISSIONS),
 
-    status: "ACTIVE",
+//     scopes: {
+//       complaints: "ALL",
+//       dealers: "ALL",
+//       users: "ALL",
+//     },
 
-    usersCount: 1,
+//     isSystemRole: true,
 
-    createdAt:
-      "2026-01-01T10:00:00",
+//     status: "ACTIVE",
 
-    updatedAt:
-      "2026-08-20T10:00:00",
-  },
+//     usersCount: 1,
 
-  {
-    id: "ROLE-002",
+//     createdAt: "2026-01-01T10:00:00",
 
-    name: "DG Team",
+//     updatedAt: "2026-08-20T10:00:00",
+//   },
 
-    code: "DG_TEAM",
+//   {
+//     id: "ROLE-002",
 
-    description:
-      "Complaint management and DG verification.",
+//     name: "DG Team",
 
-    permissions: [
-      PERMISSIONS.DASHBOARD_VIEW,
+//     code: "DG_TEAM",
 
-      PERMISSIONS.COMPLAINT_VIEW,
-      PERMISSIONS.COMPLAINT_CREATE,
-      PERMISSIONS.COMPLAINT_UPDATE,
-      PERMISSIONS.COMPLAINT_ASSIGN,
-      PERMISSIONS.COMPLAINT_REASSIGN,
-      PERMISSIONS.COMPLAINT_CANCEL,
-      PERMISSIONS.COMPLAINT_VERIFY,
+//     description: "Complaint management and DG verification.",
 
-      PERMISSIONS.DEALER_VIEW,
+//     permissions: [
+//       PERMISSIONS.DASHBOARD_VIEW,
 
-      PERMISSIONS.APPOINTMENT_VIEW,
+//       PERMISSIONS.COMPLAINT_VIEW,
+//       PERMISSIONS.COMPLAINT_CREATE,
+//       PERMISSIONS.COMPLAINT_UPDATE,
+//       PERMISSIONS.COMPLAINT_ASSIGN,
+//       PERMISSIONS.COMPLAINT_REASSIGN,
+//       PERMISSIONS.COMPLAINT_CANCEL,
+//       PERMISSIONS.COMPLAINT_VERIFY,
 
-      PERMISSIONS.REPORT_VIEW,
-    ],
+//       PERMISSIONS.DEALER_VIEW,
 
-    scopes: {
-      complaints: "ALL",
-      dealers: "ALL",
-    },
+//       PERMISSIONS.APPOINTMENT_VIEW,
 
-    isSystemRole: true,
+//       PERMISSIONS.REPORT_VIEW,
+//     ],
 
-    status: "ACTIVE",
+//     scopes: {
+//       complaints: "ALL",
+//       dealers: "ALL",
+//     },
 
-    usersCount: 4,
+//     isSystemRole: true,
 
-    createdAt:
-      "2026-01-01T10:00:00",
+//     status: "ACTIVE",
 
-    updatedAt:
-      "2026-08-20T10:00:00",
-  },
+//     usersCount: 4,
 
-  {
-    id: "ROLE-003",
+//     createdAt: "2026-01-01T10:00:00",
 
-    name:
-      "Service Manager",
+//     updatedAt: "2026-08-20T10:00:00",
+//   },
 
-    code:
-      "SERVICE_MANAGER",
+//   {
+//     id: "ROLE-003",
 
-    description:
-      "Manage service operations and dealers.",
+//     name: "Service Manager",
 
-    permissions: [
-      PERMISSIONS.DASHBOARD_VIEW,
+//     code: "SERVICE_MANAGER",
 
-      PERMISSIONS.COMPLAINT_VIEW,
-      PERMISSIONS.COMPLAINT_UPDATE,
-      PERMISSIONS.COMPLAINT_ASSIGN,
+//     description: "Manage service operations and dealers.",
 
-      PERMISSIONS.DEALER_VIEW,
-      PERMISSIONS.DEALER_UPDATE,
-      PERMISSIONS.DEALER_PERFORMANCE_VIEW,
+//     permissions: [
+//       PERMISSIONS.DASHBOARD_VIEW,
 
-      PERMISSIONS.APPOINTMENT_VIEW,
-      PERMISSIONS.APPOINTMENT_CREATE,
-      PERMISSIONS.APPOINTMENT_UPDATE,
+//       PERMISSIONS.COMPLAINT_VIEW,
+//       PERMISSIONS.COMPLAINT_UPDATE,
+//       PERMISSIONS.COMPLAINT_ASSIGN,
 
-      PERMISSIONS.REPORT_VIEW,
-    ],
+//       PERMISSIONS.DEALER_VIEW,
+//       PERMISSIONS.DEALER_UPDATE,
+//       PERMISSIONS.DEALER_PERFORMANCE_VIEW,
 
-    scopes: {
-      complaints: "ALL",
-      dealers: "ALL",
-    },
+//       PERMISSIONS.APPOINTMENT_VIEW,
+//       PERMISSIONS.APPOINTMENT_CREATE,
+//       PERMISSIONS.APPOINTMENT_UPDATE,
 
-    isSystemRole: true,
+//       PERMISSIONS.REPORT_VIEW,
+//     ],
 
-    status: "ACTIVE",
+//     scopes: {
+//       complaints: "ALL",
+//       dealers: "ALL",
+//     },
 
-    usersCount: 3,
+//     isSystemRole: true,
 
-    createdAt:
-      "2026-01-01T10:00:00",
+//     status: "ACTIVE",
 
-    updatedAt:
-      "2026-08-20T10:00:00",
-  },
+//     usersCount: 3,
 
-  {
-    id: "ROLE-004",
+//     createdAt: "2026-01-01T10:00:00",
 
-    name: "Dealer",
+//     updatedAt: "2026-08-20T10:00:00",
+//   },
 
-    code: "DEALER",
+//   {
+//     id: "ROLE-004",
 
-    description:
-      "Dealer access for assigned service operations.",
+//     name: "Dealer",
 
-    permissions: [
-      PERMISSIONS.DASHBOARD_VIEW,
+//     code: "DEALER",
 
-      PERMISSIONS.COMPLAINT_VIEW,
-      PERMISSIONS.COMPLAINT_UPDATE_STATUS,
+//     description: "Dealer access for assigned service operations.",
 
-      PERMISSIONS.DEALER_VIEW,
-      PERMISSIONS.DEALER_PERFORMANCE_VIEW,
+//     permissions: [
+//       PERMISSIONS.DASHBOARD_VIEW,
 
-      PERMISSIONS.APPOINTMENT_VIEW,
-      PERMISSIONS.APPOINTMENT_CREATE,
-      PERMISSIONS.APPOINTMENT_UPDATE,
+//       PERMISSIONS.COMPLAINT_VIEW,
+//       PERMISSIONS.COMPLAINT_UPDATE_STATUS,
 
-      PERMISSIONS.BILLING_VIEW,
+//       PERMISSIONS.DEALER_VIEW,
+//       PERMISSIONS.DEALER_PERFORMANCE_VIEW,
 
-      PERMISSIONS.PAYMENT_VIEW,
-    ],
+//       PERMISSIONS.APPOINTMENT_VIEW,
+//       PERMISSIONS.APPOINTMENT_CREATE,
+//       PERMISSIONS.APPOINTMENT_UPDATE,
 
-    scopes: {
-      complaints: "DEALER",
-      dealers: "OWN",
-    },
+//       PERMISSIONS.BILLING_VIEW,
 
-    isSystemRole: true,
+//       PERMISSIONS.PAYMENT_VIEW,
+//     ],
 
-    status: "ACTIVE",
+//     scopes: {
+//       complaints: "DEALER",
+//       dealers: "OWN",
+//     },
 
-    usersCount: 15,
+//     isSystemRole: true,
 
-    createdAt:
-      "2026-01-01T10:00:00",
+//     status: "ACTIVE",
 
-    updatedAt:
-      "2026-08-20T10:00:00",
-  },
+//     usersCount: 15,
 
-  {
-    id: "ROLE-005",
+//     createdAt: "2026-01-01T10:00:00",
 
-    name: "Accounts",
+//     updatedAt: "2026-08-20T10:00:00",
+//   },
 
-    code: "ACCOUNTS",
+//   {
+//     id: "ROLE-005",
 
-    description:
-      "Billing, ledger and payment operations.",
+//     name: "Accounts",
 
-    permissions: [
-      PERMISSIONS.DASHBOARD_VIEW,
+//     code: "ACCOUNTS",
 
-      PERMISSIONS.BILLING_VIEW,
-      PERMISSIONS.BILLING_CREATE,
-      PERMISSIONS.BILLING_UPDATE,
+//     description: "Billing, ledger and payment operations.",
 
-      PERMISSIONS.LEDGER_VIEW,
+//     permissions: [
+//       PERMISSIONS.DASHBOARD_VIEW,
 
-      PERMISSIONS.PAYMENT_VIEW,
-      PERMISSIONS.PAYMENT_CREATE,
-      PERMISSIONS.PAYMENT_VERIFY,
+//       PERMISSIONS.BILLING_VIEW,
+//       PERMISSIONS.BILLING_CREATE,
+//       PERMISSIONS.BILLING_UPDATE,
 
-      PERMISSIONS.RECONCILIATION_VIEW,
-      PERMISSIONS.RECONCILIATION_MANAGE,
+//       PERMISSIONS.LEDGER_VIEW,
 
-      PERMISSIONS.REPORT_VIEW,
-    ],
+//       PERMISSIONS.PAYMENT_VIEW,
+//       PERMISSIONS.PAYMENT_CREATE,
+//       PERMISSIONS.PAYMENT_VERIFY,
 
-    isSystemRole: true,
+//       PERMISSIONS.RECONCILIATION_VIEW,
+//       PERMISSIONS.RECONCILIATION_MANAGE,
 
-    status: "ACTIVE",
+//       PERMISSIONS.REPORT_VIEW,
+//     ],
 
-    usersCount: 2,
+//     isSystemRole: true,
 
-    createdAt:
-      "2026-01-01T10:00:00",
+//     status: "ACTIVE",
 
-    updatedAt:
-      "2026-08-20T10:00:00",
-  },
-];
+//     usersCount: 2,
 
-export async function getRoles() {
-  await delay();
+//     createdAt: "2026-01-01T10:00:00",
 
-  return [...roles];
+//     updatedAt: "2026-08-20T10:00:00",
+//   },
+// ];
+
+// export async function getRoles() {
+//   await delay();
+
+//   return [...roles];
+// }
+
+export async function getRoles(): Promise<Role[]> {
+  const response = await api.get(ROLE_API);
+  return response.data?.data ?? response.data;
 }
 
 export async function getRoleById(
   id: string
-) {
-  await delay();
+): Promise<Role | undefined> {
+  const response = await api.get(`${ROLE_API}/${id}`);
 
-  return roles.find(
-    (role) => role.id === id
-  );
+  return response.data?.data ?? response.data;
 }
 
-export async function getPermissions(): Promise<
-  Permission[]
-> {
-  await delay();
-
+/**
+ * GET PERMISSIONS
+ *
+ * Aapne permissions ki separate backend API share nahi ki hai,
+ * isliye filhal local permission list use kar rahe hain.
+ */
+export async function getPermissions(): Promise<Permission[]> {
   return PERMISSION_LIST;
 }
 
+/**
+ * CREATE ROLE
+ *
+ * POST /api/v1/roles
+ */
 export async function createRole(
   data: RoleFormData
-) {
-  await delay();
+): Promise<Role> {
+  const response = await api.post(ROLE_API, {
+    name: data.name,
+    description: data.description,
+    status: data.status,
+    permissions: data.permissions,
+  });
 
-  const role: Role = {
-    id: `ROLE-${String(
-      roles.length + 1
-    ).padStart(3, "0")}`,
-
-    ...data,
-
-    isSystemRole: false,
-
-    usersCount: 0,
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString(),
-  };
-
-  roles = [...roles, role];
-
-  return role;
+  return response.data?.data ?? response.data;
 }
 
+/**
+ * UPDATE COMPLETE ROLE
+ *
+ * PUT /api/v1/roles/:id
+ */
 export async function updateRole(
   id: string,
   data: RoleFormData
-) {
-  await delay();
+): Promise<Role> {
+  const response = await api.put(`${ROLE_API}/${id}`, {
+    name: data.name,
+    description: data.description,
+    status: data.status,
+    permissions: data.permissions,
+  });
 
-  const index =
-    roles.findIndex(
-      (role) =>
-        role.id === id
-    );
-
-  if (index === -1) {
-    return undefined;
-  }
-
-  roles[index] = {
-    ...roles[index],
-
-    ...data,
-
-    updatedAt:
-      new Date().toISOString(),
-  };
-
-  return roles[index];
+  return response.data?.data ?? response.data;
 }
 
+/**
+ * UPDATE ONLY ROLE STATUS
+ *
+ * PUT /api/v1/roles/:id
+ *
+ * Example:
+ * {
+ *   status: "INACTIVE"
+ * }
+ */
+export async function updateRoleStatus(
+  id: string,
+  status: "ACTIVE" | "INACTIVE"
+): Promise<Role> {
+  const response = await api.put(`${ROLE_API}/${id}`, {
+    status,
+  });
+
+  return response.data?.data ?? response.data;
+}
+
+/**
+ * UPDATE ONLY ROLE PERMISSIONS
+ *
+ * PUT /api/v1/roles/:id
+ */
 export async function updateRolePermissions(
   id: string,
   permissions: string[]
-) {
-  await delay();
+): Promise<Role> {
+  const response = await api.put(`${ROLE_API}/${id}`, {
+    permissions,
+  });
 
-  const role =
-    roles.find(
-      (item) =>
-        item.id === id
-    );
-
-  if (!role) {
-    return undefined;
-  }
-
-  role.permissions =
-    permissions;
-
-  role.updatedAt =
-    new Date().toISOString();
-
-  return role;
+  return response.data?.data ?? response.data;
 }
 
+
+/**
+ * DELETE ROLE
+ *
+ * DELETE /api/v1/roles/:id
+ */
 export async function deleteRole(
   id: string
-) {
-  await delay();
-
-  const role =
-    roles.find(
-      (item) =>
-        item.id === id
-    );
-
-  if (
-    !role ||
-    role.isSystemRole
-  ) {
-    return false;
-  }
-
-  roles =
-    roles.filter(
-      (item) =>
-        item.id !== id
-    );
+): Promise<boolean> {
+  await api.delete(`${ROLE_API}/${id}`);
 
   return true;
 }

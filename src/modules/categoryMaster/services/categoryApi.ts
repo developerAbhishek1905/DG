@@ -1,186 +1,96 @@
-import type {
-  Category,
-  CategoryFormData,
-} from "../types/category.types";
+import api from "../../../services/api/axios";
+import type { Category, CategoryFormData } from "../types/category.types";
 
-export let mockCategories: Category[] = [
-  {
-    id: "CAT-001",
-    groupCategoryCode: "WM",
-    categoryDescription: "WASHING MACHINE",
-    category2: "FMR",
-    category3: "",
-    category4: "",
-    status: "ACTIVE",
-    createdAt: "2026-08-01T10:00:00",
-    updatedAt: "2026-08-01T10:00:00",
-  },
-  {
-    id: "CAT-002",
-    groupCategoryCode: "AC",
-    categoryDescription: "AIR CONDITIONER",
-    category2: "SPLIT",
-    category3: "",
-    category4: "",
-    status: "ACTIVE",
-    createdAt: "2026-08-02T10:00:00",
-    updatedAt: "2026-08-02T10:00:00",
-  },
-];
+export interface CategoryDropdown {
+  id: string;
+  groupCategoryCode: string;
+  category: string;
+  categoryDescription: string;
+}
 
-const delay = (
-  milliseconds = 300
-) =>
-  new Promise((resolve) =>
-    setTimeout(
-      resolve,
-      milliseconds
-    )
-  );
+// export let mockCategories: Category[] = [
+//   {
+//     id: "CAT-001",
+//     groupCategoryCode: "WM",
+//     categoryDescription: "WASHING MACHINE",
+//     category2: "FMR",
+//     category3: "",
+//     category4: "",
+//     status: "ACTIVE",
+//     createdAt: "2026-08-01T10:00:00",
+//     updatedAt: "2026-08-01T10:00:00",
+//   },
+//   {
+//     id: "CAT-002",
+//     groupCategoryCode: "AC",
+//     categoryDescription: "AIR CONDITIONER",
+//     category2: "SPLIT",
+//     category3: "",
+//     category4: "",
+//     status: "ACTIVE",
+//     createdAt: "2026-08-02T10:00:00",
+//     updatedAt: "2026-08-02T10:00:00",
+//   },
+// ];
 
-export const getCategories =
-  async (): Promise<
-    Category[]
-  > => {
-    await delay();
+// const delay = (milliseconds = 300) =>
+//   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-    return [...mockCategories];
-  };
+export const getCategories = async (): Promise<Category[]> => {
+  const response = await api.get("/categories");
 
-export const getCategoryById =
-  async (
-    id: string
-  ): Promise<
-    Category | undefined
-  > => {
-    await delay();
+  return response.data.data ?? response.data;
+};
 
-    return mockCategories.find(
-      (item) =>
-        item.id === id
-    );
-  };
+export const getCategoryById = async (id: string): Promise<Category> => {
+  const response = await api.get(`/categories/${id}`);
 
-export const createCategory =
-  async (
-    data: CategoryFormData
-  ): Promise<Category> => {
-    await delay();
+  return response.data.data ?? response.data;
+};
 
-    const duplicate =
-      mockCategories.some(
-        (item) =>
-          item.groupCategoryCode
-            .toLowerCase() ===
-          data.groupCategoryCode
-            .toLowerCase()
-      );
+export const createCategory = async (
+  data: CategoryFormData,
+): Promise<Category> => {
+  const response = await api.post("/categories", data);
 
-    if (duplicate) {
-      throw new Error(
-        "Category code already exists"
-      );
-    }
+  return response.data.data ?? response.data;
+};
 
-    const now =
-      new Date().toISOString();
+export const updateCategory = async (
+  id: string,
+  data: CategoryFormData,
+): Promise<Category> => {
+  const response = await api.put(`/categories/${id}`, data);
 
-    const category: Category = {
-      id: `CAT-${String(
-        mockCategories.length +
-          1
-      ).padStart(3, "0")}`,
+  return response.data.data ?? response.data;
+};
 
-      ...data,
+export const updateCategoryStatus = async (
+  id: string,
+  status: "ACTIVE" | "INACTIVE",
+): Promise<Category> => {
+  const response = await api.put(`/categories/${id}`, {
+    status,
+  });
 
-      createdAt: now,
-      updatedAt: now,
-    };
+  return response.data.data ?? response.data;
+};
 
-    mockCategories = [
-      category,
-      ...mockCategories,
-    ];
+export const toggleCategoryStatus = async (
+  id: string,
+  currentStatus: "ACTIVE" | "INACTIVE",
+): Promise<Category> => {
+  const status = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
-    return category;
-  };
+  return updateCategoryStatus(id, status);
+};
 
-export const updateCategory =
-  async (
-    id: string,
-    data: CategoryFormData
-  ): Promise<Category> => {
-    await delay();
+export const deleteCategory = async (id: string): Promise<void> => {
+  await api.delete(`/categories/${id}`);
+};
 
-    const index =
-      mockCategories.findIndex(
-        (item) =>
-          item.id === id
-      );
+export const getCategoryDropdown = async (): Promise<CategoryDropdown[]> => {
+  const response = await api.get("/categories/dropdown");
 
-    if (index === -1) {
-      throw new Error(
-        "Category not found"
-      );
-    }
-
-    const duplicate =
-      mockCategories.some(
-        (item) =>
-          item.id !== id &&
-          item.groupCategoryCode
-            .toLowerCase() ===
-            data.groupCategoryCode
-              .toLowerCase()
-      );
-
-    if (duplicate) {
-      throw new Error(
-        "Category code already exists"
-      );
-    }
-
-    const updated: Category = {
-      ...mockCategories[index],
-      ...data,
-      updatedAt:
-        new Date().toISOString(),
-    };
-
-    mockCategories[index] =
-      updated;
-
-    return updated;
-  };
-
-export const toggleCategoryStatus =
-  async (
-    id: string
-  ): Promise<Category> => {
-    await delay();
-
-    const category =
-      mockCategories.find(
-        (item) =>
-          item.id === id
-      );
-
-    if (!category) {
-      throw new Error(
-        "Category not found"
-      );
-    }
-
-    category.status =
-      category.status ===
-      "ACTIVE"
-        ? "INACTIVE"
-        : "ACTIVE";
-
-    category.updatedAt =
-      new Date().toISOString();
-
-    return {
-      ...category,
-    };
-  };
+  return response.data.data ?? [];
+};

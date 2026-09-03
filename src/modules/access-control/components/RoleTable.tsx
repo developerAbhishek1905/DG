@@ -1,34 +1,18 @@
-import {
-  Edit,
-  Eye,
-  KeyRound,
-  Trash2,
-} from "lucide-react";
-
-import {
-  useNavigate,
-} from "react-router-dom";
-
-import type {
-  Role,
-} from "../types/accessControl.types";
-
+import { Edit, Eye, KeyRound, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import type { Role } from "../types/accessControl.types";
 import RoleBadge from "./RoleBadge";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   roles: Role[];
 
-  onDelete?: (
-    id: string
-  ) => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function RoleTable({
-  roles,
-  onDelete,
-}: Props) {
-  const navigate =
-    useNavigate();
+export default function RoleTable({ roles, onDelete }: Props) {
+  const navigate = useNavigate();
+  const { hasPermission } = usePermission();
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -56,42 +40,25 @@ export default function RoleTable({
 
           <tbody className="divide-y divide-gray-100">
             {roles.map((role) => (
-              <tr
-                key={role.id}
-                className="hover:bg-gray-50"
-              >
+              <tr key={role.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4">
-                  <RoleBadge
-                    name={
-                      role.name
-                    }
-                    system={
-                      role.isSystemRole
-                    }
-                  />
+                  <RoleBadge name={role.name} system={role.isSystemRole} />
+                </td>
+
+                <td className="px-5 py-4 text-sm text-gray-600">{role.code}</td>
+
+                <td className="px-5 py-4 text-sm text-gray-600">
+                  {role.usersCount ?? 0}
                 </td>
 
                 <td className="px-5 py-4 text-sm text-gray-600">
-                  {role.code}
-                </td>
-
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {role.usersCount ??
-                    0}
-                </td>
-
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {
-                    role.permissions
-                      .length
-                  }
+                  {role.permissions.length}
                 </td>
 
                 <td className="px-5 py-4">
                   <span
                     className={
-                      role.status ===
-                      "ACTIVE"
+                      role.status === "ACTIVE"
                         ? "text-sm font-medium text-green-600"
                         : "text-sm font-medium text-gray-500"
                     }
@@ -102,62 +69,47 @@ export default function RoleTable({
 
                 <td className="px-5 py-4">
                   <div className="flex gap-1">
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/roles/${role.id}`
-                        )
-                      }
-                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50"
-                    >
-                      <Eye size={17} />
-                    </button>
+                    {hasPermission("roles.view") && (
+                      <button
+                        onClick={() => navigate(`/roles/${role.id}`)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50"
+                      >
+                        <Eye size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/roles/${role.id}/edit`
-                        )
-                      }
-                      className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
-                    >
-                      <Edit
-                        size={17}
-                      />
-                    </button>
+                    {hasPermission("roles.update") && (
+                      <button
+                        onClick={() => navigate(`/roles/${role.id}/edit`)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                      >
+                        <Edit size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/roles/${role.id}/permissions`
-                        )
-                      }
-                      className="rounded-lg p-2 text-gray-500 hover:bg-purple-50 hover:text-purple-600"
-                    >
-                      <KeyRound
-                        size={17}
-                      />
-                    </button>
+                    {hasPermission("roles.permissions.manage") && (
+                      <button
+                        onClick={() =>
+                          navigate(`/roles/${role.id}/permissions`)
+                        }
+                        className="rounded-lg p-2 text-gray-500 hover:bg-purple-50 hover:text-purple-600"
+                      >
+                        <KeyRound size={17} />
+                      </button>
+                    )}
 
-                    {!role.isSystemRole &&
+                    {hasPermission("roles.delete") &&
+                      !role.isSystemRole &&
                       onDelete && (
                         <button
                           onClick={() => {
-                            if (
-                              window.confirm(
-                                `Delete ${role.name}?`
-                              )
-                            ) {
-                              onDelete(
-                                role.id
-                              );
+                            if (window.confirm(`Delete ${role.name}?`)) {
+                              onDelete(role.id);
                             }
                           }}
                           className="rounded-lg p-2 text-red-500 hover:bg-red-50"
                         >
-                          <Trash2
-                            size={17}
-                          />
+                          <Trash2 size={17} />
                         </button>
                       )}
                   </div>

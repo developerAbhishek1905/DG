@@ -22,9 +22,9 @@ import {
 } from "../modules/dealers";
 
 import {
-  ForgotPasswordPage,
+  //   ForgotPasswordPage,
   LoginPage,
-  ResetPasswordPage,
+  //   ResetPasswordPage,
 } from "../modules/auth";
 
 import {
@@ -95,6 +95,8 @@ import {
   PaymentReportPage,
 } from "../modules/reports";
 
+import { BrandMasterPage } from "../modules/brandMaster";
+
 import { NotificationCenterPage } from "../modules/notifications";
 
 import { AuditLogPage } from "../modules/auditLogs";
@@ -110,16 +112,24 @@ import {
   PermissionSettingsPage,
 } from "../modules/settings";
 
-
 import { AreaMasterPage, CreateEditAreaPage } from "../modules/areaMaster";
+import { StateMasterPage } from "../modules/stateMaster";
+
+import DistrictMasterPage from "../modules/districtMaster/pages/DistrictMasterPage";
+
+import { CityMasterPage } from "../modules/cityMaster";
+import { PincodeMasterPage } from "../modules/pincodeMaster";
 
 import { AllocationPage, AllocationHistoryPage } from "../modules/allocation";
 
 import { DashboardPage } from "../modules/dashboard";
 
 import { Navigate } from "react-router-dom";
-import { CategoryMasterPage,CreateEditCategoryPage, } from "../modules/categoryMaster";
-import { ItemMasterPage,CreateEditItemPage } from "../modules/itemMaster";
+import {
+  CategoryMasterPage,
+  CreateEditCategoryPage,
+} from "../modules/categoryMaster";
+import { ItemMasterPage, CreateEditItemPage } from "../modules/itemMaster";
 function Dashboard() {
   return (
     <div>
@@ -151,23 +161,23 @@ export default function AppRoutes() {
           }
         />
 
-        <Route
+        {/* <Route
           path="/forgot-password"
           element={
             <PublicRoute>
               <ForgotPasswordPage />
             </PublicRoute>
           }
-        />
+        /> */}
 
-        <Route
+        {/* <Route
           path="/reset-password"
           element={
             <PublicRoute>
               <ResetPasswordPage />
             </PublicRoute>
           }
-        />
+        /> */}
 
         {/* PRIVATE */}
 
@@ -338,47 +348,28 @@ export default function AppRoutes() {
             element={<PermissionSettingsPage />}
           />
 
-<Route
-  path="/category-master"
-  element={
-    <CategoryMasterPage />
-  }
-/>
+          <Route path="/category-master" element={<CategoryMasterPage />} />
 
-<Route
-  path="/category-master/create"
-  element={
-    <CreateEditCategoryPage />
-  }
-/>
+          <Route path="/brand-master" element={<BrandMasterPage />} />
 
-<Route
-  path="/category-master/:id/edit"
-  element={
-    <CreateEditCategoryPage />
-  }
-/>
+          <Route
+            path="/category-master/create"
+            element={<CreateEditCategoryPage />}
+          />
 
-<Route
-  path="/item-master"
-  element={
-    <ItemMasterPage />
-  }
-/>
+          <Route
+            path="/category-master/:id/edit"
+            element={<CreateEditCategoryPage />}
+          />
 
-<Route
-  path="/item-master/create"
-  element={
-    <CreateEditItemPage />
-  }
-/>
+          <Route path="/item-master" element={<ItemMasterPage />} />
 
-<Route
-  path="/item-master/:id/edit"
-  element={
-    <CreateEditItemPage />
-  }
-/>
+          <Route path="/item-master/create" element={<CreateEditItemPage />} />
+
+          <Route
+            path="/item-master/:id/edit"
+            element={<CreateEditItemPage />}
+          />
           {/* <Route
   element={
     <ProtectedRoute
@@ -410,6 +401,12 @@ export default function AppRoutes() {
     }
   />
 </Route> */}
+
+          <Route path="/state-master" element={<StateMasterPage />} />
+          <Route path="/district-master" element={<DistrictMasterPage />} />
+          <Route path="/pincode-master" element={<PincodeMasterPage />} />
+
+          <Route path="/city-master" element={<CityMasterPage />} />
 
           <Route path="/audit-logs" element={<AuditLogPage />} />
 

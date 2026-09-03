@@ -1,37 +1,21 @@
-import {
-  ArrowLeft,
-  Edit,
-  Mail,
-  Phone,
-  Shield,
-} from "lucide-react";
+import { ArrowLeft, Edit, Mail, Phone, Shield } from "lucide-react";
 
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Card from "../../../components/ui/Card";
 
 import UserRoleBadge from "../components/UserRoleBadge";
 import UserStatusBadge from "../components/UserStatusBadge";
 
-import {
-  useUserDetails,
-} from "../hooks/useUsers";
+import { useUserDetails } from "../hooks/useUsers";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function UserDetailsPage() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
+const {hasPermission}= usePermission()
+  const { id } = useParams();
 
-  const { id } =
-    useParams();
-
-  const {
-    user,
-    loading,
-  } =
-    useUserDetails(id);
+  const { user, loading } = useUserDetails(id);
 
   if (loading) {
     return (
@@ -53,127 +37,74 @@ export default function UserDetailsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <button
-          onClick={() =>
-            navigate("/users")
-          }
+          onClick={() => navigate("/users")}
           className="inline-flex items-center gap-2 text-sm text-gray-500"
         >
-          <ArrowLeft
-            size={17}
-          />
-
+          <ArrowLeft size={17} />
           Back
         </button>
 
-        <button
-          onClick={() =>
-            navigate(
-              `/users/${user.id}/edit`
-            )
-          }
+{  hasPermission("users.update") &&   <button
+          onClick={() => navigate(`/users/${user.id}/edit`)}
           className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white"
         >
           <Edit size={17} />
-
           Edit User
-        </button>
+        </button>}
       </div>
 
       <Card className="p-6">
         <div className="flex flex-col justify-between gap-4 md:flex-row">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {user.name}
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
 
-            <p className="mt-1 text-sm text-gray-500">
-              {user.id}
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{user.id}</p>
           </div>
 
           <div className="flex items-center gap-2">
-            <UserRoleBadge
-              roleName={
-                user.roleName
-              }
-            />
+            <UserRoleBadge roleName={user?.role?.name} />
 
-            <UserStatusBadge
-              status={
-                user.status
-              }
-            />
+            <UserStatusBadge status={user.status} />
           </div>
         </div>
 
         <div className="mt-6 grid gap-5 border-t border-gray-100 pt-6 md:grid-cols-2 lg:grid-cols-4">
-          <Info
-            icon={Mail}
-            label="Email"
-            value={
-              user.email
-            }
-          />
+          <Info icon={Mail} label="Email" value={user.email} />
 
-          <Info
-            icon={Phone}
-            label="Phone"
-            value={
-              user.phone ??
-              "-"
-            }
-          />
+          <Info icon={Phone} label="Phone" value={user.phone ?? "-"} />
 
-          <Info
-            icon={Shield}
-            label="Role"
-            value={
-              user.roleName
-            }
-          />
+          <Info icon={Shield} label="Role" value={user?.role?.name} />
 
-          <Info
+          {/* <Info
             icon={Shield}
             label="Dealer"
-            value={
-              user.dealerName ??
-              user.dealerId ??
-              "-"
-            }
-          />
+            value={user.dealerName ?? user.dealerId ?? "-"}
+          /> */}
         </div>
       </Card>
 
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900">
-          Account Information
-        </h3>
+        <h3 className="font-semibold text-gray-900">Account Information</h3>
 
         <div className="mt-5 grid gap-5 md:grid-cols-3">
           <Detail
             label="Created At"
-            value={new Date(
-              user.createdAt
-            ).toLocaleString()}
+            value={new Date(user.createdAt).toLocaleString()}
           />
 
           <Detail
             label="Updated At"
-            value={new Date(
-              user.updatedAt
-            ).toLocaleString()}
+            value={new Date(user.updatedAt).toLocaleString()}
           />
-
+{/* 
           <Detail
             label="Last Login"
             value={
               user.lastLogin
-                ? new Date(
-                    user.lastLogin
-                  ).toLocaleString()
+                ? new Date(user.lastLogin).toLocaleString()
                 : "Never"
             }
-          />
+          /> */}
         </div>
       </Card>
     </div>
@@ -191,40 +122,23 @@ function Info({
 }) {
   return (
     <div className="flex gap-3">
-      <Icon
-        size={18}
-        className="mt-1 text-gray-400"
-      />
+      <Icon size={18} className="mt-1 text-gray-400" />
 
       <div>
-        <p className="text-xs text-gray-500">
-          {label}
-        </p>
+        <p className="text-xs text-gray-500">{label}</p>
 
-        <p className="mt-1 text-sm font-medium text-gray-900">
-          {value}
-        </p>
+        <p className="mt-1 text-sm font-medium text-gray-900">{value}</p>
       </div>
     </div>
   );
 }
 
-function Detail({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-gray-500">
-        {label}
-      </p>
+      <p className="text-xs text-gray-500">{label}</p>
 
-      <p className="mt-1 text-sm font-medium text-gray-900">
-        {value}
-      </p>
+      <p className="mt-1 text-sm font-medium text-gray-900">{value}</p>
     </div>
   );
 }

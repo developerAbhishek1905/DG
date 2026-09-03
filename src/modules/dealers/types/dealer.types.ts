@@ -89,7 +89,11 @@
 //   suspended: number;
 // }
 
+
+
 export type DealerStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
+
+export type CapacityType = "COMBINED" | "INDIVIDUAL";
 
 export type LedgerAccountType =
   | "STANDARD"
@@ -102,6 +106,13 @@ export type OpeningBalanceType =
   | "DR"
   | "CR";
 
+
+export interface DealerCapacityItem {
+  categoryId: string;
+  rate: number;
+  capacity: number;
+  serviceType?: string;
+}
 
 export interface DealerCapacity {
   total: number;
@@ -156,12 +167,36 @@ export interface DealerRates {
 // }
 
 export interface DealerFormData {
+
+  technicianCode: string;
+  technicianFirmName: string;
+  technicianName: string;
+
+  aadhaarNumber: string;
+  aadhaarFile?: FileList;
+
+  alternativeNumber: string;
+  panFile?: FileList;
+
+  drivingLicenceNumber: string;
+  drivingLicenceFile?: FileList;
+
+  documentUpload?: FileList;
+
+  productId: string;
+  productServiceType: string;
+
+  technicianStatus: "ACTIVE" | "INACTIVE";
+
+
   headCode: string;
   groupHead: string;
   headName: string;
   grade?: string;
 
-  address?: string;
+  address: {
+  addressLine: string;
+}[];
   city?: string;
   district?: string;
   state?: string;
@@ -205,6 +240,9 @@ export interface DealerFormData {
 
   openingBalance?: number;
   openingBalanceType: OpeningBalanceType;
+    capacityType: CapacityType;
+
+  capacityMaster: DealerCapacityItem[];
 }
 
 export interface Dealer

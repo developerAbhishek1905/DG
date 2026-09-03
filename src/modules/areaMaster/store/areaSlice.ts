@@ -4,19 +4,19 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 
-import {
-  createArea,
-  getAreaById,
-  getAreas,
-  toggleAreaStatus,
-  updateArea,
-} from "../services/areaApi";
+// import {
+//   createArea,
+//   getAreaById,
+//   getAreas,
+//   toggleAreaStatus,
+//   updateArea,
+// } from "../services/areaApi";
 
-import type {
-  AreaFilters,
-  AreaFormData,
-  AreaState,
-} from "../types/area.types";
+// import type {
+//   AreaFilters,
+//   AreaFormData,
+//   AreaState,
+// } from "../types/area.types";
 
 const initialState: AreaState = {
   areas: [],

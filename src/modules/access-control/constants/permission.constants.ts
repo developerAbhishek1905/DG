@@ -1,6 +1,25 @@
 import type { Permission } from "../types/accessControl.types";
 
 export const PERMISSIONS = {
+
+  DASHBOARD_ACCESS: "dashboard.access",
+  COMPLAINT_ACCESS: "complaints.access",
+  DEALER_ACCESS: "dealers.access",
+  CATEGORY_ACCESS: "category.access",
+  ITEM_ACCESS: "item.access",
+  APPOINTMENT_ACCESS: "appointments.access",
+  PENDING_ACCESS: "pending.access",
+  CANCELLATION_ACCESS: "cancellations.access",
+  CLOSURE_ACCESS: "closures.access",
+  VERIFICATION_ACCESS: "verification.access",
+  BILLING_ACCESS: "billing.access",
+  LEDGER_ACCESS: "ledger.access",
+  NOTIFICATION_ACCESS: "notifications.access",
+  AREA_ACCESS: "area.access",
+  USER_ACCESS: "users.access",
+  BRAND_ACCESS:"brand.access",
+
+
   DASHBOARD_VIEW: "dashboard.view",
 
   DASHBOARD_OPERATIONS: "dashboard.operations",
@@ -25,15 +44,13 @@ export const PERMISSIONS = {
 
   USER_SUSPEND: "users.suspend",
 
+  ROLE_ACCESS: "roles.access",
   ROLE_VIEW: "roles.view",
-
   ROLE_CREATE: "roles.create",
-
   ROLE_UPDATE: "roles.update",
-
   ROLE_DELETE: "roles.delete",
-
   ROLE_PERMISSION_MANAGE: "roles.permissions.manage",
+  ROLE_PERMISSION_VIEW: "roles.permissions.view",
 
   COMPLAINT_VIEW: "complaints.view",
 
@@ -213,38 +230,27 @@ export const PERMISSIONS = {
 
   NOTIFICATION_CLEAR: "notification.clear",
 
-  AUDIT_VIEW:
-  "audit.view",
+  AUDIT_VIEW: "audit.view",
 
-AUDIT_DETAILS:
-  "audit.details",
+  AUDIT_DETAILS: "audit.details",
 
-AUDIT_EXPORT:
-  "audit.export",
+  AUDIT_EXPORT: "audit.export",
 
-SETTINGS_VIEW:
-  "settings.view",
+  SETTINGS_VIEW: "settings.view",
 
-SETTINGS_SLA:
-  "settings.sla",
+  SETTINGS_SLA: "settings.sla",
 
-SETTINGS_NOTIFICATION:
-  "settings.notification",
+  SETTINGS_NOTIFICATION: "settings.notification",
 
-SETTINGS_BILLING:
-  "settings.billing",
+  SETTINGS_BILLING: "settings.billing",
 
-SETTINGS_STATUS:
-  "settings.status",
+  SETTINGS_STATUS: "settings.status",
 
-SETTINGS_CANCELLATION_REASON:
-  "settings.cancellation_reason",
+  SETTINGS_CANCELLATION_REASON: "settings.cancellation_reason",
 
-SETTINGS_PENDING_REASON:
-  "settings.pending_reason",
+  SETTINGS_PENDING_REASON: "settings.pending_reason",
 
-SETTINGS_PERMISSION:
-  "settings.permission",
+  SETTINGS_PERMISSION: "settings.permission",
 
   ALLOCATION_VIEW: "allocation.view",
 
@@ -253,11 +259,133 @@ SETTINGS_PERMISSION:
   ALLOCATION_REASSIGN: "allocation.reassign",
 
   ALLOCATION_HISTORY_VIEW: "allocation.history.view",
+
+    
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const PERMISSION_LIST: Permission[] = [
+
+     {
+        id: "P-001",
+        key: PERMISSIONS.BRAND_ACCESS,
+        module: "Brand",
+        action: "access",
+        label: "Access Brand",
+      },
+    {
+    id: "P-001",
+    key: PERMISSIONS.DASHBOARD_ACCESS,
+    module: "Dashboard",
+    action: "access",
+    label: "Access Dashboard",
+  },
+  {
+    id: "P-002",
+    key: PERMISSIONS.COMPLAINT_ACCESS,
+    module: "Complaints",
+    action: "access",
+    label: "Access Complaints",
+  },
+  {
+    id: "P-003",
+    key: PERMISSIONS.DEALER_ACCESS,
+    module: "Dealers",
+    action: "access",
+    label: "Access Dealers",
+  },
+  {
+    id: "P-004",
+    key: PERMISSIONS.CATEGORY_ACCESS,
+    module: "Category Master",
+    action: "access",
+    label: "Access Category Master",
+  },
+  {
+    id: "P-005",
+    key: PERMISSIONS.ITEM_ACCESS,
+    module: "Item Master",
+    action: "access",
+    label: "Access Item Master",
+  },
+  {
+    id: "P-006",
+    key: PERMISSIONS.APPOINTMENT_ACCESS,
+    module: "Appointments",
+    action: "access",
+    label: "Access Appointments",
+  },
+  {
+    id: "P-007",
+    key: PERMISSIONS.PENDING_ACCESS,
+    module: "Pending & SLA",
+    action: "access",
+    label: "Access Pending & SLA",
+  },
+  {
+    id: "P-008",
+    key: PERMISSIONS.CANCELLATION_ACCESS,
+    module: "Cancellation",
+    action: "access",
+    label: "Access Cancellation",
+  },
+  {
+    id: "P-009",
+    key: PERMISSIONS.CLOSURE_ACCESS,
+    module: "Closure History",
+    action: "access",
+    label: "Access Closure History",
+  },
+  {
+    id: "P-010",
+    key: PERMISSIONS.VERIFICATION_ACCESS,
+    module: "DG Verification",
+    action: "access",
+    label: "Access DG Verification",
+  },
+  {
+    id: "P-011",
+    key: PERMISSIONS.BILLING_ACCESS,
+    module: "Billing",
+    action: "access",
+    label: "Access Billing",
+  },
+  {
+    id: "P-012",
+    key: PERMISSIONS.LEDGER_ACCESS,
+    module: "Dealer Ledger",
+    action: "access",
+    label: "Access Dealer Ledger",
+  },
+  {
+    id: "P-013",
+    key: PERMISSIONS.NOTIFICATION_ACCESS,
+    module: "Notifications",
+    action: "access",
+    label: "Access Notifications",
+  },
+  {
+    id: "P-014",
+    key: PERMISSIONS.AREA_ACCESS,
+    module: "Area Master",
+    action: "access",
+    label: "Access Area Master",
+  },
+  {
+    id: "P-015",
+    key: PERMISSIONS.USER_ACCESS,
+    module: "Users",
+    action: "access",
+    label: "Access Users",
+  },
+  {
+    id: "P-016",
+    key: PERMISSIONS.ROLE_ACCESS,
+    module: "Roles & Permissions",
+    action: "access",
+    label: "Access Roles & Permissions",
+  },
   {
     id: "P-098",
 
@@ -367,6 +495,14 @@ export const PERMISSION_LIST: Permission[] = [
   },
 
   {
+      id: "P-500",
+      key: PERMISSIONS.ROLE_ACCESS,
+      module: "Roles",
+      action: "access",
+      label: "View Roles",
+    },
+
+  {
     id: "P-008",
     key: PERMISSIONS.ROLE_CREATE,
     module: "Roles",
@@ -397,6 +533,15 @@ export const PERMISSION_LIST: Permission[] = [
     action: "permissions",
     label: "Manage Permissions",
   },
+
+  {
+  id: "role-permission-view",
+  key: PERMISSIONS.ROLE_PERMISSION_VIEW,
+  module: "Roles",
+  action: "permissions",
+  label: "View Role Permissions",
+},
+
 
   // {
   //   id: "P-012",
@@ -957,168 +1102,137 @@ export const PERMISSION_LIST: Permission[] = [
     action: "export",
     label: "Export Reports",
   },
-{
-  id: "P-115",
+  {
+    id: "P-115",
 
-  key:
-    PERMISSIONS.AUDIT_VIEW,
+    key: PERMISSIONS.AUDIT_VIEW,
 
-  module:
-    "Audit Logs",
+    module: "Audit Logs",
 
-  action:
-    "view",
+    action: "view",
 
-  label:
-    "View Audit Logs",
-},
-
-{
-  id: "P-116",
-
-  key:
-    PERMISSIONS.AUDIT_DETAILS,
-
-  module:
-    "Audit Logs",
-
-  action:
-    "details",
-
-  label:
-    "View Audit Log Details",
-},
-
-{
-  id: "P-117",
-
-  key:
-    PERMISSIONS.AUDIT_EXPORT,
-
-  module:
-    "Audit Logs",
-
-  action:
-    "export",
-
-  label:
-    "Export Audit Logs",
-},
+    label: "View Audit Logs",
+  },
 
   {
-  id: "P-118",
+    id: "P-116",
 
-  key:
-    PERMISSIONS.SETTINGS_VIEW,
+    key: PERMISSIONS.AUDIT_DETAILS,
 
-  module: "Settings",
+    module: "Audit Logs",
 
-  action: "view",
+    action: "details",
 
-  label:
-    "View Settings",
-},
+    label: "View Audit Log Details",
+  },
 
-{
-  id: "P-119",
+  {
+    id: "P-117",
 
-  key:
-    PERMISSIONS.SETTINGS_SLA,
+    key: PERMISSIONS.AUDIT_EXPORT,
 
-  module: "Settings",
+    module: "Audit Logs",
 
-  action: "sla",
+    action: "export",
 
-  label:
-    "Manage SLA Settings",
-},
+    label: "Export Audit Logs",
+  },
 
-{
-  id: "P-120",
+  {
+    id: "P-118",
 
-  key:
-    PERMISSIONS.SETTINGS_NOTIFICATION,
+    key: PERMISSIONS.SETTINGS_VIEW,
 
-  module: "Settings",
+    module: "Settings",
 
-  action: "notification",
+    action: "view",
 
-  label:
-    "Manage Notification Settings",
-},
+    label: "View Settings",
+  },
 
-{
-  id: "P-121",
+  {
+    id: "P-119",
 
-  key:
-    PERMISSIONS.SETTINGS_BILLING,
+    key: PERMISSIONS.SETTINGS_SLA,
 
-  module: "Settings",
+    module: "Settings",
 
-  action: "billing",
+    action: "sla",
 
-  label:
-    "Manage Billing Settings",
-},
+    label: "Manage SLA Settings",
+  },
 
-{
-  id: "P-122",
+  {
+    id: "P-120",
 
-  key:
-    PERMISSIONS.SETTINGS_STATUS,
+    key: PERMISSIONS.SETTINGS_NOTIFICATION,
 
-  module: "Settings",
+    module: "Settings",
 
-  action: "status",
+    action: "notification",
 
-  label:
-    "Manage Status Settings",
-},
+    label: "Manage Notification Settings",
+  },
 
-{
-  id: "P-123",
+  {
+    id: "P-121",
 
-  key:
-    PERMISSIONS.SETTINGS_CANCELLATION_REASON,
+    key: PERMISSIONS.SETTINGS_BILLING,
 
-  module: "Settings",
+    module: "Settings",
 
-  action:
-    "cancellation_reason",
+    action: "billing",
 
-  label:
-    "Manage Cancellation Reasons",
-},
+    label: "Manage Billing Settings",
+  },
 
-{
-  id: "P-124",
+  {
+    id: "P-122",
 
-  key:
-    PERMISSIONS.SETTINGS_PENDING_REASON,
+    key: PERMISSIONS.SETTINGS_STATUS,
 
-  module: "Settings",
+    module: "Settings",
 
-  action:
-    "pending_reason",
+    action: "status",
 
-  label:
-    "Manage Pending Reasons",
-},
+    label: "Manage Status Settings",
+  },
 
-{
-  id: "P-125",
+  {
+    id: "P-123",
 
-  key:
-    PERMISSIONS.SETTINGS_PERMISSION,
+    key: PERMISSIONS.SETTINGS_CANCELLATION_REASON,
 
-  module: "Settings",
+    module: "Settings",
 
-  action:
-    "permission",
+    action: "cancellation_reason",
 
-  label:
-    "Manage Permission Settings",
-},
+    label: "Manage Cancellation Reasons",
+  },
+
+  {
+    id: "P-124",
+
+    key: PERMISSIONS.SETTINGS_PENDING_REASON,
+
+    module: "Settings",
+
+    action: "pending_reason",
+
+    label: "Manage Pending Reasons",
+  },
+
+  {
+    id: "P-125",
+
+    key: PERMISSIONS.SETTINGS_PERMISSION,
+
+    module: "Settings",
+
+    action: "permission",
+
+    label: "Manage Permission Settings",
+  },
 
   {
     id: "P-034",

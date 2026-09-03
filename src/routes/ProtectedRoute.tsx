@@ -1,29 +1,18 @@
-import type {
-  ReactNode,
-} from "react";
+import type { ReactNode } from "react";
 
-import {
-  Navigate,
-  useLocation,
-} from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-import {
-  useAuth,
-} from "../modules/auth";
+import { useAuth } from "../modules/auth";
 
 interface Props {
   children: ReactNode;
 }
 
-export default function ProtectedRoute({
-  children,
-}: Props) {
-  const {
-    isAuthenticated,
-  } = useAuth();
+export default function ProtectedRoute({ children }: Props) {
+  const { isAuthenticated } = useAuth();
 
-  const location =
-    useLocation();
+  const location = useLocation();
+  
 
   if (!isAuthenticated) {
     return (
@@ -31,8 +20,7 @@ export default function ProtectedRoute({
         to="/login"
         replace
         state={{
-          from:
-            location.pathname,
+          from: location.pathname,
         }}
       />
     );

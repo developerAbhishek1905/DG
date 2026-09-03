@@ -1,77 +1,15 @@
-// import axios from "axios";
+import api from "../../../services/api/axios";
+import type { Dealer, DealerFormData } from "../types/dealer.types";
 
-// import type {
-//   Dealer,
-//   DealerFilters,
-//   DealerFormData,
-//   DealerListResponse,
-//   DealerStats,
-// } from "../types/dealer.types";
+const DEALER_API = "/dealers";
 
-// const API_URL = "/api/dealers";
+export interface CategoryDropdown {
+  id: string;
+  groupCategoryCode: string;
+  category: string;
+  categoryDescription: string;
+}
 
-// export const dealerApi = {
-//   getDealers: async (
-//     filters?: DealerFilters
-//   ): Promise<DealerListResponse> => {
-//     const response = await axios.get(API_URL, {
-//       params: filters,
-//     });
-
-//     return response.data;
-//   },
-
-//   getDealerById: async (id: string): Promise<Dealer> => {
-//     const response = await axios.get(`${API_URL}/${id}`);
-
-//     return response.data;
-//   },
-
-//   createDealer: async (
-//     data: DealerFormData
-//   ): Promise<Dealer> => {
-//     const response = await axios.post(API_URL, data);
-
-//     return response.data;
-//   },
-
-//   updateDealer: async (
-//     id: string,
-//     data: DealerFormData
-//   ): Promise<Dealer> => {
-//     const response = await axios.put(
-//       `${API_URL}/${id}`,
-//       data
-//     );
-
-//     return response.data;
-//   },
-
-//   deleteDealer: async (id: string): Promise<void> => {
-//     await axios.delete(`${API_URL}/${id}`);
-//   },
-
-//   getDealerStats: async (): Promise<DealerStats> => {
-//     const response = await axios.get(`${API_URL}/stats`);
-
-//     return response.data;
-//   },
-
-//   getDealerPerformance: async (
-//     id: string
-//   ): Promise<Dealer> => {
-//     const response = await axios.get(
-//       `${API_URL}/${id}/performance`
-//     );
-
-//     return response.data;
-//   },
-// };
-
-import type {
-  Dealer,
-  DealerFormData,
-} from "../types/dealer.types";
 
 export const mockDealers: Dealer[] = [
   {
@@ -87,11 +25,7 @@ export const mockDealers: Dealer[] = [
     address: "Vijay Nagar, Indore",
     pincode: "452010",
 
-    supportedProducts: [
-      "Air Conditioner",
-      "Washing Machine",
-      "Refrigerator",
-    ],
+    supportedProducts: ["Air Conditioner", "Washing Machine", "Refrigerator"],
 
     capacity: {
       total: 30,
@@ -137,11 +71,7 @@ export const mockDealers: Dealer[] = [
     address: "MP Nagar, Bhopal",
     pincode: "462011",
 
-    supportedProducts: [
-      "Television",
-      "Air Conditioner",
-      "Refrigerator",
-    ],
+    supportedProducts: ["Television", "Air Conditioner", "Refrigerator"],
 
     capacity: {
       total: 25,
@@ -187,11 +117,7 @@ export const mockDealers: Dealer[] = [
     address: "Palasia, Indore",
     pincode: "452001",
 
-    supportedProducts: [
-      "Washing Machine",
-      "Microwave",
-      "Air Conditioner",
-    ],
+    supportedProducts: ["Washing Machine", "Microwave", "Air Conditioner"],
 
     capacity: {
       total: 20,
@@ -237,10 +163,7 @@ export const mockDealers: Dealer[] = [
     address: "Freeganj, Ujjain",
     pincode: "456010",
 
-    supportedProducts: [
-      "Air Conditioner",
-      "Refrigerator",
-    ],
+    supportedProducts: ["Air Conditioner", "Refrigerator"],
 
     capacity: {
       total: 15,
@@ -276,152 +199,92 @@ export const mockDealers: Dealer[] = [
 
 let dealers = [...mockDealers];
 
-export const getDealers = async (): Promise<Dealer[]> => {
-  return Promise.resolve(dealers);
+const buildDealerFormData = (data: DealerFormData): FormData => {
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    // undefined / null values skip
+    if (value === undefined || value === null) {
+      return;
+    }
+
+    // File
+    if (value instanceof File) {
+      formData.append(key, value);
+      return;
+    }
+
+    // FileList
+    if (value instanceof FileList) {
+      Array.from(value).forEach((file) => {
+        formData.append(key, file);
+      });
+      return;
+    }
+
+    // Arrays / Objects
+    if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    // boolean / number / string
+    formData.append(key, String(value));
+  });
+
+  return formData;
 };
 
-export const getDealerById = async (
-  id: string
-): Promise<Dealer | undefined> => {
-  return Promise.resolve(
-    dealers.find((dealer) => dealer.id === id)
-  );
+export const getDealers = async (
+  filters?: DealerFilters,
+): Promise<Dealer[]> => {
+  const response = await api.get(DEALER_API, {
+    params: {
+      search: filters?.search || undefined,
+      status: filters?.status || undefined,
+    },
+  });
+
+  return response.data.data ?? response.data;
 };
 
-// export const createDealer = async (
-//   data: DealerFormData
-// ): Promise<Dealer> => {
-//   const dealer: Dealer = {
-//     id: String(Date.now()),
-//     dealerCode: `DLR-${String(dealers.length + 1).padStart(3, "0")}`,
+export const getDealerById = async (id: string): Promise<Dealer> => {
+  const response = await api.get(`${DEALER_API}/${id}`);
 
-//     ...data,
+  return response.data.data ?? response.data;
+};
 
-//     capacity: {
-//       total: Number(data.totalCapacity),
-//       used: 0,
-//     },
+export const createDealer = async (data: DealerFormData): Promise<Dealer> => {
+  const formData = buildDealerFormData(data);
 
-//     performance: {
-//       totalComplaints: 0,
-//       completedComplaints: 0,
-//       pendingComplaints: 0,
-//       cancelledComplaints: 0,
-//       cancellationRate: 0,
-//       slaCompliance: 100,
-//       averageResponseTime: 0,
-//       feedbackScore: 0,
-//       performanceScore: 100,
-//     },
-
-//     rates: {
-//       visit: 0,
-//       service: 0,
-//       installation: 0,
-//       uninstallation: 0,
-//       other: 0,
-//     },
-
-//     createdAt: new Date().toISOString(),
-//     updatedAt: new Date().toISOString(),
-//   };
-
-//   dealers = [...dealers, dealer];
-
-//   return Promise.resolve(dealer);
-// };
-
-export const createDealer = async (
-  data: DealerFormData
-): Promise<Dealer> => {
-  const {
-    totalCapacity,
-    ...dealerData
-  } = data;
-
-  const dealer: Dealer = {
-    id: String(Date.now()),
-
-    dealerCode: `DLR-${String(
-      dealers.length + 1
-    ).padStart(3, "0")}`,
-
-    ...dealerData,
-
-    capacity: {
-      total: Number(totalCapacity),
-      used: 0,
+  const response = await api.post(DEALER_API, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
     },
+  });
 
-    performance: {
-      totalComplaints: 0,
-      completedComplaints: 0,
-      pendingComplaints: 0,
-      cancelledComplaints: 0,
-      cancellationRate: 0,
-      slaCompliance: 100,
-      averageResponseTime: 0,
-      feedbackScore: 0,
-      performanceScore: 100,
-    },
-
-    rates: {
-      visit: 0,
-      service: 0,
-      installation: 0,
-      uninstallation: 0,
-      other: 0,
-    },
-
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  dealers = [...dealers, dealer];
-
-  return dealer;
+  return response.data.data ?? response.data;
 };
 
 export const updateDealer = async (
   id: string,
-  data: DealerFormData
-): Promise<Dealer | undefined> => {
-  const index = dealers.findIndex(
-    (dealer) => dealer.id === id
-  );
+  data: Partial<DealerFormData>,
+): Promise<Dealer> => {
+  const formData = buildDealerFormData(data as DealerFormData);
 
-  if (index === -1) return undefined;
-
-  dealers[index] = {
-    ...dealers[index],
-    ...data,
-
-    capacity: {
-      ...dealers[index].capacity,
-      total: Number(data.totalCapacity),
+  const response = await api.put(`${DEALER_API}/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
     },
+  });
 
-    updatedAt: new Date().toISOString(),
-  };
-
-  return Promise.resolve(dealers[index]);
+  return response.data.data ?? response.data;
 };
 
-
-export const deleteDealer = async (
-  id: string
-): Promise<boolean> => {
-  const dealerExists = dealers.some(
-    (dealer) => dealer.id === id
-  );
-
-  if (!dealerExists) {
-    return false;
-  }
-
-  dealers = dealers.filter(
-    (dealer) => dealer.id !== id
-  );
+export const deleteDealer = async (id: string): Promise<boolean> => {
+  await api.delete(`${DEALER_API}/${id}`);
 
   return true;
 };
+
+

@@ -15,6 +15,16 @@ export type ComplaintPriority =
   | "HIGH"
   | "CRITICAL";
 
+  export interface ComplaintMobileNumber {
+  number: string;
+  description?: string;
+}
+
+export interface ComplaintAddress {
+  address: string;
+  description?: string;
+}
+
 export type ComplaintCategory =
   | "INSTALLATION"
   | "SERVICE"
@@ -144,19 +154,24 @@ export interface Complaint {
 ========================================= */
 
 export interface CreateComplaintPayload {
+   complaintNumber?: string;
   customerId?: string;
 
   customerCode?: string;
 
   customerName: string;
 
-  phone: string;
+    mobileNumbers: ComplaintMobileNumber[];
+  addresses: ComplaintAddress[];
 
-  alternatePhone?: string;
+
+  // phone: string;
+
+  // alternatePhone?: string;
 
   email?: string;
 
-  address: string;
+  // address: string;
 
   city: string;
 

@@ -18,8 +18,8 @@ export {
   default as AreaStatusBadge,
 } from "./components/AreaStatusBadge";
 
-export {
-  default as areaReducer,
-} from "./store/areaSlice";
+// export {
+//   default as areaReducer,
+// } from "./store/areaSlice";
 
 export * from "./types/area.types";

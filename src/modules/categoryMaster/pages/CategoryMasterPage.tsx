@@ -1,141 +1,118 @@
-import {
-  Plus,
-  Search,
-} from "lucide-react";
+import { Plus, Search } from "lucide-react";
 
-import {
-  useEffect,
-  useMemo,
-} from "react";
+import { useEffect, useMemo } from "react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
 import CategoryTable from "../components/CategoryTable";
 
 import {
   fetchCategories,
   setCategoryFilters,
-  toggleCategoryStatusAction,
+  // toggleCategoryStatusAction,
+    toggleCategoryStatusAction,
+  deleteCategoryAction,
 } from "../store/categorySlice";
 
+import type { Category } from "../types/category.types";
+
 export default function CategoryMasterPage() {
-  const dispatch =
-    useAppDispatch();
+  const dispatch = useAppDispatch();
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const {
-    categories,
-    loading,
-    filters,
-  } =
-    useAppSelector(
-      (
-        state
-      ) => state.category
-    );
+  const { categories, loading, filters } = useAppSelector(
+    (state) => state.category,
+  );
 
   useEffect(() => {
-    dispatch(
-      fetchCategories()
-    );
+    dispatch(fetchCategories());
   }, [dispatch]);
 
-  const filtered =
-    useMemo(() => {
-      const search =
-        filters.search
-          .toLowerCase()
-          .trim();
+  const filtered = useMemo(() => {
+    const search = filters.search.toLowerCase().trim();
 
-      return categories.filter(
-        (item) => {
-          const matchSearch =
-            !search ||
-            item.groupCategoryCode
-              .toLowerCase()
-              .includes(
-                search
-              ) ||
-            item.categoryDescription
-              .toLowerCase()
-              .includes(
-                search
-              );
+    return categories.filter((item) => {
+      const matchSearch =
+               !search ||
+        item.groupCategoryCode.toLowerCase().includes(search) ||
+        item.description?.toLowerCase().includes(search) ||
+        item.category?.toLowerCase().includes(search) ||
+        item.categoryDescription?.toLowerCase().includes(search);
 
-          const matchStatus =
-            !filters.status ||
-            item.status ===
-              filters.status;
+      const matchStatus = !filters.status || item.status === filters.status;
 
-          return (
-            matchSearch &&
-            matchStatus
-          );
-        }
-      );
-    }, [
-      categories,
-      filters,
-    ]);
+      return matchSearch && matchStatus;
+    });
+  }, [categories, filters]);
+
+
+  // ==============================
+  // EDIT
+  // ==============================
+
+  const handleEdit = (category: Category) => {
+    navigate(`/category-master/${category.id}/edit`);
+  };
+
+  // ==============================
+  // TOGGLE STATUS
+  // ==============================
+
+  const handleToggleStatus = async (category: Category) => {
+    await dispatch(
+      toggleCategoryStatusAction({
+        id: category.id,
+        currentStatus: category.status,
+      }),
+    );
+  };
+
+  // ==============================
+  // DELETE
+  // ==============================
+
+  const handleDelete = async (category: Category) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${category.groupCategoryCode}"?`,
+    );
+
+    if (!confirmed) return;
+
+    await dispatch(deleteCategoryAction(category.id));
+  };
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">
-            Category Master
-          </h1>
+          <h1 className="text-2xl font-bold">Category Master</h1>
 
-          <p className="mt-1 text-sm text-gray-500">
-            Manage group categories.
-          </p>
+          <p className="mt-1 text-sm text-gray-500">Manage group categories.</p>
         </div>
 
         <button
-          onClick={() =>
-            navigate(
-              "/category-master/create"
-            )
-          }
+          onClick={() => navigate("/category-master/create")}
           className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm text-white"
         >
-          <Plus
-            size={17}
-          />
-
+          <Plus size={17} />
           Add Category
         </button>
       </div>
 
       <div className="mb-5 flex gap-3 rounded-xl border bg-white p-4">
         <div className="relative flex-1">
-          <Search
-            size={16}
-            className="absolute left-3 top-3 text-gray-400"
-          />
+          <Search size={16} className="absolute left-3 top-3 text-gray-400" />
 
           <input
-            value={
-              filters.search
-            }
+            value={filters.search}
             onChange={(e) =>
               dispatch(
-                setCategoryFilters(
-                  {
-                    search:
-                      e.target
-                        .value,
-                  }
-                )
+                setCategoryFilters({
+                  search: e.target.value,
+                }),
               )
             }
             placeholder="Search category..."
@@ -144,63 +121,40 @@ export default function CategoryMasterPage() {
         </div>
 
         <select
-          value={
-            filters.status
-          }
+          value={filters.status}
           onChange={(e) =>
             dispatch(
-              setCategoryFilters(
-                {
-                  status:
-                    e.target
-                      .value as
-                      | "ACTIVE"
-                      | "INACTIVE"
-                      | "",
-                }
-              )
+              setCategoryFilters({
+                status: e.target.value as "ACTIVE" | "INACTIVE" | "",
+              }),
             )
           }
           className="rounded-lg border px-3"
         >
-          <option value="">
-            All Status
-          </option>
+          <option value="">All Status</option>
 
-          <option value="ACTIVE">
-            Active
-          </option>
+          <option value="ACTIVE">Active</option>
 
-          <option value="INACTIVE">
-            Inactive
-          </option>
+          <option value="INACTIVE">Inactive</option>
         </select>
       </div>
 
       <CategoryTable
-        categories={
-          filtered
+  categories={categories}
+  loading={loading}
+  onEdit={handleEdit}
+  onToggleStatus={handleToggleStatus}
+  onDelete={handleDelete}
+/>
+
+      {/* <CategoryTable
+        categories={filtered}
+        loading={loading}
+        onEdit={(category) => navigate(`/category-master/${category.id}/edit`)}
+        onToggleStatus={(category) =>
+          dispatch(toggleCategoryStatusAction(category.id))
         }
-        loading={
-          loading
-        }
-        onEdit={(
-          category
-        ) =>
-          navigate(
-            `/category-master/${category.id}/edit`
-          )
-        }
-        onToggleStatus={(
-          category
-        ) =>
-          dispatch(
-            toggleCategoryStatusAction(
-              category.id
-            )
-          )
-        }
-      />
+      /> */}
     </div>
   );
 }

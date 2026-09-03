@@ -1,21 +1,112 @@
+// export type AreaStatus =
+//   | "ACTIVE"
+//   | "INACTIVE";
+
+// export interface Area {
+//   id: string;
+
+//   areaCode: string;
+
+//   areaName: string;
+
+//   city: string;
+
+//   district?: string;
+
+//   state: string;
+
+//   pincode?: string;
+
+//   zone?: string;
+
+//   latitude?: number;
+
+//   longitude?: number;
+
+//   status: AreaStatus;
+
+//   createdAt: string;
+
+//   updatedAt: string;
+// }
+
+// export interface AreaFormData {
+//   areaCode: string;
+
+//   areaName: string;
+
+//   city: string;
+
+//   district?: string;
+
+//   state: string;
+
+//   pincode?: string;
+
+//   zone?: string;
+
+//   latitude?: number;
+
+//   longitude?: number;
+
+//   status: AreaStatus;
+// }
+
+// export interface AreaFilters {
+//   search: string;
+
+//   city: string;
+
+//   state: string;
+
+//   status: AreaStatus | "";
+// }
+
+// export interface AreaState {
+//   areas: Area[];
+
+//   selectedArea: Area | null;
+
+//   loading: boolean;
+
+//   actionLoading: boolean;
+
+//   error: string | null;
+
+//   filters: AreaFilters;
+// }
+
 export type AreaStatus =
   | "ACTIVE"
   | "INACTIVE";
 
 export interface Area {
-  id: string;
+  _id: string;
 
   areaCode: string;
 
   areaName: string;
 
-  city: string;
+  state_id: number;
 
-  district?: string;
+  district_id: number;
 
-  state: string;
+  city_id: number;
 
-  pincode?: string;
+  pincode_id: number;
+
+  /*
+    Backend may return these populated names
+    in list/get APIs.
+  */
+
+  state_name?: string;
+
+  district_name?: string;
+
+  city_name?: string;
+
+  pincode_name?: string;
 
   zone?: string;
 
@@ -25,9 +116,11 @@ export interface Area {
 
   status: AreaStatus;
 
-  createdAt: string;
+  createdAt?: string;
 
-  updatedAt: string;
+  updatedAt?: string;
+
+  __v?: number;
 }
 
 export interface AreaFormData {
@@ -35,13 +128,13 @@ export interface AreaFormData {
 
   areaName: string;
 
-  city: string;
+  state_id: number;
 
-  district?: string;
+  district_id: number;
 
-  state: string;
+  city_id: number;
 
-  pincode?: string;
+  pincode_id: number;
 
   zone?: string;
 
@@ -52,26 +145,65 @@ export interface AreaFormData {
   status: AreaStatus;
 }
 
-export interface AreaFilters {
-  search: string;
+export interface AreaQueryParams {
+  search?: string;
 
-  city: string;
+  state_id?: number;
 
-  state: string;
+  district_id?: number;
 
-  status: AreaStatus | "";
+  city_id?: number;
+
+  pincode_id?: number;
+
+  status?: AreaStatus | "";
+
+  page?: number;
+
+  limit?: number;
 }
 
-export interface AreaState {
-  areas: Area[];
+export interface AreaListResponse {
+  success: boolean;
 
-  selectedArea: Area | null;
+  message: string;
 
-  loading: boolean;
+  data: Area[];
 
-  actionLoading: boolean;
+  pagination: {
+    page: number;
 
-  error: string | null;
+    limit: number;
 
-  filters: AreaFilters;
+    total: number;
+
+    totalPages: number;
+  };
 }
+
+export interface AreaSingleResponse {
+  success: boolean;
+
+  message: string;
+
+  data: Area;
+}
+
+export interface AreaDeleteResponse {
+  success: boolean;
+
+  message: string;
+}
+
+export interface AreaImportResponse {
+  success: boolean;
+
+  message: string;
+
+  data?: Area[];
+
+  imported?: unknown[];
+
+  failed?: unknown[];
+}
+

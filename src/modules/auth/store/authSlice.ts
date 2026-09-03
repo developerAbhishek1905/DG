@@ -1,36 +1,20 @@
-import {
-  createSlice,
-  type PayloadAction,
-} from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import type {
-  AuthState,
-  AuthUser,
-} from "../types/auth.types";
+import type { AuthState, AuthUser } from "../types/auth.types";
 
-const storedToken =
-  localStorage.getItem(
-    "accessToken"
-  );
+const storedToken = localStorage.getItem("accessToken");
 
-const storedUser =
-  localStorage.getItem("user");
+const storedUser = localStorage.getItem("user");
 
-let parsedUser: AuthUser | null =
-  null;
+let parsedUser: AuthUser | null = null;
 
 if (storedUser) {
   try {
-    parsedUser =
-      JSON.parse(storedUser);
+    parsedUser = JSON.parse(storedUser);
   } catch {
-    localStorage.removeItem(
-      "user"
-    );
+    localStorage.removeItem("user");
 
-    localStorage.removeItem(
-      "accessToken"
-    );
+    localStorage.removeItem("accessToken");
   }
 }
 
@@ -39,9 +23,7 @@ const initialState: AuthState = {
 
   accessToken: storedToken,
 
-  isAuthenticated: Boolean(
-    storedToken && parsedUser
-  ),
+  isAuthenticated: Boolean(storedToken && parsedUser),
 
   loading: false,
 
@@ -64,33 +46,25 @@ const authSlice = createSlice({
       action: PayloadAction<{
         user: AuthUser;
         accessToken: string;
-      }>
+      }>,
     ) => {
       state.loading = false;
 
-      state.user =
-        action.payload.user;
+      state.user = action.payload.user;
 
-      state.accessToken =
-        action.payload.accessToken;
+      state.accessToken = action.payload.accessToken;
 
-      state.isAuthenticated =
-        true;
+      state.isAuthenticated = true;
 
       state.error = null;
     },
 
-    loginFailure: (
-      state,
-      action: PayloadAction<string>
-    ) => {
+    loginFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
 
-      state.error =
-        action.payload;
+      state.error = action.payload;
 
-      state.isAuthenticated =
-        false;
+      state.isAuthenticated = false;
     },
 
     logoutSuccess: (state) => {
@@ -98,8 +72,7 @@ const authSlice = createSlice({
 
       state.accessToken = null;
 
-      state.isAuthenticated =
-        false;
+      state.isAuthenticated = false;
 
       state.loading = false;
 

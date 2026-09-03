@@ -1,46 +1,24 @@
-import {
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-
-import {
-  useRoles,
-} from "../../access-control/hooks/useRoles";
+import { useNavigate, useParams } from "react-router-dom";
 
 import UserForm from "../components/UserForm";
 
-import {
-  useUserDetails,
-} from "../hooks/useUsers";
+import { useUserDetails } from "../hooks/useUsers";
 
-import {
-  updateUser,
-} from "../services/userApi";
+import { updateUser } from "../services/userApi";
 
-import type {
-  UserFormData,
-} from "../types/user.types";
+import type { UserFormData } from "../types/user.types";
+import { useRoles } from "../../access-control";
 
 export default function EditUserPage() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const { id } =
-    useParams();
+  const { id } = useParams();
 
-  const {
-    roles,
-  } = useRoles();
+  const { roles } = useRoles();
 
-  const {
-    user,
-    loading,
-  } =
-    useUserDetails(id);
+  const { user, loading } = useUserDetails(id);
 
   if (loading) {
     return (
@@ -58,59 +36,35 @@ export default function EditUserPage() {
     );
   }
 
-  const handleUpdate =
-    async (
-      data: UserFormData
-    ) => {
-      const role =
-        roles.find(
-          (item) =>
-            item.id ===
-            data.roleId
-        );
+  const handleUpdate = async (data: UserFormData) => {
+    const role = roles.find((item) => item.id === data.roleId);
 
-      if (!role) {
-        alert(
-          "Invalid role"
-        );
+    if (!role) {
+      alert("Invalid role");
 
-        return;
-      }
+      return;
+    }
 
-      await updateUser(
-        id,
-        data,
-        role.name
-      );
+    await updateUser(id, data, role.name);
 
-      navigate(
-        `/users/${id}`
-      );
-    };
+    navigate(`/users/${id}`);
+  };
 
   return (
     <div className="space-y-6">
       <button
-        onClick={() =>
-          navigate(
-            `/users/${id}`
-          )
-        }
+        onClick={() => navigate(`/users/${id}`)}
         className="inline-flex items-center gap-2 text-sm text-gray-500"
       >
         <ArrowLeft size={17} />
-
         Back to User
       </button>
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          Edit User
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Edit User</h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          Update account and
-          access configuration.
+          Update account and access configuration.
         </p>
       </div>
 
@@ -118,9 +72,7 @@ export default function EditUserPage() {
         <UserForm
           user={user}
           roles={roles}
-          onSubmit={
-            handleUpdate
-          }
+          onSubmit={handleUpdate}
           submitLabel="Update User"
         />
       </div>

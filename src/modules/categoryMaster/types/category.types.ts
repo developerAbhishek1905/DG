@@ -1,19 +1,19 @@
-export type CategoryStatus =
-  | "ACTIVE"
-  | "INACTIVE";
+export type CategoryStatus = "ACTIVE" | "INACTIVE";
 
 export interface Category {
   id: string;
 
   groupCategoryCode: string;
 
+  description: string;
+
+  category?: string;
+
   categoryDescription: string;
 
-  category2?: string;
+  //   category3?: string;
 
-  category3?: string;
-
-  category4?: string;
+  //   category4?: string;
 
   status: CategoryStatus;
 
@@ -25,13 +25,15 @@ export interface Category {
 export interface CategoryFormData {
   groupCategoryCode: string;
 
+  description: string;
+
+  category?: string;
+
   categoryDescription: string;
 
-  category2?: string;
+  //   category3?: string;
 
-  category3?: string;
-
-  category4?: string;
+  //   category4?: string;
 
   status: CategoryStatus;
 }
@@ -39,25 +41,19 @@ export interface CategoryFormData {
 export interface CategoryFilters {
   search: string;
 
-  status:
-    | CategoryStatus
-    | "";
+  status: CategoryStatus | "";
 }
 
 export interface CategoryState {
   categories: Category[];
 
-  selectedCategory:
-    | Category
-    | null;
+  selectedCategory: Category | null;
 
   loading: boolean;
 
   actionLoading: boolean;
 
-  error:
-    | string
-    | null;
+  error: string | null;
 
   filters: CategoryFilters;
 }

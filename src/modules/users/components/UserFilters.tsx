@@ -17,7 +17,7 @@ import {
 
 import type {
   Role,
-} from "../../access-control/types/accessControl.types";
+} from "../../access-control";
 
 import type {
   UserStatus,

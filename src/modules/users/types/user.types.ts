@@ -3,6 +3,13 @@ export type UserStatus =
   | "INACTIVE"
   | "SUSPENDED";
 
+
+  export interface UserRole {
+  id: string;
+  name: string;
+  code: string;
+  permissions: string[];
+}
 export interface AppUser {
   id: string;
 
@@ -11,7 +18,7 @@ export interface AppUser {
   phone?: string;
 
   roleId: string;
-  roleName: string;
+  role: UserRole;
 
   dealerId?: string;
   dealerName?: string;

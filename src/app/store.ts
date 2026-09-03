@@ -26,6 +26,8 @@ import settingsReducer from "../modules/settings/store/settingsSlice";
 import areaReducer from "../modules/areaMaster/store/areaSlice";
 import categoryReducer from "../modules/categoryMaster/store/categorySlice";
 import itemReducer from "../modules/itemMaster/store/itemSlice";
+import brandReducer from "../modules/brandMaster/store/brandSlice";
+
 
 
 export const store = configureStore({
@@ -47,24 +49,18 @@ export const store = configureStore({
     billing: billingReducer,
     ledger: ledgerReducer,
     payments: paymentReducer,
-        reconciliation:
-      reconciliationReducer,
-      dashboard: dashboardReducer,
-        reports: reportReducer,
-              notifications:
-        notificationReducer,
-              auditLogs:
-        auditLogReducer,
-          settings:
-    settingsReducer,
-          area:
-        areaReducer,
-              category:
-        categoryReducer,
+    reconciliation: reconciliationReducer,
+    dashboard: dashboardReducer,
+    reports: reportReducer,
+    notifications: notificationReducer,
+    auditLogs: auditLogReducer,
+    settings: settingsReducer,
+    area: areaReducer,
+    category: categoryReducer,
 
-      item:
-        itemReducer,
-
+    item: itemReducer,
+          brand:
+        brandReducer,
   },
 });
 
