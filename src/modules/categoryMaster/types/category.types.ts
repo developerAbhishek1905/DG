@@ -1,59 +1,112 @@
+// export type CategoryStatus = "ACTIVE" | "INACTIVE";
+
+// export interface Category {
+//   id: string;
+
+//   groupCategoryCode: string;
+
+//   description: string;
+
+//   category?: string;
+
+//   categoryDescription: string;
+
+//   //   category3?: string;
+
+//   //   category4?: string;
+
+//   status: CategoryStatus;
+
+//   createdAt: string;
+
+//   updatedAt: string;
+// }
+
+// export interface CategoryFormData {
+//   groupCategoryCode: string;
+
+//   description: string;
+
+//   category?: string;
+
+//   categoryDescription: string;
+
+//   //   category3?: string;
+
+//   //   category4?: string;
+
+//   status: CategoryStatus;
+// }
+
+// export interface CategoryFilters {
+//   search: string;
+
+//   status: CategoryStatus | "";
+// }
+
+// export interface CategoryState {
+//   categories: Category[];
+
+//   selectedCategory: Category | null;
+
+//   loading: boolean;
+
+//   actionLoading: boolean;
+
+//   error: string | null;
+
+//   filters: CategoryFilters;
+// }
+
+
 export type CategoryStatus = "ACTIVE" | "INACTIVE";
 
 export interface Category {
   id: string;
-
   groupCategoryCode: string;
-
   description: string;
-
   category?: string;
-
   categoryDescription: string;
-
-  //   category3?: string;
-
-  //   category4?: string;
-
   status: CategoryStatus;
-
   createdAt: string;
-
   updatedAt: string;
 }
 
 export interface CategoryFormData {
   groupCategoryCode: string;
-
   description: string;
-
   category?: string;
-
   categoryDescription: string;
-
-  //   category3?: string;
-
-  //   category4?: string;
-
   status: CategoryStatus;
 }
 
 export interface CategoryFilters {
   search: string;
-
   status: CategoryStatus | "";
 }
 
-export interface CategoryState {
-  categories: Category[];
+export interface CategoryImportItem {
+  row: number;
+  groupCategoryCode: string;
+  category?: string;
+}
 
-  selectedCategory: Category | null;
+export interface CategoryImportError {
+  row: number;
+  groupCategoryCode: string;
+  message: string;
+}
 
-  loading: boolean;
+export interface CategoryImportResponse {
+  success: boolean;
+  message: string;
 
-  actionLoading: boolean;
+  summary: {
+    total: number;
+    imported: number;
+    failed: number;
+  };
 
-  error: string | null;
-
-  filters: CategoryFilters;
+  imported: CategoryImportItem[];
+  failed: CategoryImportError[];
 }

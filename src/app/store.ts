@@ -23,7 +23,7 @@ import reportReducer from "../modules/reports/store/reportSlice";
 import notificationReducer from "../modules/notifications/store/notificationSlice";
 import auditLogReducer from "../modules/auditLogs/store/auditLogSlice";
 import settingsReducer from "../modules/settings/store/settingsSlice";
-import areaReducer from "../modules/areaMaster/store/areaSlice";
+// import areaReducer from "../modules/areaMaster/store/areaSlice";
 import categoryReducer from "../modules/categoryMaster/store/categorySlice";
 import itemReducer from "../modules/itemMaster/store/itemSlice";
 import brandReducer from "../modules/brandMaster/store/brandSlice";
@@ -55,7 +55,7 @@ export const store = configureStore({
     notifications: notificationReducer,
     auditLogs: auditLogReducer,
     settings: settingsReducer,
-    area: areaReducer,
+    // area: areaReducer,
     category: categoryReducer,
 
     item: itemReducer,

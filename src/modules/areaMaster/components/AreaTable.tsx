@@ -192,7 +192,7 @@ export default function AreaTable({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1050px] text-left text-sm">
+        <table className="w-full min-w-262.5 text-left text-sm">
           <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
             <tr>
               <th className="px-5 py-3">Area Code</th>

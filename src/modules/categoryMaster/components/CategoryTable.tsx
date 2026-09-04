@@ -11,7 +11,7 @@ interface Props {
 
   onToggleStatus: (category: Category) => void;
 
-    onDelete: (category: Category) => void;
+  onDelete: (category: Category) => void;
 }
 
 export default function CategoryTable({
@@ -19,7 +19,7 @@ export default function CategoryTable({
   loading,
   onEdit,
   onToggleStatus,
-    onDelete, 
+  onDelete,
 }: Props) {
   if (loading) {
     return (

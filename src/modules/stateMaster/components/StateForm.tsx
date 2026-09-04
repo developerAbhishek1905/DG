@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import type { StateFormData, StateMaster } from "../types/state.types";
@@ -19,7 +19,7 @@ export default function StateForm({
   const {
     register,
     handleSubmit,
-    reset,
+    // reset,
     formState: { errors },
   } = useForm<StateFormData>({
   defaultValues: {

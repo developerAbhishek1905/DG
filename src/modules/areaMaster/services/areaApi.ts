@@ -339,10 +339,14 @@ export const exportAreas = async (): Promise<void> => {
     responseType: "blob",
   });
 
+  const contentTypeHeader = response.headers["content-type"];
+  const contentType =
+    typeof contentTypeHeader === "string"
+      ? contentTypeHeader
+      : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
   const blob = new Blob([response.data], {
-    type:
-      response.headers["content-type"] ||
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    type: contentType,
   });
 
   const url = window.URL.createObjectURL(blob);

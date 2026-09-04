@@ -36,9 +36,9 @@ export default function CategoryForm({
 
       categoryDescription: "",
 
-    //   category3: "",
+      //   category3: "",
 
-    //   category4: "",
+      //   category4: "",
 
       status: "ACTIVE",
     },
@@ -58,9 +58,9 @@ export default function CategoryForm({
 
       categoryDescription: category.categoryDescription,
 
-    //   category3: category.category3 ?? "",
+      //   category3: category.category3 ?? "",
 
-    //   category4: category.category4 ?? "",
+      //   category4: category.category4 ?? "",
 
       status: category.status,
     });
@@ -86,13 +86,16 @@ export default function CategoryForm({
             label="Description"
             // error={errors.categoryDescription?.message}
             {...register("description", {
-            //   required: "Category description is required",
+              //   required: "Category description is required",
             })}
           />
 
           <Input label="Category 2" {...register("category")} />
 
-          <Input label="Category Description" {...register("categoryDescription")} />
+          <Input
+            label="Category Description"
+            {...register("categoryDescription")}
+          />
 
           {/* <Input label="Category 3" {...register("category3")} />
 

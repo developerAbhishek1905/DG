@@ -10,8 +10,8 @@ export {
   default as BrandTable,
 } from "./components/BrandTable";
 
-export {
-  default as brandReducer,
-} from "./store/brandSlice";
+// export {
+//   default as brandReducer,
+// } from "./store/brandSlice";
 
 export * from "./types/brand.types";
