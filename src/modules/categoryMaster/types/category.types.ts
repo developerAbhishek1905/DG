@@ -66,6 +66,8 @@ export interface Category {
   groupCategoryCode: string;
   description: string;
   category?: string;
+  product_id: number;
+  product_name?: string;
   categoryDescription: string;
   status: CategoryStatus;
   createdAt: string;
@@ -77,6 +79,7 @@ export interface CategoryFormData {
   description: string;
   category?: string;
   categoryDescription: string;
+  product_id: number;
   status: CategoryStatus;
 }
 

@@ -29,9 +29,9 @@ import {
 //   fetchCategories,
 // } from "./modules/categoryMaster/store/categorySlice";
 
-import {
-  fetchCategories,
-} from "../../categoryMaster/store/categorySlice";
+// import {
+//   fetchCategories,
+// } from "../../categoryMaster/store/categorySlice";
 
 import type {
   ItemFormData,
@@ -61,26 +61,26 @@ export default function CreateEditItemPage() {
   const isEdit =
     Boolean(id);
 
-  useEffect(() => {
-    dispatch(
-      fetchCategories()
-    );
+  // useEffect(() => {
+  //   dispatch(
+  //     fetchCategories()
+  //   );
 
-    if (id) {
-      dispatch(
-        fetchItemById(
-          id
-        )
-      );
-    } else {
-      dispatch(
-        clearSelectedItem()
-      );
-    }
-  }, [
-    id,
-    dispatch,
-  ]);
+  //   if (id) {
+  //     dispatch(
+  //       fetchItemById(
+  //         id
+  //       )
+  //     );
+  //   } else {
+  //     dispatch(
+  //       clearSelectedItem()
+  //     );
+  //   }
+  // }, [
+  //   id,
+  //   dispatch,
+  // ]);
 
   const handleSubmit =
     async (

@@ -39,7 +39,7 @@ export default function PincodeTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center text-sm text-gray-500">
+      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
         Loading pincodes...
       </div>
     );
@@ -47,7 +47,7 @@ export default function PincodeTable({
 
   if (!pincodes.length) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center text-sm text-gray-500">
+      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
         No pincodes found.
       </div>
     );
@@ -71,7 +71,7 @@ export default function PincodeTable({
 
           <tbody className="divide-y">
             {pincodes.map((pincode) => (
-              <tr key={pincode._id} className="hover:bg-gray-50">
+              <tr key={pincode._id} className="hover:bg-gray-50 border border-gray-200">
                 <td className={tdClass}>{pincode.pincode_id ?? "-"}</td>
 
                 <td className={`${tdClass} font-medium text-gray-900`}>

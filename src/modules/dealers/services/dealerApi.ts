@@ -10,6 +10,24 @@ export interface CategoryDropdown {
   categoryDescription: string;
 }
 
+export interface ProductDropdownOption {
+  id?: string;
+  product_id: number;
+  product_name: string;
+}
+
+export interface CategoryDropdownOption {
+  id: string;
+
+  product_id?: number;
+
+  category?: string;
+
+  categoryDescription?: string;
+
+  groupCategoryCode?: string;
+}
+
 
 export const mockDealers: Dealer[] = [
   {
@@ -285,6 +303,57 @@ export const deleteDealer = async (id: string): Promise<boolean> => {
   await api.delete(`${DEALER_API}/${id}`);
 
   return true;
+};
+
+/* ===================================================== */
+/* PRODUCTS */
+/* ===================================================== */
+
+export const searchProducts = async (
+  search = "",
+): Promise<ProductDropdownOption[]> => {
+  const response = await api.get(
+    "/products/dropdown",
+    {
+      params: {
+        search,
+      },
+    },
+  );
+
+  return (
+    response.data?.data?.products ??
+    response.data?.data ??
+    []
+  );
+};
+
+/* ===================================================== */
+/* CATEGORIES / SERVICES */
+/* ===================================================== */
+
+export const searchProductCategories = async ({
+  productId,
+  search = "",
+}: {
+  productId: number;
+  search?: string;
+}): Promise<CategoryDropdownOption[]> => {
+  const response = await api.get(
+    "/categories/dropdown",
+    {
+      params: {
+        product_id: productId,
+        search,
+      },
+    },
+  );
+
+  return (
+    response.data?.data?.categories ??
+    response.data?.data ??
+    []
+  );
 };
 
 

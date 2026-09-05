@@ -24,7 +24,6 @@ import notificationReducer from "../modules/notifications/store/notificationSlic
 import auditLogReducer from "../modules/auditLogs/store/auditLogSlice";
 import settingsReducer from "../modules/settings/store/settingsSlice";
 // import areaReducer from "../modules/areaMaster/store/areaSlice";
-import categoryReducer from "../modules/categoryMaster/store/categorySlice";
 import itemReducer from "../modules/itemMaster/store/itemSlice";
 import brandReducer from "../modules/brandMaster/store/brandSlice";
 
@@ -56,8 +55,6 @@ export const store = configureStore({
     auditLogs: auditLogReducer,
     settings: settingsReducer,
     // area: areaReducer,
-    category: categoryReducer,
-
     item: itemReducer,
           brand:
         brandReducer,

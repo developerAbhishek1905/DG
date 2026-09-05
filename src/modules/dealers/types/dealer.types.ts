@@ -1,96 +1,3 @@
-// export type DealerStatus = "active" | "inactive" | "suspended";
-
-// export interface DealerAddress {
-//   addressLine1: string;
-//   addressLine2?: string;
-//   city: string;
-//   state: string;
-//   pincode: string;
-// }
-
-// export interface DealerCapacity {
-//   totalCapacity: number;
-//   usedCapacity: number;
-//   availableCapacity: number;
-// }
-
-// export interface DealerPerformance {
-//   totalOrders: number;
-//   completedOrders: number;
-//   pendingOrders: number;
-//   cancelledOrders: number;
-//   completionRate: number;
-//   rating: number;
-// }
-
-// export interface Dealer {
-//   _id: string;
-
-//   dealerCode: string;
-
-//   name: string;
-
-//   email: string;
-
-//   phone: string;
-
-//   gstNumber?: string;
-
-//   status: DealerStatus;
-
-//   address: DealerAddress;
-
-//   capacity: DealerCapacity;
-
-//   performance: DealerPerformance;
-
-//   createdAt: string;
-
-//   updatedAt: string;
-// }
-
-// export interface DealerFormData {
-//   name: string;
-//   email: string;
-//   phone: string;
-//   gstNumber?: string;
-
-//   status: DealerStatus;
-
-//   address: DealerAddress;
-
-//   totalCapacity: number;
-// }
-
-// export interface DealerFilters {
-//   search?: string;
-//   status?: DealerStatus | "";
-//   city?: string;
-//   state?: string;
-//   page?: number;
-//   limit?: number;
-// }
-
-// export interface DealerListResponse {
-//   dealers: Dealer[];
-
-//   pagination: {
-//     page: number;
-//     limit: number;
-//     total: number;
-//     totalPages: number;
-//   };
-// }
-
-// export interface DealerStats {
-//   total: number;
-//   active: number;
-//   inactive: number;
-//   suspended: number;
-// }
-
-
-
 export type DealerStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
 
 export type CapacityType = "COMBINED" | "INDIVIDUAL";
@@ -102,16 +9,34 @@ export type LedgerAccountType =
   | "TAX_CODE"
   | "SALE_PURCHASE_ACCOUNT";
 
-export type OpeningBalanceType =
-  | "DR"
-  | "CR";
+export type OpeningBalanceType = "DR" | "CR";
 
+export interface DealerProductCategory {
+  categoryId: string;
+  categoryName: string;
+}
+
+export interface DealerProductService {
+  productId: number | undefined;
+  productName: string;
+
+  categories: DealerProductCategory[];
+}
+
+export interface DealerCapacityProduct {
+  productId: number;
+  productName: string;
+}
+
+export interface DealerCombinedCapacity {
+  products: DealerCapacityProduct[];
+  capacity: number;
+}
 
 export interface DealerCapacityItem {
-  categoryId: string;
-  rate: number;
+  productId?: number;
+  productName: string;
   capacity: number;
-  serviceType?: string;
 }
 
 export interface DealerCapacity {
@@ -139,116 +64,142 @@ export interface DealerRates {
   other: number;
 }
 
-// export interface Dealer {
-//   id: string;
-//   dealerCode: string;
-//   name: string;
-//   ownerName: string;
-//   email: string;
-//   phone: string;
+export interface DealerAddress {
+  addressLine: string;
 
-//   city: string;
-//   state: string;
-//   address: string;
-//   pincode: string;
+  stateId?: number;
+  state: string;
+  stateCode?: string;
 
-//   supportedProducts: string[];
+  districtId?: number;
+  district: string;
 
-//   capacity: DealerCapacity;
+  cityId?: number;
+  city: string;
+  pincode_name: string;
 
-//   status: DealerStatus;
-
-//   performance: DealerPerformance;
-
-//   rates: DealerRates;
-
-//   createdAt: string;
-//   updatedAt: string;
-// }
+  pincodeId?: number;
+  pinCode: string;
+}
 
 export interface DealerFormData {
-
   technicianCode: string;
+
   technicianFirmName: string;
+
   technicianName: string;
 
   aadhaarNumber: string;
-  aadhaarFile?: FileList;
 
+  // aadhaarFile?: FileList;
+
+  aadhaarFrontFile?: FileList;
+  aadhaarBackFile?: FileList;
   alternativeNumber: string;
-  panFile?: FileList;
+
+  panNumber?: string;
+
+  // panFile?: FileList;
+  panFrontFile?: FileList;
+  panBackFile?: FileList;
 
   drivingLicenceNumber: string;
-  drivingLicenceFile?: FileList;
+
+  // drivingLicenceFile?: FileList;
+  drivingLicenceFrontFile?: FileList;
+  drivingLicenceBackFile?: FileList;
 
   documentUpload?: FileList;
 
   productId: string;
+
   productServiceType: string;
 
   technicianStatus: "ACTIVE" | "INACTIVE";
 
-
   headCode: string;
+
   groupHead: string;
+
   headName: string;
+
   grade?: string;
 
-  address: {
-  addressLine: string;
-}[];
-  city?: string;
-  district?: string;
-  state?: string;
-  stateCode?: string;
-  pinCode?: string;
+  // =========================
+  // ADDRESS
+  // =========================
+
+  businessAddress: DealerAddress;
+
+  residentialAddress: DealerAddress;
+
   zone?: string;
 
   contactPerson?: string;
+
   phoneNumbers?: string;
+
   mobileNumber?: string;
+
   email?: string;
 
   taxApply?: string;
+
   gstNumber?: string;
+
   tinNumber?: string;
+
   uinNumber?: string;
-  panNumber?: string;
 
   gstApplicable?: string;
+
   gstRate?: number;
+
   hsnCode?: string;
 
   reverseChargeLimit?: number;
+
   taxInputPayable?: string;
+
   vat15Column?: string;
 
   segment?: string;
 
   creditDays?: number;
+
   creditLimit?: number;
 
   accountType: LedgerAccountType;
 
   isDealer: boolean;
+
   disableChallan: boolean;
+
   ledgerSummaryOnly: boolean;
+
   accountDeactivated: boolean;
 
   otherInfo?: string;
+
   rating?: number;
 
   openingBalance?: number;
+
   openingBalanceType: OpeningBalanceType;
-    capacityType: CapacityType;
+
+  capacityType: CapacityType;
+
+  productServices: DealerProductService[];
+
+  combinedCapacity: DealerCombinedCapacity;
 
   capacityMaster: DealerCapacityItem[];
 }
 
-export interface Dealer
-  extends DealerFormData {
+export interface Dealer extends DealerFormData {
   id: string;
 
   createdAt: string;
+
   updatedAt: string;
 }
