@@ -219,9 +219,11 @@ export default function CategoryTable({
 
               <th className="px-5 py-3">Category</th>
 
-              <th className="px-5 py-3">Category Description</th>
+              
 
               <th className="px-5 py-3">Description</th>
+
+              <th className="px-5 py-3">Category Description</th>
 
               <th className="px-5 py-3">Status</th>
 
@@ -234,11 +236,11 @@ export default function CategoryTable({
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4 font-medium text-[#123B7A]">
                   {item.product_name || "-"}
-                </td>
-
-                <td className="px-5 py-4">{item.description || "-"}</td>
+                </td>                
 
                 <td className="px-5 py-4">{item.category || "-"}</td>
+
+                <td className="px-5 py-4">{item.description || "-"}</td>
 
                 <td className="px-5 py-4">{item.categoryDescription || "-"}</td>
 

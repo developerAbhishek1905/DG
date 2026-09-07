@@ -187,13 +187,16 @@ export interface DealerFormData {
 
   openingBalanceType: OpeningBalanceType;
 
-  capacityType: CapacityType;
+  // capacityType: CapacityType;
+  combinedCapacity: DealerCombinedCapacity;
+  individualCapacities: DealerCapacityItem[];
 
   productServices: DealerProductService[];
 
-  combinedCapacity: DealerCombinedCapacity;
+  // combinedCapacity: DealerCombinedCapacity;
 
   capacityMaster: DealerCapacityItem[];
+   
 }
 
 export interface Dealer extends DealerFormData {

@@ -355,7 +355,7 @@ export default function CategoryForm({
 
           {/* CATEGORY */}
 
-          <Input label="Category 2" {...register("category")} />
+          <Input label="Category" {...register("category")} />
 
           {/* CATEGORY DESCRIPTION */}
 

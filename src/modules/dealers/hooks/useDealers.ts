@@ -1,157 +1,191 @@
-// import { useCallback } from "react";
-// import { useDispatch, useSelector } from "react-redux";
+// import { useCallback, useEffect, useState } from "react";
 
-// import type { AppDispatch, RootState } from "../../../app/store";
+// import { getDealerById, getDealers, deleteDealer } from "../services/dealerApi";
 
 // import {
-//   fetchDealerById,
-//   fetchDealerStats,
-//   fetchDealers,
-//   deleteDealer,
-//   setFilters,
+//   setDealerSearch,
+//   setDealerStatus,
+//   setDealerCity,
+//   clearDealerFilters,
 // } from "../store/dealerSlice";
 
-// import type { DealerFilters } from "../types/dealer.types";
+// import type { Dealer } from "../types/dealer.types";
 
-// export const useDealers = () => {
-//   const dispatch = useDispatch<AppDispatch>();
+// export function useDealers() {
+//   const [dealers, setDealers] = useState<Dealer[]>([]);
+//   const [loading, setLoading] = useState(true);
 
-//   const {
-//     dealers,
-//     selectedDealer,
-//     stats,
-//     loading,
-//     error,
-//     filters,
-//     pagination,
-//   } = useSelector(
-//     (state: RootState) => state.dealers
-//   );
+//   const loadDealers = useCallback(async () => {
+//     try {
+//       setLoading(true);
 
-//   const loadDealers = useCallback(
-//     (newFilters?: DealerFilters) => {
-//       const finalFilters = {
-//         ...filters,
-//         ...newFilters,
-//       };
+//       const data = await getDealers();
 
-//       dispatch(setFilters(finalFilters));
+//       setDealers(data);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
 
-//       dispatch(fetchDealers(finalFilters));
-//     },
-//     [dispatch, filters]
-//   );
-
-//   const loadDealer = useCallback(
-//     (id: string) => {
-//       dispatch(fetchDealerById(id));
-//     },
-//     [dispatch]
-//   );
-
-//   const loadStats = useCallback(() => {
-//     dispatch(fetchDealerStats());
-//   }, [dispatch]);
-
-//   const removeDealer = useCallback(
-//     (id: string) => {
-//       dispatch(deleteDealer(id));
-//     },
-//     [dispatch]
-//   );
+//   useEffect(() => {
+//     loadDealers();
+//   }, [loadDealers]);
 
 //   return {
 //     dealers,
-//     selectedDealer,
-//     stats,
 //     loading,
-//     error,
-//     filters,
-//     pagination,
-
-//     loadDealers,
-//     loadDealer,
-//     loadStats,
-//     removeDealer,
+//     refetch: loadDealers,
 //   };
-// };
+// }
+
+// export function useDealerDetails(id?: string) {
+//   const [dealer, setDealer] = useState<Dealer | null>(null);
+
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     if (!id) {
+//       setDealer(null);
+//       setLoading(false);
+//       return;
+//     }
+
+//     const loadDealer = async () => {
+//       try {
+//         setLoading(true);
+
+//         const data = await getDealerById(id);
+
+//         setDealer(data ?? null);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     loadDealer();
+//   }, [id]);
+
+//   return {
+//     dealer,
+//     loading,
+//   };
+// }
 
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import {
-  getDealerById,
   getDealers,
-  deleteDealer,
+  getDealerById,
+  type DealerFilters,
 } from "../services/dealerApi";
-
-import {
-  setDealerSearch,
-  setDealerStatus,
-  setDealerCity,
-  clearDealerFilters,
-} from "../store/dealerSlice";
 
 import type { Dealer } from "../types/dealer.types";
 
-export function useDealers() {
-  const [dealers, setDealers] = useState<Dealer[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
 
-  const loadDealers = useCallback(async () => {
+/* =========================================
+   DEALER LIST
+========================================= */
+
+export function useDealers(filters: DealerFilters) {
+  const [dealers, setDealers] = useState<Dealer[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+
+  const fetchDealers = useCallback(async () => {
     try {
       setLoading(true);
 
-      const data = await getDealers();
+      const response = await getDealers(filters);
 
-      setDealers(data);
+      setDealers(response.data ?? []);
+
+      setPagination(
+        response.pagination ?? {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+        },
+      );
+    } catch (error) {
+      console.error("Failed to fetch dealers:", error);
+
+      toast.error("Failed to load dealers");
+
+      setDealers([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [
+    filters.page,
+    filters.limit,
+    filters.search,
+    filters.status,
+  ]);
 
   useEffect(() => {
-    loadDealers();
-  }, [loadDealers]);
+    fetchDealers();
+  }, [fetchDealers]);
 
   return {
     dealers,
     loading,
-    refetch: loadDealers,
+    pagination,
+    refetch: fetchDealers,
   };
 }
 
+/* =========================================
+   DEALER DETAILS
+========================================= */
+
 export function useDealerDetails(id?: string) {
-  const [dealer, setDealer] =
-    useState<Dealer | null>(null);
+  const [dealer, setDealer] = useState<Dealer | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  useEffect(() => {
+  const fetchDealer = useCallback(async () => {
     if (!id) {
       setDealer(null);
-      setLoading(false);
       return;
     }
 
-    const loadDealer = async () => {
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        const data =
-          await getDealerById(id);
+      const data = await getDealerById(id);
 
-        setDealer(data ?? null);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setDealer(data);
+    } catch (error) {
+      console.error("Failed to fetch dealer details:", error);
 
-    loadDealer();
+      toast.error("Failed to load dealer details");
+
+      setDealer(null);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchDealer();
+  }, [fetchDealer]);
 
   return {
     dealer,
     loading,
+    refetch: fetchDealer,
   };
 }
