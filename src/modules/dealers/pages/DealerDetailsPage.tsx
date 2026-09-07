@@ -1,214 +1,3 @@
-// import {
-//   ArrowLeft,
-//   BarChart3,
-//   Edit,
-//   Mail,
-//   MapPin,
-//   Phone,
-//   User,
-// } from "lucide-react";
-
-// import { useNavigate, useParams } from "react-router-dom";
-
-// import Card from "../../../components/ui/Card";
-// import DealerCapacityCard from "../components/DealerCapacityCard";
-// import DealerPerformanceCard from "../components/DealerPerformanceCard";
-// import DealerStatusBadge from "../components/DealerStatusBadge";
-
-// import { useDealerDetails } from "../hooks/useDealers";
-
-// export default function DealerDetailsPage() {
-//   const navigate = useNavigate();
-
-//   const { id } = useParams();
-
-//   const { dealer, loading } = useDealerDetails(id);
-
-//   if (loading) {
-//     return (
-//       <div className="rounded-xl border bg-white p-12 text-center text-sm text-gray-500">
-//         Loading dealer...
-//       </div>
-//     );
-//   }
-
-//   if (!dealer) {
-//     return (
-//       <div className="rounded-xl border bg-white p-12 text-center">
-//         <p className="text-gray-500">Dealer not found.</p>
-
-//         <button
-//           onClick={() => navigate("/dealers")}
-//           className="mt-4 text-sm font-medium text-blue-600"
-//         >
-//           Back to Dealers
-//         </button>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="space-y-6">
-//       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-//         <button
-//           onClick={() => navigate("/dealers")}
-//           className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
-//         >
-//           <ArrowLeft size={17} />
-//           Back to Dealers
-//         </button>
-
-//         <div className="flex gap-2">
-//           <button
-//             onClick={() => navigate(`/dealers/${dealer.id}/performance`)}
-//             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-//           >
-//             <BarChart3 size={17} />
-//             Performance
-//           </button>
-
-//           <button
-//             onClick={() => navigate(`/dealers/${dealer.id}/edit`)}
-//             className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854]"
-//           >
-//             <Edit size={17} />
-//             Edit Dealer
-//           </button>
-//         </div>
-//       </div>
-
-//       <Card className="p-6">
-//         <div className="flex flex-col justify-between gap-4 md:flex-row">
-//           <div>
-//             <div className="flex flex-wrap items-center gap-3">
-//               <h1 className="text-2xl font-bold text-gray-900">
-//                 {dealer.name}
-//               </h1>
-
-//               <DealerStatusBadge status={dealer.status} />
-//             </div>
-
-//             <p className="mt-1 text-sm text-gray-500">{dealer.dealerCode}</p>
-//           </div>
-
-//           <div>
-//             <p className="text-xs text-gray-500">Performance Score</p>
-
-//             <p className="text-3xl font-bold text-[#123B7A]">
-//               {dealer.performance.performanceScore}
-//               /100
-//             </p>
-//           </div>
-//         </div>
-
-//         <div className="mt-6 grid gap-4 border-t border-gray-100 pt-6 md:grid-cols-2 xl:grid-cols-4">
-//           <Info icon={User} label="Owner" value={dealer.ownerName} />
-
-//           <Info icon={Phone} label="Phone" value={dealer.phone} />
-
-//           <Info icon={Mail} label="Email" value={dealer.email} />
-
-//           <Info
-//             icon={MapPin}
-//             label="Location"
-//             value={`${dealer.city}, ${dealer.state}`}
-//           />
-//         </div>
-//       </Card>
-
-//       <div className="grid gap-6 lg:grid-cols-2">
-//         <DealerCapacityCard
-//           total={dealer.capacity.total}
-//           used={dealer.capacity.used}
-//         />
-
-//         <DealerPerformanceCard performance={dealer.performance} />
-//       </div>
-
-//       <div className="grid gap-6 lg:grid-cols-2">
-//         <Card className="p-5">
-//           <h3 className="font-semibold text-gray-900">Supported Products</h3>
-
-//           <div className="mt-4 flex flex-wrap gap-2">
-//             {dealer.supportedProducts.map((product) => (
-//               <span
-//                 key={product}
-//                 className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
-//               >
-//                 {product}
-//               </span>
-//             ))}
-//           </div>
-//         </Card>
-
-//         <Card className="p-5">
-//           <h3 className="font-semibold text-gray-900">Address</h3>
-
-//           <p className="mt-4 text-sm leading-6 text-gray-600">
-//             {dealer.address}
-//             <br />
-//             {dealer.city}, {dealer.state}
-//             <br />
-//             {dealer.pincode}
-//           </p>
-//         </Card>
-//       </div>
-
-//       <Card className="p-5">
-//         <h3 className="font-semibold text-gray-900">Dealer Rates</h3>
-
-//         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-//           <Rate label="Visit" value={dealer.rates.visit} />
-
-//           <Rate label="Service" value={dealer.rates.service} />
-
-//           <Rate label="Installation" value={dealer.rates.installation} />
-
-//           <Rate label="Uninstallation" value={dealer.rates.uninstallation} />
-
-//           <Rate label="Others" value={dealer.rates.other} />
-//         </div>
-//       </Card>
-//     </div>
-//   );
-// }
-
-// function Info({
-//   icon: Icon,
-//   label,
-//   value,
-// }: {
-//   icon: React.ElementType;
-//   label: string;
-//   value: string;
-// }) {
-//   return (
-//     <div className="flex gap-3">
-//       <div className="mt-1 text-gray-400">
-//         <Icon size={17} />
-//       </div>
-
-//       <div>
-//         <p className="text-xs text-gray-500">{label}</p>
-
-//         <p className="mt-1 text-sm font-medium text-gray-900">{value}</p>
-//       </div>
-//     </div>
-//   );
-// }
-
-// function Rate({ label, value }: { label: string; value: number }) {
-//   return (
-//     <div className="rounded-lg bg-gray-50 p-4">
-//       <p className="text-xs text-gray-500">{label}</p>
-
-//       <p className="mt-1 text-lg font-semibold text-gray-900">
-//         ₹{value.toLocaleString("en-IN")}
-//       </p>
-//     </div>
-//   );
-// }
-
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -244,9 +33,7 @@ export default function DealerDetailsPage() {
   if (!dealer) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-        <p className="text-gray-500">
-          Dealer not found.
-        </p>
+        <p className="text-gray-500">Dealer not found.</p>
 
         <button
           type="button"
@@ -259,30 +46,20 @@ export default function DealerDetailsPage() {
     );
   }
 
-  const combinedProducts =
-    dealer.combinedCapacity?.products ?? [];
+  const combinedProducts = dealer.combinedCapacity?.products ?? [];
 
-  const combinedCapacity =
-    Number(
-      dealer.combinedCapacity?.capacity ?? 0,
-    );
+  const combinedCapacity = Number(dealer.combinedCapacity?.capacity ?? 0);
 
-  const individualCapacities =
-    dealer.individualCapacities ?? [];
+  const individualCapacities = dealer.individualCapacities ?? [];
 
-  const totalIndividualCapacity =
-    individualCapacities.reduce(
-      (total, item) =>
-        total + Number(item.capacity || 0),
-      0,
-    );
+  const totalIndividualCapacity = individualCapacities.reduce(
+    (total, item) => total + Number(item.capacity || 0),
+    0,
+  );
 
-  const totalCapacity =
-    combinedCapacity +
-    totalIndividualCapacity;
+  const totalCapacity = combinedCapacity + totalIndividualCapacity;
 
-  const productServices =
-    dealer.productServices ?? [];
+  const productServices = dealer.productServices ?? [];
 
   return (
     <div className="space-y-6">
@@ -302,11 +79,7 @@ export default function DealerDetailsPage() {
 
         <button
           type="button"
-          onClick={() =>
-            navigate(
-              `/dealers/${dealer.id}/edit`,
-            )
-          }
+          onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
           className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854]"
         >
           <Edit size={17} />
@@ -323,16 +96,10 @@ export default function DealerDetailsPage() {
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-bold text-gray-900">
-                {dealer.technicianFirmName ||
-                  dealer.headName ||
-                  "-"}
+                {dealer.technicianFirmName || dealer.headName || "-"}
               </h1>
 
-              <DealerStatusBadge
-                status={
-                  dealer.technicianStatus
-                }
-              />
+              <DealerStatusBadge status={dealer.technicianStatus} />
             </div>
 
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-500">
@@ -357,9 +124,7 @@ export default function DealerDetailsPage() {
           </div>
 
           <div className="rounded-lg bg-blue-50 px-5 py-4">
-            <p className="text-xs font-medium text-blue-600">
-              Total Capacity
-            </p>
+            <p className="text-xs font-medium text-blue-600">Total Capacity</p>
 
             <p className="mt-1 text-3xl font-bold text-[#123B7A]">
               {totalCapacity}
@@ -373,35 +138,22 @@ export default function DealerDetailsPage() {
           <Info
             icon={User}
             label="Technician Name"
-            value={
-              dealer.technicianName || "-"
-            }
+            value={dealer.technicianName || "-"}
           />
 
           <Info
             icon={Phone}
             label="Mobile Number"
-            value={
-              dealer.mobileNumber || "-"
-            }
+            value={dealer.mobileNumber || "-"}
           />
 
-          <Info
-            icon={Mail}
-            label="Email"
-            value={dealer.email || "-"}
-          />
+          <Info icon={Mail} label="Email" value={dealer.email || "-"} />
 
           <Info
             icon={MapPin}
             label="Location"
             value={
-              [
-                dealer.businessAddress
-                  ?.city,
-                dealer.businessAddress
-                  ?.state,
-              ]
+              [dealer.businessAddress?.city, dealer.businessAddress?.state]
                 .filter(Boolean)
                 .join(", ") || "-"
             }
@@ -415,62 +167,48 @@ export default function DealerDetailsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-5">
-          <h3 className="font-semibold text-gray-900">
-            Dealer Information
-          </h3>
+          <h3 className="font-semibold text-gray-900">Dealer Information</h3>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <DetailItem
-              label="Head Name"
-              value={dealer.headName}
-            />
+            <DetailItem label="Head Name" value={dealer.headName} />
 
-            <DetailItem
+            {/* <DetailItem
               label="Group Head"
               value={
-                dealer.groupHead
-                  ? formatGroupHead(
-                      dealer.groupHead,
-                    )
-                  : "-"
+                dealer.groupHead ? formatGroupHead(dealer.groupHead) : undefined
               }
-            />
+            /> */}
 
-            <DetailItem
-              label="Firm Name"
-              value={
-                dealer.technicianFirmName
-              }
-            />
+            <DetailItem label="Firm Name" value={dealer.technicianFirmName} />
 
-            <DetailItem
-              label="Technician Name"
-              value={dealer.technicianName}
-            />
+            <DetailItem label="Technician Name" value={dealer.technicianName} />
 
-            <DetailItem
-              label="Contact Person"
-              value={
-                dealer.contactPerson
-              }
-            />
+            <DetailItem label="Contact Person" value={dealer.contactPerson} />
+
+            <DetailItem label="Mobile Number" value={dealer.mobileNumber} />
 
             <DetailItem
               label="Alternative Number"
+              value={dealer.alternativeNumber}
+            />
+
+            {/* <DetailItem label="Landline / Phone" value={dealer.phoneNumbers} /> */}
+
+            <DetailItem label="Email" value={dealer.email} />
+
+            {/* <DetailItem
+              label="Zone"
+              value={dealer.zone ? formatGroupHead(dealer.zone) : undefined}
+            />
+
+            <DetailItem
+              label="Segment"
               value={
-                dealer.alternativeNumber
+                dealer.segment ? formatGroupHead(dealer.segment) : undefined
               }
             />
 
-            <DetailItem
-              label="Zone"
-              value={dealer.zone}
-            />
-
-            <DetailItem
-              label="Grade"
-              value={dealer.grade}
-            />
+            <DetailItem label="Grade" value={dealer.grade} /> */}
           </div>
         </Card>
 
@@ -482,57 +220,30 @@ export default function DealerDetailsPage() {
           </h3>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <DetailItem
-              label="GST Number"
-              value={dealer.gstNumber}
-            />
+            {/* <DetailItem label="Tax Apply" value={dealer.taxApply} /> */}
+
+            <DetailItem label="GST Applicable" value={dealer.gstApplicable} />
+
+            <DetailItem label="GST Number" value={dealer.gstNumber} />
 
             <DetailItem
               label="GST Rate"
-              value={
-                dealer.gstRate !==
-                undefined
-                  ? `${dealer.gstRate}%`
-                  : "-"
-              }
+              value={dealer.gstRate !== undefined ? `${dealer.gstRate}%` : "-"}
             />
 
-            <DetailItem
-              label="PAN Number"
-              value={dealer.panNumber}
-            />
+            {/* <DetailItem label="PAN Number" value={dealer.panNumber} /> */}
+
+            <DetailItem label="TIN Number" value={dealer.tinNumber} />
+
+            {/* <DetailItem label="UIN Number" value={dealer.uinNumber} /> */}
+
+            <DetailItem label="HSN Code" value={dealer.hsnCode} />
 
             <DetailItem
-              label="Account Type"
+              label="Reverse Charge Limit"
               value={
-                dealer.accountType
-                  ? formatGroupHead(
-                      dealer.accountType,
-                    )
-                  : "-"
-              }
-            />
-
-            <DetailItem
-              label="Credit Days"
-              value={
-                dealer.creditDays !==
-                undefined
-                  ? String(
-                      dealer.creditDays,
-                    )
-                  : "-"
-              }
-            />
-
-            <DetailItem
-              label="Credit Limit"
-              value={
-                dealer.creditLimit !==
-                undefined
-                  ? `₹${Number(
-                      dealer.creditLimit,
-                    ).toLocaleString(
+                dealer.reverseChargeLimit !== undefined
+                  ? `₹${Number(dealer.reverseChargeLimit).toLocaleString(
                       "en-IN",
                     )}`
                   : "-"
@@ -540,33 +251,92 @@ export default function DealerDetailsPage() {
             />
 
             <DetailItem
+              label="Tax Input Payable"
+              value={
+                dealer.taxInputPayable
+                  ? formatGroupHead(dealer.taxInputPayable)
+                  : "-"
+              }
+            />
+
+            {/* <DetailItem label="VAT 15 Column" value={dealer.vat15Column} /> */}
+
+            {/* <DetailItem
+              label="Account Type"
+              value={
+                dealer.accountType ? formatGroupHead(dealer.accountType) : "-"
+              }
+            /> */}
+
+            {/* <DetailItem label="Credit Days" value={dealer.creditDays} /> */}
+
+            <DetailItem
+              label="Credit Limit"
+              value={
+                dealer.creditLimit !== undefined
+                  ? `₹${Number(dealer.creditLimit).toLocaleString("en-IN")}`
+                  : "-"
+              }
+            />
+
+            <DetailItem
               label="Opening Balance"
               value={
-                dealer.openingBalance !==
-                undefined
-                  ? `₹${Number(
-                      dealer.openingBalance,
-                    ).toLocaleString(
+                dealer.openingBalance !== undefined
+                  ? `₹${Number(dealer.openingBalance).toLocaleString(
                       "en-IN",
-                    )} ${
-                      dealer.openingBalanceType ??
-                      ""
-                    }`
+                    )} ${dealer.openingBalanceType ?? ""}`
                   : "-"
               }
             />
 
             <DetailItem
               label="Account Status"
-              value={
-                dealer.accountDeactivated
-                  ? "Inactive"
-                  : "Active"
-              }
+              value={dealer.accountDeactivated ? "Deactivated" : "Active"}
             />
           </div>
         </Card>
       </div>
+
+      {/* <Card className="p-5">
+        <h3 className="font-semibold text-gray-900">Dealer Settings</h3>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <BooleanDetailItem label="Is Dealer" value={dealer.isDealer} />
+
+          <BooleanDetailItem
+            label="Disable Challan"
+            value={dealer.disableChallan}
+          />
+
+          <BooleanDetailItem
+            label="Ledger Summary Only"
+            value={dealer.ledgerSummaryOnly}
+          />
+
+          <BooleanDetailItem
+            label="Account Deactivated"
+            value={dealer.accountDeactivated}
+          />
+
+          <DetailItem
+            label="Segment"
+            value={dealer.segment ? formatGroupHead(dealer.segment) : "-"}
+          />
+
+          <DetailItem
+            label="Rating"
+            value={dealer.rating !== undefined ? `${dealer.rating} / 5` : "-"}
+          />
+
+          <DetailItem label="Dealer Status" value={dealer.status} />
+
+          <DetailItem
+            label="Technician Status"
+            value={dealer.technicianStatus}
+          />
+        </div>
+      </Card> */}
 
       {/* ======================================
           PRODUCT & SERVICES
@@ -574,10 +344,7 @@ export default function DealerDetailsPage() {
 
       <Card className="p-5">
         <div className="flex items-center gap-2">
-          <BriefcaseBusiness
-            size={18}
-            className="text-gray-500"
-          />
+          <BriefcaseBusiness size={18} className="text-gray-500" />
 
           <h3 className="font-semibold text-gray-900">
             Product & Service Mapping
@@ -586,52 +353,40 @@ export default function DealerDetailsPage() {
 
         {productServices.length ? (
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {productServices.map(
-              (product, index) => (
-                <div
-                  key={`${product.productId}-${index}`}
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-4"
-                >
-                  <p className="font-medium text-gray-900">
-                    {product.productName}
-                  </p>
+            {productServices.map((product, index) => (
+              <div
+                key={`${product.productId}-${index}`}
+                className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+              >
+                <p className="font-medium text-gray-900">
+                  {product.productName}
+                </p>
 
-                  <p className="mt-1 text-xs text-gray-500">
-                    Product ID:{" "}
-                    {product.productId}
-                  </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Product ID: {product.productId}
+                </p>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {product.categories
-                      ?.length ? (
-                      product.categories.map(
-                        (category) => (
-                          <span
-                            key={
-                              category.categoryId
-                            }
-                            className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
-                          >
-                            {
-                              category.categoryName
-                            }
-                          </span>
-                        ),
-                      )
-                    ) : (
-                      <span className="text-xs text-gray-400">
-                        No services mapped
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {product.categories?.length ? (
+                    product.categories.map((category) => (
+                      <span
+                        key={category.categoryId}
+                        className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                      >
+                        {category.categoryName}
                       </span>
-                    )}
-                  </div>
+                    ))
+                  ) : (
+                    <span className="text-xs text-gray-400">
+                      No services mapped
+                    </span>
+                  )}
                 </div>
-              ),
-            )}
+              </div>
+            ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-gray-400">
-            No products mapped.
-          </p>
+          <p className="mt-4 text-sm text-gray-400">No products mapped.</p>
         )}
       </Card>
 
@@ -643,18 +398,14 @@ export default function DealerDetailsPage() {
         {/* COMBINED */}
 
         <Card className="p-5">
-          <h3 className="font-semibold text-gray-900">
-            Combined Capacity
-          </h3>
+          <h3 className="font-semibold text-gray-900">Combined Capacity</h3>
 
           <div className="mt-4">
             <p className="text-3xl font-bold text-[#123B7A]">
               {combinedCapacity}
             </p>
 
-            <p className="mt-1 text-xs text-gray-500">
-              Shared capacity
-            </p>
+            <p className="mt-1 text-xs text-gray-500">Shared capacity</p>
           </div>
 
           <div className="mt-5">
@@ -664,20 +415,14 @@ export default function DealerDetailsPage() {
 
             {combinedProducts.length ? (
               <div className="flex flex-wrap gap-2">
-                {combinedProducts.map(
-                  (product) => (
-                    <span
-                      key={
-                        product.productId
-                      }
-                      className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
-                    >
-                      {
-                        product.productName
-                      }
-                    </span>
-                  ),
-                )}
+                {combinedProducts.map((product) => (
+                  <span
+                    key={product.productId}
+                    className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+                  >
+                    {product.productName}
+                  </span>
+                ))}
               </div>
             ) : (
               <p className="text-sm text-gray-400">
@@ -691,46 +436,39 @@ export default function DealerDetailsPage() {
 
         <Card className="p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">
-              Individual Capacity
-            </h3>
+            <h3 className="font-semibold text-gray-900">Individual Capacity</h3>
 
             <div className="text-right">
               <p className="text-xl font-bold text-[#123B7A]">
                 {totalIndividualCapacity}
               </p>
 
-              <p className="text-xs text-gray-500">
-                Total
-              </p>
+              <p className="text-xs text-gray-500">Total</p>
             </div>
           </div>
 
           {individualCapacities.length ? (
             <div className="mt-5 divide-y divide-gray-100">
-              {individualCapacities.map(
-                (item, index) => (
-                  <div
-                    key={`${item.productId}-${index}`}
-                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {item.productName}
-                      </p>
+              {individualCapacities.map((item, index) => (
+                <div
+                  key={`${item.productId}-${index}`}
+                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {item.productName}
+                    </p>
 
-                      <p className="mt-1 text-xs text-gray-500">
-                        Product ID:{" "}
-                        {item.productId}
-                      </p>
-                    </div>
-
-                    <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-900">
-                      {item.capacity}
-                    </span>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Product ID: {item.productId}
+                    </p>
                   </div>
-                ),
-              )}
+
+                  <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-900">
+                    {item.capacity}
+                  </span>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="mt-4 text-sm text-gray-400">
@@ -747,16 +485,12 @@ export default function DealerDetailsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <AddressCard
           title="Business Address"
-          address={
-            dealer.businessAddress
-          }
+          address={dealer.businessAddress}
         />
 
         <AddressCard
           title="Residential Address"
-          address={
-            dealer.residentialAddress
-          }
+          address={dealer.residentialAddress}
         />
       </div>
 
@@ -764,46 +498,123 @@ export default function DealerDetailsPage() {
           DOCUMENT INFORMATION
       ====================================== */}
 
+      {/* ======================================
+    DOCUMENT INFORMATION
+====================================== */}
+
       <Card className="p-5">
-        <h3 className="font-semibold text-gray-900">
-          Document Information
-        </h3>
+        <h3 className="font-semibold text-gray-900">Document Information</h3>
 
+        {/* DOCUMENT NUMBERS */}
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <DetailItem
-            label="Aadhaar Number"
-            value={dealer.aadhaarNumber}
-          />
+          <DetailItem label="Aadhaar Number" value={dealer.aadhaarNumber} />
+
+          <DetailItem label="PAN Number" value={dealer.panNumber} />
 
           <DetailItem
-            label="PAN Number"
-            value={dealer.panNumber}
-          />
-
-          <DetailItem
-            label="Driving Licence"
-            value={
-              dealer.drivingLicenceNumber
-            }
+            label="Driving Licence Number"
+            value={dealer.drivingLicenceNumber}
           />
         </div>
-      </Card>
 
+        {/* DOCUMENT IMAGES */}
+        <div className="mt-6 border-t border-gray-100 pt-6">
+          <h4 className="text-sm font-semibold text-gray-800">
+            Uploaded Documents
+          </h4>
+
+          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <DocumentPreview
+              label="Aadhaar Front"
+              url={dealer.documents?.aadhaarFront}
+            />
+
+            <DocumentPreview
+              label="Aadhaar Back"
+              url={dealer.documents?.aadhaarBack}
+            />
+
+            <DocumentPreview
+              label="PAN Front"
+              url={dealer.documents?.panFront}
+            />
+
+            <DocumentPreview label="PAN Back" url={dealer.documents?.panBack} />
+
+            <DocumentPreview
+              label="Driving Licence Front"
+              url={dealer.documents?.drivingLicenceFront}
+            />
+
+            <DocumentPreview
+              label="Driving Licence Back"
+              url={dealer.documents?.drivingLicenceBack}
+            />
+          </div>
+
+          {/* OTHER DOCUMENTS */}
+          {dealer.documents?.otherDocuments?.length > 0 && (
+            <div className="mt-6">
+              <h4 className="mb-3 text-sm font-semibold text-gray-800">
+                Other Documents
+              </h4>
+
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {dealer.documents.otherDocuments.map(
+                  (document: string, index: number) => (
+                    <DocumentPreview
+                      key={`${document}-${index}`}
+                      label={`Other Document ${index + 1}`}
+                      url={document}
+                    />
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
       {/* ======================================
           OTHER INFORMATION
       ====================================== */}
 
       {dealer.otherInfo && (
         <Card className="p-5">
-          <h3 className="font-semibold text-gray-900">
-            Other Information
-          </h3>
+          <h3 className="font-semibold text-gray-900">Other Information</h3>
 
           <p className="mt-4 whitespace-pre-line text-sm leading-6 text-gray-600">
             {dealer.otherInfo}
           </p>
         </Card>
       )}
+
+      <Card className="p-5">
+        <h3 className="font-semibold text-gray-900">System Information</h3>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DetailItem label="Dealer ID" value={dealer._id} />
+
+          <DetailItem label="Head Code" value={dealer.headCode} />
+
+          <DetailItem
+            label="Created At"
+            value={
+              dealer.createdAt
+                ? new Date(dealer.createdAt).toLocaleString("en-IN")
+                : "-"
+            }
+          />
+
+          <DetailItem
+            label="Last Updated"
+            value={
+              dealer.updatedAt
+                ? new Date(dealer.updatedAt).toLocaleString("en-IN")
+                : "-"
+            }
+          />
+        </div>
+      </Card>
     </div>
   );
 }
@@ -812,6 +623,32 @@ export default function DealerDetailsPage() {
    INFO
 ======================================== */
 
+// function Info({
+//   icon: Icon,
+//   label,
+//   value,
+// }: {
+//   icon: React.ElementType;
+//   label: string;
+//   value: string;
+// }) {
+//   return (
+//     <div className="flex gap-3">
+//       <div className="mt-1 text-gray-400">
+//         <Icon size={17} />
+//       </div>
+
+//       <div className="min-w-0">
+//         <p className="text-xs text-gray-500">{label}</p>
+
+//         <p className="mt-1 break-words text-sm font-medium text-gray-900">
+//           {value || "-"}
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }
+
 function Info({
   icon: Icon,
   label,
@@ -819,8 +656,12 @@ function Info({
 }: {
   icon: React.ElementType;
   label: string;
-  value: string;
+  value?: string | null;
 }) {
+  if (!value) {
+    return null;
+  }
+
   return (
     <div className="flex gap-3">
       <div className="mt-1 text-gray-400">
@@ -828,22 +669,36 @@ function Info({
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs text-gray-500">
-          {label}
-        </p>
+        <p className="text-xs text-gray-500">{label}</p>
 
         <p className="mt-1 break-words text-sm font-medium text-gray-900">
-          {value || "-"}
+          {value}
         </p>
       </div>
     </div>
   );
 }
-
 /* ========================================
    DETAIL ITEM
 ======================================== */
 
+// function DetailItem({
+//   label,
+//   value,
+// }: {
+//   label: string;
+//   value?: string | number | null;
+// }) {
+//   return (
+//     <div>
+//       <p className="text-xs text-gray-500">{label}</p>
+
+//       <p className="mt-1 break-words text-sm font-medium text-gray-900">
+//         {value !== undefined && value !== null && value !== "" ? value : "-"}
+//       </p>
+//     </div>
+//   );
+// }
 function DetailItem({
   label,
   value,
@@ -851,18 +706,16 @@ function DetailItem({
   label: string;
   value?: string | number | null;
 }) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
   return (
     <div>
-      <p className="text-xs text-gray-500">
-        {label}
-      </p>
+      <p className="text-xs text-gray-500">{label}</p>
 
       <p className="mt-1 break-words text-sm font-medium text-gray-900">
-        {value !== undefined &&
-        value !== null &&
-        value !== ""
-          ? value
-          : "-"}
+        {value}
       </p>
     </div>
   );
@@ -874,55 +727,78 @@ function DetailItem({
 
 interface Address {
   addressLine?: string;
-  city?: string;
-  district?: string;
+
+  stateId?: number;
   state?: string;
+  stateCode?: string;
+
+  districtId?: number;
+  district?: string;
+
+  cityId?: number;
+  city?: string;
+
+  pincodeId?: number;
   pinCode?: string;
 }
 
-function AddressCard({
-  title,
-  address,
-}: {
-  title: string;
-  address?: Address;
-}) {
+// function AddressCard({ title, address }: { title: string; address?: Address }) {
+//   return (
+//     <Card className="p-5">
+//       <div className="flex items-center gap-2">
+//         <MapPin size={18} className="text-gray-400" />
+
+//         <h3 className="font-semibold text-gray-900">{title}</h3>
+//       </div>
+
+//       <div className="mt-4 text-sm leading-6 text-gray-600">
+//         {address?.addressLine && <p>{address.addressLine}</p>}
+
+//         <p>
+//           {[address?.city, address?.district].filter(Boolean).join(", ") || "-"}
+//         </p>
+
+//         <p>{[address?.state, address?.pinCode].filter(Boolean).join(" - ")}</p>
+//       </div>
+//     </Card>
+//   );
+// }
+
+function AddressCard({ title, address }: { title: string; address?: Address }) {
   return (
     <Card className="p-5">
       <div className="flex items-center gap-2">
-        <MapPin
-          size={18}
-          className="text-gray-400"
-        />
+        <MapPin size={18} className="text-gray-400" />
 
-        <h3 className="font-semibold text-gray-900">
-          {title}
-        </h3>
+        <h3 className="font-semibold text-gray-900">{title}</h3>
       </div>
 
       <div className="mt-4 text-sm leading-6 text-gray-600">
-        {address?.addressLine && (
-          <p>{address.addressLine}</p>
-        )}
-
-        <p>
-          {[
-            address?.city,
-            address?.district,
-          ]
-            .filter(Boolean)
-            .join(", ") || "-"}
+        <p className="font-medium text-gray-900">
+          {address?.addressLine || "-"}
         </p>
 
         <p>
-          {[
-            address?.state,
-            address?.pinCode,
-          ]
-            .filter(Boolean)
-            .join(" - ")}
+          {[address?.city, address?.district].filter(Boolean).join(", ") || "-"}
+        </p>
+
+        <p>
+          {[address?.state, address?.pinCode].filter(Boolean).join(" - ") ||
+            "-"}
         </p>
       </div>
+
+      {/* <div className="mt-5 grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+        <DetailItem label="State ID" value={address?.stateId} />
+
+        <DetailItem label="State Code" value={address?.stateCode} />
+
+        <DetailItem label="District ID" value={address?.districtId} />
+
+        <DetailItem label="City ID" value={address?.cityId} />
+
+        <DetailItem label="Pincode ID" value={address?.pincodeId} />
+      </div> */}
     </Card>
   );
 }
@@ -931,13 +807,98 @@ function AddressCard({
    FORMAT ENUM
 ======================================== */
 
-function formatGroupHead(
-  value: string,
-) {
+function formatGroupHead(value: string) {
   return value
     .replace(/_/g, " ")
     .toLowerCase()
-    .replace(/\b\w/g, (character) =>
-      character.toUpperCase(),
-    );
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function DocumentPreview({
+  label,
+  url,
+}: {
+  label: string;
+  url?: string | null;
+}) {
+  const hasDocument = Boolean(url?.trim());
+
+  const isImage =
+    hasDocument &&
+    /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(url?.split("?")[0] ?? "");
+
+  return (
+    <div>
+      <p className="mb-2 text-xs font-medium text-gray-500">{label}</p>
+
+      {hasDocument ? (
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+          {isImage ? (
+            <a
+              href={url!}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <img
+                src={url!}
+                alt={label}
+                className="h-48 w-full object-contain p-2"
+              />
+            </a>
+          ) : (
+            <div className="flex h-48 items-center justify-center p-4">
+              <a
+                href={url!}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854]"
+              >
+                View Document
+              </a>
+            </div>
+          )}
+
+          <div className="border-t border-gray-200 bg-white p-3">
+            <a
+              href={url!}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-medium text-blue-600 hover:underline"
+            >
+              Open {label}
+            </a>
+          </div>
+        </div>
+      ) : (
+        <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
+          <p className="text-xs text-gray-400">No document uploaded</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BooleanDetailItem({
+  label,
+  value,
+}: {
+  label: string;
+  value?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-xs text-gray-500">{label}</p>
+
+      <div className="mt-1">
+        <span
+          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+            value ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+          }`}
+        >
+          {value ? "Yes" : "No"}
+        </span>
+      </div>
+    </div>
+  );
 }

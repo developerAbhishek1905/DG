@@ -44,7 +44,7 @@ export default function ProductTypeForm({
     defaultValues: {
       product_id: 0,
 
-      product_code: "",
+    //   product_code: "",
 
       product_type: "",
     },
@@ -80,7 +80,7 @@ export default function ProductTypeForm({
       reset({
         product_id: Number(productType.product_id),
 
-        product_code: productType.product_code,
+        // product_code: productType.product_code,
 
         product_type: productType.product_type,
       });
@@ -91,7 +91,7 @@ export default function ProductTypeForm({
     reset({
       product_id: 0,
 
-      product_code: "",
+    //   product_code: "",
 
       product_type: "",
     });
@@ -101,7 +101,7 @@ export default function ProductTypeForm({
     await onSubmit({
       product_id: Number(data.product_id),
 
-      product_code: data.product_code.trim(),
+    //   product_code: data.product_code.trim(),
 
       product_type: data.product_type.trim(),
     });
@@ -150,7 +150,7 @@ export default function ProductTypeForm({
 
       {/* PRODUCT CODE */}
 
-      <div>
+      {/* <div>
         <label className={labelClass}>
           Product Code
           <span className="ml-1 text-red-500">*</span>
@@ -168,7 +168,7 @@ export default function ProductTypeForm({
         {errors.product_code && (
           <ErrorText>{errors.product_code.message}</ErrorText>
         )}
-      </div>
+      </div> */}
 
       {/* PRODUCT TYPE */}
 

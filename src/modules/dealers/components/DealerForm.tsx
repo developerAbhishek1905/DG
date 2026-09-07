@@ -296,6 +296,8 @@ export default function DealerForm({
   //   loadCategories();
   // }, []);
 
+  console.log(dealer)
+
   useEffect(() => {
     if (!dealer) {
       return;

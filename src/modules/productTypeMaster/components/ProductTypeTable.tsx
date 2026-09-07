@@ -177,7 +177,7 @@ export default function ProductTypeTable({
 
               <th className="px-5 py-3">Product ID</th>
 
-              <th className="px-5 py-3">Product Code</th>
+              {/* <th className="px-5 py-3">Product Code</th> */}
 
               <th className="px-5 py-3">Product Type</th>
 
@@ -194,7 +194,7 @@ export default function ProductTypeTable({
 
                 <td className="px-5 py-4 text-[#123B7A]">{item.product_id}</td>
 
-                <td className="px-5 py-4">{item.product_code}</td>
+                {/* <td className="px-5 py-4">{item.product_code}</td> */}
 
                 <td className="px-5 py-4">{item.product_type}</td>
 

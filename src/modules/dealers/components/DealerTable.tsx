@@ -264,6 +264,7 @@ export default function DealerTable({ dealers, onRefresh }: Props) {
       </div>
     );
   }
+  
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -315,7 +316,7 @@ export default function DealerTable({ dealers, onRefresh }: Props) {
               const productServices = dealer.productServices ?? [];
 
               return (
-                <tr key={dealer.id} className="transition hover:bg-gray-50">
+                <tr key={dealer._id} className="transition hover:bg-gray-50">
                   {/* HEAD CODE */}
 
                   <td className="whitespace-nowrap px-5 py-4">
@@ -329,7 +330,7 @@ export default function DealerTable({ dealers, onRefresh }: Props) {
                   <td className="px-5 py-4">
                     <button
                       type="button"
-                      onClick={() => navigate(`/dealers/${dealer.id}`)}
+                      onClick={() => navigate(`/dealers/${dealer._id}`)}
                       className="font-medium text-[#123B7A] hover:underline"
                     >
                       {dealer.headName || dealer.technicianFirmName || "-"}
@@ -466,7 +467,7 @@ export default function DealerTable({ dealers, onRefresh }: Props) {
                       <button
                         type="button"
                         title="View"
-                        onClick={() => navigate(`/dealers/${dealer.id}`)}
+                        onClick={() => navigate(`/dealers/${dealer._id}`)}
                         className="rounded-lg p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-600"
                       >
                         <Eye size={17} />
@@ -477,7 +478,7 @@ export default function DealerTable({ dealers, onRefresh }: Props) {
                       <button
                         type="button"
                         title="Edit"
-                        onClick={() => navigate(`/dealers/${dealer.id}/edit`)}
+                        onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
                         className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
                       >
                         <Edit size={17} />
@@ -488,7 +489,7 @@ export default function DealerTable({ dealers, onRefresh }: Props) {
                       <button
                         type="button"
                         title="Delete"
-                        onClick={() => handleDelete(dealer.id)}
+                        onClick={() => handleDelete(dealer._id)}
                         className="rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600"
                       >
                         <Trash2 size={17} />

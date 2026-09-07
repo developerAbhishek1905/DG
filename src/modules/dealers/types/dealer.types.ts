@@ -200,7 +200,7 @@ export interface DealerFormData {
 }
 
 export interface Dealer extends DealerFormData {
-  id: string;
+  _id: string;
 
   createdAt: string;
 

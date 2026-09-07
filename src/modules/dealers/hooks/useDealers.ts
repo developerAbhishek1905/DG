@@ -156,6 +156,8 @@ export function useDealerDetails(id?: string) {
   const [dealer, setDealer] = useState<Dealer | null>(null);
   const [loading, setLoading] = useState(false);
 
+
+  console.log(id)
   const fetchDealer = useCallback(async () => {
     if (!id) {
       setDealer(null);

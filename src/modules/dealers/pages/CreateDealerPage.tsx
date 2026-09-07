@@ -14,7 +14,7 @@ export default function CreateDealerPage() {
   const handleCreate = async (data: DealerFormData) => {
     const dealer = await createDealer(data);
 
-    navigate(`/dealers/${dealer.id}`);
+    navigate(`/dealers/${dealer._id}`);
   };
 
   return (
