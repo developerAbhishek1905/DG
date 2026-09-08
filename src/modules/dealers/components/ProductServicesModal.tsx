@@ -66,6 +66,8 @@ export default function ProductServicesModal({
     }
   };
 
+  console.log(categories)
+
   const getCategoryName = (category: CategoryDropdownOption) => {
     return (
       category.categoryDescription ||
@@ -75,30 +77,71 @@ export default function ProductServicesModal({
     );
   };
 
-  const isSelected = (categoryId: string) =>
-    selected.some((item) => item.categoryId === categoryId);
+const isSelected = (categoryId: string | number) =>
+  selected.some(
+    (item) => String(item.categoryId) === String(categoryId),
+  );
 
-  const toggleCategory = (category: CategoryDropdownOption) => {
-    const categoryId = category.id;
+//   const toggleCategory = (category: CategoryDropdownOption) => {
+//     const categoryId = category.id;
 
-    const categoryName = getCategoryName(category);
+//     const categoryName = getCategoryName(category);
 
-    if (isSelected(categoryId)) {
-      setSelected((prev) =>
-        prev.filter((item) => item.categoryId !== categoryId),
-      );
+//     if (isSelected(categoryId)) {
+//       setSelected((prev) =>
+//         prev.filter((item) => item.categoryId !== categoryId),
+//       );
 
-      return;
-    }
+//       return;
+//     }
 
-    setSelected((prev) => [
-      ...prev,
-      {
-        categoryId,
-        categoryName,
-      },
-    ]);
-  };
+//     setSelected((prev) => [
+//       ...prev,
+//       {
+//         categoryId,
+//         categoryName,
+//       },
+//     ]);
+//   };
+
+
+const toggleCategory = (category: CategoryDropdownOption) => {
+  const categoryId =
+    // category.id ??
+    category._id 
+    // category.category_id;
+
+        // console.log(category.id , category._id , category.category_id)
+
+  const categoryName = getCategoryName(category);
+
+  console.log("CATEGORY:", category);
+  console.log("CATEGORY ID:", categoryId);
+
+  if (!categoryId) {
+    console.error("Category id not found:", category);
+    return;
+  }
+
+  if (isSelected(String(categoryId))) {
+    setSelected((prev) =>
+      prev.filter(
+        (item) => item.categoryId !== String(categoryId),
+      ),
+    );
+
+    return;
+  }
+
+  setSelected((prev) => [
+    ...prev,
+    {
+      categoryId: String(categoryId),
+      categoryName,
+    },
+  ]);
+};
+
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
@@ -162,42 +205,88 @@ export default function ProductServicesModal({
           ) : (
             <div className="space-y-2">
               {categories.map((category) => {
-                const checked = isSelected(category.id);
+
+                  const categoryId =
+    // category.id ??
+    category._id 
+    // category.category_id;
+
+
+  const checked = categoryId
+    ? isSelected(categoryId)
+    : false;
+
+                // const checked = isSelected(category.id);
+
+                // return (
+                //   <button
+                //     key={category.id}
+                //     type="button"
+                //     onClick={() => toggleCategory(category)}
+                //     className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition ${
+                //       checked
+                //         ? "border-blue-500 bg-blue-50"
+                //         : "border-gray-200 bg-white hover:bg-gray-50"
+                //     }`}
+                //   >
+                //     <div>
+                //       <p className="text-sm font-medium text-gray-800">
+                //         {getCategoryName(category)}
+                //       </p>
+
+                //       {category.groupCategoryCode && (
+                //         <p className="mt-1 text-xs text-gray-500">
+                //           {category.groupCategoryCode}
+                //         </p>
+                //       )}
+                //     </div>
+
+                //     <div
+                //       className={`flex h-5 w-5 items-center justify-center rounded border ${
+                //         checked
+                //           ? "border-blue-600 bg-blue-600 text-white"
+                //           : "border-gray-300 bg-white"
+                //       }`}
+                //     >
+                //       {checked && <Check size={14} />}
+                //     </div>
+                //   </button>
+                // );
 
                 return (
-                  <button
-                    key={category.id}
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition ${
-                      checked
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 bg-white hover:bg-gray-50"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-gray-800">
-                        {getCategoryName(category)}
-                      </p>
+    <button
+      key={String(categoryId)}
+      type="button"
+      onClick={() => toggleCategory(category)}
+      className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition ${
+        checked
+          ? "border-blue-500 bg-blue-50"
+          : "border-gray-200 bg-white hover:bg-gray-50"
+      }`}
+    >
+      <div>
+        <p className="text-sm font-medium text-gray-800">
+          {getCategoryName(category)}
+        </p>
 
-                      {category.groupCategoryCode && (
-                        <p className="mt-1 text-xs text-gray-500">
-                          {category.groupCategoryCode}
-                        </p>
-                      )}
-                    </div>
+        {category.groupCategoryCode && (
+          <p className="mt-1 text-xs text-gray-500">
+            {category.groupCategoryCode}
+          </p>
+        )}
+      </div>
 
-                    <div
-                      className={`flex h-5 w-5 items-center justify-center rounded border ${
-                        checked
-                          ? "border-blue-600 bg-blue-600 text-white"
-                          : "border-gray-300 bg-white"
-                      }`}
-                    >
-                      {checked && <Check size={14} />}
-                    </div>
-                  </button>
-                );
+      <div
+        className={`flex h-5 w-5 items-center justify-center rounded border ${
+          checked
+            ? "border-blue-600 bg-blue-600 text-white"
+            : "border-gray-300 bg-white"
+        }`}
+      >
+        {checked && <Check size={14} />}
+      </div>
+    </button>
+  );
               })}
             </div>
           )}

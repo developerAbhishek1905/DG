@@ -98,16 +98,16 @@ useEffect(() => {
       <input
         type="hidden"
         {...register(`productServices.${index}.productId`, {
-          required: "Product is required",
+        //   required: "Product is required",
         })}
       />
 
       <input
         type="hidden"
         {...register(`productServices.${index}.categories`, {
-          validate: (categories) =>
-            categories?.length > 0 ||
-            "Please select at least one service",
+        //   validate: (categories) =>
+        //     categories?.length > 0 ||
+        //     "Please select at least one service",
         })}
       />
 
@@ -341,17 +341,48 @@ useEffect(() => {
             productServices[servicesModalProductIndex]?.categories ?? []
           }
           onClose={() => setServicesModalProductIndex(null)}
-          onSave={(categories) => {
-            setValue(
-              `productServices.${servicesModalProductIndex}.categories`,
-              categories,
-              {
-                shouldValidate: true,
-              },
-            );
+        //   onSave={(categories) => {
+        //     setValue(
+        //       `productServices.${servicesModalProductIndex}.categories`,
+        //       categories,
+        //       {
+        //         shouldValidate: true,
+        //       },
+        //     );
 
-            setServicesModalProductIndex(null);
-          }}
+        //     setServicesModalProductIndex(null);
+        //   }}
+        onSave={(categories) => {
+//   console.log("CATEGORIES FROM MODAL:", categories);
+
+  const formattedCategories = categories.map((category: any) => ({
+    categoryId:
+      category.categoryId ??
+      category.id ??
+      category._id,
+
+    categoryName:
+      category.categoryName ??
+      category.category ??
+      category.category_name,
+  }));
+
+//   console.log(
+//     "FORMATTED CATEGORIES:",
+//     formattedCategories,
+//   );
+
+  setValue(
+    `productServices.${servicesModalProductIndex}.categories`,
+    formattedCategories,
+    {
+      shouldValidate: true,
+      shouldDirty: true,
+    },
+  );
+
+  setServicesModalProductIndex(null);
+}}
         />
       )}
     </>

@@ -17,7 +17,7 @@ export interface ProductDropdownOption {
 }
 
 export interface CategoryDropdownOption {
-  id: string;
+  _id: string;
   product_id?: number;
   category?: string;
   categoryDescription?: string;

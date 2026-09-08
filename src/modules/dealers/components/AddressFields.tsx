@@ -131,6 +131,12 @@ export default function AddressFields({
   useEffect(() => {
     loadPincodes(debouncedPincodeSearch);
   }, [debouncedPincodeSearch, cityId]);
+
+  useEffect(() => {
+    register(`${type}.pinCode`, {
+      required: "PIN code is required",
+    });
+  }, [register, type]);
   /* ===================================================== */
   /* STATE SEARCH */
   /* ===================================================== */
@@ -624,6 +630,10 @@ export default function AddressFields({
   /* ===================================================== */
 
   const handlePincodeSelect = (pincode: PincodeOption) => {
+    const selectedPinCode = pincode.pincode_name || pincode.pincode || "";
+
+    console.log("SELECTED PINCODE:", pincode);
+    console.log("PINCODE VALUE:", selectedPinCode);
     /*
      * Auto-fill State
      */
@@ -684,8 +694,15 @@ export default function AddressFields({
       setValue(`${type}.pincodeId`, pincode.pincode_id);
     }
 
-    setValue(`${type}.pincode_name`, String(pincode.pincode_name), {
+    // setValue(`${type}.pinCode`, String(pincode.pincode_name), {
+    //   shouldValidate: true,
+    //   shouldDirty: true,
+    // });
+
+    setValue(`${type}.pinCode`, String(selectedPinCode), {
       shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
     });
   };
 
@@ -741,7 +758,11 @@ export default function AddressFields({
             rows={3}
             placeholder={`Enter complete ${title.toLowerCase()}`}
             {...register(`${type}.addressLine`, {
-              required: `${title} is required`,
+              // required: `${title} is required`,
+              required:
+                type === "businessAddress"
+                  ? "Business Address is required"
+                  : false,
             })}
             className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
@@ -956,7 +977,10 @@ export default function AddressFields({
           loading={pincodeLoading}
           options={pincodes.map((pincode) => {
             const optionValue =
-              pincode.pincode_id ?? pincode.pincode_name ?? pincode.pincode ?? "";
+              pincode.pincode_id ??
+              pincode.pincode_name ??
+              pincode.pincode ??
+              "";
 
             return {
               value: optionValue,

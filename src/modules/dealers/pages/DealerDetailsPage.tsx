@@ -20,7 +20,22 @@ export default function DealerDetailsPage() {
 
   const { id } = useParams();
 
+  const IMAGE_UPLOAD_URL = "http://localhost:5004"
+
   const { dealer, loading } = useDealerDetails(id);
+
+  type DealerDocuments = {
+    aadhaarFront?: string | null;
+    aadhaarBack?: string | null;
+    panFront?: string | null;
+    panBack?: string | null;
+    drivingLicenceFront?: string | null;
+    drivingLicenceBack?: string | null;
+    otherDocuments?: string[];
+  };
+
+  const dealerDocuments = (dealer as { documents?: DealerDocuments } | null)
+    ?.documents;
 
   if (loading) {
     return (
@@ -526,52 +541,55 @@ export default function DealerDetailsPage() {
           <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <DocumentPreview
               label="Aadhaar Front"
-              url={dealer.documents?.aadhaarFront}
+              url={`${IMAGE_UPLOAD_URL}${dealerDocuments?.aadhaarFront}`}
             />
 
             <DocumentPreview
               label="Aadhaar Back"
-              url={dealer.documents?.aadhaarBack}
+              url={`${IMAGE_UPLOAD_URL}${dealerDocuments?.aadhaarBack}`}
             />
 
             <DocumentPreview
               label="PAN Front"
-              url={dealer.documents?.panFront}
+              url={`${IMAGE_UPLOAD_URL}${dealerDocuments?.panFront}`}
             />
 
-            <DocumentPreview label="PAN Back" url={dealer.documents?.panBack} />
+            <DocumentPreview
+              label="PAN Back"
+              url={`${IMAGE_UPLOAD_URL}${dealerDocuments?.panBack}`}
+            />
 
             <DocumentPreview
               label="Driving Licence Front"
-              url={dealer.documents?.drivingLicenceFront}
+              url={`${IMAGE_UPLOAD_URL}${dealerDocuments?.drivingLicenceFront}`}
             />
 
             <DocumentPreview
               label="Driving Licence Back"
-              url={dealer.documents?.drivingLicenceBack}
+              url={`${IMAGE_UPLOAD_URL}${dealerDocuments?.drivingLicenceBack}`}
             />
           </div>
 
           {/* OTHER DOCUMENTS */}
-          {dealer.documents?.otherDocuments?.length > 0 && (
+          {dealerDocuments?.otherDocuments?.length ? (
             <div className="mt-6">
               <h4 className="mb-3 text-sm font-semibold text-gray-800">
                 Other Documents
               </h4>
 
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {dealer.documents.otherDocuments.map(
+                {dealerDocuments.otherDocuments.map(
                   (document: string, index: number) => (
                     <DocumentPreview
                       key={`${document}-${index}`}
                       label={`Other Document ${index + 1}`}
-                      url={document}
+                      url={`${IMAGE_UPLOAD_URL}${document}`}
                     />
                   ),
                 )}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </Card>
       {/* ======================================

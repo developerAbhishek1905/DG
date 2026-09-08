@@ -9,7 +9,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+// import { Controller, useFieldArray, useForm } from "react-hook-form";
+
+import { Controller, useForm } from "react-hook-form";
 
 // import {
 //   COMPLAINT_CATEGORY_OPTIONS,
@@ -115,32 +117,63 @@ export default function ComplaintForm({
     control,
     formState: { errors },
   } = useForm<ComplaintFormData>({
+    // defaultValues: {
+    //   complaintNumber: generateComplaintNumber(),
+
+    //   complaintDateTime: new Date().toISOString(),
+
+    //   customerId: "",
+
+    //   mobileNumbers: [
+    //     {
+    //       number: "",
+    //       description: "Registered Mobile",
+    //     },
+    //   ],
+
+    //   addresses: [
+    //     {
+    //       address: "",
+    //       description: "",
+    //     },
+    //   ],
+
+    //   // customerPhone: "",
+    //   customerName: "",
+    //   // alternatePhone: "",
+
+    //   // address: "",
+    //   city: "",
+    //   district: "",
+    //   state: "",
+    //   pincode: "",
+    //   contactInfo: "",
+
+    //   productName: "",
+    //   units: 1,
+    //   quoteAmount: undefined,
+
+    //   faultReported: "",
+
+    //   complaintType: "REGULAR",
+
+    //   adName: "",
+
+    //   status: "REGISTERED",
+
+    //   repeatComplaintNumber: "",
+    // },
     defaultValues: {
       complaintNumber: generateComplaintNumber(),
-
       complaintDateTime: new Date().toISOString(),
 
       customerId: "",
 
-      mobileNumbers: [
-        {
-          number: "",
-          description: "Registered Mobile",
-        },
-      ],
-
-      addresses: [
-        {
-          address: "",
-          description: "",
-        },
-      ],
-
-      // customerPhone: "",
+      customerPhone: "",
       customerName: "",
-      // alternatePhone: "",
+      alternatePhone: "",
 
-      // address: "",
+      address: "",
       city: "",
       district: "",
       state: "",
@@ -152,34 +185,30 @@ export default function ComplaintForm({
       quoteAmount: undefined,
 
       faultReported: "",
-
       complaintType: "REGULAR",
-
       adName: "",
-
       status: "REGISTERED",
-
       repeatComplaintNumber: "",
     },
   });
 
-  const {
-    fields: mobileFields,
-    append: appendMobile,
-    remove: removeMobile,
-  } = useFieldArray({
-    control,
-    name: "mobileNumbers",
-  });
+  // const {
+  //   fields: mobileFields,
+  //   append: appendMobile,
+  //   remove: removeMobile,
+  // } = useFieldArray({
+  //   control,
+  //   name: "mobileNumbers",
+  // });
 
-  const {
-    fields: addressFields,
-    append: appendAddress,
-    remove: removeAddress,
-  } = useFieldArray({
-    control,
-    name: "addresses",
-  });
+  // const {
+  //   fields: addressFields,
+  //   append: appendAddress,
+  //   remove: removeAddress,
+  // } = useFieldArray({
+  //   control,
+  //   name: "addresses",
+  // });
 
   // const handleWarrantyHistorySelect = (complaint: ComplaintHistoryItem) => {
   //   if (complaint.complaintType !== "WARRANTY") {
@@ -230,9 +259,11 @@ export default function ComplaintForm({
     });
   };
 
-  const mobileNumbers = watch("mobileNumbers");
+  // const mobileNumbers = watch("mobileNumbers");
 
-  const customerPhone = mobileNumbers?.[0]?.number || "";
+  // const customerPhone = mobileNumbers?.[0]?.number || "";
+
+  const customerPhone = watch("customerPhone");
 
   const [existingCustomer, setExistingCustomer] = useState<Customer | null>(
     null,
@@ -569,7 +600,7 @@ export default function ComplaintForm({
           {/* Mobile Numbers */}
 
           <div className="md:col-span-2 lg:col-span-3">
-            <div className="mb-3 flex items-center justify-between">
+            {/* <div className="mb-3 flex items-center justify-between">
               <label className="block text-sm font-medium text-gray-700">
                 Mobile Numbers
                 <span className="ml-1 text-red-500">*</span>
@@ -588,16 +619,15 @@ export default function ComplaintForm({
                 <Plus size={16} />
                 Add Mobile
               </button>
-            </div>
+            </div> */}
 
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               {mobileFields.map((field, index) => (
                 <div
                   key={field.id}
                   className="rounded-lg border border-gray-200 bg-gray-50 p-4"
                 >
                   <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-                    {/* Mobile */}
 
                     <div>
                       <label className="mb-1 block text-xs font-medium text-gray-600">
@@ -637,7 +667,6 @@ export default function ComplaintForm({
                       )}
                     </div>
 
-                    {/* Description */}
 
                     <div>
                       <label className="mb-1 block text-xs font-medium text-gray-600">
@@ -651,7 +680,6 @@ export default function ComplaintForm({
                       />
                     </div>
 
-                    {/* Remove */}
 
                     <div className="flex items-end">
                       {mobileFields.length > 1 && (
@@ -668,10 +696,59 @@ export default function ComplaintForm({
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Customer Name */}
+
+          {/* Registered Mobile Number */}
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Registered Mobile Number
+              <span className="ml-1 text-red-500">*</span>
+            </label>
+
+            <div className="relative">
+              <input
+                {...register("customerPhone", {
+                  required: "Registered mobile number is required",
+                  pattern: {
+                    value: /^[0-9]{10}$/,
+                    message: "Enter valid 10 digit mobile number",
+                  },
+                })}
+                maxLength={10}
+                inputMode="numeric"
+                placeholder="9876543210"
+                className={inputClass}
+              />
+
+              {lookupLoading && (
+                <Loader2
+                  size={17}
+                  className="absolute right-3 top-3 animate-spin text-gray-400"
+                />
+              )}
+            </div>
+
+            {errors.customerPhone && (
+              <ErrorText>{errors.customerPhone.message}</ErrorText>
+            )}
+          </div>
+          <Input
+            label="Alternative Phone No."
+            placeholder="9876543210"
+            maxLength={10}
+            inputMode="numeric"
+            error={errors.alternatePhone?.message}
+            {...register("alternatePhone", {
+              pattern: {
+                value: /^$|^[0-9]{10}$/,
+                message: "Enter valid 10 digit mobile number",
+              },
+            })}
+          />
 
           <Input
             label="Customer Name"
@@ -714,7 +791,7 @@ export default function ComplaintForm({
           {/* Multiple Addresses */}
 
           <div className="md:col-span-2 lg:col-span-3">
-            <div className="mb-3 flex items-center justify-between">
+            {/* <div className="mb-3 flex items-center justify-between">
               <label className="block text-sm font-medium text-gray-700">
                 Customer Addresses
                 <span className="ml-1 text-red-500">*</span>
@@ -733,16 +810,15 @@ export default function ComplaintForm({
                 <Plus size={16} />
                 Add Address
               </button>
-            </div>
+            </div> */}
 
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               {addressFields.map((field, index) => (
                 <div
                   key={field.id}
                   className="rounded-lg border border-gray-200 bg-gray-50 p-4"
                 >
                   <div className="grid gap-3 md:grid-cols-[2fr_1fr_auto]">
-                    {/* Address */}
 
                     <div>
                       <label className="mb-1 block text-xs font-medium text-gray-600">
@@ -766,7 +842,6 @@ export default function ComplaintForm({
                       )}
                     </div>
 
-                    {/* Description */}
 
                     <div>
                       <label className="mb-1 block text-xs font-medium text-gray-600">
@@ -780,7 +855,6 @@ export default function ComplaintForm({
                       />
                     </div>
 
-                    {/* Remove */}
 
                     <div className="flex items-end">
                       {addressFields.length > 1 && (
@@ -797,10 +871,50 @@ export default function ComplaintForm({
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
+
+            
+            {/* <div className="md:col-span-2 lg:col-span-3">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Customer Address
+                <span className="ml-1 text-red-500">*</span>
+              </label>
+
+              <textarea
+                {...register("address", {
+                  required: "Customer address is required",
+                })}
+                rows={3}
+                placeholder="Enter complete customer address"
+                className={inputClass}
+              />
+
+              {errors.address && (
+                <ErrorText>{errors.address.message}</ErrorText>
+              )}
+            </div> */}
           </div>
 
           {/* City */}
+
+          <div className="md:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Customer Address
+                <span className="ml-1 text-red-500">*</span>
+              </label>
+
+              <input
+                {...register("address", {
+                  required: "Customer address is required",
+                })}
+                placeholder="Enter customer address"
+                className={inputClass}
+              />
+
+              {errors.address && (
+                <ErrorText>{errors.address.message}</ErrorText>
+              )}
+            </div>
 
           <Input
             label="City"
@@ -848,13 +962,9 @@ export default function ComplaintForm({
 
           {/* Contact Info */}
 
-          <div className="md:col-span-2">
-            <Input
-              label="Brand"
-              placeholder="Brand"
-              {...register("contactInfo")}
-            />
-          </div>
+          {/* <div className="md:col-span-2">
+            
+          </div> */}
         </div>
 
         {/* Existing Customer Status */}
@@ -905,6 +1015,12 @@ export default function ComplaintForm({
 
       <Section title="Product & Complaint Details">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+          <Input
+              label="Brand"
+              placeholder="Brand"
+              {...register("contactInfo")}
+            />
           <Input
             label="Product"
             placeholder="Product"
@@ -941,7 +1057,7 @@ export default function ComplaintForm({
             })}
           />
 
-          <div className="md:col-span-2">
+          {/* <div className="md:col-span-2"> */}
             <Input
               label="Fault Reported"
               placeholder="Enter fault reported by customer"
@@ -950,7 +1066,7 @@ export default function ComplaintForm({
                 required: "Fault reported is required",
               })}
             />
-          </div>
+          {/* </div> */}
 
           {/* Type */}
 
