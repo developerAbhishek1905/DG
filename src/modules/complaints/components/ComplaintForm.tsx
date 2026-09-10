@@ -5,31 +5,21 @@ import {
   Loader2,
   Search,
   UserCheck,
-  Plus,
-  Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-// import { Controller, useFieldArray, useForm } from "react-hook-form";
-
 import { Controller, useForm } from "react-hook-form";
-
-// import {
-//   COMPLAINT_CATEGORY_OPTIONS,
-//   COMPLAINT_PRIORITY_OPTIONS,
-// } from "../constants/complaint.constants";
-
 import {
   createComplaint,
   lookupCustomerByPhone,
+  updateCustomer,
+  searchBrands,
+  searchProducts,
+  searchProductTypes,
+  type BrandDropdownOption,
+  type ProductDropdownOption,
+  type ProductTypeDropdownOption,
 } from "../services/complaintApi";
 
-// import type {
-//   Complaint,
-//   ComplaintHistoryItem,
-//   ComplaintStatus,
-//   ComplaintType,
-//   Customer,
-// } from "../types/complaint.types";
 import type {
   Complaint,
   ComplaintCategory,
@@ -38,7 +28,14 @@ import type {
   ComplaintStatus,
   ComplaintType,
   Customer,
+  ComplaintAddress,
+  ComplaintFormData,
 } from "../types/complaint.types";
+import { toast } from "react-toastify";
+import ComplaintAddressFields from "./ComplaintAddressFields";
+import { useDebounce } from "../../../hooks/useDebounce";
+import SearchSelect from "../../../components/ui/SearchSelect";
+import { useNavigate } from "react-router-dom";
 
 interface ComplaintHistoryTableProps {
   history: ComplaintHistoryItem[];
@@ -51,60 +48,19 @@ interface ComplaintFormProps {
   onComplaintCreated?: (complaint: Complaint) => void;
 }
 
-interface ComplaintFormData {
-  complaintNumber: string;
-  complaintDateTime: string;
-
-  customerId?: string;
-
-  customerPhone: string;
-  customerName: string;
-  alternatePhone?: string;
-
-  address: string;
-  city: string;
-  district: string;
-  state: string;
-  pincode: string;
-  contactInfo?: string;
-
-  productName: string;
-  units: number;
-  quoteAmount?: number;
-
-  faultReported: string;
-  complaintType: ComplaintType;
-
-  adName?: string;
-
-  status: ComplaintStatus;
-
-  repeatComplaintNumber?: string;
-}
-
 const formatComplaintDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, "0");
-
   const month = String(date.getMonth() + 1).padStart(2, "0");
-
   const year = String(date.getFullYear()).slice(-2);
-
   return `${day}${month}${year}`;
 };
 
 const generateComplaintNumber = () => {
   const now = new Date();
-
   const datePart = formatComplaintDate(now);
-
-  // Temporary frontend sequence
-  // Backend should generate this later
   const sequence = "0001";
-
   return `CMP${datePart}/${sequence}`;
 };
-
-// const complaintNumber = data.complaintNumber || generateComplaintNumber();
 
 export default function ComplaintForm({
   onComplaintCreated,
@@ -114,101 +70,61 @@ export default function ComplaintForm({
     handleSubmit,
     watch,
     setValue,
+    getValues,
     control,
     formState: { errors },
   } = useForm<ComplaintFormData>({
-    // defaultValues: {
-    //   complaintNumber: generateComplaintNumber(),
-
-    //   complaintDateTime: new Date().toISOString(),
-
-    //   customerId: "",
-
-    //   mobileNumbers: [
-    //     {
-    //       number: "",
-    //       description: "Registered Mobile",
-    //     },
-    //   ],
-
-    //   addresses: [
-    //     {
-    //       address: "",
-    //       description: "",
-    //     },
-    //   ],
-
-    //   // customerPhone: "",
-    //   customerName: "",
-    //   // alternatePhone: "",
-
-    //   // address: "",
-    //   city: "",
-    //   district: "",
-    //   state: "",
-    //   pincode: "",
-    //   contactInfo: "",
-
-    //   productName: "",
-    //   units: 1,
-    //   quoteAmount: undefined,
-
-    //   faultReported: "",
-
-    //   complaintType: "REGULAR",
-
-    //   adName: "",
-
-    //   status: "REGISTERED",
-
-    //   repeatComplaintNumber: "",
-    // },
     defaultValues: {
       complaintNumber: generateComplaintNumber(),
-      complaintDateTime: new Date().toISOString(),
-
+      // complaintDateTime: new Date().toISOString(),
       customerId: "",
-
       customerPhone: "",
       customerName: "",
       alternatePhone: "",
+      customerEmail: "",
+      address: {
+        addressLine: "",
+        stateId: undefined,
+        state: "",
+        districtId: undefined,
+        district: "",
+        cityId: undefined,
+        city: "",
+        pincodeId: undefined,
+        pinCode: "",
+      },
 
-      address: "",
-      city: "",
-      district: "",
-      state: "",
-      pincode: "",
       contactInfo: "",
 
+      brandId: "",
+      brand: "",
+
+      productId: undefined,
       productName: "",
+
+      productTypeId: "",
+      productType: "",
+
+      productDescription: "",
+
       units: 1,
       quoteAmount: undefined,
 
       faultReported: "",
+
+      category: "",
+      priority: "MEDIUM",
+
       complaintType: "REGULAR",
+
       adName: "",
       status: "REGISTERED",
       repeatComplaintNumber: "",
+
+      subject: "",
+      description: "",
     },
   });
-
-  // const {
-  //   fields: mobileFields,
-  //   append: appendMobile,
-  //   remove: removeMobile,
-  // } = useFieldArray({
-  //   control,
-  //   name: "mobileNumbers",
-  // });
-
-  // const {
-  //   fields: addressFields,
-  //   append: appendAddress,
-  //   remove: removeAddress,
-  // } = useFieldArray({
-  //   control,
-  //   name: "addresses",
-  // });
 
   // const handleWarrantyHistorySelect = (complaint: ComplaintHistoryItem) => {
   //   if (complaint.complaintType !== "WARRANTY") {
@@ -216,104 +132,173 @@ export default function ComplaintForm({
   //   }
 
   //   const oldComplaintNumber = complaint.complaintNumber;
+  //   console.log("Selected warranty complaint:", complaint);
 
+  //   // Set type to warranty
+  //   setValue("complaintType", "WARRANTY", {
+  //     shouldValidate: true,
+  //     shouldDirty: true,
+  //   });
+
+  //   // Old complaint
   //   setValue("repeatComplaintNumber", oldComplaintNumber, {
   //     shouldValidate: true,
   //     shouldDirty: true,
   //   });
 
+  //   // New complaint
   //   setValue("complaintNumber", `${oldComplaintNumber}/01`, {
   //     shouldValidate: true,
   //     shouldDirty: true,
   //   });
   // };
 
-  // const customerPhone = watch("customerPhone");
-  // const alternatePhone = watch("alternatePhone");
-
-  const handleWarrantyHistorySelect = (complaint: ComplaintHistoryItem) => {
-    if (complaint.complaintType !== "WARRANTY") {
+  const handleUpdateCustomer = async () => {
+    if (!existingCustomer) {
+      toast.error("Customer not found");
       return;
     }
 
-    const oldComplaintNumber = complaint.complaintNumber;
+    const data = getValues();
 
-    console.log("Selected warranty complaint:", complaint);
+    if (!data.customerName?.trim()) {
+      toast.error("Customer name is required");
+      return;
+    }
 
-    // Set type to warranty
-    setValue("complaintType", "WARRANTY", {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    if (!/^[0-9]{10}$/.test(data.customerPhone?.trim())) {
+      toast.error("Enter valid registered mobile number");
+      return;
+    }
 
-    // Old complaint
-    setValue("repeatComplaintNumber", oldComplaintNumber, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    if (
+      data.alternatePhone &&
+      !/^[0-9]{10}$/.test(data.alternatePhone.trim())
+    ) {
+      toast.error("Enter valid alternative mobile number");
+      return;
+    }
 
-    // New complaint
-    setValue("complaintNumber", `${oldComplaintNumber}/01`, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    if (!data.address?.addressLine?.trim()) {
+      toast.error("Customer address is required");
+      return;
+    }
+
+    try {
+      setUpdatingCustomer(true);
+
+      const updatedCustomer = await updateCustomer(existingCustomer.id, {
+        name: data.customerName.trim(),
+
+        phone: data.customerPhone.trim(),
+
+        alternatePhone: data.alternatePhone?.trim() || "",
+
+        email: data.customerEmail?.trim() || "",
+
+        address: {
+          addressLine: data.address.addressLine?.trim() || "",
+
+          stateId: data.address.stateId ? Number(data.address.stateId) : null,
+
+          state: data.address.state?.trim() || "",
+
+          districtId: data.address.districtId
+            ? Number(data.address.districtId)
+            : null,
+
+          district: data.address.district?.trim() || "",
+
+          cityId: data.address.cityId ? Number(data.address.cityId) : null,
+
+          city: data.address.city?.trim() || "",
+
+          pincodeId: data.address.pincodeId
+            ? Number(data.address.pincodeId)
+            : null,
+
+          pinCode: data.address.pinCode?.trim() || "",
+        },
+
+        contactInfo: data.contactInfo?.trim() || "",
+
+        status: existingCustomer.status || "ACTIVE",
+      });
+
+      setExistingCustomer(updatedCustomer);
+
+      fillCustomerDetails(updatedCustomer);
+
+      toast.success("Customer updated successfully");
+    } catch (error: any) {
+      console.error("Update customer error:", error);
+
+      toast.error(error.response?.data?.message || "Failed to update customer");
+    } finally {
+      setUpdatingCustomer(false);
+    }
   };
 
-  // const mobileNumbers = watch("mobileNumbers");
-
-  // const customerPhone = mobileNumbers?.[0]?.number || "";
-
   const customerPhone = watch("customerPhone");
-
   const [existingCustomer, setExistingCustomer] = useState<Customer | null>(
     null,
   );
-
   const [complaintHistory, setComplaintHistory] = useState<
     ComplaintHistoryItem[]
   >([]);
 
   const selectedComplaintType = watch("complaintType");
   const selectedOldComplaintNumber = watch("repeatComplaintNumber");
-  const filteredComplaintHistory =
-    selectedComplaintType === "WARRANTY"
-      ? complaintHistory.filter(
-          (complaint) => complaint.complaintType === "WARRANTY",
-        )
-      : complaintHistory;
+  // const filteredComplaintHistory =
+  //   selectedComplaintType === "WARRANTY"
+  //     ? complaintHistory.filter(
+  //         (complaint) => complaint.complaintType === "WARRANTY",
+  //       )
+  //     : complaintHistory;
 
   const [lookupLoading, setLookupLoading] = useState(false);
-
   const [lookupDone, setLookupDone] = useState(false);
-
   const [lookupError, setLookupError] = useState<string | null>(null);
-
   const [submitting, setSubmitting] = useState(false);
+  // const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [updatingCustomer, setUpdatingCustomer] = useState(false);
+  const [brands, setBrands] = useState<BrandDropdownOption[]>([]);
+  const [products, setProducts] = useState<ProductDropdownOption[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductTypeDropdownOption[]>(
+    [],
+  );
+  const [brandSearch, setBrandSearch] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const [productTypeSearch, setProductTypeSearch] = useState("");
+  const [brandLoading, setBrandLoading] = useState(false);
+  const [productLoading, setProductLoading] = useState(false);
+  const [productTypeLoading, setProductTypeLoading] = useState(false);
+  const debouncedBrandSearch = useDebounce(brandSearch, 500);
+  const debouncedProductSearch = useDebounce(productSearch, 500);
+  const debouncedProductTypeSearch = useDebounce(productTypeSearch, 500);
 
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const selectedBrand = watch("brand");
+  const selectedProductId = watch("productId");
+  const selectedProductName = watch("productName");
+  const selectedProductType = watch("productType");
+  const selectedComplaintNumber = watch("repeatComplaintNumber");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     const now = new Date();
+  //     setCurrentDateTime(now);
+  //     setValue("complaintDateTime", now.toISOString());
+  //   }, 1000);
 
-      setCurrentDateTime(now);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, [setValue]);
 
-      setValue("complaintDateTime", now.toISOString());
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [setValue]);
-  /*
-  |--------------------------------------------------------------------------
-  | Registered Mobile Lookup
-  |--------------------------------------------------------------------------
-  */
-
+  // Registered Mobile Lookup
   useEffect(() => {
     const phone = customerPhone?.trim();
-
     if (!phone || phone.length !== 10) {
       setExistingCustomer(null);
       setComplaintHistory([]);
@@ -330,19 +315,160 @@ export default function ComplaintForm({
 
   const formatComplaintDate = (date: Date) => {
     const day = String(date.getDate()).padStart(2, "0");
-
     const month = String(date.getMonth() + 1).padStart(2, "0");
-
     const year = String(date.getFullYear()).slice(-2);
-
     return `${day}${month}${year}`;
   };
+  // const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
+  //   if (!complaint.isWarranty) {
+  //     toast.error("This complaint is not under warranty");
+  //     return;
+  //   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Alternate Mobile Lookup
-  |--------------------------------------------------------------------------
-  */
+  //   setValue("repeatComplaintNumber", complaint.complaintNumber, {
+  //     shouldDirty: true,
+  //     shouldValidate: true,
+  //   });
+
+  //   toast.success(
+  //     `Complaint ${complaint.complaintNumber} selected for warranty`,
+  //   );
+  // };
+
+  const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
+    // if (selectedComplaintType !== "WARRANTY") {
+    //   return;
+    // }
+
+    if (!complaint.isWarranty) {
+      toast.error("This complaint is not under warranty");
+      return;
+    }
+
+    // Automatically make this a warranty complaint
+    setValue("complaintType", "WARRANTY", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    setValue("repeatComplaintNumber", complaint.complaintNumber, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    toast.success(
+      `${complaint.complaintNumber} selected for warranty complaint`,
+    );
+  };
+  const loadBrands = async (search: string) => {
+    try {
+      setBrandLoading(true);
+
+      const data = await searchBrands(search);
+
+      setBrands(data);
+    } catch (error) {
+      console.error("Failed to load brands:", error);
+
+      setBrands([]);
+    } finally {
+      setBrandLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBrands(debouncedBrandSearch);
+  }, [debouncedBrandSearch]);
+
+  const loadProducts = async (search: string) => {
+    try {
+      setProductLoading(true);
+
+      const data = await searchProducts(search);
+
+      setProducts(data);
+    } catch (error) {
+      console.error("Failed to load products:", error);
+
+      setProducts([]);
+    } finally {
+      setProductLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts(debouncedProductSearch);
+  }, [debouncedProductSearch]);
+
+  const loadProductTypes = async (search: string) => {
+    if (!selectedProductId) {
+      setProductTypes([]);
+      return;
+    }
+
+    try {
+      setProductTypeLoading(true);
+
+      const data = await searchProductTypes({
+        productId: Number(selectedProductId),
+
+        search,
+      });
+
+      setProductTypes(data);
+    } catch (error) {
+      console.error("Failed to load product types:", error);
+
+      setProductTypes([]);
+    } finally {
+      setProductTypeLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedProductId) {
+      setProductTypes([]);
+      return;
+    }
+
+    loadProductTypes(debouncedProductTypeSearch);
+  }, [debouncedProductTypeSearch, selectedProductId]);
+  const handleBrandSelect = (brand: BrandDropdownOption) => {
+    setValue("brandId", brand.id);
+
+    setValue("brand", brand.brandName, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+  const handleProductSelect = (product: ProductDropdownOption) => {
+    setValue("productId", product.product_id, {
+      shouldValidate: true,
+    });
+
+    setValue("productName", product.product_name, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    // reset product type
+    setValue("productTypeId", "");
+
+    setValue("productType", "");
+
+    setProductTypeSearch("");
+    setProductTypes([]);
+  };
+
+  const handleProductTypeSelect = (productType: ProductTypeDropdownOption) => {
+    setValue("productTypeId", productType.id || "");
+
+    setValue("productType", productType.product_type, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+  // Alternate Mobile Lookup
 
   // useEffect(() => {
   //   // const phone = alternatePhone?.trim();
@@ -364,22 +490,14 @@ export default function ComplaintForm({
   //   // alternatePhone,
   //    customerPhone]);
 
-  /*
-  |--------------------------------------------------------------------------
-  | Customer Lookup
-  |--------------------------------------------------------------------------
-  */
-
+  // Customer Lookup
   const lookupCustomer = async (phone: string) => {
     try {
       setLookupLoading(true);
       setLookupDone(false);
       setLookupError(null);
-
       const response = await lookupCustomerByPhone(phone);
-
       setExistingCustomer(response.customer);
-
       setComplaintHistory(response.complaintHistory || []);
 
       if (response.customer) {
@@ -391,7 +509,6 @@ export default function ComplaintForm({
       setExistingCustomer(null);
       setComplaintHistory([]);
       setLookupDone(true);
-
       setLookupError(
         error?.response?.data?.message || "Unable to search customer",
       );
@@ -400,12 +517,24 @@ export default function ComplaintForm({
     }
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | Auto Fill Existing Customer
-  |--------------------------------------------------------------------------
-  */
-
+  //  Auto Fill Existing Customer
+  // const fillCustomerDetails = (customer: Customer) => {
+  //   setValue("customerId", customer.id);
+  //   setValue("customerName", customer.name || "");
+  //   setValue("customerPhone", customer.phone || "");
+  //   setValue("alternatePhone", customer.alternatePhone || "");
+  //   setValue("customerEmail", customer.email || "");
+  //   setValue("address", customer.address?.addressLine || "");
+  //   setValue("stateId", customer.address?.stateId ?? undefined);
+  //   setValue("state", customer.address?.state || "");
+  //   setValue("districtId", customer.address?.districtId ?? undefined);
+  //   setValue("district", customer.address?.district || "");
+  //   setValue("cityId", customer.address?.cityId ?? undefined);
+  //   setValue("city", customer.address?.city || "");
+  //   setValue("pincodeId", customer.address?.pincodeId ?? undefined);
+  //   setValue("pincode", customer.address?.pinCode || "");
+  //   setValue("contactInfo", customer.contactInfo || "");
+  // };
   const fillCustomerDetails = (customer: Customer) => {
     setValue("customerId", customer.id);
 
@@ -415,87 +544,101 @@ export default function ComplaintForm({
 
     setValue("alternatePhone", customer.alternatePhone || "");
 
-    setValue("address", customer.address || "");
+    setValue("customerEmail", customer.email || "");
 
-    setValue("city", customer.city || "");
+    setValue("address", {
+      addressLine: customer.address?.addressLine || "",
 
-    setValue("district", customer.district || "");
+      stateId: customer.address?.stateId ?? undefined,
 
-    setValue("state", customer.state || "");
+      state: customer.address?.state || "",
 
-    setValue("pincode", customer.pincode || "");
+      districtId: customer.address?.districtId ?? undefined,
+
+      district: customer.address?.district || "",
+
+      cityId: customer.address?.cityId ?? undefined,
+
+      city: customer.address?.city || "",
+
+      pincodeId: customer.address?.pincodeId ?? undefined,
+
+      pinCode: customer.address?.pinCode || "",
+    });
 
     setValue("contactInfo", customer.contactInfo || "");
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | Submit
-  |--------------------------------------------------------------------------
-  */
-
+  // Submit
   const onSubmit = async (data: ComplaintFormData) => {
     try {
       setSubmitting(true);
-
       console.log("Complaint:", data);
       const createdComplaint = await createComplaint({
         customerId: data.customerId,
-
         customerCode: data.customerCode,
-
         customerName: data.customerName,
-
         phone: data.customerPhone,
-
         alternatePhone: data.alternatePhone,
-
         email: data.customerEmail,
-
-        address: data.address,
-
+        address: {
+          addressLine: data.address.addressLine,
+          stateId: data.address.stateId ? Number(data.address.stateId) : null,
+          state: data.address.state,
+          districtId: data.address.districtId
+            ? Number(data.address.districtId)
+            : null,
+          district: data.address.district,
+          cityId: data.address.cityId ? Number(data.address.cityId) : null,
+          city: data.address.city,
+          pincodeId: data.address.pincodeId
+            ? Number(data.address.pincodeId)
+            : null,
+          pinCode: data.address.pinCode,
+        },
         city: data.city,
-
         district: data.district,
-
         state: data.state,
-
         pincode: data.pincode,
-
         contactInfo: data.contactInfo,
-
         productName: data.productName,
-
         units: Number(data.units),
-
         quoteAmount: data.quoteAmount ? Number(data.quoteAmount) : undefined,
-
         productDescription: data.productDescription,
-
         faultReported: data.faultReported,
-
         category: data.category,
-
         priority: data.priority,
-
         complaintType: data.complaintType,
-
         adName: data.adName,
-
         repeatComplaintNumber: data.repeatComplaintNumber,
-
         subject: data.subject,
-
         description: data.description,
       });
+      // onComplaintCreated?.(createdComplaint);
+      navigate("/complaints");  
+      toast.success("Complaint created successfully");
 
-      onComplaintCreated?.(createdComplaint);
     } catch (error) {
       console.error("Create complaint error:", error);
     } finally {
       setSubmitting(false);
     }
   };
+
+  const handleCustomerLookup = async (phone: string) => {
+    try {
+      const response = await lookupCustomerByPhone(phone);
+      setExistingCustomer(response.customer);
+      setComplaintHistory(response.complaintHistory || []);
+      if (response.customer) {
+        fillCustomerDetails(response.customer);
+      }
+    } catch (error) {
+      console.error("Customer lookup failed:", error);
+    }
+  };
+
+  console.log(complaintHistory);
 
   //   useEffect(() => {
   //   if (selectedComplaintType === "WARRANTY") {
@@ -512,197 +655,13 @@ export default function ComplaintForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* =====================================
-      COMPLAINT INFORMATION
-  ====================================== */}
+      {/* COMPLAINT INFORMATION */}
 
-      {/* <Section title="Complaint Information">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Complaint Number
-            </label>
-
-            <input
-              {...register("complaintNumber")}
-              readOnly
-              className={`${inputClass} cursor-not-allowed bg-gray-50 font-medium text-[#123B7A]`}
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Date / Time
-            </label>
-
-            <input
-              value={currentDateTime.toLocaleString("en-IN", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-
-                hour12: true,
-              })}
-              readOnly
-              className={`${inputClass} cursor-not-allowed bg-gray-50`}
-            />
-          </div>
-        </div>
-      </Section> */}
-
-      {/* =====================================
-      CUSTOMER INFORMATION
-  ====================================== */}
+      {/*  CUSTOMER INFORMATION */}
 
       <Section title="Customer Information">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* Registered Mobile */}
-
-          {/* <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Registered Mobile Number
-              <span className="ml-1 text-red-500">*</span>
-            </label>
-
-            <div className="relative">
-              <input
-                {...register("customerPhone", {
-                  required: "Registered mobile number is required",
-
-                  pattern: {
-                    value: /^[0-9]{10}$/,
-                    message: "Enter valid 10 digit mobile number",
-                  },
-                })}
-                maxLength={10}
-                inputMode="numeric"
-                placeholder="9876543210"
-                className={inputClass}
-              />
-
-              {lookupLoading && (
-                <Loader2
-                  size={17}
-                  className="absolute right-3 top-3 animate-spin text-gray-400"
-                />
-              )}
-            </div>
-
-            {errors.customerPhone && (
-              <ErrorText>{errors.customerPhone.message}</ErrorText>
-            )}
-          </div> */}
-
-          {/* Mobile Numbers */}
-
-          <div className="md:col-span-2 lg:col-span-3">
-            {/* <div className="mb-3 flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700">
-                Mobile Numbers
-                <span className="ml-1 text-red-500">*</span>
-              </label>
-
-              <button
-                type="button"
-                onClick={() =>
-                  appendMobile({
-                    number: "",
-                    description: "",
-                  })
-                }
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#123B7A] px-3 py-2 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
-              >
-                <Plus size={16} />
-                Add Mobile
-              </button>
-            </div> */}
-
-            {/* <div className="space-y-3">
-              {mobileFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-4"
-                >
-                  <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        {index === 0
-                          ? "Registered Mobile Number"
-                          : `Mobile Number ${index + 1}`}
-                      </label>
-
-                      <div className="relative">
-                        <input
-                          {...register(`mobileNumbers.${index}.number`, {
-                            required: "Mobile number is required",
-
-                            pattern: {
-                              value: /^[0-9]{10}$/,
-                              message: "Enter valid 10 digit mobile number",
-                            },
-                          })}
-                          maxLength={10}
-                          inputMode="numeric"
-                          placeholder="9876543210"
-                          className={inputClass}
-                        />
-
-                        {index === 0 && lookupLoading && (
-                          <Loader2
-                            size={17}
-                            className="absolute right-3 top-3 animate-spin text-gray-400"
-                          />
-                        )}
-                      </div>
-
-                      {errors.mobileNumbers?.[index]?.number && (
-                        <ErrorText>
-                          {errors.mobileNumbers[index]?.number?.message}
-                        </ErrorText>
-                      )}
-                    </div>
-
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Description
-                      </label>
-
-                      <input
-                        {...register(`mobileNumbers.${index}.description`)}
-                        placeholder="e.g. Home, Office, Father, Alternate"
-                        className={inputClass}
-                      />
-                    </div>
-
-
-                    <div className="flex items-end">
-                      {mobileFields.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeMobile(index)}
-                          className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 transition hover:bg-red-50"
-                          title="Remove mobile number"
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div> */}
-          </div>
-
-          {/* Customer Name */}
-
           {/* Registered Mobile Number */}
-
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Registered Mobile Number
@@ -736,6 +695,7 @@ export default function ComplaintForm({
               <ErrorText>{errors.customerPhone.message}</ErrorText>
             )}
           </div>
+
           <Input
             label="Alternative Phone No."
             placeholder="9876543210"
@@ -759,162 +719,24 @@ export default function ComplaintForm({
             })}
           />
 
-          {/* Alternative Phone */}
+          {/* City */}
 
-          {/* <Input
-            label="Alternative Phone No."
-            placeholder="9876543210"
-            maxLength={10}
-            inputMode="numeric"
-            error={errors.alternatePhone?.message}
-            {...register("alternatePhone", {
-              pattern: {
-                value: /^$|^[0-9]{10}$/,
-                message: "Enter valid 10 digit mobile number",
-              },
-            })}
-          /> */}
+          {/* <div className="md:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Customer Address
+              <span className="ml-1 text-red-500">*</span>
+            </label>
 
-          {/* Address */}
-
-          {/* <div className="md:col-span-2 lg:col-span-3">
-            <Input
-              label="Customer Address"
-              placeholder="Enter customer address"
-              error={errors.address?.message}
+            <input
               {...register("address", {
                 required: "Customer address is required",
               })}
+              placeholder="Enter customer address"
+              className={inputClass}
             />
-          </div> */}
 
-          {/* Multiple Addresses */}
-
-          <div className="md:col-span-2 lg:col-span-3">
-            {/* <div className="mb-3 flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700">
-                Customer Addresses
-                <span className="ml-1 text-red-500">*</span>
-              </label>
-
-              <button
-                type="button"
-                onClick={() =>
-                  appendAddress({
-                    address: "",
-                    description: "",
-                  })
-                }
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#123B7A] px-3 py-2 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
-              >
-                <Plus size={16} />
-                Add Address
-              </button>
-            </div> */}
-
-            {/* <div className="space-y-3">
-              {addressFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-4"
-                >
-                  <div className="grid gap-3 md:grid-cols-[2fr_1fr_auto]">
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        {index === 0
-                          ? "Primary Address"
-                          : `Address ${index + 1}`}
-                      </label>
-
-                      <input
-                        {...register(`addresses.${index}.address`, {
-                          required: "Address is required",
-                        })}
-                        placeholder="Enter customer address"
-                        className={inputClass}
-                      />
-
-                      {errors.addresses?.[index]?.address && (
-                        <ErrorText>
-                          {errors.addresses[index]?.address?.message}
-                        </ErrorText>
-                      )}
-                    </div>
-
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Description
-                      </label>
-
-                      <input
-                        {...register(`addresses.${index}.description`)}
-                        placeholder="e.g. Home, Office"
-                        className={inputClass}
-                      />
-                    </div>
-
-
-                    <div className="flex items-end">
-                      {addressFields.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeAddress(index)}
-                          className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 transition hover:bg-red-50"
-                          title="Remove address"
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div> */}
-
-            
-            {/* <div className="md:col-span-2 lg:col-span-3">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Customer Address
-                <span className="ml-1 text-red-500">*</span>
-              </label>
-
-              <textarea
-                {...register("address", {
-                  required: "Customer address is required",
-                })}
-                rows={3}
-                placeholder="Enter complete customer address"
-                className={inputClass}
-              />
-
-              {errors.address && (
-                <ErrorText>{errors.address.message}</ErrorText>
-              )}
-            </div> */}
+            {errors.address && <ErrorText>{errors.address.message}</ErrorText>}
           </div>
-
-          {/* City */}
-
-          <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Customer Address
-                <span className="ml-1 text-red-500">*</span>
-              </label>
-
-              <input
-                {...register("address", {
-                  required: "Customer address is required",
-                })}
-                placeholder="Enter customer address"
-                className={inputClass}
-              />
-
-              {errors.address && (
-                <ErrorText>{errors.address.message}</ErrorText>
-              )}
-            </div>
 
           <Input
             label="City"
@@ -923,30 +745,30 @@ export default function ComplaintForm({
             {...register("city", {
               required: "City is required",
             })}
-          />
+          /> */}
 
           {/* District */}
 
-          <Input
+          {/* <Input
             label="District"
             placeholder="District"
             {...register("district")}
-          />
+          /> */}
 
           {/* State */}
 
-          <Input
+          {/* <Input
             label="State"
             placeholder="State"
             error={errors.state?.message}
             {...register("state", {
               required: "State is required",
             })}
-          />
+          /> */}
 
           {/* Pin Code */}
 
-          <Input
+          {/* <Input
             label="Pin Code"
             placeholder="452001"
             maxLength={6}
@@ -958,14 +780,28 @@ export default function ComplaintForm({
                 message: "Enter valid 6 digit pin code",
               },
             })}
-          />
-
-          {/* Contact Info */}
-
-          {/* <div className="md:col-span-2">
-            
-          </div> */}
+          /> */}
         </div>
+
+        <div className="mt-5">
+          <ComplaintAddressFields
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            errors={errors}
+          />
+        </div>
+
+        {existingCustomer && (
+          <button
+            type="button"
+            onClick={handleUpdateCustomer}
+            disabled={updatingCustomer}
+            className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {updatingCustomer ? "Updating..." : "Update Customer"}
+          </button>
+        )}
 
         {/* Existing Customer Status */}
 
@@ -1009,27 +845,117 @@ export default function ComplaintForm({
         )}
       </Section>
 
-      {/* =====================================
-      PRODUCT INFORMATION
-  ====================================== */}
+      {/* PRODUCT INFORMATION */}
 
       <Section title="Product & Complaint Details">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* <Input
+            label="Brand"
+            placeholder="Brand"
+            {...register("contactInfo")}
+          /> */}
 
-          <Input
-              label="Brand"
-              placeholder="Brand"
-              {...register("contactInfo")}
-            />
-          <Input
+          {/* BRAND */}
+
+          <SearchSelect
+            label="Brand"
+            value={selectedBrand || ""}
+            placeholder="Search brand..."
+            loading={brandLoading}
+            options={brands.map((brand) => ({
+              value: brand.id,
+
+              label: brand.brandName,
+
+              data: brand,
+            }))}
+            onSearch={setBrandSearch}
+            onSelect={(option) =>
+              handleBrandSelect(option.data as BrandDropdownOption)
+            }
+            onClear={() => {
+              setValue("brandId", "");
+
+              setValue("brand", "");
+
+              setBrandSearch("");
+            }}
+          />
+          {/* <Input
             label="Product"
             placeholder="Product"
             error={errors.productName?.message}
             {...register("productName", {
               required: "Product is required",
             })}
+          /> */}
+
+          {/* PRODUCT */}
+
+          <SearchSelect
+            label="Product"
+            value={selectedProductName || ""}
+            placeholder="Search product..."
+            loading={productLoading}
+            options={products.map((product) => ({
+              value: product.product_id,
+
+              label: product.product_name,
+
+              data: product,
+            }))}
+            onSearch={setProductSearch}
+            onSelect={(option) =>
+              handleProductSelect(option.data as ProductDropdownOption)
+            }
+            onClear={() => {
+              setValue("productId", undefined);
+
+              setValue("productName", "");
+
+              setValue("productTypeId", "");
+
+              setValue("productType", "");
+
+              setProductSearch("");
+              setProductTypeSearch("");
+              setProductTypes([]);
+            }}
+            error={errors.productName?.message}
           />
 
+          {/* PRODUCT TYPE */}
+
+          <SearchSelect
+            label="Product Type"
+            value={selectedProductType || ""}
+            placeholder={
+              selectedProductId
+                ? "Search product type..."
+                : "Select product first"
+            }
+            loading={productTypeLoading}
+            options={productTypes.map((type) => ({
+              value: type.id ?? `${type.product_id}-${type.product_type}`,
+
+              label: type.product_code
+                ? `${type.product_type} - ${type.product_code}`
+                : type.product_type,
+
+              data: type,
+            }))}
+            onSearch={setProductTypeSearch}
+            onSelect={(option) =>
+              handleProductTypeSelect(option.data as ProductTypeDropdownOption)
+            }
+            onClear={() => {
+              setValue("productTypeId", "");
+
+              setValue("productType", "");
+
+              setProductTypeSearch("");
+            }}
+          />
           <Input
             label="Unit"
             type="number"
@@ -1057,18 +983,14 @@ export default function ComplaintForm({
             })}
           />
 
-          {/* <div className="md:col-span-2"> */}
-            <Input
-              label="Fault Reported"
-              placeholder="Enter fault reported by customer"
-              error={errors.faultReported?.message}
-              {...register("faultReported", {
-                required: "Fault reported is required",
-              })}
-            />
-          {/* </div> */}
-
-          {/* Type */}
+          <Input
+            label="Fault Reported"
+            placeholder="Enter fault reported by customer"
+            error={errors.faultReported?.message}
+            {...register("faultReported", {
+              required: "Fault reported is required",
+            })}
+          />
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -1077,21 +999,6 @@ export default function ComplaintForm({
             </label>
 
             {/* <select
-              {...register("complaintType", {
-                required: "Complaint type is required",
-              })}
-              className={inputClass}
-            >
-              <option value="REGULAR">Regular</option>
-
-              <option value="REPEAT">Repeat</option>
-
-              <option value="WARRANTY">Warranty</option>
-
-              <option value="PAID_SERVICE">Paid Service</option>
-            </select> */}
-
-            <select
               {...register("complaintType", {
                 required: "Complaint type is required",
 
@@ -1104,7 +1011,28 @@ export default function ComplaintForm({
                     setValue("complaintNumber", "");
                   } else {
                     setValue("repeatComplaintNumber", "");
+                    setValue("complaintNumber", generateComplaintNumber());
+                  }
+                },
+              })}
+              className={inputClass}
+            >
+              <option value="REGULAR">Regular</option>
+              <option value="REPEAT">Repeat</option>
+              <option value="WARRANTY">Warranty</option>
+              <option value="PAID_SERVICE">Paid Service</option>
+            </select> */}
 
+            <select
+              {...register("complaintType", {
+                required: "Complaint type is required",
+
+                onChange: (event) => {
+                  const type = event.target.value as ComplaintType;
+
+                  setValue("repeatComplaintNumber", "");
+
+                  if (type !== "WARRANTY") {
                     setValue("complaintNumber", generateComplaintNumber());
                   }
                 },
@@ -1117,15 +1045,13 @@ export default function ComplaintForm({
 
               <option value="WARRANTY">Warranty</option>
 
-              <option value="PAID_SERVICE">Paid Service</option>
+              <option value="INQUIRY">Inquiry</option>
             </select>
           </div>
         </div>
       </Section>
 
-      {/* =====================================
-      OTHER INFORMATION
-  ====================================== */}
+      {/* OTHER INFORMATION */}
 
       <Section title="Other Information">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -1137,30 +1063,20 @@ export default function ComplaintForm({
 
           {/* Status */}
 
-          <div>
+          {/* <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Status
             </label>
-
             <select {...register("status")} className={inputClass}>
               <option value="REGISTERED">Registered</option>
-
               <option value="PENDING">Pending</option>
-
               <option value="CANCELLED">Cancelled</option>
             </select>
-          </div>
-
-          {/* <Input
-            label="Repeat Complaint No."
-            placeholder="Previous complaint number"
-            {...register("repeatComplaintNumber")}
-          /> */}
+          </div> */}
 
           {selectedComplaintType === "WARRANTY" && (
             <>
               {/* Old Complaint Number */}
-
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Old Complaint Number
@@ -1179,7 +1095,6 @@ export default function ComplaintForm({
               </div>
 
               {/* New Complaint Number */}
-
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   New Complaint Number
@@ -1199,24 +1114,21 @@ export default function ComplaintForm({
       {/* Existing complaint history */}
 
       {/* <ComplaintHistoryTable
-        history={complaintHistory}
-        loading={lookupLoading}
-        lookupDone={lookupDone}
-      /> */}
-      {/* <ComplaintHistoryTable
-        history={filteredComplaintHistory}
-        loading={lookupLoading}
-        lookupDone={lookupDone}
-        selectedType={selectedComplaintType}
-      /> */}
-
-      <ComplaintHistoryTable
         history={filteredComplaintHistory}
         loading={lookupLoading}
         lookupDone={lookupDone}
         selectedType={selectedComplaintType}
         onWarrantySelect={handleWarrantyHistorySelect}
         selectedComplaintNumber={selectedOldComplaintNumber}
+      /> */}
+
+      <ComplaintHistoryTable
+        history={complaintHistory}
+        loading={lookupLoading}
+        lookupDone={lookupDone}
+        // selectedType={selectedComplaintType}
+        selectedComplaintNumber={selectedComplaintNumber}
+        onWarrantySelect={handleWarrantySelect}
       />
 
       <div className="flex justify-end">
@@ -1226,8 +1138,7 @@ export default function ComplaintForm({
           className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting && <Loader2 size={17} className="animate-spin" />}
-
-          {submitting ? "Creating..." : "Create Complaint"}
+          {submitting ? "Saving..." : "Save"}
         </button>
       </div>
     </form>
@@ -1238,21 +1149,12 @@ export default function ComplaintForm({
    COMPLAINT HISTORY
 ===================================================== */
 
-// interface ComplaintHistoryTableProps {
-//   history: ComplaintHistoryItem[];
-//   loading: boolean;
-//   lookupDone: boolean;
-// }
-
 interface ComplaintHistoryTableProps {
   history: ComplaintHistoryItem[];
   loading: boolean;
   lookupDone: boolean;
-
-  selectedType?: ComplaintType;
-
+  // selectedType?: ComplaintType;
   onWarrantySelect?: (complaint: ComplaintHistoryItem) => void;
-
   selectedComplaintNumber?: string;
 }
 
@@ -1260,7 +1162,7 @@ function ComplaintHistoryTable({
   history,
   loading,
   lookupDone,
-  selectedType,
+  // selectedType,
   onWarrantySelect,
   selectedComplaintNumber,
 }: ComplaintHistoryTableProps) {
@@ -1313,7 +1215,7 @@ function ComplaintHistoryTable({
 
       {/* No History */}
 
-      {/* {!loading && lookupDone && history.length === 0 && (
+      {!loading && lookupDone && history.length === 0 && (
         <div className="flex flex-col items-center justify-center px-5 py-12 text-center">
           <CheckCircle2 size={30} className="mb-3 text-green-500" />
 
@@ -1325,31 +1227,13 @@ function ComplaintHistoryTable({
             This customer does not currently have any complaint history.
           </p>
         </div>
-      )} */}
-
-      {!loading && lookupDone && history.length === 0 && (
-        <div className="flex flex-col items-center justify-center px-5 py-12 text-center">
-          <CheckCircle2 size={30} className="mb-3 text-green-500" />
-
-          <p className="text-sm font-medium text-gray-700">
-            {selectedType === "WARRANTY"
-              ? "No previous warranty complaints found"
-              : "No previous complaints found"}
-          </p>
-
-          <p className="mt-1 text-xs text-gray-400">
-            {selectedType === "WARRANTY"
-              ? "This customer does not have any previous warranty complaint."
-              : "This customer does not currently have any complaint history."}
-          </p>
-        </div>
       )}
 
       {/* History Table */}
 
       {!loading && history.length > 0 && (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left text-sm">
+          <table className="w-full min-w-[1050px] text-left text-sm">
             <thead className="bg-gray-50 text-xs font-medium uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-5 py-3">Complaint No.</th>
@@ -1366,56 +1250,146 @@ function ComplaintHistoryTable({
 
                 <th className="px-5 py-3">Technician</th>
 
+                <th className="px-5 py-3">Warranty</th>
+
                 <th className="px-5 py-3">Status</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-100">
               {history.map((complaint) => {
-                const isWarranty = complaint.complaintType === "WARRANTY";
+                /*
+                |--------------------------------------------------------------------------
+                | Warranty comes directly from backend
+                |--------------------------------------------------------------------------
+                */
+
+                const isUnderWarranty = complaint.isWarranty === true;
 
                 const isSelected =
                   selectedComplaintNumber === complaint.complaintNumber;
 
+                /*
+                |--------------------------------------------------------------------------
+                | Only allow selecting an under-warranty complaint
+                |--------------------------------------------------------------------------
+                */
+
+                // const canSelect =
+                // selectedType === "WARRANTY" && isUnderWarranty;
+                const canSelect = isUnderWarranty;
                 return (
+                  // <tr
+                  //   key={complaint.id || complaint._id}
+                  //   onClick={() => {
+                  //     if (canSelect) {
+                  //       onWarrantySelect?.(complaint);
+                  //     }
+                  //   }}
+                  //   className={`
+                  //     transition
+                  //     ${canSelect ? "cursor-pointer hover:bg-blue-50" : ""}
+                  //     ${
+                  //       isSelected
+                  //         ? "bg-blue-50 ring-1 ring-inset ring-blue-200"
+                  //         : ""
+                  //     }
+                  //   `}
+                  // >
                   <tr
-                    key={complaint.id}
-                    onClick={() => {
-                      if (isWarranty) {
-                        onWarrantySelect?.(complaint);
-                      }
-                    }}
+                    key={complaint.id || complaint._id}
                     className={`
-          transition
-          ${isWarranty ? "cursor-pointer hover:bg-blue-50" : ""}
-          ${isSelected ? "bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}
-        `}
+    transition
+    ${canSelect ? "hover:bg-blue-50" : ""}
+    ${isSelected ? "bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}
+  `}
                   >
+                    {/* Complaint Number */}
+                    {/* 
                     <td className="whitespace-nowrap px-5 py-4 font-medium text-[#123B7A]">
                       {complaint.complaintNumber}
 
-                      {isWarranty && (
+                      {canSelect && (
                         <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                          Select
+                        </span>
+                      )}
+                    </td> */}
+
+                    <td className="whitespace-nowrap px-5 py-4 font-medium">
+                      {/* {canSelect ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onWarrantySelect?.(complaint);
+                          }}
+                          className="font-medium text-[#123B7A] underline-offset-2 hover:underline"
+                        >
+                          {complaint.complaintNumber}
+                        </button>
+                      ) : (
+                        <span className="text-[#123B7A]">
+                          {complaint.complaintNumber}
+                        </span>
+                      )}
+
+                      {canSelect && (
+                        <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">
+                          Select
+                        </span>
+                      )} */}
+
+                      {canSelect ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onWarrantySelect?.(complaint);
+                          }}
+                          className="font-medium text-[#123B7A] underline-offset-2 hover:underline"
+                        >
+                          {complaint.complaintNumber}
+                        </button>
+                      ) : (
+                        <span className="text-[#123B7A]">
+                          {complaint.complaintNumber}
+                        </span>
+                      )}
+
+                      {canSelect && (
+                        <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">
                           Select
                         </span>
                       )}
                     </td>
 
+                    {/* Date */}
+
                     <td className="whitespace-nowrap px-5 py-4 text-gray-600">
                       {formatDate(complaint.createdAt)}
                     </td>
+
+                    {/* Product */}
 
                     <td className="px-5 py-4">
                       {complaint.productName || "-"}
                     </td>
 
+                    {/* Category */}
+
                     <td className="px-5 py-4">
-                      {formatEnum(complaint.category)}
+                      {complaint.category
+                        ? formatEnum(complaint.category)
+                        : "-"}
                     </td>
+
+                    {/* Fault */}
 
                     <td className="max-w-[250px] px-5 py-4 text-gray-600">
                       {complaint.faultReported || "-"}
                     </td>
+
+                    {/* Type */}
 
                     <td className="px-5 py-4">
                       {complaint.complaintType
@@ -1423,9 +1397,35 @@ function ComplaintHistoryTable({
                         : "-"}
                     </td>
 
+                    {/* Technician */}
+
                     <td className="px-5 py-4">
                       {complaint.technicianName || "-"}
                     </td>
+
+                    {/* Warranty */}
+
+                    <td className="whitespace-nowrap px-5 py-4">
+                      {complaint.isWarranty ? (
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
+                            Under Warranty
+                          </span>
+
+                          {complaint.warrantyEndDate && (
+                            <span className="text-[11px] text-gray-400">
+                              Till {formatDate(complaint.warrantyEndDate)}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                          No Warranty
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Status */}
 
                     <td className="px-5 py-4">
                       <StatusBadge status={complaint.status} />
@@ -1441,9 +1441,7 @@ function ComplaintHistoryTable({
   );
 }
 
-/* =====================================================
-   SECTION
-===================================================== */
+/*  SECTION */
 
 function Section({
   title,
@@ -1463,9 +1461,7 @@ function Section({
   );
 }
 
-/* =====================================================
-   INPUT
-===================================================== */
+/* INPUT */
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -1478,25 +1474,19 @@ function Input({ label, error, ...props }: InputProps) {
       <label className="mb-1 block text-sm font-medium text-gray-700">
         {label}
       </label>
-
       <input {...props} className={inputClass} />
-
       {error && <ErrorText>{error}</ErrorText>}
     </div>
   );
 }
 
-/* =====================================================
-   ERROR TEXT
-===================================================== */
+/*  ERROR TEXT */
 
 function ErrorText({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-red-600">{children}</p>;
 }
 
-/* =====================================================
-   STATUS BADGE
-===================================================== */
+/*  STATUS BADGE */
 
 function StatusBadge({ status }: { status: string }) {
   let className = "bg-gray-100 text-gray-700";
@@ -1542,9 +1532,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-/* =====================================================
-   HELPERS
-===================================================== */
+/*  HELPERS */
 
 function formatEnum(value: string) {
   return value
@@ -1555,7 +1543,6 @@ function formatEnum(value: string) {
 
 function formatDate(value: string) {
   if (!value) return "-";
-
   return new Date(value).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "2-digit",

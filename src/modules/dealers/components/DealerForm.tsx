@@ -267,19 +267,19 @@ export default function DealerForm({
         capacity: 0,
       },
 
-individualCapacities: dealer?.individualCapacities?.length
-  ? dealer.individualCapacities.map((item) => ({
-      productId: Number(item.productId),
-      productName: item.productName ?? "",
-      capacity: Number(item.capacity ?? 0),
-    }))
-  : [
-      {
-        productId: undefined,
-        productName: "",
-        capacity: 0,
-      },
-    ],
+      individualCapacities: dealer?.individualCapacities?.length
+        ? dealer.individualCapacities.map((item) => ({
+            productId: Number(item.productId),
+            productName: item.productName ?? "",
+            capacity: Number(item.capacity ?? 0),
+          }))
+        : [
+            {
+              productId: undefined,
+              productName: "",
+              capacity: 0,
+            },
+          ],
 
       // capacityMaster: dealer?.capacityMaster?.length
       //   ? dealer.capacityMaster
@@ -332,7 +332,7 @@ individualCapacities: dealer?.individualCapacities?.length
   //   loadCategories();
   // }, []);
 
-
+  console.log(dealer);
   useEffect(() => {
     if (!dealer) {
       return;
@@ -501,15 +501,35 @@ individualCapacities: dealer?.individualCapacities?.length
 
       openingBalance: dealer.openingBalance ?? 0,
 
-      productServices: dealer?.productServices?.length
-        ? dealer.productServices
-        : [
-            {
-              productId: undefined,
-              productName: "",
-              categories: [],
-            },
-          ],
+      // productServices: dealer?.productServices?.length
+      //   ? dealer.productServices
+      //   : [
+      //       {
+      //         productId: undefined,
+      //         productName: "",
+      //         categories: [],
+      //       },
+      //     ],
+
+      productServices:
+        dealer.productServices?.map((product: any) => ({
+          productId: product.productId,
+          productName: product.productName,
+
+          categories:
+            product.categories?.map((category: any) => ({
+              categoryId: category.categoryId ?? category._id ?? category.id,
+
+              categoryName:
+                category.categoryName ??
+                category.category ??
+                category.category_name,
+
+              description: category.description ?? "",
+
+              rate: Number(category.rate ?? 0),
+            })) ?? [],
+        })) ?? [],
 
       openingBalanceType: dealer.openingBalanceType,
       // capacityType: dealer?.capacityType ?? "INDIVIDUAL",
@@ -540,29 +560,27 @@ individualCapacities: dealer?.individualCapacities?.length
             },
           ],
 
-individualCapacities: dealer?.individualCapacities?.length
-  ? dealer.individualCapacities.map((item) => ({
-      productId: Number(item.productId),
-      productName: item.productName ?? "",
-      capacity: Number(item.capacity ?? 0),
-    }))
-  : [
-      {
-        productId: undefined,
-        productName: "",
-        capacity: 0,
-      },
-    ],
+      individualCapacities: dealer?.individualCapacities?.length
+        ? dealer.individualCapacities.map((item) => ({
+            productId: Number(item.productId),
+            productName: item.productName ?? "",
+            capacity: Number(item.capacity ?? 0),
+          }))
+        : [
+            {
+              productId: undefined,
+              productName: "",
+              capacity: 0,
+            },
+          ],
     });
-
-    
   }, [dealer, reset]);
 
   // const capacityType = watch("capacityType");
 
   const combinedCapacityProducts = watch("combinedCapacity.products") || [];
 
-const individualCapacities = watch("individualCapacities") || [];
+  const individualCapacities = watch("individualCapacities") || [];
 
   // const handleCapacityTypeChange = (type: "COMBINED" | "INDIVIDUAL") => {
   //   setValue("capacityType", type);
@@ -676,6 +694,7 @@ const individualCapacities = watch("individualCapacities") || [];
             capacity: Number(item.capacity),
           })) ?? [],
     };
+    console.log(payload);
     await onSubmit(payload);
   };
 
@@ -1594,70 +1613,70 @@ const individualCapacities = watch("individualCapacities") || [];
 
                     <div>
                       <SearchSelect
-  label="Product"
-  value={item?.productName ?? ""}
-  placeholder="Search product..."
-  loading={capacityProductsLoading}
-  options={capacityProducts.map((product) => ({
-    value: product.product_id,
-    label: product.product_name,
-    data: product,
-  }))}
-  onSearch={loadCapacityProducts}
-  onSelect={(option) => {
-    const product = option.data as ProductDropdownOption;
+                        label="Product"
+                        value={item?.productName ?? ""}
+                        placeholder="Search product..."
+                        loading={capacityProductsLoading}
+                        options={capacityProducts.map((product) => ({
+                          value: product.product_id,
+                          label: product.product_name,
+                          data: product,
+                        }))}
+                        onSearch={loadCapacityProducts}
+                        onSelect={(option) => {
+                          const product = option.data as ProductDropdownOption;
 
-    const duplicate = individualCapacities.some(
-      (selected, currentIndex) =>
-        currentIndex !== index &&
-        selected.productId === product.product_id,
-    );
+                          const duplicate = individualCapacities.some(
+                            (selected, currentIndex) =>
+                              currentIndex !== index &&
+                              selected.productId === product.product_id,
+                          );
 
-    if (duplicate) {
-      toast.error(
-        "This product already has individual capacity.",
-      );
+                          if (duplicate) {
+                            toast.error(
+                              "This product already has individual capacity.",
+                            );
 
-      return;
-    }
+                            return;
+                          }
 
-    setValue(
-      `individualCapacities.${index}.productId`,
-      product.product_id,
-      {
-        shouldValidate: true,
-        shouldDirty: true,
-      },
-    );
+                          setValue(
+                            `individualCapacities.${index}.productId`,
+                            product.product_id,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            },
+                          );
 
-    setValue(
-      `individualCapacities.${index}.productName`,
-      product.product_name,
-      {
-        shouldValidate: true,
-        shouldDirty: true,
-      },
-    );
-  }}
-  onClear={() => {
-    setValue(
-      `individualCapacities.${index}.productId`,
-      undefined,
-      {
-        shouldValidate: true,
-        shouldDirty: true,
-      },
-    );
+                          setValue(
+                            `individualCapacities.${index}.productName`,
+                            product.product_name,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            },
+                          );
+                        }}
+                        onClear={() => {
+                          setValue(
+                            `individualCapacities.${index}.productId`,
+                            undefined,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            },
+                          );
 
-    setValue(
-      `individualCapacities.${index}.productName`,
-      "",
-      {
-        shouldDirty: true,
-      },
-    );
-  }}
-/>
+                          setValue(
+                            `individualCapacities.${index}.productName`,
+                            "",
+                            {
+                              shouldDirty: true,
+                            },
+                          );
+                        }}
+                      />
 
                       {/* REGISTER CUSTOM SELECT */}
 

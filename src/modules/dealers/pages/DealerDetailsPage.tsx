@@ -388,7 +388,7 @@ export default function DealerDetailsPage() {
                         key={category.categoryId}
                         className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
                       >
-                        {category.categoryName}
+                        {category.categoryName} - {category?.description} - {category.rate !== undefined ? `₹${Number(category.rate).toLocaleString("en-IN")}` : "-"}
                       </span>
                     ))
                   ) : (
