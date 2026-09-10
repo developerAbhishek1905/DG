@@ -14,6 +14,8 @@ export type OpeningBalanceType = "DR" | "CR";
 export interface DealerProductCategory {
   categoryId: string;
   categoryName: string;
+  description: string;
+  rate?: number;
 }
 
 export interface DealerProductService {
