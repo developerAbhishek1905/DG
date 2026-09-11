@@ -11,48 +11,23 @@ import type {
 
 const PRODUCT_TYPE_API = "/product-types";
 
-/* =====================================
-   GET PRODUCT TYPES
-===================================== */
-
+//    GET PRODUCT TYPES
 export const getProductTypes = async (
   params: ProductTypeQueryParams = {},
 ): Promise<ProductTypeListResponse> => {
   const response = await api.get<ProductTypeListResponse>(PRODUCT_TYPE_API, {
     params: {
-      ...(params.search
-        ? {
-            search: params.search,
-          }
-        : {}),
-
-      ...(params.product_id
-        ? {
-            product_id: params.product_id,
-          }
-        : {}),
-
-      ...(params.page
-        ? {
-            page: params.page,
-          }
-        : {}),
-
-      ...(params.limit
-        ? {
-            limit: params.limit,
-          }
-        : {}),
+      ...(params.search ? { search: params.search } : {}),
+      ...(params.product_id ? { product_id: params.product_id } : {}),
+      ...(params.page ? { page: params.page } : {}),
+      ...(params.limit ? { limit: params.limit } : {}),
     },
   });
 
   return response.data;
 };
 
-/* =====================================
-   GET PRODUCT TYPE BY ID
-===================================== */
-
+//    GET PRODUCT TYPE BY ID
 export const getProductTypeById = async (id: string): Promise<ProductType> => {
   const response = await api.get<ProductTypeSingleResponse>(
     `${PRODUCT_TYPE_API}/${id}`,
@@ -61,10 +36,7 @@ export const getProductTypeById = async (id: string): Promise<ProductType> => {
   return response.data.data;
 };
 
-/* =====================================
-   CREATE PRODUCT TYPE
-===================================== */
-
+//    CREATE PRODUCT TYPE
 export const createProductType = async (
   data: ProductTypeFormData,
 ): Promise<ProductType> => {
@@ -76,10 +48,7 @@ export const createProductType = async (
   return response.data.data;
 };
 
-/* =====================================
-   UPDATE PRODUCT TYPE
-===================================== */
-
+//    UPDATE PRODUCT TYPE
 export const updateProductType = async (
   id: string,
   data: ProductTypeFormData,
@@ -92,10 +61,7 @@ export const updateProductType = async (
   return response.data.data;
 };
 
-/* =====================================
-   DELETE PRODUCT TYPE
-===================================== */
-
+//    DELETE PRODUCT TYPE
 export const deleteProductType = async (
   id: string,
 ): Promise<ProductTypeDeleteResponse> => {
@@ -106,17 +72,12 @@ export const deleteProductType = async (
   return response.data;
 };
 
-/* =====================================
-   IMPORT PRODUCT TYPES
-===================================== */
-
+//    IMPORT PRODUCT TYPES
 export const importProductTypes = async (
   file: File,
 ): Promise<ProductTypeImportResponse> => {
   const formData = new FormData();
-
   formData.append("file", file);
-
   const response = await api.post<ProductTypeImportResponse>(
     `${PRODUCT_TYPE_API}/import`,
     formData,
@@ -125,10 +86,7 @@ export const importProductTypes = async (
   return response.data;
 };
 
-/* =====================================
-   EXPORT PRODUCT TYPES
-===================================== */
-
+//    EXPORT PRODUCT TYPES
 export const exportProductTypes = async (): Promise<void> => {
   const response = await api.get(`${PRODUCT_TYPE_API}/export`, {
     responseType: "blob",
@@ -141,26 +99,16 @@ export const exportProductTypes = async (): Promise<void> => {
   });
 
   const url = window.URL.createObjectURL(blob);
-
   const link = document.createElement("a");
-
   link.href = url;
-
   link.download = "product_types.xlsx";
-
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
-
   window.URL.revokeObjectURL(url);
 };
 
-/* =====================================
-   DOWNLOAD SAMPLE
-===================================== */
-
+//    DOWNLOAD SAMPLE
 export const downloadProductTypeSample = async (): Promise<void> => {
   const response = await api.get(`${PRODUCT_TYPE_API}/sample`, {
     responseType: "blob",
@@ -173,18 +121,11 @@ export const downloadProductTypeSample = async (): Promise<void> => {
   });
 
   const url = window.URL.createObjectURL(blob);
-
   const link = document.createElement("a");
-
   link.href = url;
-
   link.download = "product_type_sample.xlsx";
-
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
-
   window.URL.revokeObjectURL(url);
 };

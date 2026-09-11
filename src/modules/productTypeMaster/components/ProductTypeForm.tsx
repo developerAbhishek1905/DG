@@ -1,13 +1,8 @@
 import { Loader2 } from "lucide-react";
-
 import { useEffect, useState } from "react";
-
 import { Controller, useForm } from "react-hook-form";
-
 import { getProducts } from "../../productMaster/services/productApi";
-
 import type { Product } from "../../productMaster/types/product.types";
-
 import type {
   ProductType,
   ProductTypeFormData,
@@ -15,11 +10,8 @@ import type {
 
 interface Props {
   productType?: ProductType | null;
-
   loading?: boolean;
-
   onSubmit: (data: ProductTypeFormData) => Promise<void>;
-
   onCancel: () => void;
 }
 
@@ -29,10 +21,9 @@ export default function ProductTypeForm({
   onSubmit,
   onCancel,
 }: Props) {
+
   const [products, setProducts] = useState<Product[]>([]);
-
   const [productLoading, setProductLoading] = useState(false);
-
   const {
     register,
     control,
@@ -43,9 +34,7 @@ export default function ProductTypeForm({
   } = useForm<ProductTypeFormData>({
     defaultValues: {
       product_id: 0,
-
-    //   product_code: "",
-
+      product_code: "",
       product_type: "",
     },
   });
@@ -56,12 +45,10 @@ export default function ProductTypeForm({
     const fetchProducts = async () => {
       try {
         setProductLoading(true);
-
         const response = await getProducts({
           page: 1,
           limit: 500,
         });
-
         setProducts(response.data ?? []);
       } catch (error) {
         console.error("Failed to fetch products", error);
@@ -79,20 +66,15 @@ export default function ProductTypeForm({
     if (productType) {
       reset({
         product_id: Number(productType.product_id),
-
-        // product_code: productType.product_code,
-
+        product_code: productType.product_code ?? "",
         product_type: productType.product_type,
       });
-
       return;
     }
 
     reset({
       product_id: 0,
-
-    //   product_code: "",
-
+      product_code: "",
       product_type: "",
     });
   }, [productType, reset]);
@@ -100,9 +82,7 @@ export default function ProductTypeForm({
   const submitForm = async (data: ProductTypeFormData) => {
     await onSubmit({
       product_id: Number(data.product_id),
-
-    //   product_code: data.product_code.trim(),
-
+      product_code: data.product_code.trim(),
       product_type: data.product_type.trim(),
     });
   };
