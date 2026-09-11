@@ -43,7 +43,7 @@ const delay = (ms: number) =>
 //     message: "Login successful",
 
 //     data: {
-//       accessToken:
+//       token:
 //         "mock-access-token-123456",
 
 //       user: {

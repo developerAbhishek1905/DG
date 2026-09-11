@@ -15,9 +15,11 @@ import {
   searchBrands,
   searchProducts,
   searchProductTypes,
+  searchCategories,
   type BrandDropdownOption,
   type ProductDropdownOption,
   type ProductTypeDropdownOption,
+  type CategoryDropdownOption,
 } from "../services/complaintApi";
 
 import type {
@@ -282,7 +284,20 @@ export default function ComplaintForm({
   const selectedProductName = watch("productName");
   const selectedProductType = watch("productType");
   const selectedComplaintNumber = watch("repeatComplaintNumber");
+
+const [categories, setCategories] = useState<CategoryDropdownOption[]>([]);
+
+const [categorySearch, setCategorySearch] = useState("");
+
+const [categoryLoading, setCategoryLoading] = useState(false);
+
+const debouncedCategorySearch = useDebounce(categorySearch, 500);
+
+const selectedCategory = watch("category");
+
   const navigate = useNavigate();
+
+
 
   // useEffect(() => {
   //   const timer = setInterval(() => {
@@ -334,6 +349,52 @@ export default function ComplaintForm({
   //     `Complaint ${complaint.complaintNumber} selected for warranty`,
   //   );
   // };
+
+  const loadCategories = async (search: string) => {
+  if (!selectedProductId) {
+    setCategories([]);
+    return;
+  }
+
+  try {
+    setCategoryLoading(true);
+
+    const data = await searchCategories({
+      productId: Number(selectedProductId),
+      search,
+    });
+
+    setCategories(data);
+  } catch (error) {
+    console.error("Failed to load categories:", error);
+    setCategories([]);
+  } finally {
+    setCategoryLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (!selectedProductId) {
+    setCategories([]);
+    return;
+  }
+
+  loadCategories(debouncedCategorySearch);
+}, [debouncedCategorySearch, selectedProductId]);
+
+const handleCategorySelect = (
+  category: CategoryDropdownOption,
+) => {
+  setValue("categoryId", category._id || category.id || "", {
+    shouldDirty: true,
+    shouldValidate: true,
+  });
+
+  setValue("category", category.category, {
+    shouldDirty: true,
+    shouldValidate: true,
+  });
+};
 
   const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
     // if (selectedComplaintType !== "WARRANTY") {
@@ -458,6 +519,12 @@ export default function ComplaintForm({
 
     setProductTypeSearch("");
     setProductTypes([]);
+
+      // reset category
+  setValue("category", "");
+
+  setCategorySearch("");
+  setCategories([]);
   };
 
   const handleProductTypeSelect = (productType: ProductTypeDropdownOption) => {
@@ -605,6 +672,14 @@ export default function ComplaintForm({
         units: Number(data.units),
         quoteAmount: data.quoteAmount ? Number(data.quoteAmount) : undefined,
         productDescription: data.productDescription,
+          productId: data.productId,
+  productName: data.productName,
+
+  productTypeId: data.productTypeId,
+  productType: data.productType,
+
+  categoryId: data.categoryId,
+  // category: data.category,
         faultReported: data.faultReported,
         category: data.category,
         priority: data.priority,
@@ -923,6 +998,33 @@ export default function ComplaintForm({
             }}
             error={errors.productName?.message}
           />
+
+          {/* CATEGORY */}
+
+<SearchSelect
+  label="Category"
+  value={selectedCategory || ""}
+  placeholder={
+    selectedProductId
+      ? "Search category..."
+      : "Select product first"
+  }
+  loading={categoryLoading}
+  options={categories.map((category) => ({
+    value: category.id ?? `${category.product_id}-${category.category}`,
+    label: category.category,
+    data: category,
+  }))}
+  onSearch={setCategorySearch}
+  onSelect={(option) =>
+    handleCategorySelect(option.data as CategoryDropdownOption)
+  }
+  onClear={() => {
+    setValue("category", "");
+    setCategorySearch("");
+  }}
+  error={errors.category?.message}
+/>
 
           {/* PRODUCT TYPE */}
 

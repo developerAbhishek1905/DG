@@ -35,7 +35,7 @@ export interface LoginResponse {
 
   data: {
     user: AuthUser;
-    accessToken: string;
+    token: string;
   };
 }
 
@@ -52,7 +52,7 @@ export interface ResetPasswordPayload {
 export interface AuthState {
   user: AuthUser | null;
 
-  accessToken: string | null;
+  token: string | null;
 
   isAuthenticated: boolean;
 

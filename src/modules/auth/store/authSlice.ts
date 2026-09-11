@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 import type { AuthState, AuthUser } from "../types/auth.types";
 
-const storedToken = localStorage.getItem("accessToken");
+const storedToken = localStorage.getItem("token");
 
 const storedUser = localStorage.getItem("user");
 
@@ -14,14 +14,14 @@ if (storedUser) {
   } catch {
     localStorage.removeItem("user");
 
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem("token");
   }
 }
 
 const initialState: AuthState = {
   user: parsedUser,
 
-  accessToken: storedToken,
+  token: storedToken,
 
   isAuthenticated: Boolean(storedToken && parsedUser),
 
@@ -45,14 +45,15 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{
         user: AuthUser;
-        accessToken: string;
+        token: string;
       }>,
     ) => {
+      
       state.loading = false;
 
       state.user = action.payload.user;
 
-      state.accessToken = action.payload.accessToken;
+      state.token = action.payload.token;
 
       state.isAuthenticated = true;
 
@@ -70,7 +71,7 @@ const authSlice = createSlice({
     logoutSuccess: (state) => {
       state.user = null;
 
-      state.accessToken = null;
+      state.token = null;
 
       state.isAuthenticated = false;
 

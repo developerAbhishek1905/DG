@@ -29,7 +29,7 @@ export function useAuth() {
 
   const {
     user,
-    accessToken,
+    token,
     isAuthenticated,
     loading,
     error,
@@ -49,14 +49,16 @@ export function useAuth() {
             credentials
           );
 
+          console.log(response)
+
         const {
           user,
-          accessToken,
+          token,
         } = response.data;
 
         localStorage.setItem(
-          "accessToken",
-          accessToken
+          "token",
+          token
         );
 
         localStorage.setItem(
@@ -67,7 +69,7 @@ export function useAuth() {
         dispatch(
           loginSuccess({
             user,
-            accessToken,
+            token,
           })
         );
 
@@ -96,7 +98,7 @@ export function useAuth() {
   const logout = useCallback(
     () => {
       localStorage.removeItem(
-        "accessToken"
+        "token"
       );
 
       localStorage.removeItem(
@@ -120,7 +122,7 @@ export function useAuth() {
   return {
     user,
 
-    accessToken,
+    token,
 
     isAuthenticated,
 

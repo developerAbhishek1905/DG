@@ -247,7 +247,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem("token");
     localStorage.removeItem("authUser");
     localStorage.removeItem("role");
     localStorage.removeItem("isLoggedIn");

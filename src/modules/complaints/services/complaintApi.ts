@@ -62,6 +62,13 @@ export interface UpdateCustomerPayload {
   status?: "ACTIVE" | "INACTIVE";
 }
 
+export interface CategoryDropdownOption {
+  id?: string;
+  product_id: number;
+  category: string;
+  description?: string;
+  categoryDescription?: string;
+}
 /*
 |--------------------------------------------------------------------------
 | Normalize Customer
@@ -402,5 +409,24 @@ export const searchProductTypes = async ({
     },
   });
 
+  return response.data?.data || [];
+};
+
+
+export const searchCategories = async ({
+  productId,
+  search = "",
+}: {
+  productId: number;
+  search?: string;
+}): Promise<CategoryDropdownOption[]> => {
+  const response = await api.get("/categories/dropdown", {
+    params: {
+      product_id: productId,
+      search,
+    },
+  });
+
+  // adjust this depending on your exact API response
   return response.data?.data || [];
 };
