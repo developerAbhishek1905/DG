@@ -1,25 +1,11 @@
-import {
-  useEffect,
-} from "react";
-
-import {
-  useForm,
-} from "react-hook-form";
-
-import type {
-  Brand,
-  BrandFormData,
-} from "../types/brand.types";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import type { Brand, BrandFormData } from "../types/brand.types";
 
 interface Props {
   brand?: Brand | null;
-
   loading?: boolean;
-
-  onSubmit: (
-    data: BrandFormData
-  ) => Promise<void> | void;
-
+  onSubmit: (data: BrandFormData) => Promise<void> | void;
   onCancel?: () => void;
 }
 
@@ -33,10 +19,7 @@ export default function BrandForm({
     register,
     handleSubmit,
     reset,
-
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm<BrandFormData>({
     defaultValues: {
       brandName: "",
@@ -45,36 +28,24 @@ export default function BrandForm({
 
   useEffect(() => {
     reset({
-      brandName:
-        brand?.brandName ?? "",
+      brandName: brand?.brandName ?? "",
     });
-  }, [
-    brand,
-    reset,
-  ]);
+  }, [brand, reset]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-5"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
         <label className="mb-1.5 block text-sm font-medium text-gray-700">
           Brand Name
-          <span className="ml-1 text-red-500">
-            *
-          </span>
+          <span className="ml-1 text-red-500">*</span>
         </label>
 
         <input
           {...register("brandName", {
-            required:
-              "Brand name is required",
-
+            required: "Brand name is required",
             minLength: {
               value: 2,
-              message:
-                "Brand name must contain at least 2 characters",
+              message: "Brand name must contain at least 2 characters",
             },
           })}
           placeholder="Enter brand name"
@@ -104,11 +75,7 @@ export default function BrandForm({
           disabled={loading}
           className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
         >
-          {loading
-            ? "Saving..."
-            : brand
-              ? "Update Brand"
-              : "Add Brand"}
+          {loading ? "Saving..." : brand ? "Update Brand" : "Add Brand"}
         </button>
       </div>
     </form>
