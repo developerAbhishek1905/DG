@@ -11,48 +11,23 @@ import type {
 
 const PRODUCT_API = "/products";
 
-/* =====================================
-   GET ALL PRODUCTS
-===================================== */
-
+//  GET ALL PRODUCTS
 export const getProducts = async (
   params: ProductQueryParams = {},
 ): Promise<ProductListResponse> => {
   const response = await api.get<ProductListResponse>(PRODUCT_API, {
     params: {
-      ...(params.page
-        ? {
-            page: params.page,
-          }
-        : {}),
-
-      ...(params.limit
-        ? {
-            limit: params.limit,
-          }
-        : {}),
-
-      ...(params.search
-        ? {
-            search: params.search,
-          }
-        : {}),
-
-      ...(params.status
-        ? {
-            status: params.status,
-          }
-        : {}),
+      ...(params.page ? { page: params.page } : {}),
+      ...(params.limit ? { limit: params.limit } : {}),
+      ...(params.search ? { search: params.search } : {}),
+      ...(params.status ? { status: params.status } : {}),
     },
   });
 
   return response.data;
 };
 
-/* =====================================
-   GET SINGLE PRODUCT
-===================================== */
-
+//  GET SINGLE PRODUCT
 export const getProductById = async (
   productId: number | string,
 ): Promise<Product> => {
@@ -63,10 +38,8 @@ export const getProductById = async (
   return response.data.data;
 };
 
-/* =====================================
-   CREATE PRODUCT
-===================================== */
 
+//  CREATE PRODUCT
 export const createProduct = async (
   data: ProductFormData,
 ): Promise<Product> => {
@@ -75,10 +48,8 @@ export const createProduct = async (
   return response.data.data;
 };
 
-/* =====================================
-   UPDATE PRODUCT
-===================================== */
 
+  //  UPDATE PRODUCT
 export const updateProduct = async (
   productId: number | string,
   data: Partial<ProductFormData>,
@@ -91,10 +62,8 @@ export const updateProduct = async (
   return response.data.data;
 };
 
-/* =====================================
-   DELETE PRODUCT
-===================================== */
 
+  //  DELETE PRODUCT
 export const deleteProduct = async (
   productId: number | string,
 ): Promise<ProductDeleteResponse> => {
@@ -105,10 +74,8 @@ export const deleteProduct = async (
   return response.data;
 };
 
-/* =====================================
-   IMPORT PRODUCTS
-===================================== */
 
+  //  IMPORT PRODUCTS
 export const importProducts = async (
   file: File,
 ): Promise<ProductImportResponse> => {
@@ -124,41 +91,51 @@ export const importProducts = async (
   return response.data;
 };
 
-/* =====================================
-   EXPORT PRODUCTS
-===================================== */
+const getSafeBlobType = (
+  headers: Record<string, string | number | boolean | string[] | undefined>,
+  fallback: string,
+): string => {
+  const contentType = headers["content-type"];
 
+  if (Array.isArray(contentType)) {
+    return typeof contentType[0] === "string" ? contentType[0] : fallback;
+  }
+
+  if (typeof contentType === "string") {
+    return contentType;
+  }
+
+  return fallback;
+};
+
+//  EXPORT PRODUCTS
 export const exportProducts = async (): Promise<void> => {
   const response = await api.get(`${PRODUCT_API}/export`, {
     responseType: "blob",
   });
 
   const blob = new Blob([response.data], {
-    type:
-      response.headers["content-type"] ||
+    type: getSafeBlobType(
+      response.headers as Record<
+        string,
+        string | number | boolean | string[] | undefined
+      >,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ),
   });
 
   const url = window.URL.createObjectURL(blob);
-
   const link = document.createElement("a");
-
   link.href = url;
-
   link.download = "products.xlsx";
-
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
 
   window.URL.revokeObjectURL(url);
 };
 
-/* =====================================
-   DOWNLOAD SAMPLE
-===================================== */
+  //  DOWNLOAD SAMPLE
 
 export const downloadProductSample = async (): Promise<void> => {
   const response = await api.get(`${PRODUCT_API}/sample`, {
@@ -166,24 +143,21 @@ export const downloadProductSample = async (): Promise<void> => {
   });
 
   const blob = new Blob([response.data], {
-    type:
-      response.headers["content-type"] ||
+    type: getSafeBlobType(
+      response.headers as Record<
+        string,
+        string | number | boolean | string[] | undefined
+      >,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ),
   });
 
   const url = window.URL.createObjectURL(blob);
-
   const link = document.createElement("a");
-
   link.href = url;
-
   link.download = "product_sample.xlsx";
-
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
-
   window.URL.revokeObjectURL(url);
 };

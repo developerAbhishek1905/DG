@@ -1,15 +1,10 @@
 import { PackageSearch, Plus, Search, X } from "lucide-react";
-
 import { useCallback, useEffect, useState } from "react";
-
 import { toast } from "react-toastify";
-
 import { useDebounce } from "../../../hooks/useDebounce";
-
 import ProductExcelActions from "../components/ProductExcelActions";
 import ProductForm from "../components/ProductForm";
 import ProductTable from "../components/ProductTable";
-
 import {
   createProduct,
   deleteProduct,
@@ -19,7 +14,6 @@ import {
   importProducts,
   updateProduct,
 } from "../services/productApi";
-
 import type {
   Product,
   ProductFormData,
@@ -28,56 +22,31 @@ import type {
 
 export default function ProductMasterPage() {
   const [products, setProducts] = useState<Product[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [actionLoading, setActionLoading] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [statusFilter, setStatusFilter] = useState<ProductStatus | "">("");
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(20);
-
   const [total, setTotal] = useState(0);
-
   const [totalPages, setTotalPages] = useState(1);
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
   const debouncedSearch = useDebounce(search, 500);
 
-  /* =====================================
-     FETCH PRODUCTS
-  ===================================== */
-
+    //  FETCH PRODUCTS
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-
       const response = await getProducts({
         page,
         limit,
-
         search: debouncedSearch,
-
         status: statusFilter || undefined,
       });
 
       setProducts(response.data ?? []);
-
-      /*
-          Pagination backend se aaye to use karo.
-          Agar current GET /products pagination
-          return nahi karta, fallback local length hai.
-        */
-
       setTotal(response.pagination?.total ?? response.data?.length ?? 0);
-
       setTotalPages(response.pagination?.totalPages ?? 1);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to fetch products");
@@ -92,34 +61,27 @@ export default function ProductMasterPage() {
 
   const closeForm = () => {
     setFormOpen(false);
-
     setSelectedProduct(null);
   };
 
-  /* =====================================
-     CREATE / UPDATE
-  ===================================== */
-
+    
+  //  CREATE / UPDATE
   const handleSubmit = async (data: ProductFormData) => {
     try {
       setActionLoading(true);
-
       if (selectedProduct) {
         await updateProduct(selectedProduct.product_id, {
           product_name: data.product_name,
 
           status: data.status,
         });
-
         toast.success("Product updated successfully");
       } else {
         await createProduct(data);
-
         toast.success("Product created successfully");
       }
 
       closeForm();
-
       await fetchProducts();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to save product");
@@ -128,24 +90,17 @@ export default function ProductMasterPage() {
     }
   };
 
-  /* =====================================
-     DELETE
-  ===================================== */
 
+    //  DELETE
   const handleDelete = async (product: Product) => {
     const confirmed = window.confirm(`Delete "${product.product_name}"?`);
-
     if (!confirmed) {
       return;
     }
-
     try {
       setActionLoading(true);
-
       const response = await deleteProduct(product.product_id);
-
       toast.success(response.message || "Product deleted successfully");
-
       await fetchProducts();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to delete product");
@@ -154,20 +109,14 @@ export default function ProductMasterPage() {
     }
   };
 
-  /* =====================================
-     IMPORT
-  ===================================== */
 
+    //  IMPORT
   const handleImport = async (file: File) => {
     try {
       setActionLoading(true);
-
       const response = await importProducts(file);
-
       toast.success(response.message || "Products imported successfully");
-
       setPage(1);
-
       await fetchProducts();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to import products");
@@ -176,16 +125,12 @@ export default function ProductMasterPage() {
     }
   };
 
-  /* =====================================
-     EXPORT
-  ===================================== */
 
+  //  EXPORT
   const handleExport = async () => {
     try {
       setActionLoading(true);
-
       await exportProducts();
-
       toast.success("Products exported successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to export products");
@@ -194,16 +139,12 @@ export default function ProductMasterPage() {
     }
   };
 
-  /* =====================================
-     SAMPLE
-  ===================================== */
 
+  //  SAMPLE
   const handleSample = async () => {
     try {
       setActionLoading(true);
-
       await downloadProductSample();
-
       toast.success("Sample file downloaded successfully");
     } catch (error: any) {
       toast.error(
@@ -217,12 +158,10 @@ export default function ProductMasterPage() {
   return (
     <div>
       {/* HEADER */}
-
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <PackageSearch size={23} className="text-[#123B7A]" />
-
             <h1 className="text-2xl font-bold text-gray-900">Product Master</h1>
           </div>
 
@@ -269,7 +208,6 @@ export default function ProductMasterPage() {
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-
                 setPage(1);
               }}
               placeholder="Search product..."
@@ -281,15 +219,12 @@ export default function ProductMasterPage() {
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value as ProductStatus | "");
-
               setPage(1);
             }}
             className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="">All Status</option>
-
             <option value="ACTIVE">Active</option>
-
             <option value="INACTIVE">Inactive</option>
           </select>
         </div>
@@ -305,12 +240,10 @@ export default function ProductMasterPage() {
         onPageChange={setPage}
         onLimitChange={(value) => {
           setLimit(value);
-
           setPage(1);
         }}
         onEdit={(product) => {
           setSelectedProduct(product);
-
           setFormOpen(true);
         }}
         onDelete={handleDelete}

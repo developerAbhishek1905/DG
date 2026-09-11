@@ -1,14 +1,10 @@
 import { Download, FileSpreadsheet, Upload } from "lucide-react";
-
 import { useRef } from "react";
 
 interface Props {
   loading?: boolean;
-
   onImport: (file: File) => Promise<void>;
-
   onExport: () => Promise<void>;
-
   onSample: () => Promise<void>;
 }
 
@@ -18,6 +14,7 @@ export default function ProductExcelActions({
   onExport,
   onSample,
 }: Props) {
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (

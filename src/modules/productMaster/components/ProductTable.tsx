@@ -10,23 +10,14 @@ import type { Product } from "../types/product.types";
 
 interface Props {
   products: Product[];
-
   loading?: boolean;
-
   page: number;
-
   limit: number;
-
   total: number;
-
   totalPages: number;
-
   onPageChange: (page: number) => void;
-
   onLimitChange: (limit: number) => void;
-
   onEdit: (product: Product) => void;
-
   onDelete: (product: Product) => void;
 }
 
@@ -42,6 +33,7 @@ export default function ProductTable({
   onEdit,
   onDelete,
 }: Props) {
+
   if (loading) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
@@ -54,14 +46,12 @@ export default function ProductTable({
     return (
       <div className="rounded-xl border border-gray-200 bg-white py-12 text-center">
         <PackageSearch size={32} className="mx-auto mb-3 text-gray-300" />
-
         <p className="text-sm font-medium text-gray-700">No products found</p>
       </div>
     );
   }
 
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
-
   const end = Math.min(page * limit, total);
 
   return (
@@ -71,11 +61,8 @@ export default function ProductTable({
           <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
             <tr>
               <th className="px-5 py-3">Product ID</th>
-
               <th className="px-5 py-3">Product Name</th>
-
               <th className="px-5 py-3">Status</th>
-
               <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -142,11 +129,8 @@ export default function ProductTable({
             className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
           >
             <option value={10}>10</option>
-
             <option value={20}>20</option>
-
             <option value={50}>50</option>
-
             <option value={100}>100</option>
           </select>
         </div>

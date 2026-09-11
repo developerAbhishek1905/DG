@@ -1,18 +1,12 @@
 import { Loader2 } from "lucide-react";
-
 import { useEffect } from "react";
-
 import { useForm } from "react-hook-form";
-
 import type { Product, ProductFormData } from "../types/product.types";
 
 interface Props {
   product?: Product | null;
-
   loading?: boolean;
-
   onSubmit: (data: ProductFormData) => Promise<void>;
-
   onCancel: () => void;
 }
 
@@ -22,18 +16,16 @@ export default function ProductForm({
   onSubmit,
   onCancel,
 }: Props) {
+
   const {
     register,
     handleSubmit,
     reset,
-
     formState: { errors },
   } = useForm<ProductFormData>({
     defaultValues: {
       product_id: undefined,
-
       product_name: "",
-
       status: "ACTIVE",
     },
   });
@@ -42,20 +34,15 @@ export default function ProductForm({
     if (product) {
       reset({
         product_id: product.product_id,
-
         product_name: product.product_name,
-
         status: product.status,
       });
-
       return;
     }
 
     reset({
       product_id: undefined,
-
       product_name: "",
-
       status: "ACTIVE",
     });
   }, [product, reset]);
@@ -63,7 +50,6 @@ export default function ProductForm({
   const submitForm = async (data: ProductFormData) => {
     const payload: ProductFormData = {
       product_name: data.product_name.trim(),
-
       status: data.status,
     };
 
@@ -81,23 +67,14 @@ export default function ProductForm({
     <form onSubmit={handleSubmit(submitForm)} className="space-y-5">
       <div>
         <label className={labelClass}>
-          Product ID
-          {/* <span className="ml-1 text-red-500">*</span> */}
+            Product ID
         </label>
 
         <input
           type="number"
           placeholder="Enter product ID"
           {...register("product_id", {
-            // required: "Product ID is required",
-
             valueAsNumber: true,
-
-            // min: {
-            //   value: 1,
-
-            //   message: "Product ID must be greater than 0",
-            // },
           })}
           className={inputClass}
         />
@@ -118,10 +95,8 @@ export default function ProductForm({
           placeholder="Example: Refrigerator"
           {...register("product_name", {
             required: "Product name is required",
-
             minLength: {
               value: 2,
-
               message: "Product name must contain at least 2 characters",
             },
           })}
@@ -135,10 +110,8 @@ export default function ProductForm({
 
       <div>
         <label className={labelClass}>Status</label>
-
         <select {...register("status")} className={inputClass}>
           <option value="ACTIVE">Active</option>
-
           <option value="INACTIVE">Inactive</option>
         </select>
       </div>
@@ -159,7 +132,6 @@ export default function ProductForm({
           className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
         >
           {loading && <Loader2 size={17} className="animate-spin" />}
-
           {loading ? "Saving..." : product ? "Update Product" : "Add Product"}
         </button>
       </div>
@@ -172,6 +144,4 @@ function ErrorText({ children }: { children?: React.ReactNode }) {
 }
 
 const labelClass = "mb-1.5 block text-sm font-medium text-gray-700";
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
