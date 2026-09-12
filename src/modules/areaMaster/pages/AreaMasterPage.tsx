@@ -227,7 +227,7 @@ export default function AreaMasterPage() {
         </div>
       </div>
 
-      {hasPermission("") && (
+      {hasPermission("area.table") && (
         <>
           {/* FILTER */}
 

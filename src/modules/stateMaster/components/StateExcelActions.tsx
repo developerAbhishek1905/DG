@@ -75,7 +75,7 @@ export default function StateExcelActions({
 
       {/* Export */}
 
-      {hasPermission("") && (
+      {hasPermission("state.export") && (
         <button
           type="button"
           disabled={importing}
@@ -86,9 +86,9 @@ export default function StateExcelActions({
           Export Excel
         </button>
       )}
-      
+
       {/* Sample */}
-      {hasPermission("") && (
+      {hasPermission("state.import") && (
         <button
           type="button"
           onClick={downloadStateSampleExcel}

@@ -78,7 +78,7 @@ export default function CityTable({
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
-                    {hasPermission("") && (
+                    {hasPermission("city.update") && (
                       <button
                         type="button"
                         title="Edit City"
@@ -89,7 +89,7 @@ export default function CityTable({
                       </button>
                     )}
 
-                    {hasPermission("") && (
+                    {hasPermission("city.delete") && (
                       <button
                         type="button"
                         title="Delete City"
@@ -126,11 +126,8 @@ export default function CityTable({
             className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
           >
             <option value={5}>5</option>
-
             <option value={10}>10</option>
-
             <option value={20}>20</option>
-
             <option value={50}>50</option>
           </select>
         </div>

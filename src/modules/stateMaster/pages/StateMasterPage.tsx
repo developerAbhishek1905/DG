@@ -269,7 +269,7 @@ export default function StateMasterPage() {
         </div>
       )}
 
-      {hasPermission("") && (
+      {hasPermission("state.table") && (
         <>
           {/* Search */}
 
