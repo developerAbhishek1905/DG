@@ -1,25 +1,19 @@
 export interface CityMaster {
   _id: string;
-
   city_id: number;
   city_name: string;
-
   district_id: number;
   state_id: number;
-
   district_name?: string;
   state_name?: string;
-
   createdAt?: string;
   updatedAt?: string;
-
   __v?: number;
 }
 
 export interface CityFormData {
   city_id: number;
   city_name: string;
-
   district_id: number;
   state_id: number;
 }
@@ -28,7 +22,6 @@ export interface CityQueryParams {
   page?: number;
   limit?: number;
   search?: string;
-
   state_id?: number;
   district_id?: number;
 }
@@ -36,9 +29,7 @@ export interface CityQueryParams {
 export interface CityListResponse {
   success: boolean;
   message: string;
-
   data: CityMaster[];
-
   pagination: {
     page: number;
     limit: number;
@@ -61,9 +52,7 @@ export interface CityDeleteResponse {
 export interface CityImportResponse {
   success: boolean;
   message: string;
-
   data?: CityMaster[];
-
   imported?: unknown[];
   failed?: unknown[];
 }

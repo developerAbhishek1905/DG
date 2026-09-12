@@ -50,7 +50,7 @@ const ACTIONS = [
   // "cancel",
   // "verify",
   // "manage",
-  // "permissions",
+  "permissions",
   // "reminder",
   // "review",
   // "correction",

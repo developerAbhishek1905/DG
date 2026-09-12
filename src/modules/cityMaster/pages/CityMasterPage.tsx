@@ -1,23 +1,14 @@
 import { Plus, Search, X } from "lucide-react";
-
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { toast } from "react-toastify";
-
 import { useDebounce } from "../../../hooks/useDebounce";
-
 import { getStates } from "../../stateMaster/services/stateApi";
-
 import { getDistricts } from "../../districtMaster/services/districtApi";
-
 import type { StateMaster } from "../../stateMaster/types/state.types";
-
 import type { DistrictMaster } from "../../districtMaster/types/district.types";
-
 import CityExcelActions from "../components/CityExcelActions";
 import CityForm from "../components/CityForm";
 import CityTable from "../components/CityTable";
-
 import {
   createCity,
   deleteCity,
@@ -26,40 +17,26 @@ import {
   importCities,
   updateCity,
 } from "../services/cityApi";
-
 import type { CityFormData, CityMaster } from "../types/city.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function CityMasterPage() {
   const [cities, setCities] = useState<CityMaster[]>([]);
-
   const [states, setStates] = useState<StateMaster[]>([]);
-
   const [districts, setDistricts] = useState<DistrictMaster[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [actionLoading, setActionLoading] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [stateFilter, setStateFilter] = useState(0);
-
   const [districtFilter, setDistrictFilter] = useState(0);
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(20);
-
   const [total, setTotal] = useState(0);
-
   const [totalPages, setTotalPages] = useState(1);
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [selectedCity, setSelectedCity] = useState<CityMaster | null>(null);
-
   const debouncedSearch = useDebounce(search, 500);
-
+  const { hasPermission } = usePermission();
   /* ========================================
      FETCH FILTER MASTER DATA
   ======================================== */
@@ -80,7 +57,6 @@ export default function CityMasterPage() {
         ]);
 
         setStates(statesResponse.data ?? []);
-
         setDistricts(districtsResponse.data ?? []);
       } catch (error) {
         console.error(error);
@@ -115,18 +91,13 @@ export default function CityMasterPage() {
       const response = await getCities({
         page,
         limit,
-
         search: debouncedSearch,
-
         state_id: stateFilter || undefined,
-
         district_id: districtFilter || undefined,
       });
 
       setCities(response.data ?? []);
-
       setTotal(response.pagination?.total ?? 0);
-
       setTotalPages(response.pagination?.totalPages ?? 1);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to fetch cities");
@@ -145,7 +116,6 @@ export default function CityMasterPage() {
 
   const closeForm = () => {
     setFormOpen(false);
-
     setSelectedCity(null);
   };
 
@@ -159,16 +129,13 @@ export default function CityMasterPage() {
 
       if (selectedCity) {
         await updateCity(selectedCity.city_id, data);
-
         toast.success("City updated successfully");
       } else {
         await createCity(data);
-
         toast.success("City created successfully");
       }
 
       closeForm();
-
       await fetchCities();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to save city");
@@ -183,16 +150,11 @@ export default function CityMasterPage() {
 
   const handleDelete = async (city: CityMaster) => {
     const confirmed = window.confirm(`Delete "${city.city_name}"?`);
-
     if (!confirmed) return;
-
     try {
       setActionLoading(true);
-
       const response = await deleteCity(city.city_id);
-
       toast.success(response.message || "City deleted successfully");
-
       await fetchCities();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to delete city");
@@ -208,11 +170,8 @@ export default function CityMasterPage() {
   const handleImport = async (file: File) => {
     try {
       setActionLoading(true);
-
       const response = await importCities(file);
-
       toast.success(response.message || "Cities imported successfully");
-
       await fetchCities();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to import cities");
@@ -228,9 +187,7 @@ export default function CityMasterPage() {
   const handleExport = async () => {
     try {
       setActionLoading(true);
-
       await exportCities();
-
       toast.success("Cities exported successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to export cities");
@@ -258,112 +215,117 @@ export default function CityMasterPage() {
             onImport={handleImport}
             onExport={handleExport}
           />
+          {hasPermission("city.create") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCity(null);
 
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedCity(null);
+                setFormOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
+            >
+              <Plus size={17} />
+              Add City
+            </button>
+          )}
+        </div>
+      </div>
+
+      {hasPermission("city.table") && (
+        <>
+          {/* Filters */}
+
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <div className="grid gap-3 md:grid-cols-3">
+              {/* Search */}
+
+              <div className="relative">
+                <Search
+                  size={17}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+
+                <input
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+
+                    setPage(1);
+                  }}
+                  placeholder="Search city..."
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* State Filter */}
+
+              <select
+                value={stateFilter}
+                onChange={(event) => {
+                  setStateFilter(Number(event.target.value));
+
+                  setDistrictFilter(0);
+
+                  setPage(1);
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
+              >
+                <option value={0}>All States</option>
+
+                {states.map((state) => (
+                  <option key={state._id} value={state.state_id}>
+                    {state.state_name}
+                  </option>
+                ))}
+              </select>
+
+              {/* District Filter */}
+
+              <select
+                value={districtFilter}
+                onChange={(event) => {
+                  setDistrictFilter(Number(event.target.value));
+
+                  setPage(1);
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
+              >
+                <option value={0}>All Districts</option>
+
+                {filteredDistricts.map((district) => (
+                  <option key={district._id} value={district.district_id}>
+                    {district.district_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Table */}
+
+          <CityTable
+            cities={cities}
+            loading={loading}
+            page={page}
+            limit={limit}
+            total={total}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onLimitChange={(newLimit) => {
+              setLimit(newLimit);
+
+              setPage(1);
+            }}
+            onEdit={(city) => {
+              setSelectedCity(city);
 
               setFormOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
-          >
-            <Plus size={17} />
-            Add City
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
-
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <div className="grid gap-3 md:grid-cols-3">
-          {/* Search */}
-
-          <div className="relative">
-            <Search
-              size={17}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-
-            <input
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-
-                setPage(1);
-              }}
-              placeholder="Search city..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
-
-          {/* State Filter */}
-
-          <select
-            value={stateFilter}
-            onChange={(event) => {
-              setStateFilter(Number(event.target.value));
-
-              setDistrictFilter(0);
-
-              setPage(1);
-            }}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
-          >
-            <option value={0}>All States</option>
-
-            {states.map((state) => (
-              <option key={state._id} value={state.state_id}>
-                {state.state_name}
-              </option>
-            ))}
-          </select>
-
-          {/* District Filter */}
-
-          <select
-            value={districtFilter}
-            onChange={(event) => {
-              setDistrictFilter(Number(event.target.value));
-
-              setPage(1);
-            }}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
-          >
-            <option value={0}>All Districts</option>
-
-            {filteredDistricts.map((district) => (
-              <option key={district._id} value={district.district_id}>
-                {district.district_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Table */}
-
-      <CityTable
-        cities={cities}
-        loading={loading}
-        page={page}
-        limit={limit}
-        total={total}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLimitChange={(newLimit) => {
-          setLimit(newLimit);
-
-          setPage(1);
-        }}
-        onEdit={(city) => {
-          setSelectedCity(city);
-
-          setFormOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+            onDelete={handleDelete}
+          />
+        </>
+      )}
 
       {/* Add / Edit Popup */}
 

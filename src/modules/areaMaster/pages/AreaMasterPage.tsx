@@ -1,63 +1,40 @@
 import { MapPin, Plus, RotateCcw, Search } from "lucide-react";
-
 import { useCallback, useEffect, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 import { useDebounce } from "../../../hooks/useDebounce";
-
 import AreaTable from "../components/AreaTable";
-
 import {
   exportAreas,
   getAreas,
   importAreas,
   updateArea,
 } from "../services/areaApi";
-
 import AreaExcelActions from "../components/AreaExcelActions";
-
 import { getStates } from "../../stateMaster/services/stateApi";
-
 import { getCities } from "../../cityMaster/services/cityApi";
-
 import type { Area, AreaStatus } from "../types/area.types";
-
 import type { StateMaster } from "../../stateMaster/types/state.types";
-
 import type { CityMaster } from "../../cityMaster/types/city.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function AreaMasterPage() {
   const navigate = useNavigate();
-
   const [areas, setAreas] = useState<Area[]>([]);
-
   const [states, setStates] = useState<StateMaster[]>([]);
-
   const [cities, setCities] = useState<CityMaster[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [actionLoading, setActionLoading] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [stateFilter, setStateFilter] = useState(0);
-
   const [cityFilter, setCityFilter] = useState(0);
-
   const [statusFilter, setStatusFilter] = useState<AreaStatus | "">("");
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(20);
-
   const [total, setTotal] = useState(0);
-
   const [totalPages, setTotalPages] = useState(1);
-
   const debouncedSearch = useDebounce(search, 500);
+  const { hasPermission } = usePermission();
 
   /* =====================================
      FETCH STATES
@@ -116,20 +93,14 @@ export default function AreaMasterPage() {
       const response = await getAreas({
         page,
         limit,
-
         search: debouncedSearch,
-
         state_id: stateFilter || undefined,
-
         city_id: cityFilter || undefined,
-
         status: statusFilter || undefined,
       });
 
       setAreas(response.data ?? []);
-
       setTotal(response.pagination?.total ?? 0);
-
       setTotalPages(response.pagination?.totalPages ?? 1);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to fetch areas");
@@ -148,13 +119,9 @@ export default function AreaMasterPage() {
 
   const handleReset = () => {
     setSearch("");
-
     setStateFilter(0);
-
     setCityFilter(0);
-
     setStatusFilter("");
-
     setPage(1);
   };
 
@@ -165,29 +132,19 @@ export default function AreaMasterPage() {
   const handleToggleStatus = async (area: Area) => {
     try {
       setActionLoading(true);
-
       const newStatus: AreaStatus =
         area.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
       await updateArea(area._id, {
         areaCode: area.areaCode,
-
         areaName: area.areaName,
-
         state_id: Number(area.state_id),
-
         district_id: Number(area.district_id),
-
         city_id: Number(area.city_id),
-
         pincode_id: Number(area.pincode_id),
-
         zone: area.zone,
-
         latitude: area.latitude,
-
         longitude: area.longitude,
-
         status: newStatus,
       });
 
@@ -210,13 +167,9 @@ export default function AreaMasterPage() {
   const handleImport = async (file: File) => {
     try {
       setActionLoading(true);
-
       const response = await importAreas(file);
-
       toast.success(response.message || "Areas imported successfully");
-
       setPage(1);
-
       await fetchAreas();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to import areas");
@@ -228,9 +181,7 @@ export default function AreaMasterPage() {
   const handleExport = async () => {
     try {
       setActionLoading(true);
-
       await exportAreas();
-
       toast.success("Areas exported successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to export areas");
@@ -262,139 +213,135 @@ export default function AreaMasterPage() {
             onImport={handleImport}
             onExport={handleExport}
           />
-
-          <button
-            type="button"
-            onClick={() => navigate("/area-master/create")}
-            disabled={actionLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
-          >
-            <Plus size={17} />
-            Add Area
-          </button>
+          {hasPermission("area.create") && (
+            <button
+              type="button"
+              onClick={() => navigate("/area-master/create")}
+              disabled={actionLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+            >
+              <Plus size={17} />
+              Add Area
+            </button>
+          )}
         </div>
       </div>
 
-      {/* FILTER */}
+      {hasPermission("") && (
+        <>
+          {/* FILTER */}
 
-      <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {/* SEARCH */}
+          <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              {/* SEARCH */}
 
-          <div className="relative">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+              <div className="relative">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
 
-            <input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
+                <input
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Search area..."
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
 
-                setPage(1);
-              }}
-              placeholder="Search area..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
+              {/* STATE */}
+
+              <select
+                value={stateFilter}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setStateFilter(value);
+                  setCityFilter(0);
+                  setPage(1);
+                }}
+                className={filterClass}
+              >
+                <option value={0}>All States</option>
+
+                {states.map((state) => (
+                  <option key={state._id} value={state.state_id}>
+                    {state.state_name}
+                  </option>
+                ))}
+              </select>
+
+              {/* CITY */}
+
+              <select
+                value={cityFilter}
+                onChange={(e) => {
+                  setCityFilter(Number(e.target.value));
+                  setPage(1);
+                }}
+                className={filterClass}
+              >
+                <option value={0}>All Cities</option>
+
+                {cities.map((city) => (
+                  <option key={city._id} value={city.city_id}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </select>
+
+              {/* STATUS */}
+
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as AreaStatus | "");
+                  setPage(1);
+                }}
+                className={filterClass}
+              >
+                <option value="">All Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <RotateCcw size={16} />
+                Reset
+              </button>
+            </div>
+
+            <div className="mt-3 text-xs text-gray-500">
+              Total <span className="font-semibold text-gray-800">{total}</span>{" "}
+              areas
+            </div>
           </div>
 
-          {/* STATE */}
-
-          <select
-            value={stateFilter}
-            onChange={(e) => {
-              const value = Number(e.target.value);
-
-              setStateFilter(value);
-
-              setCityFilter(0);
-
+          <AreaTable
+            areas={areas}
+            loading={loading || actionLoading}
+            page={page}
+            limit={limit}
+            total={total}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onLimitChange={(value) => {
+              setLimit(value);
               setPage(1);
             }}
-            className={filterClass}
-          >
-            <option value={0}>All States</option>
-
-            {states.map((state) => (
-              <option key={state._id} value={state.state_id}>
-                {state.state_name}
-              </option>
-            ))}
-          </select>
-
-          {/* CITY */}
-
-          <select
-            value={cityFilter}
-            onChange={(e) => {
-              setCityFilter(Number(e.target.value));
-
-              setPage(1);
-            }}
-            className={filterClass}
-          >
-            <option value={0}>All Cities</option>
-
-            {cities.map((city) => (
-              <option key={city._id} value={city.city_id}>
-                {city.city_name}
-              </option>
-            ))}
-          </select>
-
-          {/* STATUS */}
-
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as AreaStatus | "");
-
-              setPage(1);
-            }}
-            className={filterClass}
-          >
-            <option value="">All Status</option>
-
-            <option value="ACTIVE">Active</option>
-
-            <option value="INACTIVE">Inactive</option>
-          </select>
-
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <RotateCcw size={16} />
-            Reset
-          </button>
-        </div>
-
-        <div className="mt-3 text-xs text-gray-500">
-          Total <span className="font-semibold text-gray-800">{total}</span>{" "}
-          areas
-        </div>
-      </div>
-
-      <AreaTable
-        areas={areas}
-        loading={loading || actionLoading}
-        page={page}
-        limit={limit}
-        total={total}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLimitChange={(value) => {
-          setLimit(value);
-          setPage(1);
-        }}
-        onEdit={(area) => navigate(`/area-master/${area._id}/edit`)}
-        onToggleStatus={handleToggleStatus}
-      />
+            onEdit={(area) => navigate(`/area-master/${area._id}/edit`)}
+            onToggleStatus={handleToggleStatus}
+          />
+        </>
+      )}
     </div>
   );
 }
 
-const filterClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+const filterClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";

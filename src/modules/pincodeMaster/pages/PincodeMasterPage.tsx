@@ -1,19 +1,12 @@
 import { Plus, Search, X } from "lucide-react";
-
 import { useCallback, useEffect, useState } from "react";
-
 import { toast } from "react-toastify";
-
 import { useDebounce } from "../../../hooks/useDebounce";
-
 import { getCities } from "../../cityMaster/services/cityApi";
-
 import type { CityMaster } from "../../cityMaster/types/city.types";
-
 import PincodeExcelActions from "../components/PincodeExcelActions";
 import PincodeForm from "../components/PincodeForm";
 import PincodeTable from "../components/PincodeTable";
-
 import {
   createPincode,
   deletePincode,
@@ -22,38 +15,27 @@ import {
   importPincodes,
   updatePincode,
 } from "../services/pincodeApi";
-
 import type { PincodeFormData, PincodeMaster } from "../types/pincode.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function PincodeMasterPage() {
   const [pincodes, setPincodes] = useState<PincodeMaster[]>([]);
-
   const [cities, setCities] = useState<CityMaster[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [actionLoading, setActionLoading] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [cityFilter, setCityFilter] = useState(0);
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(20);
-
   const [total, setTotal] = useState(0);
-
   const [totalPages, setTotalPages] = useState(1);
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [selectedPincode, setSelectedPincode] = useState<PincodeMaster | null>(
     null,
   );
 
   const debouncedSearch = useDebounce(search, 500);
-
+  const { hasPermission } = usePermission();
   /* ===========================
      CITIES FOR FILTER
   =========================== */
@@ -123,14 +105,6 @@ export default function PincodeMasterPage() {
       setActionLoading(true);
 
       if (selectedPincode) {
-        /*
-           Your current update curl only sends
-           pincode_name.
-
-           If your backend also supports city_id,
-           you can pass full data here instead.
-          */
-
         await updatePincode(selectedPincode.pincode_id ?? selectedPincode._id, {
           pincode_name: data.pincode_name,
         });
@@ -235,86 +209,91 @@ export default function PincodeMasterPage() {
             onImport={handleImport}
             onExport={handleExport}
           />
+          {hasPermission("pincode.create") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedPincode(null);
 
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedPincode(null);
-
-              setFormOpen(true);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
-          >
-            <Plus size={17} />
-            Add Pincode
-          </button>
+                setFormOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
+            >
+              <Plus size={17} />
+              Add Pincode
+            </button>
+          )}
         </div>
       </div>
 
-      {/* FILTER */}
+      {hasPermission("pincode.table") && (
+        <>
+          {/* FILTER */}
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="relative">
-            <Search
-              size={17}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="relative">
+                <Search
+                  size={17}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
 
-            <input
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
+                <input
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
 
-                setPage(1);
-              }}
-              placeholder="Search pincode..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none"
-            />
+                    setPage(1);
+                  }}
+                  placeholder="Search pincode..."
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none"
+                />
+              </div>
+
+              <select
+                value={cityFilter}
+                onChange={(event) => {
+                  setCityFilter(Number(event.target.value));
+
+                  setPage(1);
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
+              >
+                <option value={0}>All Cities</option>
+
+                {cities.map((city) => (
+                  <option key={city._id} value={city.city_id}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <select
-            value={cityFilter}
-            onChange={(event) => {
-              setCityFilter(Number(event.target.value));
+          {/* TABLE */}
+
+          <PincodeTable
+            pincodes={pincodes}
+            loading={loading}
+            page={page}
+            limit={limit}
+            total={total}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onLimitChange={(value) => {
+              setLimit(value);
 
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
-          >
-            <option value={0}>All Cities</option>
+            onEdit={(pincode) => {
+              setSelectedPincode(pincode);
 
-            {cities.map((city) => (
-              <option key={city._id} value={city.city_id}>
-                {city.city_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* TABLE */}
-
-      <PincodeTable
-        pincodes={pincodes}
-        loading={loading}
-        page={page}
-        limit={limit}
-        total={total}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLimitChange={(value) => {
-          setLimit(value);
-
-          setPage(1);
-        }}
-        onEdit={(pincode) => {
-          setSelectedPincode(pincode);
-
-          setFormOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+              setFormOpen(true);
+            }}
+            onDelete={handleDelete}
+          />
+        </>
+      )}
 
       {/* POPUP */}
 

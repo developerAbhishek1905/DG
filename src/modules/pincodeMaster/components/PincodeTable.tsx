@@ -1,23 +1,17 @@
 import { ChevronLeft, ChevronRight, Edit3, Trash2 } from "lucide-react";
-
 import type { PincodeMaster } from "../types/pincode.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   pincodes: PincodeMaster[];
-
   loading?: boolean;
-
   page: number;
   limit: number;
   total: number;
   totalPages: number;
-
   onPageChange: (page: number) => void;
-
   onLimitChange: (limit: number) => void;
-
   onEdit: (pincode: PincodeMaster) => void;
-
   onDelete: (pincode: PincodeMaster) => void;
 }
 
@@ -36,6 +30,7 @@ export default function PincodeTable({
   const startRecord = total === 0 ? 0 : (page - 1) * limit + 1;
 
   const endRecord = Math.min(page * limit, total);
+  const { hasPermission } = usePermission();
 
   if (loading) {
     return (
@@ -60,9 +55,7 @@ export default function PincodeTable({
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
               <th className={thClass}>Pincode ID</th>
-
               <th className={thClass}>Pincode</th>
-
               <th className={thClass}>City</th>
 
               <th className={`${thClass} text-right`}>Actions</th>
@@ -71,7 +64,10 @@ export default function PincodeTable({
 
           <tbody className="divide-y">
             {pincodes.map((pincode) => (
-              <tr key={pincode._id} className="hover:bg-gray-50 border border-gray-200">
+              <tr
+                key={pincode._id}
+                className="hover:bg-gray-50 border border-gray-200"
+              >
                 <td className={tdClass}>{pincode.pincode_id ?? "-"}</td>
 
                 <td className={`${tdClass} font-medium text-gray-900`}>
@@ -84,21 +80,25 @@ export default function PincodeTable({
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(pincode)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
-                    >
-                      <Edit3 size={17} />
-                    </button>
+                    {hasPermission("pincode.update") && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(pincode)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Edit3 size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      type="button"
-                      onClick={() => onDelete(pincode)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 size={17} />
-                    </button>
+                    {hasPermission("pincode.delete") && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(pincode)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -119,11 +119,8 @@ export default function PincodeTable({
             className="rounded-lg   px-2 py-1.5 text-sm"
           >
             <option value={5}>5</option>
-
             <option value={10}>10</option>
-
             <option value={20}>20</option>
-
             <option value={50}>50</option>
           </select>
         </div>
@@ -156,7 +153,5 @@ export default function PincodeTable({
   );
 }
 
-const thClass =
-  "whitespace-nowrap px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500";
-
+const thClass = "whitespace-nowrap px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500";
 const tdClass = "whitespace-nowrap px-5 py-4 text-sm text-gray-700";

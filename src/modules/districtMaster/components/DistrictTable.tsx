@@ -1,26 +1,17 @@
 import { ChevronLeft, ChevronRight, Edit3, Trash2 } from "lucide-react";
-
 import type { DistrictMaster } from "../types/district.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   districts: DistrictMaster[];
-
   loading?: boolean;
-
   page: number;
-
   limit: number;
-
   total: number;
-
   totalPages: number;
-
   onPageChange: (page: number) => void;
-
   onLimitChange: (limit: number) => void;
-
   onEdit: (district: DistrictMaster) => void;
-
   onDelete: (district: DistrictMaster) => void;
 }
 
@@ -36,6 +27,7 @@ export default function DistrictTable({
   onEdit,
   onDelete,
 }: Props) {
+  const { hasPermission } = usePermission();
   const startRecord = total === 0 ? 0 : (page - 1) * limit + 1;
 
   const endRecord = Math.min(page * limit, total);
@@ -70,7 +62,10 @@ export default function DistrictTable({
           </thead>
           <tbody className="divide-y">
             {districts.map((district) => (
-              <tr key={district._id} className="border-b border-gray-200 hover:bg-gray-50">
+              <tr
+                key={district._id}
+                className="border-b border-gray-200 hover:bg-gray-50"
+              >
                 <td className="px-5 py-4 text-sm">{district.district_id}</td>
 
                 <td className="px-5 py-4 text-sm font-medium">
@@ -81,21 +76,25 @@ export default function DistrictTable({
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(district)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
-                    >
-                      <Edit3 size={17} />
-                    </button>
+                    {hasPermission("district.update") && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(district)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Edit3 size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      type="button"
-                      onClick={() => onDelete(district)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 size={17} />
-                    </button>
+                    {hasPermission("district.delete") && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(district)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

@@ -1,39 +1,17 @@
 import * as XLSX from "xlsx";
+import type { StateFormData, StateMaster } from "../types/state.types";
 
-import type {
-  StateFormData,
-  StateMaster,
-} from "../types/state.types";
-
-export const exportStatesToExcel = (
-  states: StateMaster[]
-) => {
+export const exportStatesToExcel = (states: StateMaster[]) => {
   const excelData = states.map((state) => ({
     state_id: state.state_id,
     state_name: state.state_name,
   }));
 
-  const worksheet =
-    XLSX.utils.json_to_sheet(excelData);
-
-  worksheet["!cols"] = [
-    { wch: 12 },
-    { wch: 30 },
-  ];
-
-  const workbook =
-    XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    worksheet,
-    "States"
-  );
-
-  XLSX.writeFile(
-    workbook,
-    "state-master.xlsx"
-  );
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  worksheet["!cols"] = [{ wch: 12 }, { wch: 30 }];
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "States");
+  XLSX.writeFile(workbook, "state-master.xlsx");
 };
 
 export const downloadStateSampleExcel = () => {
@@ -52,27 +30,13 @@ export const downloadStateSampleExcel = () => {
     },
   ];
 
-  const worksheet =
-    XLSX.utils.json_to_sheet(data);
-
-  const workbook =
-    XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    worksheet,
-    "States"
-  );
-
-  XLSX.writeFile(
-    workbook,
-    "state-import-sample.xlsx"
-  );
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "States");
+  XLSX.writeFile(workbook, "state-import-sample.xlsx");
 };
 
-export const readStateExcel = (
-  file: File
-): Promise<StateFormData[]> => {
+export const readStateExcel = (file: File): Promise<StateFormData[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -88,30 +52,20 @@ export const readStateExcel = (
           type: "array",
         });
 
-        const sheetName =
-          workbook.SheetNames[0];
-
-        const worksheet =
-          workbook.Sheets[sheetName];
-
-        const rows =
-          XLSX.utils.sheet_to_json<
-            Record<string, unknown>
-          >(worksheet);
-
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
+        
         const states: StateFormData[] = rows
           .map((row) => ({
             state_id: Number(row.state_id),
-
-            state_name: String(
-              row.state_name ?? ""
-            ).trim(),
+            state_name: String(row.state_name ?? "").trim(),
           }))
           .filter(
             (state) =>
               Number.isFinite(state.state_id) &&
               state.state_id > 0 &&
-              state.state_name
+              state.state_name,
           );
 
         resolve(states);
@@ -121,9 +75,7 @@ export const readStateExcel = (
     };
 
     reader.onerror = () => {
-      reject(
-        new Error("Failed to read Excel file")
-      );
+      reject(new Error("Failed to read Excel file"));
     };
 
     reader.readAsArrayBuffer(file);

@@ -1,21 +1,16 @@
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-
 import { getStates } from "../../stateMaster/services/stateApi";
 import { getDistrictsByState } from "../../districtMaster/services/districtApi";
-
 import type { StateMaster } from "../../stateMaster/types/state.types";
 import type { DistrictMaster } from "../../districtMaster/types/district.types";
-
 import type { CityFormData, CityMaster } from "../types/city.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   city?: CityMaster | null;
-
   loading?: boolean;
-
   onSubmit: (data: CityFormData) => Promise<void>;
-
   onCancel: () => void;
 }
 
@@ -26,13 +21,9 @@ export default function CityForm({
   onCancel,
 }: Props) {
   const [states, setStates] = useState<StateMaster[]>([]);
-
   const [districts, setDistricts] = useState<DistrictMaster[]>([]);
-
   const [stateLoading, setStateLoading] = useState(false);
-
   const [districtLoading, setDistrictLoading] = useState(false);
-
   const {
     register,
     control,
@@ -49,9 +40,8 @@ export default function CityForm({
       district_id: 0,
     },
   });
-
   const selectedStateId = watch("state_id");
-
+  const { hasPermission } = usePermission();
   /* ==========================================
      FETCH STATES
   ========================================== */
@@ -60,7 +50,6 @@ export default function CityForm({
     const fetchStates = async () => {
       try {
         setStateLoading(true);
-
         const response = await getStates({
           page: 1,
           limit: 100,
@@ -83,9 +72,8 @@ export default function CityForm({
 
   useEffect(() => {
     const initializeEditForm = async () => {
-      /*
-       * ADD MODE
-       */
+      // ADD MODE
+
       if (!city) {
         reset({
           city_id: 0,
@@ -99,22 +87,16 @@ export default function CityForm({
         return;
       }
 
-      /*
-       * EDIT MODE
-       */
+      // EDIT MODE
 
       const stateId = Number(city.state_id);
-
       const districtId = Number(city.district_id);
 
       // First set city + state
       reset({
         city_id: Number(city.city_id),
-
         city_name: city.city_name ?? "",
-
         state_id: stateId,
-
         district_id: 0,
       });
 
@@ -124,21 +106,14 @@ export default function CityForm({
 
       try {
         setDistrictLoading(true);
-
-        // Fetch districts of selected state
         const districtData = await getDistrictsByState(stateId);
-
         setDistricts(districtData ?? []);
-
-        // After options are available,
-        // select edit district
         setValue("district_id", districtId, {
           shouldValidate: false,
           shouldDirty: false,
         });
       } catch (error) {
         console.error("Failed to fetch districts:", error);
-
         setDistricts([]);
       } finally {
         setDistrictLoading(false);
@@ -172,13 +147,10 @@ export default function CityForm({
 
     try {
       setDistrictLoading(true);
-
       const districtData = await getDistrictsByState(stateId);
-
       setDistricts(districtData ?? []);
     } catch (error) {
       console.error("Failed to fetch districts:", error);
-
       setDistricts([]);
     } finally {
       setDistrictLoading(false);
@@ -192,16 +164,12 @@ export default function CityForm({
   const submitForm = async (data: CityFormData) => {
     const payload: CityFormData = {
       city_id: Number(data.city_id),
-
       city_name: data.city_name.trim(),
-
       state_id: Number(data.state_id),
-
       district_id: Number(data.district_id),
     };
 
     console.log("CITY PAYLOAD:", payload);
-
     await onSubmit(payload);
   };
 
@@ -218,7 +186,6 @@ export default function CityForm({
     });
 
     setDistricts([]);
-
     onCancel();
   };
 
@@ -237,12 +204,9 @@ export default function CityForm({
           placeholder="Enter city ID"
           {...register("city_id", {
             required: "City ID is required",
-
             valueAsNumber: true,
-
             min: {
               value: 1,
-
               message: "City ID must be greater than 0",
             },
           })}
@@ -265,10 +229,8 @@ export default function CityForm({
           placeholder="Enter city name"
           {...register("city_name", {
             required: "City name is required",
-
             minLength: {
               value: 2,
-
               message: "City name must contain at least 2 characters",
             },
           })}
@@ -298,9 +260,7 @@ export default function CityForm({
               disabled={stateLoading}
               onChange={(event) => {
                 const value = Number(event.target.value);
-
                 field.onChange(value);
-
                 handleStateChange(value);
               }}
               className={inputClass}
@@ -412,5 +372,4 @@ function ErrorText({ children }: { children?: React.ReactNode }) {
 
 const labelClass = "mb-1.5 block text-sm font-medium text-gray-700";
 
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100";
+const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100";

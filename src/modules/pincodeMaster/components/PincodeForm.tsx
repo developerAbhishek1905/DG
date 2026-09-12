@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
-
 import { Controller, useForm } from "react-hook-form";
-
 import { getCities } from "../../cityMaster/services/cityApi";
-
 import type { CityMaster } from "../../cityMaster/types/city.types";
-
 import type { PincodeFormData, PincodeMaster } from "../types/pincode.types";
 
 interface Props {
   pincode?: PincodeMaster | null;
-
   loading?: boolean;
-
   onSubmit: (data: PincodeFormData) => Promise<void>;
-
   onCancel: () => void;
 }
 
@@ -25,7 +18,6 @@ export default function PincodeForm({
   onCancel,
 }: Props) {
   const [cities, setCities] = useState<CityMaster[]>([]);
-
   const [cityLoading, setCityLoading] = useState(false);
 
   const {
@@ -38,9 +30,7 @@ export default function PincodeForm({
   } = useForm<PincodeFormData>({
     defaultValues: {
       pincode_id: undefined,
-
       pincode_name: "",
-
       city_id: 0,
     },
   });
@@ -78,17 +68,13 @@ export default function PincodeForm({
     if (pincode) {
       reset({
         pincode_id: pincode.pincode_id,
-
         pincode_name: pincode.pincode_name ?? "",
-
         city_id: Number(pincode.city_id),
       });
     } else {
       reset({
         pincode_id: undefined,
-
         pincode_name: "",
-
         city_id: 0,
       });
     }
@@ -101,14 +87,8 @@ export default function PincodeForm({
   const submitForm = async (data: PincodeFormData) => {
     const payload: PincodeFormData = {
       pincode_name: data.pincode_name.trim(),
-
       city_id: Number(data.city_id),
     };
-
-    /*
-     pincode_id optional hai.
-     Value ho tabhi payload me bhejna.
-    */
 
     if (
       data.pincode_id !== undefined &&
@@ -124,9 +104,7 @@ export default function PincodeForm({
   const handleCancel = () => {
     reset({
       pincode_id: undefined,
-
       pincode_name: "",
-
       city_id: 0,
     });
 
@@ -153,7 +131,6 @@ export default function PincodeForm({
 
             min: {
               value: 1,
-
               message: "Pincode ID must be greater than 0",
             },
           })}
@@ -183,7 +160,6 @@ export default function PincodeForm({
 
             pattern: {
               value: /^[1-9][0-9]{5}$/,
-
               message: "Enter a valid 6 digit pincode",
             },
           })}
@@ -267,6 +243,4 @@ function ErrorText({ children }: { children?: React.ReactNode }) {
 }
 
 const labelClass = "mb-1.5 block text-sm font-medium text-gray-700";
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100";
+const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100";

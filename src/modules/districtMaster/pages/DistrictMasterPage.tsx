@@ -1,15 +1,10 @@
 import { Plus, Search, X } from "lucide-react";
-
 import { useCallback, useEffect, useState } from "react";
-
 import { toast } from "react-toastify";
-
 import { useDebounce } from "../../../hooks/useDebounce";
-
 import DistrictExcelActions from "../components/DistrictExcelActions";
 import DistrictForm from "../components/DistrictForm";
 import DistrictTable from "../components/DistrictTable";
-
 import {
   createDistrict,
   deleteDistrict,
@@ -18,32 +13,23 @@ import {
   importDistricts,
   updateDistrict,
 } from "../services/districtApi";
-
 import type { DistrictFormData, DistrictMaster } from "../types/district.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function DistrictMasterPage() {
   const [districts, setDistricts] = useState<DistrictMaster[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [actionLoading, setActionLoading] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(20);
-
   const [total, setTotal] = useState(0);
-
   const [totalPages, setTotalPages] = useState(1);
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [selectedDistrict, setSelectedDistrict] =
     useState<DistrictMaster | null>(null);
-
   const debouncedSearch = useDebounce(search, 500);
+  const { hasPermission } = usePermission();
 
   const fetchDistricts = useCallback(async () => {
     try {
@@ -179,63 +165,69 @@ export default function DistrictMasterPage() {
             onExport={handleExport}
           />
 
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedDistrict(null);
+          {hasPermission("district.create") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDistrict(null);
 
-              setFormOpen(true);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
-          >
-            <Plus size={17} />
-            Add District
-          </button>
+                setFormOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
+            >
+              <Plus size={17} />
+              Add District
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Search */}
+      {hasPermission("district.table") && (
+        <>
+          {/* Search */}
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <div className="relative max-w-md">
-          <Search
-            size={17}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <div className="relative max-w-md">
+              <Search
+                size={17}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
+              <input
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+
+                  setPage(1);
+                }}
+                placeholder="Search district..."
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+          </div>
+
+          <DistrictTable
+            districts={districts}
+            loading={loading}
+            page={page}
+            limit={limit}
+            total={total}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onLimitChange={(value) => {
+              setLimit(value);
 
               setPage(1);
             }}
-            placeholder="Search district..."
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            onEdit={(district) => {
+              setSelectedDistrict(district);
+
+              setFormOpen(true);
+            }}
+            onDelete={handleDelete}
           />
-        </div>
-      </div>
-
-      <DistrictTable
-        districts={districts}
-        loading={loading}
-        page={page}
-        limit={limit}
-        total={total}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLimitChange={(value) => {
-          setLimit(value);
-
-          setPage(1);
-        }}
-        onEdit={(district) => {
-          setSelectedDistrict(district);
-
-          setFormOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+        </>
+      )}
 
       {/* Popup */}
 

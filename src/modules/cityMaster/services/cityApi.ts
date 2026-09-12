@@ -29,18 +29,8 @@ export const getCities = async (
       page: params.page ?? 1,
       limit: params.limit ?? 20,
       search: params.search ?? "",
-
-      ...(params.state_id
-        ? {
-            state_id: params.state_id,
-          }
-        : {}),
-
-      ...(params.district_id
-        ? {
-            district_id: params.district_id,
-          }
-        : {}),
+      ...(params.state_id ? { state_id: params.state_id } : {}),
+      ...(params.district_id ? { district_id: params.district_id } : {}),
     },
   });
 
@@ -55,7 +45,6 @@ export const getCityById = async (
   cityId: number | string,
 ): Promise<CityMaster> => {
   const response = await api.get<CitySingleResponse>(`${CITY_API}/${cityId}`);
-
   return response.data.data;
 };
 
@@ -65,7 +54,6 @@ export const getCityById = async (
 
 export const createCity = async (data: CityFormData): Promise<CityMaster> => {
   const response = await api.post<CitySingleResponse>(CITY_API, data);
-
   return response.data.data;
 };
 
@@ -105,9 +93,7 @@ export const deleteCity = async (
 
 export const importCities = async (file: File): Promise<CityImportResponse> => {
   const formData = new FormData();
-
   formData.append("file", file);
-
   const response = await api.post<CityImportResponse>(
     `${CITY_API}/import`,
     formData,
@@ -126,48 +112,36 @@ export const exportCities = async (): Promise<void> => {
   });
 
   const contentTypeValue = response.headers["content-type"];
-  const contentType =
-    Array.isArray(contentTypeValue)
-      ? contentTypeValue[0]
-      : typeof contentTypeValue === "string"
-        ? contentTypeValue
-        : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const contentType = Array.isArray(contentTypeValue)
+    ? contentTypeValue[0]
+    : typeof contentTypeValue === "string"
+      ? contentTypeValue
+      : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
   const blob = new Blob([response.data], {
     type: contentType,
   });
 
   const url = window.URL.createObjectURL(blob);
-
   const link = document.createElement("a");
-
   link.href = url;
-
   link.download = "cities.xlsx";
-
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
-
   window.URL.revokeObjectURL(url);
 };
 
 export const getCitiesByStateAndDistrict = async (
   stateId: number | string,
-  districtId: number | string
+  districtId: number | string,
 ): Promise<CityMaster[]> => {
-  const response =
-    await api.get<CityFilterResponse>(
-      "/cities/filter",
-      {
-        params: {
-          state_id: stateId,
-          district_id: districtId,
-        },
-      }
-    );
+  const response = await api.get<CityFilterResponse>("/cities/filter", {
+    params: {
+      state_id: stateId,
+      district_id: districtId,
+    },
+  });
 
   return response.data.data ?? [];
 };

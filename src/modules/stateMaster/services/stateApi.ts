@@ -11,10 +11,9 @@ import type {
 
 const STATE_API = "/states";
 
-/**
- * GET
- * /states?page=1&limit=20&search=Madhya
- */
+
+//  GET STATES
+
 export const getStates = async (
   params: StateQueryParams = {},
 ): Promise<StateListResponse> => {
@@ -29,15 +28,9 @@ export const getStates = async (
   return response.data;
 };
 
-/**
- * GET
- * /states/:stateId
- *
- * curl example:
- * /states/1
- *
- * stateId here is state_id, not MongoDB _id
- */
+
+ // GET STATES BY ID
+
 export const getStateById = async (
   stateId: number | string,
 ): Promise<StateMaster> => {
@@ -48,10 +41,9 @@ export const getStateById = async (
   return response.data.data;
 };
 
-/**
- * POST
- * /states
- */
+
+//  CREATE STATE
+
 export const createState = async (
   data: StateFormData,
 ): Promise<StateMaster> => {
@@ -60,10 +52,8 @@ export const createState = async (
   return response.data.data;
 };
 
-/**
- * PUT
- * /states/:stateId
- */
+// UPDATE STATE
+
 export const updateState = async (
   stateId: number | string,
   data: StateFormData,
@@ -76,10 +66,8 @@ export const updateState = async (
   return response.data.data;
 };
 
-/**
- * DELETE
- * /states/:stateId
- */
+// DELETE STATE
+
 export const deleteState = async (
   stateId: number | string,
 ): Promise<StateDeleteResponse> => {
@@ -90,12 +78,8 @@ export const deleteState = async (
   return response.data;
 };
 
-/**
- * POST
- * /states/import
- *
- * multipart/form-data
- */
+// IMPORT STATES
+
 export const importStates = async (
   file: File,
 ): Promise<StateImportResponse> => {
@@ -111,12 +95,7 @@ export const importStates = async (
   return response.data;
 };
 
-/**
- * GET
- * /states/export
- *
- * Excel file download
- */
+// EXPORT STATES
 export const exportStates = async (): Promise<void> => {
   const response = await api.get(`${STATE_API}/export`, {
     responseType: "blob",
@@ -128,18 +107,12 @@ export const exportStates = async (): Promise<void> => {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
 
-  const url = window.URL.createObjectURL(blob);
-
+  const url = window.URL.createObjectURL(blob)
   const link = document.createElement("a");
-
   link.href = url;
   link.download = "states.xlsx";
-
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
-
   window.URL.revokeObjectURL(url);
 };

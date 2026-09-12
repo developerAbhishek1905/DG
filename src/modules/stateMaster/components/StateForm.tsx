@@ -1,6 +1,4 @@
-// import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-
 import type { StateFormData, StateMaster } from "../types/state.types";
 
 interface Props {
@@ -22,11 +20,11 @@ export default function StateForm({
     // reset,
     formState: { errors },
   } = useForm<StateFormData>({
-  defaultValues: {
-    state_id: state?.state_id ,
-    state_name: state?.state_name ?? "",
-  },
-});
+    defaultValues: {
+      state_id: state?.state_id,
+      state_name: state?.state_name ?? "",
+    },
+  });
 
   // useEffect(() => {
   //   reset({
@@ -36,56 +34,47 @@ export default function StateForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-<div className="grid gap-4 md:grid-cols-2">
-  <div>
-    <label className={labelClass}>
-      State ID
-      {/* <span className="ml-1 text-red-500">*</span> */}
-    </label>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className={labelClass}>State ID</label>
 
-    <input
-      type="number"
-      // min={1}
-      placeholder="Enter state ID"
-      {...register("state_id", {
-        // required: "State ID is required",
-        valueAsNumber: true,
-        // min: {
-        //   value: 1,
-        //   message: "State ID must be greater than 0",
-        // },
-      })}
-      className={inputClass}
-    />
+          <input
+            type="number"
+            placeholder="Enter state ID"
+            {...register("state_id", {
+              valueAsNumber: true,
+            })}
+            className={inputClass}
+          />
 
-    {errors.state_id && (
-      <p className="mt-1 text-xs text-red-600">
-        {errors.state_id.message}
-      </p>
-    )}
-  </div>
+          {errors.state_id && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.state_id.message}
+            </p>
+          )}
+        </div>
 
-  <div>
-    <label className={labelClass}>
-      State Name
-      <span className="ml-1 text-red-500">*</span>
-    </label>
+        <div>
+          <label className={labelClass}>
+            State Name
+            <span className="ml-1 text-red-500">*</span>
+          </label>
 
-    <input
-      placeholder="Enter state name"
-      {...register("state_name", {
-        required: "State name is required",
-      })}
-      className={inputClass}
-    />
+          <input
+            placeholder="Enter state name"
+            {...register("state_name", {
+              required: "State name is required",
+            })}
+            className={inputClass}
+          />
 
-    {errors.state_name && (
-      <p className="mt-1 text-xs text-red-600">
-        {errors.state_name.message}
-      </p>
-    )}
-  </div>
-</div>
+          {errors.state_name && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.state_name.message}
+            </p>
+          )}
+        </div>
+      </div>
       <div className="flex justify-end gap-3">
         <button
           type="button"
@@ -108,6 +97,5 @@ export default function StateForm({
 }
 
 const labelClass = "mb-1 block text-sm font-medium text-gray-700";
-
 const inputClass =
   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";

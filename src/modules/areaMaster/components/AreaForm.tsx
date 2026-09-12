@@ -1,52 +1,31 @@
 import { Loader2 } from "lucide-react";
-
 import { useEffect, useState } from "react";
-
 import { Controller, useForm } from "react-hook-form";
-
 import { getStates } from "../../stateMaster/services/stateApi";
-
 import { getDistrictsByState } from "../../districtMaster/services/districtApi";
-
 import type { StateMaster } from "../../stateMaster/types/state.types";
-
 import type { DistrictMaster } from "../../districtMaster/types/district.types";
-
 import type { CityMaster } from "../../cityMaster/types/city.types";
-
 import type { PincodeMaster } from "../../pincodeMaster/types/pincode.types";
-
 import type { Area, AreaFormData } from "../types/area.types";
-
 import { getCitiesByStateAndDistrict } from "../../cityMaster/services/cityApi";
-
 import { getPincodesByCity } from "../../pincodeMaster/services/pincodeApi";
 
 interface Props {
   area?: Area | null;
-
   loading?: boolean;
-
   onSubmit: (data: AreaFormData) => void | Promise<void>;
-
   onCancel: () => void;
 }
 
 export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
   const [states, setStates] = useState<StateMaster[]>([]);
-
   const [districts, setDistricts] = useState<DistrictMaster[]>([]);
-
   const [cities, setCities] = useState<CityMaster[]>([]);
-
   const [pincodes, setPincodes] = useState<PincodeMaster[]>([]);
-
   const [stateLoading, setStateLoading] = useState(false);
-
   const [districtLoading, setDistrictLoading] = useState(false);
-
   const [cityLoading, setCityLoading] = useState(false);
-
   const [pincodeLoading, setPincodeLoading] = useState(false);
 
   const {
@@ -61,31 +40,20 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
   } = useForm<AreaFormData>({
     defaultValues: {
       areaCode: "",
-
       areaName: "",
-
       state_id: 0,
-
       district_id: 0,
-
       city_id: 0,
-
       pincode_id: 0,
-
       zone: "",
-
       latitude: undefined,
-
       longitude: undefined,
-
       status: "ACTIVE",
     },
   });
 
   const selectedStateId = watch("state_id");
-
   const selectedDistrictId = watch("district_id");
-
   const selectedCityId = watch("city_id");
 
   /* =====================================
@@ -141,43 +109,28 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
       }
 
       const stateId = Number(area.state_id);
-
       const districtId = Number(area.district_id);
-
       const cityId = Number(area.city_id);
-
       const pincodeId = Number(area.pincode_id);
 
       reset({
         areaCode: area.areaCode,
-
         areaName: area.areaName,
-
         state_id: stateId,
-
         district_id: 0,
-
         city_id: 0,
-
         pincode_id: 0,
-
         zone: area.zone ?? "",
-
         latitude: area.latitude,
-
         longitude: area.longitude,
-
         status: area.status,
       });
 
       try {
         // 1. DISTRICTS
         setDistrictLoading(true);
-
         const districtData = await getDistrictsByState(stateId);
-
         setDistricts(districtData ?? []);
-
         setValue("district_id", districtId, {
           shouldValidate: false,
           shouldDirty: false,
@@ -185,11 +138,8 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
         // 2. CITIES
         setCityLoading(true);
-
         const cityData = await getCitiesByStateAndDistrict(stateId, districtId);
-
         setCities(cityData ?? []);
-
         setValue("city_id", cityId, {
           shouldValidate: false,
           shouldDirty: false,
@@ -197,11 +147,8 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
         // 3. PINCODES
         setPincodeLoading(true);
-
         const pincodeData = await getPincodesByCity(cityId);
-
         setPincodes(pincodeData ?? []);
-
         setValue("pincode_id", pincodeId, {
           shouldValidate: false,
           shouldDirty: false,
@@ -223,13 +170,9 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
   const handleStateChange = async (stateId: number) => {
     setValue("state_id", stateId);
-
     setValue("district_id", 0);
-
     setValue("city_id", 0);
-
     setValue("pincode_id", 0);
-
     setDistricts([]);
     setCities([]);
     setPincodes([]);
@@ -238,9 +181,7 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
     try {
       setDistrictLoading(true);
-
       const response = await getDistrictsByState(stateId);
-
       setDistricts(response ?? []);
     } catch (error) {
       console.error("Failed to fetch districts", error);
@@ -255,14 +196,10 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
   const handleDistrictChange = async (districtId: number) => {
     setValue("district_id", districtId);
-
     setValue("city_id", 0);
-
     setValue("pincode_id", 0);
-
     setCities([]);
     setPincodes([]);
-
     const stateId = Number(selectedStateId);
 
     if (!stateId || !districtId) {
@@ -271,13 +208,10 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
     try {
       setCityLoading(true);
-
       const response = await getCitiesByStateAndDistrict(stateId, districtId);
-
       setCities(response ?? []);
     } catch (error) {
       console.error("Failed to fetch cities", error);
-
       setCities([]);
     } finally {
       setCityLoading(false);
@@ -289,9 +223,7 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
   const handleCityChange = async (cityId: number) => {
     setValue("city_id", cityId);
-
     setValue("pincode_id", 0);
-
     setPincodes([]);
 
     if (!cityId) {
@@ -300,13 +232,10 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
     try {
       setPincodeLoading(true);
-
       const response = await getPincodesByCity(cityId);
-
       setPincodes(response ?? []);
     } catch (error) {
       console.error("Failed to fetch pincodes", error);
-
       setPincodes([]);
     } finally {
       setPincodeLoading(false);
@@ -320,23 +249,14 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
   const submitForm = (data: AreaFormData) => {
     const payload: AreaFormData = {
       areaCode: data.areaCode.trim(),
-
       areaName: data.areaName.trim(),
-
       state_id: Number(data.state_id),
-
       district_id: Number(data.district_id),
-
       city_id: Number(data.city_id),
-
       pincode_id: Number(data.pincode_id),
-
       zone: data.zone?.trim() || undefined,
-
       latitude: data.latitude,
-
       longitude: data.longitude,
-
       status: data.status,
     };
 
@@ -399,9 +319,7 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
                   disabled={stateLoading}
                   onChange={(e) => {
                     const value = Number(e.target.value);
-
                     field.onChange(value);
-
                     handleStateChange(value);
                   }}
                   className={inputClass}
@@ -440,9 +358,7 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
                   disabled={!Number(selectedStateId) || districtLoading}
                   onChange={(e) => {
                     const value = Number(e.target.value);
-
                     field.onChange(value);
-
                     handleDistrictChange(value);
                   }}
                   className={inputClass}
@@ -480,9 +396,7 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
                   disabled={!Number(selectedDistrictId) || cityLoading}
                   onChange={(e) => {
                     const value = Number(e.target.value);
-
                     field.onChange(value);
-
                     handleCityChange(value);
                   }}
                   className={inputClass}
@@ -629,9 +543,7 @@ export default function AreaForm({ area, loading, onSubmit, onCancel }: Props) {
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-
   error?: string;
-
   required?: boolean;
 }
 
@@ -662,11 +574,8 @@ function DropdownField({
   children,
 }: {
   label: string;
-
   error?: string;
-
   required?: boolean;
-
   children: React.ReactNode;
 }) {
   return (
@@ -688,5 +597,4 @@ function ErrorText({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-red-600">{children}</p>;
 }
 
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100";
+const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100";

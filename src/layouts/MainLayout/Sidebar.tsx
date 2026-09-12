@@ -437,7 +437,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               ADDRESS MASTER DROPDOWN
           ================================================== */}
 
-          {allowedAddressItems.length > 0 && (
+          {hasPermission("address.access") && (allowedAddressItems.length > 0 && (
             <div>
               <button
                 type="button"
@@ -522,7 +522,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 </div>
               </div>
             </div>
-          )}
+          ))}
+          
 
           {/* =================================================
               REMAINING SIDEBAR MENUS

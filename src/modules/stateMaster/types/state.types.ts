@@ -20,9 +20,7 @@ export interface StateQueryParams {
 export interface StateListResponse {
   success?: boolean;
   message?: string;
-
   data: StateMaster[];
-
   pagination?: {
     page: number;
     limit: number;
@@ -45,9 +43,7 @@ export interface StateDeleteResponse {
 export interface StateImportResponse {
   success?: boolean;
   message?: string;
-
   data?: StateMaster[];
-
   imported?: unknown[];
   failed?: unknown[];
 }
