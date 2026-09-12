@@ -19,6 +19,7 @@ import type {
   ProductFormData,
   ProductStatus,
 } from "../types/product.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function ProductMasterPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,8 +34,8 @@ export default function ProductMasterPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const debouncedSearch = useDebounce(search, 500);
-
-    //  FETCH PRODUCTS
+  const { hasPermission } = usePermission();
+  //  FETCH PRODUCTS
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -64,7 +65,6 @@ export default function ProductMasterPage() {
     setSelectedProduct(null);
   };
 
-    
   //  CREATE / UPDATE
   const handleSubmit = async (data: ProductFormData) => {
     try {
@@ -90,8 +90,7 @@ export default function ProductMasterPage() {
     }
   };
 
-
-    //  DELETE
+  //  DELETE
   const handleDelete = async (product: Product) => {
     const confirmed = window.confirm(`Delete "${product.product_name}"?`);
     if (!confirmed) {
@@ -109,8 +108,7 @@ export default function ProductMasterPage() {
     }
   };
 
-
-    //  IMPORT
+  //  IMPORT
   const handleImport = async (file: File) => {
     try {
       setActionLoading(true);
@@ -125,7 +123,6 @@ export default function ProductMasterPage() {
     }
   };
 
-
   //  EXPORT
   const handleExport = async () => {
     try {
@@ -138,7 +135,6 @@ export default function ProductMasterPage() {
       setActionLoading(false);
     }
   };
-
 
   //  SAMPLE
   const handleSample = async () => {
@@ -177,77 +173,80 @@ export default function ProductMasterPage() {
             onExport={handleExport}
             onSample={handleSample}
           />
+          {hasPermission("product.create") && (
+            <button
+              type="button"
+              disabled={actionLoading}
+              onClick={() => {
+                setSelectedProduct(null);
 
-          <button
-            type="button"
-            disabled={actionLoading}
-            onClick={() => {
-              setSelectedProduct(null);
-
-              setFormOpen(true);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
-          >
-            <Plus size={17} />
-            Add Product
-          </button>
+                setFormOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+            >
+              <Plus size={17} />
+              Add Product
+            </button>
+          )}
         </div>
       </div>
 
       {/* FILTERS */}
+      {hasPermission("product.table") && (
+        <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="relative">
+              <Search
+                size={17}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-      <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="relative">
-            <Search
-              size={17}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search product..."
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
 
-            <input
-              value={search}
+            <select
+              value={statusFilter}
               onChange={(e) => {
-                setSearch(e.target.value);
+                setStatusFilter(e.target.value as ProductStatus | "");
                 setPage(1);
               }}
-              placeholder="Search product..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
           </div>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as ProductStatus | "");
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">All Status</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
         </div>
-      </div>
-
-      <ProductTable
-        products={products}
-        loading={loading}
-        page={page}
-        limit={limit}
-        total={total}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLimitChange={(value) => {
-          setLimit(value);
-          setPage(1);
-        }}
-        onEdit={(product) => {
-          setSelectedProduct(product);
-          setFormOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+      )}
+      {hasPermission("product.table") && (
+        <ProductTable
+          products={products}
+          loading={loading}
+          page={page}
+          limit={limit}
+          total={total}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          onLimitChange={(value) => {
+            setLimit(value);
+            setPage(1);
+          }}
+          onEdit={(product) => {
+            setSelectedProduct(product);
+            setFormOpen(true);
+          }}
+          onDelete={handleDelete}
+        />
+      )}
 
       {/* FORM POPUP */}
 

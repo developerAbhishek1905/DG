@@ -153,13 +153,13 @@ const productManagementItems = [
     label: "Product Type Master",
     icon: Shapes,
     path: "/product-type-master",
-    // permission: "productType.access",
+    permission: "product_type.access",
   },
   {
     label: "Product Master",
     icon: Package,
     path: "/product-master",
-    // permission: "product.access",
+    permission: "product.access",
   },
 ];
 
@@ -168,29 +168,25 @@ const addressMasterItems = [
     label: "State Master",
     icon: Map,
     path: "/state-master",
-    // permission: "state.access",
-    permission: "area.access",
+    permission: "state.access",
   },
   {
     label: "District Master",
     icon: Building2,
     path: "/district-master",
-    // permission: "district.access",
-    permission: "area.access",
+    permission: "district.access",
   },
   {
     label: "City Master",
     icon: MapPin,
     path: "/city-master",
-    // permission: "city.access",
-    permission: "area.access",
+    permission: "city.access",
   },
   {
     label: "Pincode Master",
     icon: Hash,
     path: "/pincode-master",
-    // permission: "pincode.access",
-    permission: "area.access",
+    permission: "pincode.access",
   },
   {
     label: "Area Master",
@@ -204,7 +200,6 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-
   const auth = useAppSelector((state) => state.auth);
 
   const permissions = auth.user?.role?.permissions ?? [];
@@ -350,13 +345,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           {/* =================================================
               PRODUCT MANAGEMENT DROPDOWN
           ================================================== */}
-
-          {allowedProductItems.length > 0 && (
-            <div>
-              <button
-                type="button"
-                onClick={() => setProductOpen((prev) => !prev)}
-                className={`
+          {hasPermission("productMaster.access") &&
+            allowedProductItems.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setProductOpen((prev) => !prev)}
+                  className={`
                   flex w-full items-center justify-between
                   rounded-lg px-3 py-2.5
                   text-sm font-medium transition
@@ -367,27 +362,27 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
                   }
                 `}
-              >
-                <div className="flex items-center gap-3">
-                  <Boxes size={18} />
+                >
+                  <div className="flex items-center gap-3">
+                    <Boxes size={18} />
 
-                  <span>Product Management</span>
-                </div>
+                    <span>Product Management</span>
+                  </div>
 
-                <ChevronDown
-                  size={17}
-                  className={`
+                  <ChevronDown
+                    size={17}
+                    className={`
                     transition-transform duration-200
 
                     ${productOpen ? "rotate-180" : ""}
                   `}
-                />
-              </button>
+                  />
+                </button>
 
-              {/* Product Dropdown */}
+                {/* Product Dropdown */}
 
-              <div
-                className={`
+                <div
+                  className={`
                   overflow-hidden
                   transition-all duration-300
 
@@ -397,24 +392,24 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       : "max-h-0 opacity-0"
                   }
                 `}
-              >
-                <div
-                  className="
+                >
+                  <div
+                    className="
                     ml-4 space-y-1
                     border-l border-gray-200
                     pl-3
                   "
-                >
-                  {allowedProductItems.map((item) => {
-                    const Icon = item.icon;
+                  >
+                    {allowedProductItems.map((item) => {
+                      const Icon = item.icon;
 
-                    return (
-                      <NavLink
-                        key={item.path}
-                        to={item.path}
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                          `
+                      return (
+                        <NavLink
+                          key={item.path}
+                          to={item.path}
+                          onClick={onClose}
+                          className={({ isActive }) =>
+                            `
                             flex items-center gap-3
                             rounded-lg px-3 py-2
                             text-sm transition
@@ -425,18 +420,18 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                 : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
                             }
                           `
-                        }
-                      >
-                        <Icon size={16} />
+                          }
+                        >
+                          <Icon size={16} />
 
-                        <span>{item.label}</span>
-                      </NavLink>
-                    );
-                  })}
+                          <span>{item.label}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* =================================================
               ADDRESS MASTER DROPDOWN

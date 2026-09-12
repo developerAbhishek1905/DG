@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import type { Product } from "../types/product.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   products: Product[];
@@ -33,7 +34,7 @@ export default function ProductTable({
   onEdit,
   onDelete,
 }: Props) {
-
+  const { hasPermission } = usePermission();
   if (loading) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
@@ -77,38 +78,43 @@ export default function ProductTable({
                 <td className="px-5 py-4 font-medium text-gray-900">
                   {product.product_name}
                 </td>
-
-                <td className="px-5 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                      product.status === "ACTIVE"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {product.status === "ACTIVE" ? "Active" : "Inactive"}
-                  </span>
-                </td>
+                {/* {hasPermission("") && ( */}
+                  <td className="px-5 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                        product.status === "ACTIVE"
+                          ? "bg-green-50 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {product.status === "ACTIVE" ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                {/* )} */}
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
-                    <button
-                      type="button"
-                      title="Edit Product"
-                      onClick={() => onEdit(product)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
-                    >
-                      <Edit3 size={17} />
-                    </button>
+                    {hasPermission("product.update") && (
+                      <button
+                        type="button"
+                        title="Edit Product"
+                        onClick={() => onEdit(product)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                      >
+                        <Edit3 size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      type="button"
-                      title="Delete Product"
-                      onClick={() => onDelete(product)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 size={17} />
-                    </button>
+                    {hasPermission("product.delete") && (
+                      <button
+                        type="button"
+                        title="Delete Product"
+                        onClick={() => onDelete(product)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

@@ -21,6 +21,7 @@ import {
   updateBrand,
 } from "../services/brandApi";
 import type { Brand, BrandFormData } from "../types/brand.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function BrandMasterPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -34,7 +35,7 @@ export default function BrandMasterPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  const { hasPermission } = usePermission();
   // FETCH BRANDS
   const fetchBrands = async () => {
     try {
@@ -187,7 +188,6 @@ export default function BrandMasterPage() {
 
   return (
     <div>
-
       {/* HEADER */}
       <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
@@ -197,6 +197,7 @@ export default function BrandMasterPage() {
 
         <div className="flex flex-wrap gap-2">
           {/* IMPORT */}
+
           <input
             ref={fileInputRef}
             type="file"
@@ -204,47 +205,55 @@ export default function BrandMasterPage() {
             onChange={handleImport}
             className="hidden"
           />
-          <button
-            type="button"
-            onClick={handleImportClick}
-            disabled={importLoading}
-            className="inline-flex items-center gap-2 rounded-lg border border-green-600 px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Upload size={17} />
+          {hasPermission("brand.import") && (
+            <button
+              type="button"
+              onClick={handleImportClick}
+              disabled={importLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-green-600 px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Upload size={17} />
 
-            {importLoading ? "Importing..." : "Import Excel"}
-          </button>
+              {importLoading ? "Importing..." : "Import Excel"}
+            </button>
+          )}
 
           {/* EXPORT */}
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exportLoading}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] px-4 py-2.5 text-sm font-medium text-[#123B7A] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <FileSpreadsheet size={17} />
-            {exportLoading ? "Exporting..." : "Export Excel"}
-          </button>
+          {hasPermission("brand.export") && (
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exportLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] px-4 py-2.5 text-sm font-medium text-[#123B7A] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FileSpreadsheet size={17} />
+              {exportLoading ? "Exporting..." : "Export Excel"}
+            </button>
+          )}
 
           {/* SAMPLE */}
-          <button
-            type="button"
-            onClick={handleDownloadSample}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <Download size={17} />
-            Sample Excel
-          </button>
+          {hasPermission("brand.import") && (
+            <button
+              type="button"
+              onClick={handleDownloadSample}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <Download size={17} />
+              Sample Excel
+            </button>
+          )}
 
           {/* ADD */}
-          <button
-            type="button"
-            onClick={handleCreate}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
-          >
-            <Plus size={17} />
-            Add Brand
-          </button>
+          {hasPermission("brand.create") && (
+            <button
+              type="button"
+              onClick={handleCreate}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
+            >
+              <Plus size={17} />
+              Add Brand
+            </button>
+          )}
         </div>
       </div>
 
@@ -306,32 +315,35 @@ export default function BrandMasterPage() {
           </div>
         </div>
       )}
+      {hasPermission("brand.table") && (
+        <>
+          {/* SEARCH */}
+          <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
+            <div className="relative max-w-md">
+              <Search
+                size={17}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-      {/* SEARCH */}
-      <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
-        <div className="relative max-w-md">
-          <Search
-            size={17}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search brand..."
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+          </div>
+
+          {/* TABLE */}
+
+          <BrandTable
+            brands={filteredBrands}
+            loading={loading}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
-
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search brand..."
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        </div>
-      </div>
-
-      {/* TABLE */}
-
-      <BrandTable
-        brands={filteredBrands}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+        </>
+      )}
     </div>
   );
 }

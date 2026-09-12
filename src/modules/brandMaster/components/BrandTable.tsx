@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Edit3, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Brand } from "../types/brand.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   brands: Brand[];
@@ -20,7 +21,7 @@ export default function BrandTable({
   const [limit, setLimit] = useState(10);
   const total = brands.length;
   const totalPages = Math.max(1, Math.ceil(total / limit));
-
+const {hasPermission}=usePermission()
   useEffect(() => {
     setPage(1);
   }, [brands, limit]);
@@ -81,23 +82,24 @@ export default function BrandTable({
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-2">
-                    <button
+                    {hasPermission("brand.update") && <button
                       type="button"
                       title="Edit Brand"
                       onClick={() => onEdit(brand)}
                       className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
                     >
                       <Edit3 size={17} />
-                    </button>
-
-                    <button
+                    </button>}
+                    
+                    {hasPermission("brand.delete") && <button
                       type="button"
                       title="Delete Brand"
                       onClick={() => onDelete(brand)}
                       className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 size={17} />
-                    </button>
+                    </button>}
+                    
                   </div>
                 </td>
               </tr>

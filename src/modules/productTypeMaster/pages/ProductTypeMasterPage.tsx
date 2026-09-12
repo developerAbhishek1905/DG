@@ -18,6 +18,7 @@ import type {
   ProductType,
   ProductTypeFormData,
 } from "../types/productType.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function ProductTypeMasterPage() {
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
@@ -29,11 +30,12 @@ export default function ProductTypeMasterPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
-  const [selectedProductType, setSelectedProductType] = useState<ProductType | null>(null);
+  const [selectedProductType, setSelectedProductType] =
+    useState<ProductType | null>(null);
   const debouncedSearch = useDebounce(search, 500);
+  const { hasPermission } = usePermission();
 
-
-    //  FETCH PRODUCT TYPES
+  //  FETCH PRODUCT TYPES
   const fetchProductTypes = useCallback(async () => {
     try {
       setLoading(true);
@@ -58,13 +60,11 @@ export default function ProductTypeMasterPage() {
     fetchProductTypes();
   }, [fetchProductTypes]);
 
-
-    //  CLOSE FORM
+  //  CLOSE FORM
   const closeForm = () => {
     setFormOpen(false);
     setSelectedProductType(null);
   };
-
 
   //  CREATE / UPDATE
   const handleSubmit = async (data: ProductTypeFormData) => {
@@ -88,8 +88,7 @@ export default function ProductTypeMasterPage() {
     }
   };
 
-
-    //  DELETE
+  //  DELETE
   const handleDelete = async (item: ProductType) => {
     const confirmed = window.confirm(`Delete "${item.product_type}"?`);
 
@@ -116,7 +115,7 @@ export default function ProductTypeMasterPage() {
     }
   };
 
-    //  IMPORT
+  //  IMPORT
   const handleImport = async (file: File) => {
     try {
       setActionLoading(true);
@@ -133,7 +132,7 @@ export default function ProductTypeMasterPage() {
     }
   };
 
-    //  EXPORT
+  //  EXPORT
   const handleExport = async () => {
     try {
       setActionLoading(true);
@@ -148,7 +147,7 @@ export default function ProductTypeMasterPage() {
     }
   };
 
-    //  SAMPLE
+  //  SAMPLE
   const handleSample = async () => {
     try {
       setActionLoading(true);
@@ -163,7 +162,6 @@ export default function ProductTypeMasterPage() {
 
   return (
     <div>
-
       {/* HEADER */}
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
@@ -188,66 +186,71 @@ export default function ProductTypeMasterPage() {
             onSample={handleSample}
           />
 
-          <button
-            type="button"
-            disabled={actionLoading}
-            onClick={() => {
-              setSelectedProductType(null);
-              setFormOpen(true);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
-          >
-            <Plus size={17} />
-            Add Product Type
-          </button>
+          {hasPermission("product_type.create") && (
+            <button
+              type="button"
+              disabled={actionLoading}
+              onClick={() => {
+                setSelectedProductType(null);
+                setFormOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+            >
+              <Plus size={17} />
+              Add Product Type
+            </button>
+          )}
         </div>
       </div>
 
-      {/* SEARCH */}
-      <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
-        <div className="relative max-w-xl">
-          <Search
-            size={17}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+      {hasPermission("product_type.table") && (
+        <>
+          {/* SEARCH */}
+          <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
+            <div className="relative max-w-xl">
+              <Search
+                size={17}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
+              <input
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
 
+                  setPage(1);
+                }}
+                placeholder="Search product type..."
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+
+            <div className="mt-3 text-xs text-gray-500">
+              Total <span className="font-semibold text-gray-800">{total}</span>{" "}
+              product types
+            </div>
+          </div>
+          {/* TABLE */}
+          <ProductTypeTable
+            productTypes={productTypes}
+            loading={loading}
+            page={page}
+            limit={limit}
+            total={total}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onLimitChange={(newLimit) => {
+              setLimit(newLimit);
               setPage(1);
             }}
-            placeholder="Search product type..."
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            onEdit={(item) => {
+              setSelectedProductType(item);
+              setFormOpen(true);
+            }}
+            onDelete={handleDelete}
           />
-        </div>
-
-        <div className="mt-3 text-xs text-gray-500">
-          Total <span className="font-semibold text-gray-800">{total}</span>{" "}
-          product types
-        </div>
-      </div>
-
-      {/* TABLE */}
-      <ProductTypeTable
-        productTypes={productTypes}
-        loading={loading}
-        page={page}
-        limit={limit}
-        total={total}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onLimitChange={(newLimit) => {
-          setLimit(newLimit);
-          setPage(1);
-        }}
-        onEdit={(item) => {
-          setSelectedProductType(item);
-          setFormOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+        </>
+      )}
 
       {/* POPUP */}
       {formOpen && (

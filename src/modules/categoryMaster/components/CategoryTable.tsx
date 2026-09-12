@@ -1,154 +1,12 @@
-// import { Edit3, Power, Trash2 } from "lucide-react";
-
-// import type { Category } from "../types/category.types";
-
-// interface Props {
-//   categories: Category[];
-
-//   loading?: boolean;
-
-//   onEdit: (category: Category) => void;
-
-//   onToggleStatus: (category: Category) => void;
-
-//   onDelete: (category: Category) => void;
-// }
-
-// export default function CategoryTable({
-//   categories,
-//   loading,
-//   onEdit,
-//   onToggleStatus,
-//   onDelete,
-// }: Props) {
-//   if (loading) {
-//     return (
-//       <div className="rounded-xl border bg-white p-10 text-center">
-//         Loading categories...
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-//       <div className="overflow-x-auto">
-//         <table className="w-full min-w-200 text-left text-sm">
-//           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-//             <tr>
-//               <th className="px-5 py-3">product</th>
-
-//               <th className="px-5 py-3">Category</th>
-
-//               <th className="px-5 py-3">Category Description</th>
-
-//               <th className="px-5 py-3">Description</th>
-
-//               {/* <th className="px-5 py-3">
-//                 Category 4
-//               </th> */}
-
-//               <th className="px-5 py-3">Status</th>
-
-//               <th className="px-5 py-3 text-right">Actions</th>
-//             </tr>
-//           </thead>
-
-//           <tbody className="divide-y divide-gray-100">
-//             {categories.map((item) => (
-//               <tr key={item.id} className="hover:bg-gray-50">
-//                 {/* <td className="px-5 py-4 font-medium text-[#123B7A]">
-//                   {item.groupCategoryCode}
-//                 </td> */}
-//                  <td className="px-5 py-4 font-medium text-[#123B7A]">
-//                   {item?.product_name || "-"}
-//                 </td>
-
-//                 <td className="px-5 py-4">{item.description}</td>
-
-//                 <td className="px-5 py-4">{item.category || "-"}</td>
-
-//                 <td className="px-5 py-4">{item.categoryDescription || "-"}</td>
-
-//                 {/* <td className="px-5 py-4">
-//                     {item.category4 ||
-//                       "-"}
-//                   </td> */}
-
-//                 <td className="px-5 py-4">
-//                   <span
-//                     className={`rounded-full px-2.5 py-1 text-xs ${
-//                       item.status === "ACTIVE"
-//                         ? "bg-green-50 text-green-700"
-//                         : "bg-gray-100 text-gray-600"
-//                     }`}
-//                   >
-//                     {item.status}
-//                   </span>
-//                 </td>
-
-//                 <td className="px-5 py-4">
-//                   <div className="flex justify-end gap-2">
-//                     <button
-//                       onClick={() => onEdit(item)}
-//                       className="rounded-md p-2 text-blue-600 hover:bg-blue-50"
-//                       title="Edit"
-//                     >
-//                       <Edit3 size={17} />
-//                     </button>
-
-//                     <button
-//                       onClick={() => onToggleStatus(item)}
-//                       className="rounded-md p-2 text-orange-600 hover:bg-orange-50"
-//                       title={
-//                         item.status === "ACTIVE" ? "Deactivate" : "Activate"
-//                       }
-//                     >
-//                       <Power size={17} />
-//                     </button>
-
-//                     <button
-//                       onClick={() => onDelete(item)}
-//                       className="rounded-md p-2 text-red-600 hover:bg-red-50"
-//                       title="Delete"
-//                     >
-//                       <Trash2 size={17} />
-//                     </button>
-//                   </div>
-//                 </td>
-//               </tr>
-//             ))}
-//             {!categories.length && (
-//               <tr>
-//                 <td
-//                   colSpan={6}
-//                   className="px-5 py-10 text-center text-gray-500"
-//                 >
-//                   No categories found.
-//                 </td>
-//               </tr>
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { ChevronLeft, ChevronRight, Edit3, Power, Trash2 } from "lucide-react";
-
 import { useEffect, useMemo, useState } from "react";
-
 import type { Category } from "../types/category.types";
-
+import { usePermission } from "../../../hooks/usePermission";
 interface Props {
   categories: Category[];
-
   loading?: boolean;
-
   onEdit: (category: Category) => void;
-
   onToggleStatus: (category: Category) => void;
-
   onDelete: (category: Category) => void;
 }
 
@@ -160,24 +18,17 @@ export default function CategoryTable({
   onDelete,
 }: Props) {
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(10);
-
   const total = categories.length;
-
   const totalPages = Math.max(1, Math.ceil(total / limit));
-
-  /* =========================
-     RESET PAGE
-  ========================== */
+  const { hasPermission } = usePermission();
+  //  RESET PAGE
 
   useEffect(() => {
     setPage(1);
   }, [categories, limit]);
 
-  /* =========================
-     FIX PAGE AFTER DELETE
-  ========================== */
+  //  FIX PAGE AFTER DELETE
 
   useEffect(() => {
     if (page > totalPages) {
@@ -185,15 +36,11 @@ export default function CategoryTable({
     }
   }, [page, totalPages]);
 
-  /* =========================
-     PAGINATED DATA
-  ========================== */
+  //  PAGINATED DATA
 
   const paginatedCategories = useMemo(() => {
     const startIndex = (page - 1) * limit;
-
     const endIndex = startIndex + limit;
-
     return categories.slice(startIndex, endIndex);
   }, [categories, page, limit]);
 
@@ -206,7 +53,6 @@ export default function CategoryTable({
   }
 
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
-
   const end = Math.min(page * limit, total);
 
   return (
@@ -216,17 +62,10 @@ export default function CategoryTable({
           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
             <tr>
               <th className="px-5 py-3">Product</th>
-
               <th className="px-5 py-3">Category</th>
-
-              
-
               <th className="px-5 py-3">Description</th>
-
               <th className="px-5 py-3">Category Description</th>
-
               <th className="px-5 py-3">Status</th>
-
               <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -236,7 +75,7 @@ export default function CategoryTable({
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4 font-medium text-[#123B7A]">
                   {item.product_name || "-"}
-                </td>                
+                </td>
 
                 <td className="px-5 py-4">{item.category || "-"}</td>
 
@@ -258,34 +97,40 @@ export default function CategoryTable({
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(item)}
-                      className="rounded-md p-2 text-blue-600 hover:bg-blue-50"
-                      title="Edit"
-                    >
-                      <Edit3 size={17} />
-                    </button>
+                    {hasPermission("category.update") && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(item)}
+                        className="rounded-md p-2 text-blue-600 hover:bg-blue-50"
+                        title="Edit"
+                      >
+                        <Edit3 size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      type="button"
-                      onClick={() => onToggleStatus(item)}
-                      className="rounded-md p-2 text-orange-600 hover:bg-orange-50"
-                      title={
-                        item.status === "ACTIVE" ? "Deactivate" : "Activate"
-                      }
-                    >
-                      <Power size={17} />
-                    </button>
+                    {hasPermission("") && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleStatus(item)}
+                        className="rounded-md p-2 text-orange-600 hover:bg-orange-50"
+                        title={
+                          item.status === "ACTIVE" ? "Deactivate" : "Activate"
+                        }
+                      >
+                        <Power size={17} />
+                      </button>
+                    )}
 
-                    <button
-                      type="button"
-                      onClick={() => onDelete(item)}
-                      className="rounded-md p-2 text-red-600 hover:bg-red-50"
-                      title="Delete"
-                    >
-                      <Trash2 size={17} />
-                    </button>
+                    {hasPermission("category.delete") && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(item)}
+                        className="rounded-md p-2 text-red-600 hover:bg-red-50"
+                        title="Delete"
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -349,7 +194,7 @@ export default function CategoryTable({
               <ChevronLeft size={17} />
             </button>
 
-            <span className="min-w-[110px] text-center text-sm text-gray-600">
+            <span className="min-w-27.5 text-center text-sm text-gray-600">
               Page <span className="font-semibold text-gray-800">{page}</span>{" "}
               of{" "}
               <span className="font-semibold text-gray-800">{totalPages}</span>
