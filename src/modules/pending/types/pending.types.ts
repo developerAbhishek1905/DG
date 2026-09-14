@@ -41,40 +41,40 @@ export interface PendingDealer {
   phone: string;
 }
 
-export interface PendingComplaint {
-  id: string;
+// export interface PendingComplaint {
+//   id: string;
 
-  complaintId: string;
-  complaintNumber: string;
+//   complaintId: string;
+//   complaintNumber: string;
 
-  customer: PendingCustomer;
+//   customer: PendingCustomer;
 
-  dealer: PendingDealer;
+//   dealer: PendingDealer;
 
-  productName: string;
+//   productName: string;
 
-  reason: PendingReason;
+//   reason: PendingReason;
 
-  reasonLabel: string;
+//   reasonLabel: string;
 
-  remarks?: string;
+//   remarks?: string;
 
-  pendingSince: string;
+//   pendingSince: string;
 
-  slaDeadline: string;
+//   slaDeadline: string;
 
-  slaStatus: SLAStatus;
+//   slaStatus: SLAStatus;
 
-  status: PendingStatus;
+//   status: PendingStatus;
 
-  reminderCount: number;
+//   reminderCount: number;
 
-  lastReminderAt?: string;
+//   lastReminderAt?: string;
 
-  createdAt: string;
+//   createdAt: string;
 
-  updatedAt: string;
-}
+//   updatedAt: string;
+// }
 
 export interface SetPendingPayload {
   complaintId: string;
@@ -90,4 +90,79 @@ export interface PendingActionPayload {
   action: PendingAction;
 
   remarks?: string;
+}
+export interface PendingComplaint {
+  _id: string;
+
+  complaintNumber: string;
+  complaintDateTime: string;
+
+  customerId: {
+    _id: string;
+    customerCode: string;
+    name: string;
+    phone: string;
+    alternatePhone?: string;
+    email?: string;
+  } | null;
+
+  customerName: string;
+  phone: string;
+  alternatePhone?: string;
+  email?: string;
+
+  address: {
+    addressLine: string;
+
+    stateId: number | null;
+    state: string;
+
+    districtId: number | null;
+    district: string;
+
+    cityId: number | null;
+    city: string;
+
+    pincodeId: number | null;
+    pinCode: string;
+  };
+
+  productId: number | null;
+  productName: string;
+
+  productTypeId: string | null;
+  productType: string;
+
+  categoryId: string | null;
+  category: string;
+
+  priority: string;
+
+  status: string;
+
+  allocatedDealerId: {
+    _id: string;
+    technicianFirmName: string;
+    technicianName: string;
+    mobileNumber: string;
+    status: string;
+    technicianCode: string;
+  } | null;
+
+  allocationId: string | null;
+  allocationRuleId: string | null;
+  allocatedAt: string | null;
+
+  appointmentDate: string | null;
+  appointmentTime: string;
+
+  pendingReason: string;
+
+  closedAt: string | null;
+
+  cancelledAt: string | null;
+  cancellationReason: string;
+
+  createdAt: string;
+  updatedAt: string;
 }

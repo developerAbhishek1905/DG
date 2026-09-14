@@ -1,18 +1,8 @@
-import {
-  RotateCcw,
-  Search,
-} from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
 import CancellationTable from "../components/CancellationTable";
 import ApproveCancellationModal from "../components/ApproveCancellationModal";
@@ -44,13 +34,28 @@ import type {
   RejectCancellationPayload,
   VerificationStatus,
 } from "../types/cancellation.types";
+import { updateAppointmentStatus } from "../../appointments/services/appointmentApi";
 
 export default function CancellationListPage() {
-  const dispatch =
-    useAppDispatch();
+  const dispatch = useAppDispatch();
+  const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [dealerId, setDealerId] = useState("");
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const [requests, setRequests] = useState<CancellationRequest[]>([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [total, setTotal] = useState(0);
+
+  const [totalPages, setTotalPages] = useState(1);
 
   const {
-    search,
+    // search,
     status,
     reason,
     verification,
@@ -60,141 +65,124 @@ export default function CancellationListPage() {
     approveModalOpen,
 
     rejectModalOpen,
-  } = useAppSelector(
-    (state) =>
-      state.cancellations
-  );
+  } = useAppSelector((state) => state.cancellations);
 
-  const [
-    requests,
-    setRequests,
-  ] =
-    useState<
-      CancellationRequest[]
-    >([]);
+  // const [requests, setRequests] = useState<CancellationRequest[]>([]);
 
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  const loadRequests =
-    async () => {
-      try {
-        setLoading(true);
+  const loadRequests = async () => {
+    try {
+      setLoading(true);
 
-        const data =
-          await getCancellationRequests();
+      const response = await getCancellationRequests({
+        page,
+        limit,
+        search,
+        startDate,
+        endDate,
+        dealerId,
+      });
 
-        setRequests(data);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setRequests(response.data || []);
+
+      setTotal(response.pagination?.total || 0);
+
+      setTotalPages(response.pagination?.totalPages || 1);
+    } catch (error) {
+      console.error("Failed to load cancellations:", error);
+
+      setRequests([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadRequests();
-  }, []);
+  }, [page, limit, startDate, endDate, dealerId]);
+  const filtered = useMemo(
+    () =>
+      requests.filter((request) => {
+        const query = search.trim().toLowerCase();
 
-  const filtered =
-    useMemo(
-      () =>
-        requests.filter(
-          (request) => {
-            const query =
-              search
-                .trim()
-                .toLowerCase();
+        const matchesSearch =
+          !query ||
+          request.complaintNumber.toLowerCase().includes(query) ||
+          request.customer.name.toLowerCase().includes(query) ||
+          request.dealer?.name.toLowerCase().includes(query);
 
-            const matchesSearch =
-              !query ||
-              request.complaintNumber
-                .toLowerCase()
-                .includes(
-                  query
-                ) ||
-              request.customer.name
-                .toLowerCase()
-                .includes(
-                  query
-                ) ||
-              request.dealer?.name
-                .toLowerCase()
-                .includes(
-                  query
-                );
+        const matchesStatus = status === "ALL" || request.status === status;
 
-            const matchesStatus =
-              status === "ALL" ||
-              request.status ===
-                status;
+        const matchesReason = reason === "ALL" || request.reason === reason;
 
-            const matchesReason =
-              reason === "ALL" ||
-              request.reason ===
-                reason;
+        const matchesVerification =
+          verification === "ALL" ||
+          request.verification.status === verification;
 
-            const matchesVerification =
-              verification ===
-                "ALL" ||
-              request.verification
-                .status ===
-                verification;
+        return (
+          matchesSearch && matchesStatus && matchesReason && matchesVerification
+        );
+      }),
+    [requests, search, status, reason, verification],
+  );
 
-            return (
-              matchesSearch &&
-              matchesStatus &&
-              matchesReason &&
-              matchesVerification
-            );
-          }
-        ),
-      [
-        requests,
-        search,
-        status,
-        reason,
-        verification,
-      ]
-    );
+  const selectedRequest = requests.find(
+    (request) => request.id === selectedCancellationId,
+  );
 
-  const selectedRequest =
-    requests.find(
-      (request) =>
-        request.id ===
-        selectedCancellationId
-    );
+  const handleApprove = async (payload: ApproveCancellationPayload) => {
+    await approveCancellation(payload);
 
-  const handleApprove =
-    async (
-      payload: ApproveCancellationPayload
-    ) => {
-      await approveCancellation(
-        payload
-      );
+    dispatch(closeApproveCancellationModal());
 
-      dispatch(
-        closeApproveCancellationModal()
-      );
+    await loadRequests();
+  };
+
+  const handleReject = async (payload: RejectCancellationPayload) => {
+    await rejectCancellation(payload);
+
+    dispatch(closeRejectCancellationModal());
+
+    await loadRequests();
+  };
+
+  const handleCancellationAction = async (
+    complaint: CancellationRequest,
+    action: "REOPEN" | "CLOSE",
+  ) => {
+    try {
+      console.log("Complaint:", complaint._id);
+
+      console.log("Action:", action);
+
+      // API call here
 
       await loadRequests();
-    };
+    } catch (error) {
+      console.error("Failed to update complaint:", error);
+    }
+  };
 
-  const handleReject =
-    async (
-      payload: RejectCancellationPayload
-    ) => {
-      await rejectCancellation(
-        payload
-      );
+const handleStatusChange = async (
+  complaint: CancellationRequest,
+  status: "REOPEN" | "CLOSED",
+) => {
+  try {
+    await updateAppointmentStatus(
+      complaint._id,
+      status,
+      {},
+    );
 
-      dispatch(
-        closeRejectCancellationModal()
-      );
-
-      await loadRequests();
-    };
+    await loadRequests();
+  } catch (error) {
+    console.error(
+      "Failed to update status:",
+      error,
+    );
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -219,11 +207,7 @@ export default function CancellationListPage() {
             <input
               value={search}
               onChange={(event) =>
-                dispatch(
-                  setCancellationSearch(
-                    event.target.value
-                  )
-                )
+                dispatch(setCancellationSearch(event.target.value))
               }
               placeholder="Search complaint, customer or dealer..."
               className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm"
@@ -235,37 +219,23 @@ export default function CancellationListPage() {
             onChange={(event) =>
               dispatch(
                 setCancellationStatus(
-                  event.target.value as
-                    | CancellationStatus
-                    | "ALL"
-                )
+                  event.target.value as CancellationStatus | "ALL",
+                ),
               )
             }
             className="rounded-lg border px-4 py-2.5 text-sm"
           >
-            <option value="ALL">
-              All Status
-            </option>
+            <option value="ALL">All Status</option>
 
-            <option value="PENDING">
-              Pending
-            </option>
+            <option value="PENDING">Pending</option>
 
-            <option value="VERIFIED">
-              Verified
-            </option>
+            <option value="VERIFIED">Verified</option>
 
-            <option value="APPROVED">
-              Approved
-            </option>
+            <option value="APPROVED">Approved</option>
 
-            <option value="REJECTED">
-              Rejected
-            </option>
+            <option value="REJECTED">Rejected</option>
 
-            <option value="REASSIGNED">
-              Reassigned
-            </option>
+            <option value="REASSIGNED">Reassigned</option>
           </select>
 
           <select
@@ -273,29 +243,19 @@ export default function CancellationListPage() {
             onChange={(event) =>
               dispatch(
                 setCancellationVerification(
-                  event.target.value as
-                    | VerificationStatus
-                    | "ALL"
-                )
+                  event.target.value as VerificationStatus | "ALL",
+                ),
               )
             }
             className="rounded-lg border px-4 py-2.5 text-sm"
           >
-            <option value="ALL">
-              All Verification
-            </option>
+            <option value="ALL">All Verification</option>
 
-            <option value="NOT_VERIFIED">
-              Not Verified
-            </option>
+            <option value="NOT_VERIFIED">Not Verified</option>
 
-            <option value="VERIFIED">
-              Verified
-            </option>
+            <option value="VERIFIED">Verified</option>
 
-            <option value="FAILED">
-              Failed
-            </option>
+            <option value="FAILED">Failed</option>
           </select>
 
           <select
@@ -303,51 +263,30 @@ export default function CancellationListPage() {
             onChange={(event) =>
               dispatch(
                 setCancellationReason(
-                  event.target.value as
-                    | CancellationReasonType
-                    | "ALL"
-                )
+                  event.target.value as CancellationReasonType | "ALL",
+                ),
               )
             }
             className="rounded-lg border px-4 py-2.5 text-sm"
           >
-            <option value="ALL">
-              All Reasons
-            </option>
+            <option value="ALL">All Reasons</option>
 
-            <option value="CUSTOMER_REQUEST">
-              Customer Request
-            </option>
+            <option value="CUSTOMER_REQUEST">Customer Request</option>
 
-            <option value="DEALER_UNAVAILABLE">
-              Dealer Unavailable
-            </option>
+            <option value="DEALER_UNAVAILABLE">Dealer Unavailable</option>
 
-            <option value="DUPLICATE_COMPLAINT">
-              Duplicate Complaint
-            </option>
+            <option value="DUPLICATE_COMPLAINT">Duplicate Complaint</option>
 
-            <option value="WRONG_COMPLAINT">
-              Wrong Complaint
-            </option>
+            <option value="WRONG_COMPLAINT">Wrong Complaint</option>
 
-            <option value="OUT_OF_SERVICE_AREA">
-              Out of Service Area
-            </option>
+            <option value="OUT_OF_SERVICE_AREA">Out of Service Area</option>
           </select>
 
           <button
-            onClick={() =>
-              dispatch(
-                clearCancellationFilters()
-              )
-            }
+            onClick={() => dispatch(clearCancellationFilters())}
             className="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm"
           >
-            <RotateCcw
-              size={16}
-            />
-
+            <RotateCcw size={16} />
             Reset
           </button>
         </div>
@@ -359,58 +298,34 @@ export default function CancellationListPage() {
         </div>
       ) : (
         <CancellationTable
-          requests={
-            filtered
-          }
-          onApprove={(id) =>
-            dispatch(
-              openApproveCancellationModal(
-                id
-              )
-            )
-          }
-          onReject={(id) =>
-            dispatch(
-              openRejectCancellationModal(
-                id
-              )
-            )
-          }
+          requests={requests}
+          onStatusChange={handleStatusChange}
         />
+        // <CancellationTable
+        //   requests={requests}
+        //   onStatusChange={(complaint, action) => {
+        //     handleCancellationAction(complaint, action);
+        //   }}
+        // />
+        // <CancellationTable
+        //   requests={filtered}
+        //   onApprove={(id) => dispatch(openApproveCancellationModal(id))}
+        //   onReject={(id) => dispatch(openRejectCancellationModal(id))}
+        // />
       )}
 
       <ApproveCancellationModal
-        open={
-          approveModalOpen
-        }
-        request={
-          selectedRequest
-        }
-        onClose={() =>
-          dispatch(
-            closeApproveCancellationModal()
-          )
-        }
-        onSubmit={
-          handleApprove
-        }
+        open={approveModalOpen}
+        request={selectedRequest}
+        onClose={() => dispatch(closeApproveCancellationModal())}
+        onSubmit={handleApprove}
       />
 
       <RejectCancellationModal
-        open={
-          rejectModalOpen
-        }
-        request={
-          selectedRequest
-        }
-        onClose={() =>
-          dispatch(
-            closeRejectCancellationModal()
-          )
-        }
-        onSubmit={
-          handleReject
-        }
+        open={rejectModalOpen}
+        request={selectedRequest}
+        onClose={() => dispatch(closeRejectCancellationModal())}
+        onSubmit={handleReject}
       />
     </div>
   );

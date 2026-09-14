@@ -105,7 +105,7 @@ import {
 } from "../modules/categoryMaster";
 import { ItemMasterPage, CreateEditItemPage } from "../modules/itemMaster";
 import { ProductTypeMasterPage } from "../modules/productTypeMaster";
-
+import ReasonMasterPage from "../modules/reasonMaster/pages/ReasonMasterPage";
 function Dashboard() {
   return (
     <div>
@@ -294,6 +294,7 @@ export default function AppRoutes() {
             path="/item-master/:id/edit"
             element={<CreateEditItemPage />}
           />
+          <Route path="/reason-master" element={<ReasonMasterPage />} />
           {/* <Route
   element={
     <ProtectedRoute
@@ -350,7 +351,7 @@ export default function AppRoutes() {
             element={<AllocationHistoryPage />}
           /> */}
         </Route>
-        
+
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

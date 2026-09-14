@@ -13,6 +13,7 @@ import {
   getAppointments,
   rescheduleAppointment,
   updateAppointmentStatus
+  
 } from "../services/appointmentApi";
 
 import type {
@@ -318,13 +319,13 @@ export default function AppointmentListPage() {
             Calendar View
           </button>
 
-          <button
+          {/* <button
             onClick={() => navigate("/appointments/create")}
             className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white"
           >
             <Plus size={17} />
             New Appointment
-          </button>
+          </button> */}
         </div>
       </div>
 

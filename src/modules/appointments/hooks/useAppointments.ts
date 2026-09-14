@@ -100,7 +100,7 @@ export function useAppointmentDetails(
             );
 
           setAppointment(
-            data ?? null
+            data.data ?? null
           );
         } finally {
           setLoading(false);

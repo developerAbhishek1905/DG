@@ -14,9 +14,9 @@ import {
   usePendingComplaints,
 } from "../hooks/usePendingComplaints";
 
-import {
-  sendPendingReminder,
-} from "../services/pendingApi";
+// import {
+//   sendPendingReminder,
+// } from "../services/pendingApi";
 
 export default function SLAOverviewPage() {
   const navigate =

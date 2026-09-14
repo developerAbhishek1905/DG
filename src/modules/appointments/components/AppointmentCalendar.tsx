@@ -7,27 +7,34 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-
+import { useMemo, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import type { Appointment } from "../types/appointment.types";
 
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
+import { getCalendarAppointments } from "../services/appointmentApi";
+
+// interface Props {
+//   appointments: Appointment[];
+
+//   onAppointmentClick?: (appointment: Appointment) => void;
+// }
 
 interface Props {
-  appointments: Appointment[];
-
   onAppointmentClick?: (appointment: Appointment) => void;
 }
 
 type DurationFilter = "ALL" | "TODAY" | "7_DAYS" | "30_DAYS" | "CUSTOM";
 
 export default function AppointmentCalendar({
-  appointments,
+  // appointments,
   onAppointmentClick,
 }: Props) {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  const [loading, setLoading] = useState(false);
+
   const [currentDate, setCurrentDate] = useState(new Date());
-
-
 
   const [duration, setDuration] = useState<DurationFilter>("ALL");
 
@@ -37,56 +44,60 @@ export default function AppointmentCalendar({
 
   const [selectedDealerIds, setSelectedDealerIds] = useState<string[]>([]);
 
-  const [
-  dealerDropdownOpen,
-  setDealerDropdownOpen,
-] = useState(false);
+  const [dealerDropdownOpen, setDealerDropdownOpen] = useState(false);
 
-const [
-  dealerSearch,
-  setDealerSearch,
-] = useState("");
+  const [dealerSearch, setDealerSearch] = useState("");
 
   const year = currentDate.getFullYear();
 
   const month = currentDate.getMonth();
 
+  const calendarStartDate = useMemo(() => {
+    return formatDateForComparison(new Date(year, month, 1));
+  }, [year, month]);
+
+  const calendarEndDate = useMemo(() => {
+    return formatDateForComparison(new Date(year, month + 1, 0));
+  }, [year, month]);
+
   /*
    * Unique dealer list
    */
-const dealers = useMemo(() => {
-  const dealerMap = new Map<
-    string,
-    {
-      id: string;
-      name: string;
-      dealerCode: string;
-    }
-  >();
 
-  appointments.forEach((appointment) => {
-    dealerMap.set(
-      appointment.dealer.id,
+  const dealers = useMemo(() => {
+    const dealerMap = new Map<
+      string,
       {
-        id: appointment.dealer.id,
-        name: appointment.dealer.name,
-        dealerCode:
-          appointment.dealer.dealerCode,
+        id: string;
+        name: string;
+        dealerCode: string;
       }
-    );
-  });
+    >();
 
-  return Array.from(
-    dealerMap.values()
-  );
-}, [appointments]);
+    console.log(appointments);
 
-const filteredDealers =
-  useMemo(() => {
-    const search =
-      dealerSearch
-        .trim()
-        .toLowerCase();
+    appointments.forEach((appointment) => {
+      const dealer = appointment.allocatedDealerId;
+
+      if (!dealer?._id) return;
+
+      dealerMap.set(dealer._id, {
+        id: dealer._id,
+
+        name:
+          dealer.technicianFirmName ||
+          dealer.technicianName ||
+          "Unknown Dealer",
+
+        dealerCode: dealer.technicianCode || "",
+      });
+    });
+
+    return Array.from(dealerMap.values());
+  }, [appointments]);
+
+  const filteredDealers = useMemo(() => {
+    const search = dealerSearch.trim().toLowerCase();
 
     if (!search) {
       return dealers;
@@ -94,104 +105,126 @@ const filteredDealers =
 
     return dealers.filter(
       (dealer) =>
-        dealer.name
-          .toLowerCase()
-          .includes(search) ||
-        dealer.dealerCode
-          .toLowerCase()
-          .includes(search)
+        dealer.name.toLowerCase().includes(search) ||
+        dealer.dealerCode.toLowerCase().includes(search),
     );
-  }, [
-    dealers,
-    dealerSearch,
-  ]);
+  }, [dealers, dealerSearch]);
 
-  const toggleDealer = (
-  dealerId: string
-) => {
-  setSelectedDealerIds(
-    (current) =>
-      current.includes(
-        dealerId
-      )
-        ? current.filter(
-            (id) =>
-              id !==
-              dealerId
-          )
-        : [
-            ...current,
-            dealerId,
-          ]
-  );
-};
+  const toggleDealer = (dealerId: string) => {
+    setSelectedDealerIds((current) =>
+      current.includes(dealerId)
+        ? current.filter((id) => id !== dealerId)
+        : [...current, dealerId],
+    );
+  };
+
+  const fetchCalendarAppointments = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getCalendarAppointments({
+        startDate: calendarStartDate,
+
+        endDate: calendarEndDate,
+
+        status,
+
+        dealerId:
+          selectedDealerIds.length === 1 ? selectedDealerIds[0] : undefined,
+      });
+
+      setAppointments(data);
+    } catch (error) {
+      console.error("Failed to load calendar appointments:", error);
+
+      toast.error("Failed to load calendar appointments");
+
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCalendarAppointments();
+  }, [calendarStartDate, calendarEndDate, selectedDealerIds]);
 
   /*
    * Apply dealer + duration filters
    */
+  // const filteredAppointments = useMemo(() => {
+  //   let result = [...appointments];
+
+  //   /*
+  //    * Dealer filter
+  //    */
+  //   if (selectedDealerIds.length > 0) {
+  //     result = result.filter((appointment) =>
+  //       selectedDealerIds.includes(appointment.dealer.id),
+  //     );
+  //   }
+
+  //   /*
+  //    * Duration filter
+  //    */
+  //   const today = new Date();
+
+  //   today.setHours(0, 0, 0, 0);
+
+  //   if (duration === "TODAY") {
+  //     const todayString = formatDateForComparison(today);
+
+  //     result = result.filter((appointment) => {
+  //       if (!appointment.appointmentDate) {
+  //         return false;
+  //       }
+
+  //       return appointment.appointmentDate.split("T")[0] === todayString;
+  //     });
+  //   }
+
+  //   if (duration === "7_DAYS") {
+  //     const end = new Date(today);
+
+  //     end.setDate(end.getDate() + 7);
+
+  //     result = filterByDateRange(result, today, end);
+  //   }
+
+  //   if (duration === "30_DAYS") {
+  //     const end = new Date(today);
+
+  //     end.setDate(end.getDate() + 30);
+
+  //     result = filterByDateRange(result, today, end);
+  //   }
+
+  //   if (duration === "CUSTOM" && startDate && endDate) {
+  //     result = filterByDateRange(
+  //       result,
+  //       new Date(`${startDate}T00:00:00`),
+  //       new Date(`${endDate}T23:59:59`),
+  //     );
+  //   }
+
+  //   return result;
+  // }, [appointments, selectedDealerIds, duration, startDate, endDate]);
+
   const filteredAppointments = useMemo(() => {
     let result = [...appointments];
 
-    /*
-     * Dealer filter
-     */
-if (
-  selectedDealerIds.length >
-  0
-) {
-  result = result.filter(
-    (appointment) =>
-      selectedDealerIds.includes(
-        appointment.dealer.id
-      )
-  );
-}
-
-    /*
-     * Duration filter
-     */
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-
-    if (duration === "TODAY") {
-      const todayString = formatDateForComparison(today);
-
+    // Apply frontend dealer filter only
+    // when multiple dealers are selected.
+    if (selectedDealerIds.length > 1) {
       result = result.filter(
-        (appointment) => appointment.appointmentDate === todayString,
-      );
-    }
-
-    if (duration === "7_DAYS") {
-      const end = new Date(today);
-
-      end.setDate(end.getDate() + 7);
-
-      result = filterByDateRange(result, today, end);
-    }
-
-    if (duration === "30_DAYS") {
-      const end = new Date(today);
-
-      end.setDate(end.getDate() + 30);
-
-      result = filterByDateRange(result, today, end);
-    }
-
-    if (duration === "CUSTOM" && startDate && endDate) {
-      result = filterByDateRange(
-        result,
-        new Date(`${startDate}T00:00:00`),
-        new Date(`${endDate}T23:59:59`),
+        (appointment) =>
+          appointment.allocatedDealerId?._id &&
+          selectedDealerIds.includes(appointment.allocatedDealerId._id),
       );
     }
 
     return result;
-  }, [  appointments,
-  selectedDealerIds,
-  duration,
-  startDate,
-  endDate]);
+  }, [appointments, selectedDealerIds]);
 
   /*
    * Calendar days
@@ -227,6 +260,24 @@ if (
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // const getAppointmentsForDay = (day: number) => {
+  //   const dateString = [
+  //     year,
+  //     String(month + 1).padStart(2, "0"),
+  //     String(day).padStart(2, "0"),
+  //   ].join("-");
+
+  //   return filteredAppointments.filter((appointment) => {
+  //     if (!appointment.appointmentDate) {
+  //       return false;
+  //     }
+
+  //     const appointmentDate = appointment.appointmentDate.split("T")[0];
+
+  //     return appointmentDate === dateString;
+  //   });
+  // };
+
   const getAppointmentsForDay = (day: number) => {
     const dateString = [
       year,
@@ -234,9 +285,15 @@ if (
       String(day).padStart(2, "0"),
     ].join("-");
 
-    return filteredAppointments.filter(
-      (appointment) => appointment.appointmentDate === dateString,
-    );
+    return filteredAppointments.filter((appointment) => {
+      if (!appointment.appointmentDate) {
+        return false;
+      }
+
+      const appointmentDate = appointment.appointmentDate.split("T")[0];
+
+      return appointmentDate === dateString;
+    });
   };
 
   const handleDurationChange = (value: DurationFilter) => {
@@ -248,14 +305,14 @@ if (
     }
   };
 
-const resetFilters = () => {
-  setSelectedDealerIds([]);
-  setDuration("ALL");
-  setStartDate("");
-  setEndDate("");
-  setDealerSearch("");
-  setDealerDropdownOpen(false);
-};
+  const resetFilters = () => {
+    setSelectedDealerIds([]);
+    setDuration("ALL");
+    setStartDate("");
+    setEndDate("");
+    setDealerSearch("");
+    setDealerDropdownOpen(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -267,262 +324,188 @@ const resetFilters = () => {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           {/* Dealer */}
 
-{/* Dealer Multi Select */}
+          {/* Dealer Multi Select */}
 
-<div className="relative flex-1">
-  <label className="mb-1.5 block text-sm font-medium text-gray-700">
-    Dealers
-  </label>
+          <div className="relative flex-1">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              Dealers
+            </label>
 
-  {/* Dropdown Button */}
+            {/* Dropdown Button */}
 
-  <button
-    type="button"
-    onClick={() =>
-      setDealerDropdownOpen(
-        (prev) => !prev
-      )
-    }
-    className="flex min-h-[42px] w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm outline-none transition hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-  >
-    <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-      {selectedDealerIds.length ===
-      0 ? (
-        <span className="text-gray-400">
-          Select dealers
-        </span>
-      ) : selectedDealerIds.length <=
-        2 ? (
-        selectedDealerIds.map(
-          (dealerId) => {
-            const dealer =
-              dealers.find(
-                (item) =>
-                  item.id ===
-                  dealerId
-              );
+            <button
+              type="button"
+              onClick={() => setDealerDropdownOpen((prev) => !prev)}
+              className="flex min-h-[42px] w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm outline-none transition hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                {selectedDealerIds.length === 0 ? (
+                  <span className="text-gray-400">Select dealers</span>
+                ) : selectedDealerIds.length <= 2 ? (
+                  selectedDealerIds.map((dealerId) => {
+                    const dealer = dealers.find((item) => item.id === dealerId);
 
-            if (!dealer) {
-              return null;
-            }
+                    if (!dealer) {
+                      return null;
+                    }
 
-            return (
-              <span
-                key={
-                  dealer.id
-                }
-                className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-[#123B7A]"
-              >
-                {
-                  dealer.name
-                }
+                    return (
+                      <span
+                        key={dealer.id}
+                        className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-[#123B7A]"
+                      >
+                        {dealer.name}
 
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(
-                    event
-                  ) => {
-                    event.stopPropagation();
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(event) => {
+                            event.stopPropagation();
 
-                    toggleDealer(
-                      dealer.id
+                            toggleDealer(dealer.id);
+                          }}
+                          className="rounded-full p-0.5 hover:bg-blue-100"
+                        >
+                          <X size={12} />
+                        </span>
+                      </span>
                     );
-                  }}
-                  className="rounded-full p-0.5 hover:bg-blue-100"
-                >
-                  <X
-                    size={12}
-                  />
-                </span>
-              </span>
-            );
-          }
-        )
-      ) : (
-        <span className="text-sm text-gray-700">
-          {
-            selectedDealerIds.length
-          }{" "}
-          dealers selected
-        </span>
-      )}
-    </div>
+                  })
+                ) : (
+                  <span className="text-sm text-gray-700">
+                    {selectedDealerIds.length} dealers selected
+                  </span>
+                )}
+              </div>
 
-    <ChevronDown
-      size={17}
-      className={`ml-2 shrink-0 text-gray-400 transition-transform ${
-        dealerDropdownOpen
-          ? "rotate-180"
-          : ""
-      }`}
-    />
-  </button>
+              <ChevronDown
+                size={17}
+                className={`ml-2 shrink-0 text-gray-400 transition-transform ${
+                  dealerDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-  {/* Dropdown */}
+            {/* Dropdown */}
 
-  {dealerDropdownOpen && (
-    <div className="absolute left-0 top-full z-30 mt-2 w-full min-w-[320px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+            {dealerDropdownOpen && (
+              <div className="absolute left-0 top-full z-30 mt-2 w-full min-w-[320px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                {/* Search */}
 
-      {/* Search */}
+                <div className="border-b border-gray-100 p-3">
+                  <div className="relative">
+                    <Search
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
 
-      <div className="border-b border-gray-100 p-3">
-        <div className="relative">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-
-          <input
-            type="text"
-            value={
-              dealerSearch
-            }
-            onChange={(e) =>
-              setDealerSearch(
-                e.target.value
-              )
-            }
-            placeholder="Search dealer..."
-            className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        </div>
-      </div>
-
-      {/* Actions */}
-
-      <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2">
-        <button
-          type="button"
-          onClick={() =>
-            setSelectedDealerIds(
-              dealers.map(
-                (dealer) =>
-                  dealer.id
-              )
-            )
-          }
-          className="text-xs font-medium text-[#123B7A] hover:underline"
-        >
-          Select All
-        </button>
-
-        <button
-          type="button"
-          onClick={() =>
-            setSelectedDealerIds(
-              []
-            )
-          }
-          className="text-xs font-medium text-gray-500 hover:text-gray-800"
-        >
-          Clear All
-        </button>
-      </div>
-
-      {/* Dealer Options */}
-
-      <div className="max-h-64 overflow-y-auto p-1.5">
-        {filteredDealers.length >
-        0 ? (
-          filteredDealers.map(
-            (dealer) => {
-              const selected =
-                selectedDealerIds.includes(
-                  dealer.id
-                );
-
-              return (
-                <button
-                  key={
-                    dealer.id
-                  }
-                  type="button"
-                  onClick={() =>
-                    toggleDealer(
-                      dealer.id
-                    )
-                  }
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition ${
-                    selected
-                      ? "bg-blue-50"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <p
-                      className={`truncate text-sm ${
-                        selected
-                          ? "font-medium text-[#123B7A]"
-                          : "font-medium text-gray-800"
-                      }`}
-                    >
-                      {
-                        dealer.name
-                      }
-                    </p>
-
-                    <p className="mt-0.5 text-xs text-gray-400">
-                      {
-                        dealer.dealerCode
-                      }
-                    </p>
+                    <input
+                      type="text"
+                      value={dealerSearch}
+                      onChange={(e) => setDealerSearch(e.target.value)}
+                      placeholder="Search dealer..."
+                      className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
                   </div>
+                </div>
 
-                  <div
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                      selected
-                        ? "bg-[#123B7A] text-white"
-                        : ""
-                    }`}
+                {/* Actions */}
+
+                <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedDealerIds(dealers.map((dealer) => dealer.id))
+                    }
+                    className="text-xs font-medium text-[#123B7A] hover:underline"
                   >
-                    {selected && (
-                      <Check
-                        size={
-                          13
-                        }
-                      />
-                    )}
-                  </div>
-                </button>
-              );
-            }
-          )
-        ) : (
-          <div className="px-4 py-8 text-center">
-            <p className="text-sm text-gray-500">
-              No dealers
-              found.
-            </p>
+                    Select All
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDealerIds([])}
+                    className="text-xs font-medium text-gray-500 hover:text-gray-800"
+                  >
+                    Clear All
+                  </button>
+                </div>
+
+                {/* Dealer Options */}
+
+                <div className="max-h-64 overflow-y-auto p-1.5">
+                  {filteredDealers.length > 0 ? (
+                    filteredDealers.map((dealer) => {
+                      if (selectedDealerIds.length > 0) {
+                        result = result.filter(
+                          (appointment) =>
+                            appointment.allocatedDealerId?._id &&
+                            selectedDealerIds.includes(
+                              appointment.allocatedDealerId._id,
+                            ),
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={dealer.id}
+                          type="button"
+                          onClick={() => toggleDealer(dealer.id)}
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition ${
+                            selected ? "bg-blue-50" : "hover:bg-gray-50"
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <p
+                              className={`truncate text-sm ${
+                                selected
+                                  ? "font-medium text-[#123B7A]"
+                                  : "font-medium text-gray-800"
+                              }`}
+                            >
+                              {dealer.name}
+                            </p>
+
+                            <p className="mt-0.5 text-xs text-gray-400">
+                              {dealer.dealerCode}
+                            </p>
+                          </div>
+
+                          <div
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                              selected ? "bg-[#123B7A] text-white" : ""
+                            }`}
+                          >
+                            {selected && <Check size={13} />}
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="px-4 py-8 text-center">
+                      <p className="text-sm text-gray-500">No dealers found.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+
+                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-3 py-2.5">
+                  <span className="text-xs text-gray-500">
+                    {selectedDealerIds.length} selected
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setDealerDropdownOpen(false)}
+                    className="rounded-md bg-[#123B7A] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#0B2854]"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* Footer */}
-
-      <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-3 py-2.5">
-        <span className="text-xs text-gray-500">
-          {
-            selectedDealerIds.length
-          }{" "}
-          selected
-        </span>
-
-        <button
-          type="button"
-          onClick={() =>
-            setDealerDropdownOpen(
-              false
-            )
-          }
-          className="rounded-md bg-[#123B7A] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#0B2854]"
-        >
-          Done
-        </button>
-      </div>
-    </div>
-  )}
-</div>
 
           {/* Duration */}
 
@@ -604,19 +587,14 @@ const resetFilters = () => {
             {filteredAppointments.length} Appointments
           </span>
 
-{selectedDealerIds.length >
-  0 && (
-  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-    {selectedDealerIds.length ===
-    1
-      ? dealers.find(
-          (dealer) =>
-            dealer.id ===
-            selectedDealerIds[0]
-        )?.name
-      : `${selectedDealerIds.length} dealers selected`}
-  </span>
-)}
+          {selectedDealerIds.length > 0 && (
+            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+              {selectedDealerIds.length === 1
+                ? dealers.find((dealer) => dealer.id === selectedDealerIds[0])
+                    ?.name
+                : `${selectedDealerIds.length} dealers selected`}
+            </span>
+          )}
 
           {duration !== "ALL" && (
             <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
@@ -696,23 +674,39 @@ const resetFilters = () => {
                   {dayAppointments.slice(0, 3).map((appointment) => (
                     <button
                       type="button"
-                      key={appointment.id}
+                      key={appointment._id}
                       onClick={() => onAppointmentClick?.(appointment)}
-                      className="w-full rounded-lg border border-gray-100 bg-gray-50 p-2 text-left transition hover:bg-blue-50"
+                      className="w-full rounded-lg border border-gray-100 bg-gray-50 p-2 text-left transition hover:border-blue-200 hover:bg-blue-50"
                     >
-                      <p className="truncate text-xs font-semibold text-gray-800">
-                        {appointment.customer.name}
+                      {/* Complaint Number */}
+
+                      <p className="truncate text-[10px] font-medium text-[#123B7A]">
+                        {appointment.complaintNumber}
                       </p>
+
+                      {/* Customer */}
+
+                      <p className="mt-1 truncate text-xs font-semibold text-gray-800">
+                        {appointment.customerName || "Unknown Customer"}
+                      </p>
+
+                      {/* Time */}
 
                       <p className="mt-1 text-[11px] text-gray-500">
-                        {appointment.appointmentTime}
+                        {appointment.appointmentTime || "Time not set"}
                       </p>
 
-                      {appointment.dealer && (
+                      {/* Dealer */}
+
+                      {appointment.allocatedDealerId && (
                         <p className="mt-1 truncate text-[10px] text-gray-400">
-                          {appointment.dealer.name}
+                          {appointment.allocatedDealerId.technicianFirmName ||
+                            appointment.allocatedDealerId.technicianName ||
+                            "-"}
                         </p>
                       )}
+
+                      {/* Status */}
 
                       <div className="mt-2 origin-left scale-90">
                         <AppointmentStatusBadge status={appointment.status} />
@@ -745,7 +739,13 @@ function filterByDateRange(
   end: Date,
 ) {
   return appointments.filter((appointment) => {
-    const appointmentDate = new Date(`${appointment.appointmentDate}T00:00:00`);
+    if (!appointment.appointmentDate) {
+      return false;
+    }
+
+    const dateOnly = appointment.appointmentDate.split("T")[0];
+
+    const appointmentDate = new Date(`${dateOnly}T00:00:00`);
 
     return appointmentDate >= start && appointmentDate <= end;
   });

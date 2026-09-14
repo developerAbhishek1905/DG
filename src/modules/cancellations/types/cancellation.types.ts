@@ -53,56 +53,56 @@ export interface CustomerVerificationData {
   remarks?: string;
 }
 
-export interface CancellationRequest {
-  id: string;
+// export interface CancellationRequest {
+//   id: string;
 
-  complaintId: string;
-  complaintNumber: string;
+//   complaintId: string;
+//   complaintNumber: string;
 
-  customer: CancellationCustomer;
+//   customer: CancellationCustomer;
 
-  dealer?: CancellationDealer;
+//   dealer?: CancellationDealer;
 
-  productName: string;
+//   productName: string;
 
-  reason: CancellationReasonType;
+//   reason: CancellationReasonType;
 
-  reasonLabel: string;
+//   reasonLabel: string;
 
-  description?: string;
+//   description?: string;
 
-  requestedBy: string;
+//   requestedBy: string;
 
-  requestedByRole:
-    | "DEALER"
-    | "DG_TEAM"
-    | "ADMIN"
-    | "CUSTOMER";
+//   requestedByRole:
+//     | "DEALER"
+//     | "DG_TEAM"
+//     | "ADMIN"
+//     | "CUSTOMER";
 
-  requestedAt: string;
+//   requestedAt: string;
 
-  status: CancellationStatus;
+//   status: CancellationStatus;
 
-  verification: CustomerVerificationData;
+//   verification: CustomerVerificationData;
 
-  approvalRemarks?: string;
+//   approvalRemarks?: string;
 
-  rejectionReason?: string;
+//   rejectionReason?: string;
 
-  approvedBy?: string;
+//   approvedBy?: string;
 
-  approvedAt?: string;
+//   approvedAt?: string;
 
-  rejectedBy?: string;
+//   rejectedBy?: string;
 
-  rejectedAt?: string;
+//   rejectedAt?: string;
 
-  reassignedDealer?: CancellationDealer;
+//   reassignedDealer?: CancellationDealer;
 
-  createdAt: string;
+//   createdAt: string;
 
-  updatedAt: string;
-}
+//   updatedAt: string;
+// }
 
 export interface CreateCancellationPayload {
   complaintId: string;
@@ -146,4 +146,95 @@ export interface ReassignCancellationPayload {
   dealerId: string;
 
   remarks?: string;
+}
+
+export interface CancellationRequest {
+  _id: string;
+
+  complaintNumber: string;
+  complaintDateTime: string;
+
+  customerId: {
+    _id: string;
+    customerCode: string;
+    name: string;
+    phone: string;
+    alternatePhone?: string;
+    email?: string;
+  } | null;
+
+  customerName: string;
+  phone: string;
+  alternatePhone?: string;
+  email?: string;
+
+  address: {
+    addressLine: string;
+
+    stateId: number | null;
+    state: string;
+
+    districtId: number | null;
+    district: string;
+
+    cityId: number | null;
+    city: string;
+
+    pincodeId: number | null;
+    pinCode: string;
+  };
+
+  brandId: string | null;
+  brand: string;
+
+  productId: number | null;
+  productName: string;
+
+  productTypeId: string | null;
+  productType: string;
+
+  productCode: string;
+  productDescription: string;
+
+  categoryId: string | null;
+  category: string;
+
+  priority: string;
+
+  complaintType: string;
+
+  status: string;
+
+  technicianId: string | null;
+  technicianName: string;
+
+  dealerId: string | null;
+  dealerName: string;
+
+  allocatedDealerId: {
+    _id: string;
+    technicianFirmName: string;
+    technicianName: string;
+    mobileNumber: string;
+    status: string;
+    technicianCode: string;
+  } | null;
+
+  allocationId: string | null;
+  allocationRuleId: string | null;
+  allocatedAt: string | null;
+
+  appointmentDate: string | null;
+  appointmentTime: string;
+
+  pendingReason: string;
+
+  closedAt: string | null;
+
+  cancelledAt: string | null;
+
+  cancellationReason: string;
+
+  createdAt: string;
+  updatedAt: string;
 }

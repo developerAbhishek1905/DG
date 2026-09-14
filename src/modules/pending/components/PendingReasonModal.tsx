@@ -15,9 +15,9 @@ import type {
   SetPendingPayload,
 } from "../types/pending.types";
 
-import {
-  PENDING_REASON_LABELS,
-} from "../services/pendingApi";
+// import {
+//   PENDING_REASON_LABELS,
+// } from "../services/pendingApi";
 
 interface Props {
   open: boolean;

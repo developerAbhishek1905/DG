@@ -1,0 +1,1 @@
+export { default as ReasonMasterPage } from "./pages/ReasonMasterPage";

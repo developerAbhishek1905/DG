@@ -31,7 +31,9 @@ import { useDispatch } from "react-redux";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logoutSuccess } from "../../modules/auth/store/authSlice";
 import { useAppSelector } from "../../app/hooks";
-
+import {
+  MessageCircleQuestion,
+} from "lucide-react";
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -110,18 +112,24 @@ const menuItems = [
     path: "/ledger",
     permission: "ledger.access",
   },
-  {
-    label: "Notifications",
-    icon: Bell,
-    path: "/notifications",
-    permission: "notifications.access",
-  },
+  // {
+  //   label: "Notifications",
+  //   icon: Bell,
+  //   path: "/notifications",
+  //   permission: "notifications.access",
+  // },
   // {
   //   label: "Area Master",
   //   icon: MapPinned,
   //   path: "/area-master",
   //   permission: "area.access",
   // },
+  {
+  label: "Reason Master",
+  path: "/reason-master",
+  icon: MessageCircleQuestion,
+    // permission: "reason.access",
+},
   {
     label: "Users",
     icon: Users,

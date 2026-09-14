@@ -1,31 +1,19 @@
-import {
-  BellRing,
-  Eye,
-  MoreHorizontal,
-} from "lucide-react";
+import { BellRing, Eye, MoreHorizontal } from "lucide-react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import PendingReasonBadge from "./PendingReasonBadge";
 import SLACountdown from "./SLACountdown";
 import SLAStatusBadge from "./SLAStatusBadge";
 
-import type {
-  PendingComplaint,
-} from "../types/pending.types";
+import type { PendingComplaint } from "../types/pending.types";
 
 interface Props {
   complaints: PendingComplaint[];
 
-  onReminder?: (
-    id: string
-  ) => void;
+  onReminder?: (id: string) => void;
 
-  onAction?: (
-    complaint: PendingComplaint
-  ) => void;
+  onAction?: (complaint: PendingComplaint) => void;
 }
 
 export default function PendingTable({
@@ -33,8 +21,7 @@ export default function PendingTable({
   onReminder,
   onAction,
 }: Props) {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   if (!complaints.length) {
     return (
@@ -43,6 +30,8 @@ export default function PendingTable({
       </div>
     );
   }
+
+  console.log(complaints);
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -54,12 +43,11 @@ export default function PendingTable({
                 "Complaint",
                 "Customer",
                 "Dealer",
-                "Reason",
-                "Pending Since",
-                "SLA Deadline",
-                "Remaining",
-                "SLA Status",
-                "Reminders",
+                "Product",
+                "Pending Reason",
+                "Appointment",
+                "Status",
+                "Updated At",
                 "Actions",
               ].map((heading) => (
                 <th
@@ -73,173 +61,133 @@ export default function PendingTable({
           </thead>
 
           <tbody className="divide-y divide-gray-100">
-            {complaints.map(
-              (item) => (
-                <tr
-                  key={
-                    item.id
-                  }
-                  className={
-                    item.slaStatus ===
-                    "BREACHED"
-                      ? "bg-red-50/30"
-                      : "hover:bg-gray-50"
-                  }
-                >
-                  <td className="px-5 py-4">
+            {complaints.map((item) => (
+              <tr key={item._id} className="hover:bg-gray-50">
+                {/* Complaint */}
+
+                <td className="px-5 py-4">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/complaints/${item._id}`)}
+                    className="font-medium text-[#123B7A] hover:underline"
+                  >
+                    {item.complaintNumber}
+                  </button>
+
+                  <p className="mt-1 text-xs text-gray-400">{item._id}</p>
+                </td>
+
+                {/* Customer */}
+
+                <td className="px-5 py-4">
+                  <p className="text-sm font-medium text-gray-900">
+                    {item.customerName || item.customerId?.name || "-"}
+                  </p>
+
+                  <p className="mt-1 text-xs text-gray-500">
+                    {item.phone || item.customerId?.phone || "-"}
+                  </p>
+                </td>
+
+                {/* Dealer */}
+
+                <td className="px-5 py-4">
+                  <p className="text-sm font-medium text-gray-700">
+                    {item.allocatedDealerId?.technicianFirmName || "-"}
+                  </p>
+
+                  <p className="mt-1 text-xs text-gray-500">
+                    {item.allocatedDealerId?.technicianName || ""}
+                  </p>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    {item.allocatedDealerId?.mobileNumber || ""}
+                  </p>
+                </td>
+
+                {/* Product */}
+
+                <td className="px-5 py-4">
+                  <p className="text-sm font-medium text-gray-700">
+                    {item.productName || "-"}
+                  </p>
+
+                  <p className="mt-1 text-xs text-gray-500">
+                    {item.productType || ""}
+                  </p>
+                </td>
+
+                {/* Pending Reason */}
+
+                <td className="px-5 py-4">
+                  {item.pendingReason ? (
+                    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                      {item.pendingReason}
+                    </span>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
+                {/* Appointment */}
+
+                <td className="whitespace-nowrap px-5 py-4">
+                  {item.appointmentDate ? (
+                    <>
+                      <p className="text-sm text-gray-700">
+                        {new Date(item.appointmentDate).toLocaleDateString()}
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-500">
+                        {item.appointmentTime || "-"}
+                      </p>
+                    </>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
+                {/* Status */}
+
+                <td className="px-5 py-4">
+                  <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700">
+                    {item.status?.replaceAll("_", " ").toUpperCase()}
+                  </span>
+                </td>
+
+                {/* Updated */}
+
+                <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                  {new Date(item.updatedAt).toLocaleString()}
+                </td>
+
+                {/* Actions */}
+
+                <td className="px-5 py-4">
+                  <div className="flex gap-1">
                     <button
-                      onClick={() =>
-                        navigate(
-                          `/complaints/${item.complaintId}`
-                        )
-                      }
-                      className="font-medium text-[#123B7A] hover:underline"
+                      type="button"
+                      onClick={() => navigate(`/complaints/${item._id}`)}
+                      title="View Complaint"
+                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
                     >
-                      {
-                        item.complaintNumber
-                      }
+                      <Eye size={17} />
                     </button>
 
-                    <p className="mt-1 text-xs text-gray-400">
-                      {item.id}
-                    </p>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <p className="text-sm font-medium text-gray-900">
-                      {
-                        item.customer
-                          .name
-                      }
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-500">
-                      {
-                        item.customer
-                          .phone
-                      }
-                    </p>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <p className="text-sm text-gray-700">
-                      {
-                        item.dealer
-                          .name
-                      }
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-400">
-                      {
-                        item.dealer
-                          .dealerCode
-                      }
-                    </p>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <PendingReasonBadge
-                      reason={
-                        item.reason
-                      }
-                    />
-                  </td>
-
-                  <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                    {new Date(
-                      item.pendingSince
-                    ).toLocaleString()}
-                  </td>
-
-                  <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                    {new Date(
-                      item.slaDeadline
-                    ).toLocaleString()}
-                  </td>
-
-                  <td className="px-5 py-4">
-                    {item.status ===
-                    "PENDING" ? (
-                      <SLACountdown
-                        deadline={
-                          item.slaDeadline
-                        }
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <SLAStatusBadge
-                      status={
-                        item.slaStatus
-                      }
-                    />
-                  </td>
-
-                  <td className="px-5 py-4 text-center text-sm font-medium text-gray-700">
-                    {
-                      item.reminderCount
-                    }
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <div className="flex gap-1">
+                    {onAction && (
                       <button
-                        onClick={() =>
-                          navigate(
-                            `/complaints/${item.complaintId}`
-                          )
-                        }
-                        title="View Complaint"
-                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                        type="button"
+                        onClick={() => onAction(item)}
+                        title="DG Action"
+                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
                       >
-                        <Eye
-                          size={17}
-                        />
+                        <MoreHorizontal size={17} />
                       </button>
-
-                      {onReminder &&
-                        item.status ===
-                          "PENDING" && (
-                          <button
-                            onClick={() =>
-                              onReminder(
-                                item.id
-                              )
-                            }
-                            title="Send Reminder"
-                            className="rounded-lg p-2 text-gray-500 hover:bg-amber-50 hover:text-amber-600"
-                          >
-                            <BellRing
-                              size={17}
-                            />
-                          </button>
-                        )}
-
-                      {onAction &&
-                        item.status ===
-                          "PENDING" && (
-                          <button
-                            onClick={() =>
-                              onAction(
-                                item
-                              )
-                            }
-                            title="DG Action"
-                            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
-                          >
-                            <MoreHorizontal
-                              size={17}
-                            />
-                          </button>
-                        )}
-                    </div>
-                  </td>
-                </tr>
-              )
-            )}
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

@@ -34,7 +34,7 @@ export type AppointmentStatus =
   | "CANCELLED"
   | "CLOSED";
 
-  export interface UpdateAppointmentStatusPayload {
+export interface UpdateAppointmentStatusPayload {
   status: AppointmentStatus;
 
   appointmentDate?: string;
@@ -43,6 +43,13 @@ export type AppointmentStatus =
   pendingReason?: string;
 
   cancellationReason?: string;
+}
+
+export interface CalendarParams {
+  startDate: string;
+  endDate: string;
+  status?: string;
+  dealerId?: string;
 }
 
 
@@ -75,7 +82,7 @@ export async function getAppointments(params?: {
 */
 
 export async function getAppointmentById(id: string) {
-  const response = await api.get(`${APPOINTMENT_API}/${id}`);
+  const response = await api.get(`/complaints/${id}`);
 
   return response.data;
 }
@@ -108,12 +115,11 @@ export async function createAppointment(data: AppointmentFormData) {
 
 export async function updateAppointmentStatus(
   id: string,
+  status,
   payload: UpdateAppointmentStatusPayload,
 ) {
-  const response = await api.patch(
-    `/appointments/${id}/status`,
-    payload,
-  );
+  console.log(payload)
+  const response = await api.patch(`/appointments/${id}/status`, {status,...payload});
 
   return response.data;
 }
@@ -142,3 +148,98 @@ export async function rescheduleAppointment(
 
   return response.data;
 }
+
+export type ReasonType =
+| "close"
+  | "on_call_pending"
+  | "on_call_cancel"
+  | "after_call_pending"
+  | "after_call_cancel";
+
+export const getReasonDropdown = async (
+  reasonType: ReasonType,
+) => {
+  const response = await api.get("/reasons/dropdown", {
+    params: {
+      reasonType,
+    },
+  });
+
+  return response.data;
+};
+
+export const getCalendarAppointments = async (
+  params: CalendarParams,
+): Promise<Appointment[]> => {
+  const response = await api.get(
+    "/appointments/calendar",
+    {
+      params,
+    },
+  );
+
+  return response.data?.data || [];
+};
+
+export interface ComplaintActivity {
+  _id: string;
+
+  complaintId: string;
+
+  complaintNumber: string;
+
+  activityType: string;
+
+  previousStatus?: string | null;
+
+  newStatus?: string | null;
+
+  title: string;
+
+  description?: string;
+
+  reason?: string;
+
+  appointmentDate?: string | null;
+
+  appointmentTime?: string;
+
+  dealerName?: string;
+
+  technicianName?: string;
+
+  performedByName?: string;
+
+  performedByRole?: string;
+
+  metadata?: Record<
+    string,
+    unknown
+  >;
+
+  activityAt: string;
+
+  createdAt: string;
+}
+
+export interface ComplaintActivityResponse {
+  complaintId: string;
+
+  complaintNumber: string;
+
+  totalActivities: number;
+
+  activities: ComplaintActivity[];
+}
+
+export const getComplaintActivities =
+  async (
+    complaintId: string,
+  ): Promise<ComplaintActivityResponse> => {
+    const response =
+      await api.get(
+        `/appointments/complaint/${complaintId}`,
+      );
+
+    return response.data.data;
+  };

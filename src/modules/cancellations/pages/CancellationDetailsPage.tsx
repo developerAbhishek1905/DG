@@ -24,10 +24,10 @@ import RejectCancellationModal from "../components/RejectCancellationModal";
 
 import {
   approveCancellation,
-  getCancellationById,
-  reassignAfterCancellation,
+  // getCancellationById,
+  // reassignAfterCancellation,
   rejectCancellation,
-  verifyCancellationCustomer,
+  // verifyCancellationCustomer,
 } from "../services/cancellationApi";
 
 import type {
