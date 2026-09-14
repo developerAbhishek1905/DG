@@ -1,7 +1,7 @@
-import { Edit3, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-
+import { Edit3, Trash2 } from "lucide-react";
 import type { StateMaster } from "../types/state.types";
 import { usePermission } from "../../../hooks/usePermission";
+import Pagination from "../../../components/ui/Pagination";
 
 interface Props {
   states: StateMaster[];
@@ -28,9 +28,7 @@ export default function StateTable({
   onEdit,
   onDelete,
 }: Props) {
-  const startRecord = total === 0 ? 0 : (page - 1) * limit + 1;
-  const endRecord = Math.min(page * limit, total);
-
+  
   const { hasPermission } = usePermission();
   if (loading) {
     return (
@@ -110,129 +108,16 @@ export default function StateTable({
 
       {/* Pagination */}
 
-      <div className="flex flex-col gap-4 border-t border-gray-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Left */}
-
-        <div className="flex flex-wrap items-center gap-4">
-          <p className="text-sm text-gray-500">
-            Showing{" "}
-            <span className="font-medium text-gray-700">{startRecord}</span>
-            {" - "}
-            <span className="font-medium text-gray-700">{endRecord}</span>
-            {" of "}
-            <span className="font-medium text-gray-700">{total}</span>
-          </p>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Rows</span>
-
-            <select
-              value={limit}
-              onChange={(event) => {
-                onLimitChange(Number(event.target.value));
-              }}
-              className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            >
-              <option value={5}>5</option>
-
-              <option value={10}>10</option>
-
-              <option value={20}>20</option>
-
-              <option value={50}>50</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Right */}
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            title="Previous Page"
-            disabled={page === 1 || totalPages <= 1}
-            onClick={() => onPageChange(Math.max(page - 1, 1))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronLeft size={17} />
-          </button>
-
-          {getPageNumbers(page, totalPages).map((pageNumber, index) =>
-            pageNumber === "..." ? (
-              <span
-                key={`ellipsis-${index}`}
-                className="flex h-9 w-9 items-center justify-center text-sm text-gray-400"
-              >
-                ...
-              </span>
-            ) : (
-              <button
-                key={pageNumber}
-                type="button"
-                onClick={() => onPageChange(pageNumber)}
-                className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium transition ${
-                  page === pageNumber
-                    ? "bg-[#123B7A] text-white"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {pageNumber}
-              </button>
-            ),
-          )}
-
-          <button
-            type="button"
-            title="Next Page"
-            disabled={page === totalPages || totalPages <= 1}
-            onClick={() => onPageChange(Math.min(page + 1, totalPages))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronRight size={17} />
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </div>
   );
-}
-
-function getPageNumbers(
-  currentPage: number,
-  totalPages: number,
-): Array<number | "..."> {
-  if (totalPages <= 5) {
-    return Array.from(
-      {
-        length: totalPages,
-      },
-      (_, index) => index + 1,
-    );
-  }
-
-  if (currentPage <= 3) {
-    return [1, 2, 3, 4, "...", totalPages];
-  }
-
-  if (currentPage >= totalPages - 2) {
-    return [
-      1,
-      "...",
-      totalPages - 3,
-      totalPages - 2,
-      totalPages - 1,
-      totalPages,
-    ];
-  }
-
-  return [
-    1,
-    "...",
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-    "...",
-    totalPages,
-  ];
 }
 
 const thClass =

@@ -1,13 +1,8 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  Edit3,
-  PackageSearch,
-  Trash2,
-} from "lucide-react";
+import { Edit3, PackageSearch, Trash2 } from "lucide-react";
 
 import type { Product } from "../types/product.types";
 import { usePermission } from "../../../hooks/usePermission";
+import Pagination from "../../../components/ui/Pagination";
 
 interface Props {
   products: Product[];
@@ -35,6 +30,7 @@ export default function ProductTable({
   onDelete,
 }: Props) {
   const { hasPermission } = usePermission();
+
   if (loading) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
@@ -47,13 +43,11 @@ export default function ProductTable({
     return (
       <div className="rounded-xl border border-gray-200 bg-white py-12 text-center">
         <PackageSearch size={32} className="mx-auto mb-3 text-gray-300" />
+
         <p className="text-sm font-medium text-gray-700">No products found</p>
       </div>
     );
   }
-
-  const start = total === 0 ? 0 : (page - 1) * limit + 1;
-  const end = Math.min(page * limit, total);
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -62,8 +56,11 @@ export default function ProductTable({
           <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
             <tr>
               <th className="px-5 py-3">Product ID</th>
+
               <th className="px-5 py-3">Product Name</th>
+
               <th className="px-5 py-3">Status</th>
+
               <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -78,19 +75,18 @@ export default function ProductTable({
                 <td className="px-5 py-4 font-medium text-gray-900">
                   {product.product_name}
                 </td>
-                {/* {hasPermission("") && ( */}
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                        product.status === "ACTIVE"
-                          ? "bg-green-50 text-green-700"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {product.status === "ACTIVE" ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                {/* )} */}
+
+                <td className="px-5 py-4">
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                      product.status === "ACTIVE"
+                        ? "bg-green-50 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {product.status === "ACTIVE" ? "Active" : "Inactive"}
+                  </span>
+                </td>
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
@@ -123,48 +119,14 @@ export default function ProductTable({
         </table>
       </div>
 
-      <div className="flex flex-col gap-4 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-gray-500">
-            Showing {start} - {end} of {total}
-          </p>
-
-          <select
-            value={limit}
-            onChange={(e) => onLimitChange(Number(e.target.value))}
-            className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className="rounded-lg border border-gray-2000 p-2 disabled:opacity-40"
-          >
-            <ChevronLeft size={17} />
-          </button>
-
-          <span className="text-sm text-gray-600">
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className="rounded-lg border border-gray-200 p-2 disabled:opacity-40"
-          >
-            <ChevronRight size={17} />
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </div>
   );
 }

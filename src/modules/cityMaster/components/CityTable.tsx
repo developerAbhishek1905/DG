@@ -1,6 +1,7 @@
-import { ChevronLeft, ChevronRight, Edit3, Trash2 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import type { CityMaster } from "../types/city.types";
 import { usePermission } from "../../../hooks/usePermission";
+import Pagination from "../../../components/ui/Pagination";
 
 interface Props {
   cities: CityMaster[];
@@ -28,9 +29,6 @@ export default function CityTable({
   onDelete,
 }: Props) {
   const { hasPermission } = usePermission();
-  const startRecord = total === 0 ? 0 : (page - 1) * limit + 1;
-
-  const endRecord = Math.min(page * limit, total);
 
   if (loading) {
     return (
@@ -66,15 +64,18 @@ export default function CityTable({
             {cities.map((city) => (
               <tr key={city._id} className="transition hover:bg-gray-50">
                 <td className={tdClass}>{city.city_id}</td>
+
                 <td className={`${tdClass} font-medium text-gray-900`}>
                   {city.city_name}
                 </td>
 
                 <td className={tdClass}>
-                  {city.district_name ?? city.district_id}
+                  {city.district_name ?? city.district_id ?? "-"}
                 </td>
 
-                <td className={tdClass}>{city.state_name ?? city.state_id}</td>
+                <td className={tdClass}>
+                  {city.state_name ?? city.state_id ?? "-"}
+                </td>
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
@@ -107,59 +108,19 @@ export default function CityTable({
         </table>
       </div>
 
-      {/* Pagination */}
-
-      <div className="flex flex-col gap-4 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-4">
-          <p className="text-sm text-gray-500">
-            Showing{" "}
-            <span className="font-medium text-gray-700">{startRecord}</span>
-            {" - "}
-            <span className="font-medium text-gray-700">{endRecord}</span>
-            {" of "}
-            <span className="font-medium text-gray-700">{total}</span>
-          </p>
-
-          <select
-            value={limit}
-            onChange={(event) => onLimitChange(Number(event.target.value))}
-            className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className="rounded-lg border border-gray-200 p-2 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronLeft size={17} />
-          </button>
-
-          <span className="text-sm text-gray-600">
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className="rounded-lg border border-gray-200 p-2 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronRight size={17} />
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </div>
   );
 }
 
-const thClass = "whitespace-nowrap px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500";
+const thClass =
+  "whitespace-nowrap px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500";
 
 const tdClass = "whitespace-nowrap px-5 py-4 text-sm text-gray-700";

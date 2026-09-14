@@ -2,15 +2,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   page: number;
-
   totalPages: number;
-
   total: number;
-
   limit: number;
-
   onPageChange: (page: number) => void;
-
   onLimitChange: (limit: number) => void;
 }
 
@@ -23,13 +18,9 @@ export default function Pagination({
   onLimitChange,
 }: PaginationProps) {
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
-
   const end = Math.min(page * limit, total);
-
   const pages: number[] = [];
-
   const startPage = Math.max(1, page - 2);
-
   const endPage = Math.min(totalPages, page + 2);
 
   for (let i = startPage; i <= endPage; i++) {
@@ -53,11 +44,8 @@ export default function Pagination({
           className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm outline-none focus:border-blue-500"
         >
           <option value={5}>5 / page</option>
-
           <option value={10}>10 / page</option>
-
           <option value={20}>20 / page</option>
-
           <option value={50}>50 / page</option>
         </select>
       </div>

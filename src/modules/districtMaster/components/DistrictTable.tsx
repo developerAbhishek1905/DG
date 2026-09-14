@@ -1,6 +1,7 @@
-import { ChevronLeft, ChevronRight, Edit3, Trash2 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import type { DistrictMaster } from "../types/district.types";
 import { usePermission } from "../../../hooks/usePermission";
+import Pagination from "../../../components/ui/Pagination";
 
 interface Props {
   districts: DistrictMaster[];
@@ -28,9 +29,6 @@ export default function DistrictTable({
   onDelete,
 }: Props) {
   const { hasPermission } = usePermission();
-  const startRecord = total === 0 ? 0 : (page - 1) * limit + 1;
-
-  const endRecord = Math.min(page * limit, total);
 
   if (loading) {
     return (
@@ -56,29 +54,30 @@ export default function DistrictTable({
             <tr>
               <th className={thClass}>District ID</th>
               <th className={thClass}>District Name</th>
-              <th className={thClass}>State ID</th>
+              <th className={thClass}>State</th>
               <th className={`${thClass} text-right`}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+
+          <tbody className="divide-y divide-gray-100">
             {districts.map((district) => (
-              <tr
-                key={district._id}
-                className="border-b border-gray-200 hover:bg-gray-50"
-              >
+              <tr key={district._id} className="hover:bg-gray-50">
                 <td className="px-5 py-4 text-sm">{district.district_id}</td>
 
                 <td className="px-5 py-4 text-sm font-medium">
                   {district.district_name}
                 </td>
 
-                <td className="px-5 py-4 text-sm">{district?.state_name}</td>
+                <td className="px-5 py-4 text-sm">
+                  {district.state_name || "-"}
+                </td>
 
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
                     {hasPermission("district.update") && (
                       <button
                         type="button"
+                        title="Edit District"
                         onClick={() => onEdit(district)}
                         className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
                       >
@@ -89,6 +88,7 @@ export default function DistrictTable({
                     {hasPermission("district.delete") && (
                       <button
                         type="button"
+                        title="Delete District"
                         onClick={() => onDelete(district)}
                         className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
                       >
@@ -103,49 +103,14 @@ export default function DistrictTable({
         </table>
       </div>
 
-      <div className="flex flex-col gap-4 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <p className="text-sm text-gray-500">
-            Showing {startRecord} - {endRecord} of {total}
-          </p>
-
-          <select
-            value={limit}
-            onChange={(event) => onLimitChange(Number(event.target.value))}
-            className="rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
-          >
-            <option value={5}>5</option>
-
-            <option value={10}>10</option>
-
-            <option value={20}>20</option>
-
-            <option value={50}>50</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className="rounded-lg border border-gray-200 p-2 disabled:opacity-40"
-          >
-            <ChevronLeft size={17} />
-          </button>
-
-          <span className="text-sm">
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className="rounded-lg border border-gray-200 p-2 disabled:opacity-40"
-          >
-            <ChevronRight size={17} />
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </div>
   );
 }

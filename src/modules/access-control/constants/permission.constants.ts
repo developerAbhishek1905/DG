@@ -14,6 +14,10 @@ export const PERMISSIONS = {
 
   PRODUCT_MASTER_ACCESS: "productMaster.access",
 
+  // =========================
+  // CATEGORY
+  // =========================
+
   CATEGORY_ACCESS: "category.access",
   CATEGORY_TABLE: "category.table",
   CATEGORY_CREATE: "category.create",
@@ -22,6 +26,10 @@ export const PERMISSIONS = {
   CATEGORY_DELETE: "category.delete",
   CATEGORY_IMPORT: "category.import",
   CATEGORY_EXPORT: "category.export",
+
+  // =========================
+  // BRAND
+  // =========================
 
   BRAND_ACCESS: "brand.access",
   BRAND_TABLE: "brand.table",
@@ -32,6 +40,10 @@ export const PERMISSIONS = {
   BRAND_IMPORT: "brand.import",
   BRAND_EXPORT: "brand.export",
 
+  // =========================
+  // PRODUCT
+  // =========================
+
   PRODUCT_ACCESS: "product.access",
   PRODUCT_TABLE: "product.table",
   PRODUCT_CREATE: "product.create",
@@ -40,6 +52,10 @@ export const PERMISSIONS = {
   PRODUCT_DELETE: "product.delete",
   PRODUCT_IMPORT: "product.import",
   PRODUCT_EXPORT: "product.export",
+
+  // =========================
+  // PRODUCT TYPE
+  // =========================
 
   PRODUCT_TYPE_ACCESS: "product_type.access",
   PRODUCT_TYPE_TABLE: "product_type.table",
@@ -50,7 +66,15 @@ export const PERMISSIONS = {
   PRODUCT_TYPE_IMPORT: "product_type.import",
   PRODUCT_TYPE_EXPORT: "product_type.export",
 
+  // =========================
+  // ADDRESS
+  // =========================
+
   ADDRESS_ACCESS: "address.access",
+
+  // =========================
+  // STATE
+  // =========================
 
   STATE_ACCESS: "state.access",
   STATE_TABLE: "state.table",
@@ -61,6 +85,10 @@ export const PERMISSIONS = {
   STATE_IMPORT: "state.import",
   STATE_EXPORT: "state.export",
 
+  // =========================
+  // DISTRICT
+  // =========================
+
   DISTRICT_ACCESS: "district.access",
   DISTRICT_TABLE: "district.table",
   DISTRICT_CREATE: "district.create",
@@ -69,6 +97,10 @@ export const PERMISSIONS = {
   DISTRICT_DELETE: "district.delete",
   DISTRICT_IMPORT: "district.import",
   DISTRICT_EXPORT: "district.export",
+
+  // =========================
+  // CITY
+  // =========================
 
   CITY_ACCESS: "city.access",
   CITY_TABLE: "city.table",
@@ -79,6 +111,10 @@ export const PERMISSIONS = {
   CITY_IMPORT: "city.import",
   CITY_EXPORT: "city.export",
 
+  // =========================
+  // PINCODE
+  // =========================
+
   PINCODE_ACCESS: "pincode.access",
   PINCODE_TABLE: "pincode.table",
   PINCODE_CREATE: "pincode.create",
@@ -88,6 +124,10 @@ export const PERMISSIONS = {
   PINCODE_IMPORT: "pincode.import",
   PINCODE_EXPORT: "pincode.export",
 
+  // =========================
+  // AREA
+  // =========================
+
   AREA_ACCESS: "area.access",
   AREA_TABLE: "area.table",
   AREA_CREATE: "area.create",
@@ -96,6 +136,19 @@ export const PERMISSIONS = {
   AREA_DELETE: "area.delete",
   AREA_IMPORT: "area.import",
   AREA_EXPORT: "area.export",
+
+  // =========================
+  // REASON MASTER
+  // =========================
+
+  REASON_ACCESS: "reason.access",
+  REASON_TABLE: "reason.table",
+  REASON_CREATE: "reason.create",
+  REASON_VIEW: "reason.view",
+  REASON_UPDATE: "reason.update",
+  REASON_DELETE: "reason.delete",
+  REASON_IMPORT: "reason.import",
+  REASON_EXPORT: "reason.export",
 
   ITEM_ACCESS: "item.access",
 
@@ -845,6 +898,66 @@ export const PERMISSION_LIST: Permission[] = [
     label: "Export Area",
   },
 
+  // =========================
+  // REASON MASTER
+  // =========================
+
+  {
+    id: "P-081",
+    key: PERMISSIONS.REASON_ACCESS,
+    module: "Reason",
+    action: "access",
+    label: "Access Reason Master",
+  },
+  {
+    id: "P-082",
+    key: PERMISSIONS.REASON_TABLE,
+    module: "Reason",
+    action: "table",
+    label: "View Reason Table",
+  },
+  {
+    id: "P-083",
+    key: PERMISSIONS.REASON_CREATE,
+    module: "Reason",
+    action: "create",
+    label: "Create Reason",
+  },
+  {
+    id: "P-084",
+    key: PERMISSIONS.REASON_VIEW,
+    module: "Reason",
+    action: "view",
+    label: "View Reason",
+  },
+  {
+    id: "P-085",
+    key: PERMISSIONS.REASON_UPDATE,
+    module: "Reason",
+    action: "update",
+    label: "Update Reason",
+  },
+  {
+    id: "P-086",
+    key: PERMISSIONS.REASON_DELETE,
+    module: "Reason",
+    action: "delete",
+    label: "Delete Reason",
+  },
+  {
+    id: "P-087",
+    key: PERMISSIONS.REASON_IMPORT,
+    module: "Reason",
+    action: "import",
+    label: "Import Reason",
+  },
+  {
+    id: "P-088",
+    key: PERMISSIONS.REASON_EXPORT,
+    module: "Reason",
+    action: "export",
+    label: "Export Reason",
+  },
 
   // {
   //   id: "P-004",

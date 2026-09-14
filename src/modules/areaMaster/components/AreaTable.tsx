@@ -1,7 +1,8 @@
-import { ChevronLeft, ChevronRight, Edit3, MapPin, Power } from "lucide-react";
+import { Edit3, MapPin, Power } from "lucide-react";
 import type { Area } from "../types/area.types";
 import AreaStatusBadge from "./AreaStatusBadge";
 import { usePermission } from "../../../hooks/usePermission";
+import Pagination from "../../../components/ui/Pagination";
 
 interface Props {
   areas: Area[];
@@ -29,6 +30,7 @@ export default function AreaTable({
   onToggleStatus,
 }: Props) {
   const { hasPermission } = usePermission();
+
   if (loading) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
@@ -46,10 +48,6 @@ export default function AreaTable({
       </div>
     );
   }
-
-  const start = total === 0 ? 0 : (page - 1) * limit + 1;
-
-  const end = Math.min(page * limit, total);
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -80,14 +78,16 @@ export default function AreaTable({
                   {area.areaName}
                 </td>
 
-                <td className="px-5 py-4">{area.city_name ?? area.city_id}</td>
+                <td className="px-5 py-4">
+                  {area.city_name ?? area.city_id ?? "-"}
+                </td>
 
                 <td className="px-5 py-4 text-gray-600">
                   {area.district_name ?? area.district_id ?? "-"}
                 </td>
 
                 <td className="px-5 py-4">
-                  {area.state_name ?? area.state_id}
+                  {area.state_name ?? area.state_id ?? "-"}
                 </td>
 
                 <td className="px-5 py-4">
@@ -112,7 +112,8 @@ export default function AreaTable({
                         <Edit3 size={17} />
                       </button>
                     )}
-                    {hasPermission("") && (
+
+                    {hasPermission("area.update") && (
                       <button
                         type="button"
                         title={
@@ -136,53 +137,14 @@ export default function AreaTable({
         </table>
       </div>
 
-      {/* PAGINATION */}
-
-      <div className="flex flex-col gap-4 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-gray-500">
-            Showing {start} - {end} of {total}
-          </p>
-
-          <select
-            value={limit}
-            onChange={(e) => onLimitChange(Number(e.target.value))}
-            className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm outline-none"
-          >
-            <option value={10}>10</option>
-
-            <option value={20}>20</option>
-
-            <option value={50}>50</option>
-
-            <option value={100}>100</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronLeft size={17} />
-          </button>
-
-          <span className="text-sm text-gray-600">
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronRight size={17} />
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </div>
   );
 }

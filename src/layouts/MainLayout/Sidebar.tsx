@@ -31,9 +31,7 @@ import { useDispatch } from "react-redux";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logoutSuccess } from "../../modules/auth/store/authSlice";
 import { useAppSelector } from "../../app/hooks";
-import {
-  MessageCircleQuestion,
-} from "lucide-react";
+import { MessageCircleQuestion } from "lucide-react";
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -125,11 +123,11 @@ const menuItems = [
   //   permission: "area.access",
   // },
   {
-  label: "Reason Master",
-  path: "/reason-master",
-  icon: MessageCircleQuestion,
-    // permission: "reason.access",
-},
+    label: "Reason Master",
+    path: "/reason-master",
+    icon: MessageCircleQuestion,
+    permission: "reason.access",
+  },
   {
     label: "Users",
     icon: Users,
@@ -445,12 +443,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               ADDRESS MASTER DROPDOWN
           ================================================== */}
 
-          {hasPermission("address.access") && (allowedAddressItems.length > 0 && (
-            <div>
-              <button
-                type="button"
-                onClick={() => setAddressOpen((prev) => !prev)}
-                className={`
+          {hasPermission("address.access") &&
+            allowedAddressItems.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setAddressOpen((prev) => !prev)}
+                  className={`
                   flex w-full items-center justify-between
                   rounded-lg px-3 py-2.5
                   text-sm font-medium transition
@@ -461,27 +460,27 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
                   }
                 `}
-              >
-                <div className="flex items-center gap-3">
-                  <MapPinned size={18} />
+                >
+                  <div className="flex items-center gap-3">
+                    <MapPinned size={18} />
 
-                  <span>Address Management</span>
-                </div>
+                    <span>Address Management</span>
+                  </div>
 
-                <ChevronDown
-                  size={17}
-                  className={`
+                  <ChevronDown
+                    size={17}
+                    className={`
                     transition-transform duration-200
 
                     ${addressOpen ? "rotate-180" : ""}
                   `}
-                />
-              </button>
+                  />
+                </button>
 
-              {/* Address Master Dropdown */}
+                {/* Address Master Dropdown */}
 
-              <div
-                className={`
+                <div
+                  className={`
                   overflow-hidden
                   transition-all duration-300
 
@@ -491,24 +490,24 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       : "max-h-0 opacity-0"
                   }
                 `}
-              >
-                <div
-                  className="
+                >
+                  <div
+                    className="
                     ml-4 space-y-1
                     border-l border-gray-200
                     pl-3
                   "
-                >
-                  {allowedAddressItems.map((item) => {
-                    const Icon = item.icon;
+                  >
+                    {allowedAddressItems.map((item) => {
+                      const Icon = item.icon;
 
-                    return (
-                      <NavLink
-                        key={item.path}
-                        to={item.path}
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                          `
+                      return (
+                        <NavLink
+                          key={item.path}
+                          to={item.path}
+                          onClick={onClose}
+                          className={({ isActive }) =>
+                            `
                             flex items-center gap-3
                             rounded-lg px-3 py-2
                             text-sm transition
@@ -519,19 +518,18 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                 : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
                             }
                           `
-                        }
-                      >
-                        <Icon size={16} />
+                          }
+                        >
+                          <Icon size={16} />
 
-                        <span>{item.label}</span>
-                      </NavLink>
-                    );
-                  })}
+                          <span>{item.label}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          
+            )}
 
           {/* =================================================
               REMAINING SIDEBAR MENUS

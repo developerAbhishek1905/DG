@@ -372,4 +372,5 @@ function ErrorText({ children }: { children?: React.ReactNode }) {
 
 const labelClass = "mb-1.5 block text-sm font-medium text-gray-700";
 
-const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100";
+const inputClass =
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100";

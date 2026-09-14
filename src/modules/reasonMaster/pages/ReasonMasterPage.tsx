@@ -251,59 +251,45 @@ export default function ReasonMasterPage() {
   |--------------------------------------------------------------------------
   */
 
-const handleSubmit = async (
-  formData: ReasonFormData,
-) => {
-  if (!formData.reasonName.trim()) {
-    toast.error("Reason name is required");
-    return;
-  }
+  const handleSubmit = async (formData: ReasonFormData) => {
+    if (!formData.reasonName.trim()) {
+      toast.error("Reason name is required");
+      return;
+    }
 
-  try {
-    setFormLoading(true);
+    try {
+      setFormLoading(true);
 
-    if (selectedReason) {
-      const response = await updateReason(
-        selectedReason._id,
-        {
+      if (selectedReason) {
+        const response = await updateReason(selectedReason._id, {
           reasonName: formData.reasonName,
           reasonType: activeTab,
           isActive: formData.isActive,
-        },
-      );
+        });
 
-      toast.success(
-        response.message ||
-          "Reason updated successfully",
-      );
-    } else {
-      const response = await createReason({
-        reasonName: formData.reasonName,
-        reasonType: activeTab,
-        isActive: formData.isActive,
-      });
+        toast.success(response.message || "Reason updated successfully");
+      } else {
+        const response = await createReason({
+          reasonName: formData.reasonName,
+          reasonType: activeTab,
+          isActive: formData.isActive,
+        });
 
-      toast.success(
-        response.message ||
-          "Reason created successfully",
-      );
+        toast.success(response.message || "Reason created successfully");
+      }
+
+      handleCloseForm();
+
+      // reload table after create/update
+      await fetchReasons();
+    } catch (error: any) {
+      console.error(error);
+
+      toast.error(error?.response?.data?.message || "Failed to save reason");
+    } finally {
+      setFormLoading(false);
     }
-
-    handleCloseForm();
-
-    // reload table after create/update
-    await fetchReasons();
-  } catch (error: any) {
-    console.error(error);
-
-    toast.error(
-      error?.response?.data?.message ||
-        "Failed to save reason",
-    );
-  } finally {
-    setFormLoading(false);
-  }
-};
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -311,32 +297,20 @@ const handleSubmit = async (
   |--------------------------------------------------------------------------
   */
 
-const handleStatusChange = async (
-  reason: Reason,
-  isActive: boolean,
-) => {
-  try {
-    const response = await updateReasonStatus(
-      reason._id,
-      isActive,
-    );
+  const handleStatusChange = async (reason: Reason, isActive: boolean) => {
+    try {
+      const response = await updateReasonStatus(reason._id, isActive);
 
-    toast.success(
-      response.message ||
-        "Status updated successfully",
-    );
+      toast.success(response.message || "Status updated successfully");
 
-    // reload table
-    await fetchReasons();
-  } catch (error: any) {
-    console.error(error);
+      // reload table
+      await fetchReasons();
+    } catch (error: any) {
+      console.error(error);
 
-    toast.error(
-      error?.response?.data?.message ||
-        "Failed to update status",
-    );
-  }
-};
+      toast.error(error?.response?.data?.message || "Failed to update status");
+    }
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -344,45 +318,32 @@ const handleStatusChange = async (
   |--------------------------------------------------------------------------
   */
 
-const handleDelete = async (
-  reason: Reason,
-) => {
-  const confirmed = window.confirm(
-    `Are you sure you want to delete "${reason.reasonName}"?`,
-  );
-
-  if (!confirmed) return;
-
-  try {
-    const response = await deleteReason(
-      reason._id,
+  const handleDelete = async (reason: Reason) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${reason.reasonName}"?`,
     );
 
-    toast.success(
-      response.message ||
-        "Reason deleted successfully",
-    );
+    if (!confirmed) return;
 
-    // if last row of current page deleted
-    if (
-      reasons.length === 1 &&
-      page > 1
-    ) {
-      setPage((prev) => prev - 1);
-      return;
+    try {
+      const response = await deleteReason(reason._id);
+
+      toast.success(response.message || "Reason deleted successfully");
+
+      // if last row of current page deleted
+      if (reasons.length === 1 && page > 1) {
+        setPage((prev) => prev - 1);
+        return;
+      }
+
+      // reload table
+      await fetchReasons();
+    } catch (error: any) {
+      console.error(error);
+
+      toast.error(error?.response?.data?.message || "Failed to delete reason");
     }
-
-    // reload table
-    await fetchReasons();
-  } catch (error: any) {
-    console.error(error);
-
-    toast.error(
-      error?.response?.data?.message ||
-        "Failed to delete reason",
-    );
-  }
-};
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -524,15 +485,15 @@ const handleDelete = async (
 
         {/* Table */}
 
-<ReasonTable
-  reasons={reasons}
-  loading={loading}
-  page={pagination.page}
-  limit={pagination.limit}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  onStatusChange={handleStatusChange}
-/>
+        <ReasonTable
+          reasons={reasons}
+          loading={loading}
+          page={pagination.page}
+          limit={pagination.limit}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusChange}
+        />
 
         {/* Pagination */}
 
