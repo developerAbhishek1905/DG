@@ -1,32 +1,21 @@
 import { useEffect, useState } from "react";
 import {
-  getCategoryDropdown,
-  type CategoryDropdown,
-} from "../../categoryMaster/services/categoryApi";
-import {
   searchProducts,
   type ProductDropdownOption,
 } from "../services/dealerApi";
-
 import { useForm } from "react-hook-form";
-import {
-  useFieldArray,
-  // useForm,
-} from "react-hook-form";
-
+import { useFieldArray } from "react-hook-form";
 import type { Dealer, DealerFormData } from "../types/dealer.types";
 import AddressFields from "../components/AddressFields";
 import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ProductServiceFields from "../components/ProductServiceFields";
-
 import SearchSelect from "../../../components/ui/SearchSelect";
+type DealerFormTab = "basic" | "documents" | "account" | "service";
 
 interface Props {
   dealer?: Dealer;
-
   onSubmit: (data: DealerFormData) => Promise<void> | void;
-
   submitLabel?: string;
 }
 
@@ -62,6 +51,40 @@ export default function DealerForm({
       url: string;
     }[]
   >([]);
+
+  const [activeTab, setActiveTab] = useState<DealerFormTab>("basic");
+
+  const dealerTabs: {
+    id: DealerFormTab;
+    label: string;
+    number: number;
+    mobileLabel: string;
+  }[] = [
+    {
+      id: "basic",
+      label: "Basic & Address",
+      mobileLabel: "Basic",
+      number: 1,
+    },
+    {
+      id: "documents",
+      label: "Identity & Documents",
+      mobileLabel: "Documents",
+      number: 2,
+    },
+    {
+      id: "account",
+      label: "Tax & Account",
+      mobileLabel: "Tax",
+      number: 3,
+    },
+    {
+      id: "service",
+      label: "Product & Capacity",
+      mobileLabel: "Product",
+      number: 4,
+    },
+  ];
 
   const loadCapacityProducts = async (search = "") => {
     try {
@@ -103,6 +126,7 @@ export default function DealerForm({
       alternativeNumber: dealer?.alternativeNumber ?? "",
 
       panNumber: dealer?.panNumber ?? "",
+      billingType: "FIXED",
 
       drivingLicenceNumber: dealer?.drivingLicenceNumber ?? "",
 
@@ -124,7 +148,7 @@ export default function DealerForm({
 
       groupHead: dealer?.groupHead ?? "",
 
-      headName: dealer?.headName ?? "",
+      headName: dealer?.headName ?? "SUNDRY DEBTORS",
 
       grade: dealer?.grade ?? "",
 
@@ -705,583 +729,661 @@ export default function DealerForm({
 
         toast.error("Please fix the required fields before submitting.");
       })}
-      className="space-y-7"
+      // className="space-y-7"
+      className="space-y-2"
     >
-      <Section title="Basic Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Input
-            label="Head Code"
-            error={errors.headCode?.message}
-            {...register("headCode", {
-              required: "Head code is required",
-            })}
-          />
+      <div className="flex justify-end border-t border-gray-100 pt-6">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+        >
+          {isSubmitting ? "Saving..." : submitLabel}
+        </button>
+      </div>
 
-          <Input
-            label="Head Name"
-            error={errors.headName?.message}
-            {...register("headName", {
-              required: "Head name is required",
-            })}
-          />
+      <div className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white">
+        <div className="grid w-full grid-cols-4">
+          {dealerTabs.map((tab) => {
+            const active = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                title={tab.label}
+                className={`
+            relative flex min-w-0 items-center justify-center
+            gap-1 border-b-2
+            px-0.5 py-2
+            text-[9px] font-medium
+            transition
+            sm:gap-1.5 sm:px-1 sm:text-[10px]
+            md:gap-2 md:px-2 md:py-2.5 md:text-xs
+            lg:px-3 lg:text-sm
+            ${
+              active
+                ? "border-[#123B7A] text-[#123B7A]"
+                : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+            }
+          `}
+              >
+                {/* Number */}
+                <span
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold sm:h-[18px] sm:w-[18px] sm:text-[9px] md:h-5 md:w-5 md:text-[10px] ${active ? "bg-[#123B7A] text-white" : "bg-gray-100 text-gray-500"}`}
+                >
+                  {tab.number}
+                </span>
+
+                {/* Label */}
+                <span className="min-w-0 whitespace-nowrap">
+                  <span className="sm:hidden">{tab.mobileLabel}</span>
+
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </Section>
-
-      <Section title="Technician Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* <Input
+      </div>
+      {activeTab === "basic" && (
+        <div className="space-y-3">
+          <Section title="Technician Information">
+            <div className="grid grid-cols-1 gap-x-2 gap-y-1.5 md:grid-cols-3 xl:grid-cols-5">
+              {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> */}
+              {/* <Input
             label="Technician Code"
             placeholder="Auto Generated"
             readOnly
             {...register("technicianCode")}
           /> */}
-
-          <Input
-            label="Technician Firm Name"
-            placeholder="Enter technician firm name"
-            error={errors.technicianFirmName?.message}
-            {...register("technicianFirmName", {
-              required: "Technician firm name is required",
-            })}
-          />
-
-          <Input
-            label="Technician Name"
-            placeholder="Enter technician name"
-            error={errors.technicianName?.message}
-            {...register("technicianName", {
-              required: "Technician name is required",
-            })}
-          />
-
-          <Input
-            label="Phone Number"
-            maxLength={10}
-            inputMode="numeric"
-            placeholder="Enter phone number"
-            error={errors.mobileNumber?.message}
-            {...register("mobileNumber", {
-              required: "Phone number is required",
-              pattern: {
-                value: /^[6-9][0-9]{9}$/,
-                message: "Enter valid 10 digit phone number",
-              },
-            })}
-          />
-
-          <Input
-            label="Alternative Number"
-            maxLength={10}
-            inputMode="numeric"
-            placeholder="Enter alternative number"
-            error={errors.alternativeNumber?.message}
-            {...register("alternativeNumber", {
-              pattern: {
-                value: /^$|^[6-9][0-9]{9}$/,
-                message: "Enter valid 10 digit alternative number",
-              },
-            })}
-          />
-
-          <Input
-            label="Email ID"
-            type="email"
-            placeholder="Enter email address"
-            error={errors.email?.message}
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Enter valid email address",
-              },
-            })}
-          />
-
-          <div>
-            <label className={labelClass}>Status</label>
-
-            <select
-              {...register("technicianStatus", {
-                required: "Status is required",
-              })}
-              className={inputClass}
-            >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Deactive</option>
-            </select>
-
-            {errors.technicianStatus && (
-              <ErrorText>{errors.technicianStatus.message}</ErrorText>
-            )}
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Address Information">
-        <div className="space-y-8">
-          <AddressFields
-            type="businessAddress"
-            title="Business Address"
-            register={register}
-            setValue={setValue}
-            watch={watch}
-            errors={errors}
-          />
-
-          <div className="border-t border-gray-200 pt-6">
-            <AddressFields
-              type="residentialAddress"
-              title="Residential Address"
-              register={register}
-              setValue={setValue}
-              watch={watch}
-              errors={errors}
-            />
-          </div>
-        </div>
-      </Section>
-      <Section title="Identity & Documents">
-        <div className="space-y-8">
-          {/* ================================================= */}
-          {/* AADHAAR */}
-          {/* ================================================= */}
-
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-gray-900">
-              Aadhaar Card
-            </h4>
-
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               <Input
-                label="Aadhaar Card Number"
-                maxLength={12}
-                inputMode="numeric"
-                placeholder="Enter 12 digit Aadhaar number"
-                error={errors.aadhaarNumber?.message}
-                {...register("aadhaarNumber", {
-                  // required: "Aadhaar number is required",
-
-                  pattern: {
-                    value: /^[0-9]{12}$/,
-                    message: "Enter valid 12 digit Aadhaar number",
-                  },
+                label="Head Code"
+                readOnly
+                error={errors.headCode?.message}
+                {...register("headCode", {
+                  required: "Head code is required",
                 })}
               />
 
-              {/* Aadhaar Front */}
-
-              <div>
-                <label className={labelClass}>Aadhaar Front</label>
-
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
-                  {...register("aadhaarFrontFile", {
-                    // required: !dealer
-                    //   ? "Aadhaar front document is required"
-                    //   : false,
-
-                    validate: validateFileSize,
-
-                    onChange: (event) => {
-                      createSingleFilePreview(
-                        event.target.files,
-                        setAadhaarFrontPreview,
-                      );
-                    },
-                  })}
-                  className={inputClass}
-                />
-
-                {errors.aadhaarFrontFile && (
-                  <ErrorText>
-                    {errors.aadhaarFrontFile.message as string}
-                  </ErrorText>
-                )}
-
-                {aadhaarFrontPreview && (
-                  <ImagePreview
-                    src={aadhaarFrontPreview}
-                    label="Aadhaar Front Preview"
-                    onRemove={() => {
-                      URL.revokeObjectURL(aadhaarFrontPreview);
-
-                      setAadhaarFrontPreview("");
-
-                      resetField("aadhaarFrontFile");
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Aadhaar Back */}
-
-              <div>
-                <label className={labelClass}>Aadhaar Back</label>
-
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
-                  {...register("aadhaarBackFile", {
-                    // required: !dealer
-                    //   ? "Aadhaar back document is required"
-                    //   : false,
-
-                    onChange: (event) => {
-                      createSingleFilePreview(
-                        event.target.files,
-                        setAadhaarBackPreview,
-                      );
-                    },
-                  })}
-                  className={inputClass}
-                />
-
-                {errors.aadhaarBackFile && (
-                  <ErrorText>
-                    {errors.aadhaarBackFile.message as string}
-                  </ErrorText>
-                )}
-
-                {aadhaarBackPreview && (
-                  <ImagePreview
-                    src={aadhaarBackPreview}
-                    label="Aadhaar Back Preview"
-                    onRemove={() => {
-                      URL.revokeObjectURL(aadhaarBackPreview);
-
-                      setAadhaarBackPreview("");
-
-                      resetField("aadhaarBackFile");
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ================================================= */}
-          {/* PAN */}
-          {/* ================================================= */}
-
-          <div className="border-t border-gray-200 pt-6">
-            <h4 className="mb-4 text-sm font-semibold text-gray-900">
-              PAN Card
-            </h4>
-
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               <Input
-                label="PAN Card Number"
+                label="Head Name"
+                readOnly
+                error={errors.headName?.message}
+                {...register("headName", {
+                  required: "Head name is required",
+                })}
+              />
+
+              <Input
+                label="Technician Firm Name"
+                placeholder="Enter technician firm name"
+                error={errors.technicianFirmName?.message}
+                {...register("technicianFirmName", {
+                  required: "Technician firm name is required",
+                })}
+              />
+
+              <Input
+                label="Technician Name"
+                placeholder="Enter technician name"
+                error={errors.technicianName?.message}
+                {...register("technicianName", {
+                  required: "Technician name is required",
+                })}
+              />
+
+              <Input
+                label="Phone Number"
                 maxLength={10}
-                placeholder="ABCDE1234F"
-                error={errors.panNumber?.message}
-                {...register("panNumber", {
-                  // required: "PAN card number is required",
-
+                inputMode="numeric"
+                placeholder="Enter phone number"
+                error={errors.mobileNumber?.message}
+                {...register("mobileNumber", {
+                  required: "Phone number is required",
                   pattern: {
-                    value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
-                    message: "Enter valid PAN number",
-                  },
-
-                  onChange: (event) => {
-                    event.target.value = event.target.value.toUpperCase();
+                    value: /^[6-9][0-9]{9}$/,
+                    message: "Enter valid 10 digit phone number",
                   },
                 })}
               />
 
-              {/* PAN Front */}
-
-              <div>
-                <label className={labelClass}>PAN Front</label>
-
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
-                  {...register("panFrontFile", {
-                    // required: !dealer
-                    //   ? "PAN front document is required"
-                    //   : false,
-
-                    onChange: (event) => {
-                      createSingleFilePreview(
-                        event.target.files,
-                        setPanFrontPreview,
-                      );
-                    },
-                  })}
-                  className={inputClass}
-                />
-
-                {errors.panFrontFile && (
-                  <ErrorText>{errors.panFrontFile.message as string}</ErrorText>
-                )}
-
-                {panFrontPreview && (
-                  <ImagePreview
-                    src={panFrontPreview}
-                    label="PAN Front Preview"
-                    onRemove={() => {
-                      URL.revokeObjectURL(panFrontPreview);
-
-                      setPanFrontPreview("");
-
-                      resetField("panFrontFile");
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* PAN Back */}
-
-              <div>
-                <label className={labelClass}>PAN Back</label>
-
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
-                  {...register("panBackFile", {
-                    // required: !dealer ? "PAN back document is required" : false,
-
-                    onChange: (event) => {
-                      createSingleFilePreview(
-                        event.target.files,
-                        setPanBackPreview,
-                      );
-                    },
-                  })}
-                  className={inputClass}
-                />
-
-                {errors.panBackFile && (
-                  <ErrorText>{errors.panBackFile.message as string}</ErrorText>
-                )}
-
-                {panBackPreview && (
-                  <ImagePreview
-                    src={panBackPreview}
-                    label="PAN Back Preview"
-                    onRemove={() => {
-                      URL.revokeObjectURL(panBackPreview);
-
-                      setPanBackPreview("");
-
-                      resetField("panBackFile");
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ================================================= */}
-          {/* DRIVING LICENCE */}
-          {/* ================================================= */}
-
-          <div className="border-t border-gray-200 pt-6">
-            <h4 className="mb-4 text-sm font-semibold text-gray-900">
-              Driving Licence
-            </h4>
-
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               <Input
-                label="Driving Licence Number"
-                placeholder="Enter driving licence number"
-                error={errors.drivingLicenceNumber?.message}
-                {...register("drivingLicenceNumber", {
-                  // required: "Driving licence number is required",
+                label="Alternative Number"
+                maxLength={10}
+                inputMode="numeric"
+                placeholder="Enter alternative number"
+                error={errors.alternativeNumber?.message}
+                {...register("alternativeNumber", {
+                  pattern: {
+                    value: /^$|^[6-9][0-9]{9}$/,
+                    message: "Enter valid 10 digit alternative number",
+                  },
                 })}
               />
 
-              {/* Driving Front */}
+              <Input
+                label="Email ID"
+                type="email"
+                placeholder="Enter email address"
+                error={errors.email?.message}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Enter valid email address",
+                  },
+                })}
+              />
 
               <div>
-                <label className={labelClass}>Driving Licence Front</label>
+                <label className={labelClass}>Status</label>
 
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
-                  {...register("drivingLicenceFrontFile", {
-                    // required: !dealer
-                    //   ? "Driving licence front document is required"
-                    //   : false,
-
-                    onChange: (event) => {
-                      createSingleFilePreview(
-                        event.target.files,
-                        setDrivingFrontPreview,
-                      );
-                    },
+                <select
+                  {...register("technicianStatus", {
+                    required: "Status is required",
                   })}
                   className={inputClass}
-                />
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Deactive</option>
+                </select>
 
-                {errors.drivingLicenceFrontFile && (
-                  <ErrorText>
-                    {errors.drivingLicenceFrontFile.message as string}
-                  </ErrorText>
-                )}
-
-                {drivingFrontPreview && (
-                  <ImagePreview
-                    src={drivingFrontPreview}
-                    label="Driving Licence Front Preview"
-                    onRemove={() => {
-                      URL.revokeObjectURL(drivingFrontPreview);
-
-                      setDrivingFrontPreview("");
-
-                      resetField("drivingLicenceFrontFile");
-                    }}
-                  />
+                {errors.technicianStatus && (
+                  <ErrorText>{errors.technicianStatus.message}</ErrorText>
                 )}
               </div>
+            </div>
+          </Section>
 
-              {/* Driving Back */}
+          <Section title="Address Information">
+            <div className="grid grid-cols-1 divide-y divide-gray-200 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+              {/* Business */}
+              <div className="pb-3 lg:pb-0 lg:pr-4">
+                <AddressFields
+                  type="businessAddress"
+                  title="Business Address"
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  errors={errors}
+                />
+              </div>
 
-              <div>
-                <label className={labelClass}>Driving Licence Back</label>
+              {/* Residential */}
+              <div className="pt-3 lg:pl-4 lg:pt-0">
+                <AddressFields
+                  type="residentialAddress"
+                  title="Residential Address"
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  errors={errors}
+                />
+              </div>
+            </div>
+          </Section>
+        </div>
+      )}
 
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
-                  {...register("drivingLicenceBackFile", {
-                    // required: !dealer
-                    //   ? "Driving licence back document is required"
-                    //   : false,
+      {activeTab === "documents" && (
+        <Section title="Identity & Documents">
+          {/* ===================================================== */}
+          {/* PRIMARY IDENTITY DOCUMENTS */}
+          {/* ===================================================== */}
 
-                    onChange: (event) => {
-                      createSingleFilePreview(
-                        event.target.files,
-                        setDrivingBackPreview,
-                      );
+          <div className="grid grid-cols-1 divide-y divide-gray-200 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+            {/* =================================================== */}
+            {/* AADHAAR */}
+            {/* =================================================== */}
+
+            <div className="pb-3 lg:pb-0 lg:pr-4">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                Aadhaar Card
+              </h4>
+
+              <div className="space-y-2">
+                {/* Number */}
+
+                <Input
+                  label="Aadhaar Number"
+                  maxLength={12}
+                  inputMode="numeric"
+                  placeholder="Enter 12 digit Aadhaar number"
+                  error={errors.aadhaarNumber?.message}
+                  {...register("aadhaarNumber", {
+                    pattern: {
+                      value: /^[0-9]{12}$/,
+                      message: "Enter valid 12 digit Aadhaar number",
                     },
                   })}
-                  className={inputClass}
                 />
 
-                {errors.drivingLicenceBackFile && (
-                  <ErrorText>
-                    {errors.drivingLicenceBackFile.message as string}
-                  </ErrorText>
+                {/* Front + Back Inputs */}
+
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Front */}
+
+                  <div>
+                    <label className={labelClass}>Front</label>
+
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      {...register("aadhaarFrontFile", {
+                        validate: validateFileSize,
+
+                        onChange: (event) => {
+                          createSingleFilePreview(
+                            event.target.files,
+                            setAadhaarFrontPreview,
+                          );
+                        },
+                      })}
+                      className={inputClass}
+                    />
+
+                    {errors.aadhaarFrontFile && (
+                      <ErrorText>
+                        {errors.aadhaarFrontFile.message as string}
+                      </ErrorText>
+                    )}
+                  </div>
+
+                  {/* Back */}
+
+                  <div>
+                    <label className={labelClass}>Back</label>
+
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      {...register("aadhaarBackFile", {
+                        validate: validateFileSize,
+
+                        onChange: (event) => {
+                          createSingleFilePreview(
+                            event.target.files,
+                            setAadhaarBackPreview,
+                          );
+                        },
+                      })}
+                      className={inputClass}
+                    />
+
+                    {errors.aadhaarBackFile && (
+                      <ErrorText>
+                        {errors.aadhaarBackFile.message as string}
+                      </ErrorText>
+                    )}
+                  </div>
+                </div>
+
+                {/* Front + Back Previews */}
+
+                {(aadhaarFrontPreview || aadhaarBackPreview) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <CompactDocumentPreview
+                      src={aadhaarFrontPreview}
+                      label="Aadhaar Front"
+                      onRemove={() => {
+                        if (aadhaarFrontPreview) {
+                          URL.revokeObjectURL(aadhaarFrontPreview);
+                        }
+
+                        setAadhaarFrontPreview("");
+                        resetField("aadhaarFrontFile");
+                      }}
+                    />
+
+                    <CompactDocumentPreview
+                      src={aadhaarBackPreview}
+                      label="Aadhaar Back"
+                      onRemove={() => {
+                        if (aadhaarBackPreview) {
+                          URL.revokeObjectURL(aadhaarBackPreview);
+                        }
+
+                        setAadhaarBackPreview("");
+                        resetField("aadhaarBackFile");
+                      }}
+                    />
+                  </div>
                 )}
+              </div>
+            </div>
 
-                {drivingBackPreview && (
-                  <ImagePreview
-                    src={drivingBackPreview}
-                    label="Driving Licence Back Preview"
-                    onRemove={() => {
-                      URL.revokeObjectURL(drivingBackPreview);
+            {/* =================================================== */}
+            {/* PAN CARD */}
+            {/* =================================================== */}
 
-                      setDrivingBackPreview("");
+            <div className="py-3 lg:px-4 lg:py-0">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                PAN Card
+              </h4>
 
-                      resetField("drivingLicenceBackFile");
-                    }}
-                  />
+              <div className="space-y-2">
+                {/* Number */}
+
+                <Input
+                  label="PAN Number"
+                  maxLength={10}
+                  placeholder="ABCDE1234F"
+                  error={errors.panNumber?.message}
+                  {...register("panNumber", {
+                    pattern: {
+                      value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+                      message: "Enter valid PAN number",
+                    },
+
+                    onChange: (event) => {
+                      event.target.value = event.target.value.toUpperCase();
+                    },
+                  })}
+                />
+
+                {/* Front + Back Inputs */}
+
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Front */}
+
+                  <div>
+                    <label className={labelClass}>Front</label>
+
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      {...register("panFrontFile", {
+                        validate: validateFileSize,
+
+                        onChange: (event) => {
+                          createSingleFilePreview(
+                            event.target.files,
+                            setPanFrontPreview,
+                          );
+                        },
+                      })}
+                      className={inputClass}
+                    />
+
+                    {errors.panFrontFile && (
+                      <ErrorText>
+                        {errors.panFrontFile.message as string}
+                      </ErrorText>
+                    )}
+                  </div>
+
+                  {/* Back */}
+
+                  <div>
+                    <label className={labelClass}>Back</label>
+
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      {...register("panBackFile", {
+                        validate: validateFileSize,
+
+                        onChange: (event) => {
+                          createSingleFilePreview(
+                            event.target.files,
+                            setPanBackPreview,
+                          );
+                        },
+                      })}
+                      className={inputClass}
+                    />
+
+                    {errors.panBackFile && (
+                      <ErrorText>
+                        {errors.panBackFile.message as string}
+                      </ErrorText>
+                    )}
+                  </div>
+                </div>
+
+                {/* Previews */}
+
+                {(panFrontPreview || panBackPreview) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <CompactDocumentPreview
+                      src={panFrontPreview}
+                      label="PAN Front"
+                      onRemove={() => {
+                        if (panFrontPreview) {
+                          URL.revokeObjectURL(panFrontPreview);
+                        }
+
+                        setPanFrontPreview("");
+                        resetField("panFrontFile");
+                      }}
+                    />
+
+                    <CompactDocumentPreview
+                      src={panBackPreview}
+                      label="PAN Back"
+                      onRemove={() => {
+                        if (panBackPreview) {
+                          URL.revokeObjectURL(panBackPreview);
+                        }
+
+                        setPanBackPreview("");
+                        resetField("panBackFile");
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* =================================================== */}
+            {/* DRIVING LICENCE */}
+            {/* =================================================== */}
+
+            <div className="pt-3 lg:pl-4 lg:pt-0">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                Driving Licence
+              </h4>
+
+              <div className="space-y-2">
+                {/* Number */}
+
+                <Input
+                  label="Licence Number"
+                  placeholder="Enter driving licence number"
+                  error={errors.drivingLicenceNumber?.message}
+                  {...register("drivingLicenceNumber")}
+                />
+
+                {/* Front + Back Inputs */}
+
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Front */}
+
+                  <div>
+                    <label className={labelClass}>Front</label>
+
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      {...register("drivingLicenceFrontFile", {
+                        validate: validateFileSize,
+
+                        onChange: (event) => {
+                          createSingleFilePreview(
+                            event.target.files,
+                            setDrivingFrontPreview,
+                          );
+                        },
+                      })}
+                      className={inputClass}
+                    />
+
+                    {errors.drivingLicenceFrontFile && (
+                      <ErrorText>
+                        {errors.drivingLicenceFrontFile.message as string}
+                      </ErrorText>
+                    )}
+                  </div>
+
+                  {/* Back */}
+
+                  <div>
+                    <label className={labelClass}>Back</label>
+
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      {...register("drivingLicenceBackFile", {
+                        validate: validateFileSize,
+
+                        onChange: (event) => {
+                          createSingleFilePreview(
+                            event.target.files,
+                            setDrivingBackPreview,
+                          );
+                        },
+                      })}
+                      className={inputClass}
+                    />
+
+                    {errors.drivingLicenceBackFile && (
+                      <ErrorText>
+                        {errors.drivingLicenceBackFile.message as string}
+                      </ErrorText>
+                    )}
+                  </div>
+                </div>
+
+                {/* Previews */}
+
+                {(drivingFrontPreview || drivingBackPreview) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <CompactDocumentPreview
+                      src={drivingFrontPreview}
+                      label="Licence Front"
+                      onRemove={() => {
+                        if (drivingFrontPreview) {
+                          URL.revokeObjectURL(drivingFrontPreview);
+                        }
+
+                        setDrivingFrontPreview("");
+                        resetField("drivingLicenceFrontFile");
+                      }}
+                    />
+
+                    <CompactDocumentPreview
+                      src={drivingBackPreview}
+                      label="Licence Back"
+                      onRemove={() => {
+                        if (drivingBackPreview) {
+                          URL.revokeObjectURL(drivingBackPreview);
+                        }
+
+                        setDrivingBackPreview("");
+                        resetField("drivingLicenceBackFile");
+                      }}
+                    />
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ================================================= */}
+          {/* ===================================================== */}
           {/* OTHER DOCUMENTS */}
-          {/* ================================================= */}
+          {/* ===================================================== */}
 
-          <div className="border-t border-gray-200 pt-6">
-            <h4 className="mb-4 text-sm font-semibold text-gray-900">
-              Other Documents
-            </h4>
+          <div className="mt-4 border-t border-gray-200 pt-3">
+            <div className="mb-2 flex items-center gap-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-700">
+                Other Documents
+              </h4>
 
-            <div>
-              <label className={labelClass}>
-                Upload Documents
-                <span className="ml-1 text-xs font-normal text-gray-500">
-                  (Maximum 5)
-                </span>
-              </label>
+              <span className="text-[10px] font-normal text-gray-400">
+                Maximum 5 files
+              </span>
+            </div>
 
-              <input
-                type="file"
-                multiple
-                accept=".jpg,.jpeg,.png,.webp,.pdf"
-                {...register("documentUpload", {
-                  // validate: (files) => {
-                  //   if (!files) {
-                  //     return true;
-                  //   }
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[320px_1fr]">
+              {/* Upload */}
 
-                  //   return (
-                  //     files.length <= 5 || "You can upload maximum 5 documents"
-                  //   );
-                  // },
+              <div>
+                <label className={labelClass}>Upload Documents</label>
 
-                  validate: {
-                    maxFiles: (files) =>
-                      !files ||
-                      files.length <= 5 ||
-                      "You can upload maximum 5 documents",
+                <input
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.png,.webp,.pdf"
+                  {...register("documentUpload", {
+                    validate: {
+                      maxFiles: (files) =>
+                        !files ||
+                        files.length <= 5 ||
+                        "You can upload maximum 5 documents",
 
-                    maxSize: (files) =>
-                      !files ||
-                      Array.from(files).every(
-                        (file) => file.size <= 5 * 1024 * 1024,
-                      ) ||
-                      "Each file must be less than 5 MB",
-                  },
+                      maxSize: (files) =>
+                        !files ||
+                        Array.from(files).every(
+                          (file) => file.size <= 5 * 1024 * 1024,
+                        ) ||
+                        "Each file must be less than 5 MB",
+                    },
 
-                  onChange: (event) => {
-                    handleOtherDocuments(event.target.files);
-                  },
-                })}
-                className={inputClass}
-              />
+                    onChange: (event) => {
+                      handleOtherDocuments(event.target.files);
+                    },
+                  })}
+                  className={inputClass}
+                />
 
-              {errors.documentUpload && (
-                <ErrorText>{errors.documentUpload.message as string}</ErrorText>
-              )}
+                {errors.documentUpload && (
+                  <ErrorText>
+                    {errors.documentUpload.message as string}
+                  </ErrorText>
+                )}
 
-              <p className="mt-1 text-xs text-gray-500">
-                Maximum 5 files. JPG, PNG, WEBP and PDF files are allowed.
-              </p>
+                <p className="mt-1 text-[10px] text-gray-400">
+                  JPG, PNG, WEBP or PDF · Max 5 MB each
+                </p>
+              </div>
+
+              {/* Other document previews */}
 
               {otherDocumentPreviews.length > 0 && (
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {otherDocumentPreviews.map((document, index) => (
                     <div
                       key={`${document.name}-${index}`}
-                      className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+                      className="group relative overflow-hidden rounded-md border border-gray-200 bg-gray-50"
                     >
-                      {/* REMOVE BUTTON */}
-
                       <button
                         type="button"
                         onClick={() => removeOtherDocument(index)}
-                        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
+                        className="absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
                         title="Remove document"
                       >
-                        <X size={16} />
+                        <X size={11} />
                       </button>
-
-                      {/* PREVIEW */}
 
                       {document.type.startsWith("image/") ? (
                         <img
                           src={document.url}
                           alt={document.name}
-                          className="h-32 w-full object-cover"
+                          className="h-16 w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-32 items-center justify-center bg-gray-100">
-                          <span className="text-sm font-semibold text-red-600">
+                        <div className="flex h-16 items-center justify-center bg-gray-100">
+                          <span className="text-xs font-semibold text-red-600">
                             PDF
                           </span>
                         </div>
                       )}
 
-                      {/* FILE NAME */}
-
-                      <div className="p-2">
+                      <div className="px-1.5 py-1">
                         <p
-                          className="truncate text-xs text-gray-700"
+                          className="truncate text-[10px] text-gray-600"
                           title={document.name}
                         >
                           {document.name}
@@ -1293,8 +1395,8 @@ export default function DealerForm({
               )}
             </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+      )}
 
       {/* <Section title="Contact Information">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -1312,309 +1414,286 @@ export default function DealerForm({
           <Input label="Email" type="email" {...register("email")} />
         </div>
       </Section> */}
+{activeTab === "account" && (
+  <div className="space-y-3">
+    {/* ================================================= */}
+    {/* BILLING TYPE */}
+    {/* ================================================= */}
 
-      <Section title="Tax Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Input label="GST No." {...register("gstNumber")} />
+    <Section title="Billing Type">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {[
+          {
+            value: "FIXED",
+            label: "Fixed",
+          },
+          {
+            value: "PARTIAL_PAYMENT",
+            label: "Partial Payment",
+          },
+          {
+            value: "PROFIT_SHARING",
+            label: "Profit Sharing",
+          },
+        ].map((option) => {
+          const selected = watch("billingType") === option.value;
 
-          <Input label="TIN No." {...register("tinNumber")} />
-
-          <div>
-            <label className={labelClass}>GST Applicable</label>
-
-            <select {...register("gstApplicable")} className={inputClass}>
-              <option value="">Select</option>
-
-              <option value="YES">Yes</option>
-
-              <option value="NO">No</option>
-            </select>
-          </div>
-
-          <Input
-            label="GST Rate"
-            type="number"
-            min={0}
-            step="0.01"
-            {...register("gstRate", {
-              valueAsNumber: true,
-            })}
-          />
-
-          <Input label="HSN Code" {...register("hsnCode")} />
-
-          <Input
-            label="Limit of Reverse Charges"
-            type="number"
-            min={0}
-            {...register("reverseChargeLimit", {
-              valueAsNumber: true,
-            })}
-          />
-
-          <div>
-            <label className={labelClass}>Tax Input / Payable</label>
-
-            <select {...register("taxInputPayable")} className={inputClass}>
-              <option value="">Select</option>
-
-              <option value="INPUT">Input</option>
-
-              <option value="PAYABLE">Payable</option>
-            </select>
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Credit Information">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Input
-            label="Credit Limit"
-            type="number"
-            min={0}
-            {...register("creditLimit", {
-              valueAsNumber: true,
-            })}
-          />
-        </div>
-      </Section>
-
-      <Section title="Opening Balance & Other Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Input
-            label="Opening Balance"
-            type="number"
-            step="0.01"
-            {...register("openingBalance", {
-              valueAsNumber: true,
-            })}
-          />
-
-          <div>
-            <label className={labelClass}>Balance Type</label>
-
-            <select {...register("openingBalanceType")} className={inputClass}>
-              <option value="DR">Debit (Dr)</option>
-
-              <option value="CR">Credit (Cr)</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2 lg:col-span-3">
-            <label className={labelClass}>Other Info.</label>
-
-            <textarea
-              rows={3}
-              {...register("otherInfo")}
-              className={textareaClass}
-            />
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Product & Service Information">
-        <ProductServiceFields
-          fields={productFields}
-          append={appendProduct}
-          remove={removeProduct}
-          register={register}
-          setValue={setValue}
-          watch={watch}
-          errors={errors}
-        />
-      </Section>
-
-      <Section title="Capacity Master">
-        <div className="space-y-8">
-          {/* ====================================================== */}
-          {/* COMBINED CAPACITY */}
-          {/* ====================================================== */}
-
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-            <div className="mb-5">
-              <h4 className="text-sm font-semibold text-gray-900">
-                Combined Capacity
-              </h4>
-
-              <p className="mt-1 text-xs text-gray-500">
-                Select multiple products and assign one shared capacity.
-              </p>
-            </div>
-
-            {/* SELECT PRODUCT + CAPACITY */}
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* SELECT PRODUCTS */}
-
-              <div>
-                <SearchSelect
-                  label="Select Products"
-                  value=""
-                  placeholder="Search product..."
-                  loading={capacityProductsLoading}
-                  options={capacityProducts.map((product) => ({
-                    value: product.product_id,
-                    label: product.product_name,
-                    data: product,
-                  }))}
-                  onSearch={loadCapacityProducts}
-                  onSelect={(option) => {
-                    const product = option.data as ProductDropdownOption;
-
-                    const alreadySelected = combinedCapacityProducts.some(
-                      (item) => item.productId === product.product_id,
-                    );
-
-                    if (alreadySelected) {
-                      toast.error(
-                        "Product already selected in combined capacity.",
-                      );
-
-                      return;
-                    }
-
-                    setValue(
-                      "combinedCapacity.products",
-                      [
-                        ...combinedCapacityProducts,
-                        {
-                          productId: product.product_id,
-                          productName: product.product_name,
-                        },
-                      ],
-                      {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      },
-                    );
-                  }}
-                />
-              </div>
-
-              {/* COMBINED CAPACITY */}
-
-              <div>
-                <label className={labelClass}>Combined Capacity</label>
-
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Enter combined capacity"
-                  {...register("combinedCapacity.capacity", {
-                    valueAsNumber: true,
-
-                    min: {
-                      value: 0,
-                      message: "Capacity cannot be negative",
-                    },
-
-                    validate: (value) => {
-                      if (
-                        combinedCapacityProducts.length > 0 &&
-                        (!value || value < 1)
-                      ) {
-                        return "Combined capacity is required";
-                      }
-
-                      return true;
-                    },
-                  })}
-                  className={inputClass}
-                />
-
-                {errors.combinedCapacity?.capacity && (
-                  <ErrorText>
-                    {errors.combinedCapacity.capacity.message}
-                  </ErrorText>
-                )}
-              </div>
-            </div>
-
-            {/* SELECTED PRODUCTS */}
-
-            <div className="mt-5">
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                Selected Products
-              </p>
-
-              {combinedCapacityProducts.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {combinedCapacityProducts.map((product, index) => (
-                    <div
-                      key={product.productId}
-                      className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
-                    >
-                      <span>{product.productName}</span>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = combinedCapacityProducts.filter(
-                            (_, i) => i !== index,
-                          );
-
-                          setValue("combinedCapacity.products", updated, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        }}
-                        className="flex h-5 w-5 items-center justify-center rounded-full text-blue-500 transition hover:bg-red-50 hover:text-red-600"
-                        title="Remove product"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-gray-400">No products selected</p>
-              )}
-            </div>
-          </div>
-
-          {/* ====================================================== */}
-          {/* INDIVIDUAL CAPACITY */}
-          {/* ====================================================== */}
-
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-            <div className="mb-5">
-              <h4 className="text-sm font-semibold text-gray-900">
-                Individual Capacity
-              </h4>
-
-              <p className="mt-1 text-xs text-gray-500">
-                Select individual products and assign separate capacity for each
-                product.
-              </p>
-            </div>
-
-            {/* HEADER */}
-
-            <div className="mb-2 hidden grid-cols-[2fr_1fr_auto] gap-4 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 md:grid">
-              <div>Product</div>
-
-              <div>Capacity</div>
-
-              <div>Action</div>
-            </div>
-
-            {/* ROWS */}
-
-            <div className="space-y-4">
-              {individualCapacityFields.map((field, index) => {
-                const item = individualCapacities[index];
-
-                return (
-                  <div
-                    key={field.id}
-                    className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 md:grid-cols-[2fr_1fr_auto]"
+          return (
+            <label
+              key={option.value}
+              className={`
+                flex h-8 cursor-pointer items-center gap-2
+                rounded-md border px-3
+                text-xs font-medium transition
+                ${
+                  selected
+                    ? "border-[#123B7A] bg-blue-50 text-[#123B7A]"
+                    : "border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                }
+              `}
+            >
+              {/* Checkbox visual */}
+              <span
+                className={`
+                  flex h-4 w-4 shrink-0 items-center justify-center
+                  rounded border transition
+                  ${
+                    selected
+                      ? "border-[#123B7A] bg-[#123B7A]"
+                      : "border-gray-300 bg-white"
+                  }
+                `}
+              >
+                {selected && (
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    className="h-3 w-3"
                   >
-                    {/* PRODUCT */}
+                    <path
+                      d="M4 10L8 14L16 6"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </span>
+
+              <input
+                type="radio"
+                value={option.value}
+                {...register("billingType", {
+                  required: "Billing type is required",
+                })}
+                className="sr-only"
+              />
+
+              {option.label}
+            </label>
+          );
+        })}
+      </div>
+
+      {errors.billingType && (
+        <p className="mt-1 text-[10px] text-red-600">
+          {errors.billingType.message}
+        </p>
+      )}
+    </Section>
+
+    {/* ================================================= */}
+    {/* TAX INFORMATION */}
+    {/* ================================================= */}
+
+    <Section title="Tax Information">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* GST Number */}
+
+        <Input
+          label="GST No."
+          {...register("gstNumber")}
+        />
+
+        {/* TIN Number */}
+
+        <Input
+          label="TIN No."
+          {...register("tinNumber")}
+        />
+
+        {/* GST Applicable */}
+
+        <div>
+          <label className={labelClass}>
+            GST Applicable
+          </label>
+
+          <select
+            {...register("gstApplicable")}
+            className={inputClass}
+          >
+            <option value="">Select</option>
+            <option value="YES">Yes</option>
+            <option value="NO">No</option>
+          </select>
+        </div>
+
+        {/* GST Rate */}
+
+        <Input
+          label="GST Rate"
+          type="number"
+          min={0}
+          step="0.01"
+          {...register("gstRate", {
+            valueAsNumber: true,
+          })}
+        />
+
+        {/* HSN Code */}
+
+        <Input
+          label="HSN Code"
+          {...register("hsnCode")}
+        />
+
+        {/* Reverse Charge Limit */}
+
+        <Input
+          label="Limit of Reverse Charges"
+          type="number"
+          min={0}
+          {...register("reverseChargeLimit", {
+            valueAsNumber: true,
+          })}
+        />
+
+        {/* Tax Input / Payable */}
+
+        <div>
+          <label className={labelClass}>
+            Tax Input / Payable
+          </label>
+
+          <select
+            {...register("taxInputPayable")}
+            className={inputClass}
+          >
+            <option value="">Select</option>
+            <option value="INPUT">Input</option>
+            <option value="PAYABLE">Payable</option>
+          </select>
+        </div>
+      </div>
+    </Section>
+
+    {/* ================================================= */}
+    {/* CREDIT + OPENING BALANCE + OTHER INFO */}
+    {/* ================================================= */}
+
+    <Section title="Credit & Opening Balance Information">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Credit Limit */}
+
+        <Input
+          label="Credit Limit"
+          type="number"
+          min={0}
+          {...register("creditLimit", {
+            valueAsNumber: true,
+          })}
+        />
+
+        {/* Opening Balance */}
+
+        <Input
+          label="Opening Balance"
+          type="number"
+          step="0.01"
+          {...register("openingBalance", {
+            valueAsNumber: true,
+          })}
+        />
+
+        {/* Balance Type */}
+
+        <div>
+          <label className={labelClass}>
+            Balance Type
+          </label>
+
+          <select
+            {...register("openingBalanceType")}
+            className={inputClass}
+          >
+            <option value="DR">Debit (Dr)</option>
+            <option value="CR">Credit (Cr)</option>
+          </select>
+        </div>
+
+        {/* Other Info */}
+
+        <div>
+          <label className={labelClass}>
+            Other Info.
+          </label>
+
+          <input
+            type="text"
+            placeholder="Enter other information"
+            {...register("otherInfo")}
+            className={inputClass}
+          />
+        </div>
+      </div>
+    </Section>
+  </div>
+)}
+
+      {activeTab === "service" && (
+        <div className="grid grid-cols-1 divide-y divide-gray-200 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
+          <div className="pb-3 xl:pb-0 xl:pr-4">
+            <Section title="Product & Service Information">
+              <ProductServiceFields
+                fields={productFields}
+                append={appendProduct}
+                remove={removeProduct}
+                register={register}
+                setValue={setValue}
+                watch={watch}
+                errors={errors}
+              />
+            </Section>
+          </div>
+          <div className="pt-3 xl:pl-4 xl:pt-0">
+            <Section title="Capacity Master">
+              <div className="space-y-8">
+                {/* ====================================================== */}
+                {/* COMBINED CAPACITY */}
+                {/* ====================================================== */}
+
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
+                  <div className="mb-5">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      Combined Capacity
+                    </h4>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      Select multiple products and assign one shared capacity.
+                    </p>
+                  </div>
+
+                  {/* SELECT PRODUCT + CAPACITY */}
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {/* SELECT PRODUCTS */}
 
                     <div>
                       <SearchSelect
-                        label="Product"
-                        value={item?.productName ?? ""}
+                        label="Select Products"
+                        value=""
                         placeholder="Search product..."
                         loading={capacityProductsLoading}
                         options={capacityProducts.map((product) => ({
@@ -1626,152 +1705,316 @@ export default function DealerForm({
                         onSelect={(option) => {
                           const product = option.data as ProductDropdownOption;
 
-                          const duplicate = individualCapacities.some(
-                            (selected, currentIndex) =>
-                              currentIndex !== index &&
-                              selected.productId === product.product_id,
+                          const alreadySelected = combinedCapacityProducts.some(
+                            (item) => item.productId === product.product_id,
                           );
 
-                          if (duplicate) {
+                          if (alreadySelected) {
                             toast.error(
-                              "This product already has individual capacity.",
+                              "Product already selected in combined capacity.",
                             );
 
                             return;
                           }
 
                           setValue(
-                            `individualCapacities.${index}.productId`,
-                            product.product_id,
-                            {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            },
-                          );
-
-                          setValue(
-                            `individualCapacities.${index}.productName`,
-                            product.product_name,
+                            "combinedCapacity.products",
+                            [
+                              ...combinedCapacityProducts,
+                              {
+                                productId: product.product_id,
+                                productName: product.product_name,
+                              },
+                            ],
                             {
                               shouldValidate: true,
                               shouldDirty: true,
                             },
                           );
                         }}
-                        onClear={() => {
-                          setValue(
-                            `individualCapacities.${index}.productId`,
-                            undefined,
-                            {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            },
-                          );
-
-                          setValue(
-                            `individualCapacities.${index}.productName`,
-                            "",
-                            {
-                              shouldDirty: true,
-                            },
-                          );
-                        }}
-                      />
-
-                      {/* REGISTER CUSTOM SELECT */}
-
-                      <input
-                        type="hidden"
-                        {...register(
-                          `individualCapacities.${index}.productId`,
-                          // {
-                          //   required:
-                          //     "Product is required",
-                          // },
-                        )}
                       />
                     </div>
 
-                    {/* CAPACITY */}
+                    {/* COMBINED CAPACITY */}
 
                     <div>
-                      <label className={labelClass}>Capacity</label>
+                      <label className={labelClass}>Combined Capacity</label>
 
                       <input
                         type="number"
-                        min={1}
-                        placeholder="Enter capacity"
-                        {...register(`individualCapacities.${index}.capacity`, {
-                          required: "Capacity is required",
-
+                        min={0}
+                        placeholder="Enter combined capacity"
+                        {...register("combinedCapacity.capacity", {
                           valueAsNumber: true,
 
                           min: {
-                            value: 1,
-                            message: "Capacity must be greater than 0",
+                            value: 0,
+                            message: "Capacity cannot be negative",
+                          },
+
+                          validate: (value) => {
+                            if (
+                              combinedCapacityProducts.length > 0 &&
+                              (!value || value < 1)
+                            ) {
+                              return "Combined capacity is required";
+                            }
+
+                            return true;
                           },
                         })}
                         className={inputClass}
                       />
 
-                      {errors.individualCapacities?.[index]?.capacity && (
+                      {errors.combinedCapacity?.capacity && (
                         <ErrorText>
-                          {
-                            errors.individualCapacities[index]?.capacity
-                              ?.message
-                          }
+                          {errors.combinedCapacity.capacity.message}
                         </ErrorText>
                       )}
                     </div>
-
-                    {/* REMOVE */}
-
-                    <div className="flex items-end">
-                      <button
-                        type="button"
-                        onClick={() => removeIndividualCapacity(index)}
-                        className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50"
-                        title="Remove product"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
 
-            {/* ADD INDIVIDUAL PRODUCT */}
+                  {/* SELECTED PRODUCTS */}
 
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={() =>
-                  appendIndividualCapacity({
-                    productId: undefined,
-                    productName: "",
-                    capacity: 0,
-                  })
-                }
-                className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
-              >
-                <Plus size={17} />
-                Add Product
-              </button>
-            </div>
+                  <div className="mt-5">
+                    <p className="mb-2 text-sm font-medium text-gray-700">
+                      Selected Products
+                    </p>
+
+                    {combinedCapacityProducts.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {combinedCapacityProducts.map((product, index) => (
+                          <div
+                            key={product.productId}
+                            className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+                          >
+                            <span>{product.productName}</span>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = combinedCapacityProducts.filter(
+                                  (_, i) => i !== index,
+                                );
+
+                                setValue("combinedCapacity.products", updated, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                });
+                              }}
+                              className="flex h-5 w-5 items-center justify-center rounded-full text-blue-500 transition hover:bg-red-50 hover:text-red-600"
+                              title="Remove product"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400">
+                        No products selected
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* ====================================================== */}
+                {/* INDIVIDUAL CAPACITY */}
+                {/* ====================================================== */}
+
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
+                  <div className="mb-5">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      Individual Capacity
+                    </h4>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      Select individual products and assign separate capacity
+                      for each product.
+                    </p>
+                  </div>
+
+                  {/* HEADER */}
+
+                  <div className="mb-2 hidden grid-cols-[2fr_1fr_auto] gap-4 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 md:grid">
+                    <div>Product</div>
+
+                    <div>Capacity</div>
+
+                    <div>Action</div>
+                  </div>
+
+                  {/* ROWS */}
+
+                  <div className="space-y-2">
+                    {individualCapacityFields.map((field, index) => {
+                      const item = individualCapacities[index];
+
+                      return (
+                        <div
+                          key={field.id}
+                          className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 md:grid-cols-[2fr_1fr_auto]"
+                        >
+                          {/* PRODUCT */}
+
+                          <div>
+                            <SearchSelect
+                              label="Product"
+                              value={item?.productName ?? ""}
+                              placeholder="Search product..."
+                              loading={capacityProductsLoading}
+                              options={capacityProducts.map((product) => ({
+                                value: product.product_id,
+                                label: product.product_name,
+                                data: product,
+                              }))}
+                              onSearch={loadCapacityProducts}
+                              onSelect={(option) => {
+                                const product =
+                                  option.data as ProductDropdownOption;
+
+                                const duplicate = individualCapacities.some(
+                                  (selected, currentIndex) =>
+                                    currentIndex !== index &&
+                                    selected.productId === product.product_id,
+                                );
+
+                                if (duplicate) {
+                                  toast.error(
+                                    "This product already has individual capacity.",
+                                  );
+
+                                  return;
+                                }
+
+                                setValue(
+                                  `individualCapacities.${index}.productId`,
+                                  product.product_id,
+                                  {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                  },
+                                );
+
+                                setValue(
+                                  `individualCapacities.${index}.productName`,
+                                  product.product_name,
+                                  {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                  },
+                                );
+                              }}
+                              onClear={() => {
+                                setValue(
+                                  `individualCapacities.${index}.productId`,
+                                  undefined,
+                                  {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                  },
+                                );
+
+                                setValue(
+                                  `individualCapacities.${index}.productName`,
+                                  "",
+                                  {
+                                    shouldDirty: true,
+                                  },
+                                );
+                              }}
+                            />
+
+                            {/* REGISTER CUSTOM SELECT */}
+
+                            <input
+                              type="hidden"
+                              {...register(
+                                `individualCapacities.${index}.productId`,
+                                // {
+                                //   required:
+                                //     "Product is required",
+                                // },
+                              )}
+                            />
+                          </div>
+
+                          {/* CAPACITY */}
+
+                          <div>
+                            <label className={labelClass}>Capacity</label>
+
+                            <input
+                              type="number"
+                              min={1}
+                              placeholder="Enter capacity"
+                              {...register(
+                                `individualCapacities.${index}.capacity`,
+                                {
+                                  required: "Capacity is required",
+
+                                  valueAsNumber: true,
+
+                                  min: {
+                                    value: 1,
+                                    message: "Capacity must be greater than 0",
+                                  },
+                                },
+                              )}
+                              className={inputClass}
+                            />
+
+                            {errors.individualCapacities?.[index]?.capacity && (
+                              <ErrorText>
+                                {
+                                  errors.individualCapacities[index]?.capacity
+                                    ?.message
+                                }
+                              </ErrorText>
+                            )}
+                          </div>
+
+                          {/* REMOVE */}
+
+                          <div className="flex items-end">
+                            <button
+                              type="button"
+                              onClick={() => removeIndividualCapacity(index)}
+                              className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                              title="Remove product"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* ADD INDIVIDUAL PRODUCT */}
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        appendIndividualCapacity({
+                          productId: undefined,
+                          productName: "",
+                          capacity: 0,
+                        })
+                      }
+                      className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
+                    >
+                      <Plus size={17} />
+                      Add Product
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Section>
           </div>
         </div>
-      </Section>
-
-      <div className="flex justify-end border-t border-gray-100 pt-6">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
-        >
-          {isSubmitting ? "Saving..." : submitLabel}
-        </button>
-      </div>
+      )}
     </form>
   );
 }
@@ -1783,11 +2026,23 @@ function Section({
   title: string;
   children: React.ReactNode;
 }) {
-  return (
-    <section className="border-t border-gray-100 pt-6 first:border-t-0 first:pt-0">
-      <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+  // return (
+  //   <section className="border-t border-gray-100 pt-6 first:border-t-0 first:pt-0">
+  //     <h3 className="text-base font-semibold text-gray-900">{title}</h3>
 
-      <div className="mt-4">{children}</div>
+  //     <div className="mt-4">{children}</div>
+  //   </section>
+  // );
+
+  return (
+    <section className="rounded-md border border-gray-200 bg-white">
+      <div className="border-b border-gray-100 bg-gray-50 px-3 py-1.5">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-700">
+          {title}
+        </h3>
+      </div>
+
+      <div className="p-2.5">{children}</div>
     </section>
   );
 }
@@ -1841,13 +2096,24 @@ function ErrorText({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-red-600">{children}</p>;
 }
 
-const labelClass = "mb-1 block text-sm font-medium text-gray-700";
+// const labelClass = "mb-1 block text-sm font-medium text-gray-700";
+
+// const inputClass =
+//   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+
+// const textareaClass =
+//   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+
+const labelClass = "mb-0.5 block text-[11px] font-medium text-gray-600";
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  "h-8 w-full rounded-md border border-gray-300 bg-white px-2 " +
+  "text-xs outline-none transition " +
+  "focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
 
 const textareaClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  "w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 " +
+  "text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
 
 interface ImagePreviewProps {
   src: string;
@@ -1885,3 +2151,50 @@ const validateFileSize = (files?: FileList) => {
 
   return files[0].size <= MAX_FILE_SIZE || "File size must be less than 5 MB";
 };
+
+function CompactDocumentPreview({
+  src,
+  label,
+  onRemove,
+}: {
+  src?: string;
+  label: string;
+  onRemove: () => void;
+}) {
+  if (!src) {
+    return (
+      <div className="flex h-20 items-center justify-center rounded-md border border-dashed border-gray-200 bg-gray-50">
+        <span className="text-[10px] text-gray-400">No preview</span>
+      </div>
+    );
+  }
+
+  const isPdf =
+    src.toLowerCase().includes(".pdf") ||
+    src.startsWith("data:application/pdf");
+
+  return (
+    <div className="relative overflow-hidden rounded-md border border-gray-200 bg-gray-50">
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
+        title={`Remove ${label}`}
+      >
+        <X size={11} />
+      </button>
+
+      {isPdf ? (
+        <div className="flex h-20 items-center justify-center">
+          <span className="text-xs font-semibold text-red-600">PDF</span>
+        </div>
+      ) : (
+        <img src={src} alt={label} className="h-20 w-full object-cover" />
+      )}
+
+      <div className="border-t border-gray-200 bg-white px-1.5 py-1">
+        <p className="truncate text-[10px] text-gray-500">{label}</p>
+      </div>
+    </div>
+  );
+}

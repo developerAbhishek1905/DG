@@ -77,214 +77,467 @@ export default function ProductServiceFields({
 
   const productServices = watch("productServices") || [];
 
+  //   return (
+  //     <>
+  //       <div className="space-y-4">
+  //         {fields.map((field, index) => {
+  //           const item = productServices[index];
+
+  //           const selectedCategories = item?.categories ?? [];
+
+  //           return (
+  //             <div
+  //               key={field.id}
+  //               className="rounded-xl border border-gray-200 bg-gray-50 p-4"
+  //             >
+  //               {/* HIDDEN FIELDS FOR REACT-HOOK-FORM VALIDATION */}
+
+  //               <input
+  //                 type="hidden"
+  //                 {...register(`productServices.${index}.productId`, {
+  //                   //   required: "Product is required",
+  //                 })}
+  //               />
+
+  //               <input
+  //                 type="hidden"
+  //                 {...register(`productServices.${index}.categories`, {
+  //                   //   validate: (categories) =>
+  //                   //     categories?.length > 0 ||
+  //                   //     "Please select at least one service",
+  //                 })}
+  //               />
+
+  //               <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto]">
+  //                 <div>
+  //                   <SearchSelect
+  //                     label="Product"
+  //                     value={item?.productName ?? ""}
+  //                     placeholder="Search product..."
+  //                     loading={loadingProducts}
+  //                     options={products.map((product) => ({
+  //                       value: product.product_id,
+  //                       label: product.product_name,
+  //                       data: product,
+  //                     }))}
+  //                     onSearch={loadProducts}
+  //                     onSelect={(option) => {
+  //                       const product = option.data as ProductDropdownOption;
+
+  //                       /*
+  //                        * Prevent duplicate product
+  //                        */
+
+  //                       const alreadySelected = productServices.some(
+  //                         (selectedProduct, currentIndex) =>
+  //                           currentIndex !== index &&
+  //                           selectedProduct.productId === product.product_id,
+  //                       );
+
+  //                       if (alreadySelected) {
+  //                         toast.error("This product is already selected.");
+
+  //                         return;
+  //                       }
+
+  //                       /*
+  //                        * Set selected product
+  //                        */
+
+  //                       setValue(
+  //                         `productServices.${index}.productId`,
+  //                         product.product_id,
+  //                         {
+  //                           shouldValidate: true,
+  //                           shouldDirty: true,
+  //                         },
+  //                       );
+
+  //                       setValue(
+  //                         `productServices.${index}.productName`,
+  //                         product.product_name,
+  //                         {
+  //                           shouldValidate: true,
+  //                           shouldDirty: true,
+  //                         },
+  //                       );
+
+  //                       /*
+  //                        * Product changed
+  //                        * Remove old selected services
+  //                        */
+
+  //                       setValue(`productServices.${index}.categories`, [], {
+  //                         shouldValidate: true,
+  //                         shouldDirty: true,
+  //                       });
+  //                     }}
+  //                     onClear={() => {
+  //                       setValue(
+  //                         `productServices.${index}.productId`,
+  //                         undefined,
+  //                         {
+  //                           shouldValidate: true,
+  //                           shouldDirty: true,
+  //                         },
+  //                       );
+
+  //                       setValue(`productServices.${index}.productName`, "");
+
+  //                       setValue(`productServices.${index}.categories`, [], {
+  //                         shouldValidate: true,
+  //                         shouldDirty: true,
+  //                       });
+  //                     }}
+  //                     error={
+  //                       errors.productServices?.[index]?.productId
+  //                         ?.message as string
+  //                     }
+  //                   />
+  //                 </div>
+
+  //                 {/* GET SERVICES */}
+
+  //                 <div className="flex items-end">
+  //                   <button
+  //                     type="button"
+  //                     disabled={!item?.productId}
+  //                     onClick={() => setServicesModalProductIndex(index)}
+  //                     className="h-[42px] rounded-lg bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+  //                   >
+  //                     Get Services
+  //                   </button>
+  //                 </div>
+
+  //                 {/* REMOVE PRODUCT */}
+
+  //                 <div className="flex items-end">
+  //                   <button
+  //                     type="button"
+  //                     onClick={() => {
+  //                       if (fields.length > 1) {
+  //                         remove(index);
+  //                       }
+  //                     }}
+  //                     disabled={fields.length === 1}
+  //                     className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+  //                     title="Remove product"
+  //                   >
+  //                     <Trash2 size={18} />
+  //                   </button>
+  //                 </div>
+  //               </div>
+
+  //               {/* SELECTED SERVICES */}
+
+  //               {selectedCategories.length > 0 && (
+  //                 <div className="mt-4">
+  //                   <p className="mb-2 text-xs font-medium text-gray-600">
+  //                     Selected Services
+  //                   </p>
+
+  //                   <div className="flex flex-wrap gap-2">
+  //                     {selectedCategories.map((category, categoryIndex) => (
+  //                       <div
+  //                         key={category.categoryId}
+  //                         className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+  //                       >
+  //                         {/* <span>
+  //                     {category.categoryName}
+  //                   </span> */}
+
+  //                         <span>
+  //                           {category.categoryName}
+  //                           {category.rate > 0 && (
+  //                             <span className="ml-1 font-semibold">
+  //                               - ₹{category.rate}
+  //                             </span>
+  //                           )}
+  //                         </span>
+
+  //                         <button
+  //                           type="button"
+  //                           onClick={() => {
+  //                             const updated = selectedCategories.filter(
+  //                               (_, i) => i !== categoryIndex,
+  //                             );
+
+  //                             setValue(
+  //                               `productServices.${index}.categories`,
+  //                               updated,
+  //                               {
+  //                                 shouldValidate: true,
+  //                                 shouldDirty: true,
+  //                               },
+  //                             );
+  //                           }}
+  //                           className="text-blue-500 hover:text-red-600"
+  //                         >
+  //                           ×
+  //                         </button>
+  //                       </div>
+  //                     ))}
+  //                   </div>
+  //                 </div>
+  //               )}
+
+  //               {/* SERVICE VALIDATION ERROR */}
+
+  //               {errors.productServices?.[index]?.categories && (
+  //                 <p className="mt-2 text-xs text-red-600">
+  //                   {errors.productServices[index]?.categories?.message as string}
+  //                 </p>
+  //               )}
+  //             </div>
+  //           );
+  //         })}
+
+  //         {/* ADD PRODUCT */}
+
+  //         <button
+  //           type="button"
+  //           onClick={() =>
+  //             append({
+  //               productId: undefined,
+  //               productName: "",
+  //               categories: [],
+  //             })
+  //           }
+  //           className="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+  //         >
+  //           <Plus size={17} />
+  //           Add Product
+  //         </button>
+  //       </div>
+
+  //       {/* SERVICES MODAL */}
+
+  //       {servicesModalProductIndex !== null && (
+  //         <ProductServicesModal
+  //           productIndex={servicesModalProductIndex}
+  //           productId={productServices[servicesModalProductIndex]?.productId}
+  //           productName={productServices[servicesModalProductIndex]?.productName}
+  //           selectedCategories={
+  //             productServices[servicesModalProductIndex]?.categories ?? []
+  //           }
+  //           onClose={() => setServicesModalProductIndex(null)}
+  //           //   onSave={(categories) => {
+  //           //     setValue(
+  //           //       `productServices.${servicesModalProductIndex}.categories`,
+  //           //       categories,
+  //           //       {
+  //           //         shouldValidate: true,
+  //           //       },
+  //           //     );
+
+  //           //     setServicesModalProductIndex(null);
+  //           //   }}
+  //           onSave={(categories) => {
+  //             //   console.log("CATEGORIES FROM MODAL:", categories);
+
+  //             const formattedCategories = categories.map((category: any) => ({
+  //               categoryId: category.categoryId ?? category.id ?? category._id,
+
+  //               categoryName:
+  //                 category.categoryName ??
+  //                 category.category ??
+  //                 category.category_name,
+
+  //               description: category.description ?? "",
+
+  //               rate: Number(category.rate),
+  //             }));
+
+  //             //   console.log(
+  //             //     "FORMATTED CATEGORIES:",
+  //             //     formattedCategories,
+  //             //   );
+
+  //             setValue(
+  //               `productServices.${servicesModalProductIndex}.categories`,
+  //               formattedCategories,
+  //               {
+  //                 shouldValidate: true,
+  //                 shouldDirty: true,
+  //               },
+  //             );
+
+  //             setServicesModalProductIndex(null);
+  //           }}
+  //         />
+  //       )}
+  //     </>
+  //   );
+
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {fields.map((field, index) => {
           const item = productServices[index];
-
           const selectedCategories = item?.categories ?? [];
 
           return (
             <div
               key={field.id}
-              className="rounded-xl border border-gray-200 bg-gray-50 p-4"
+              className="rounded-lg border border-gray-200 bg-gray-50/50 p-2.5"
             >
-              {/* HIDDEN FIELDS FOR REACT-HOOK-FORM VALIDATION */}
-
+              {/* Hidden fields */}
               <input
                 type="hidden"
-                {...register(`productServices.${index}.productId`, {
-                  //   required: "Product is required",
-                })}
+                {...register(`productServices.${index}.productId`)}
               />
 
               <input
                 type="hidden"
-                {...register(`productServices.${index}.categories`, {
-                  //   validate: (categories) =>
-                  //     categories?.length > 0 ||
-                  //     "Please select at least one service",
-                })}
+                {...register(`productServices.${index}.categories`)}
               />
 
-              <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto]">
-                <div>
-                  <SearchSelect
-                    label="Product"
-                    value={item?.productName ?? ""}
-                    placeholder="Search product..."
-                    loading={loadingProducts}
-                    options={products.map((product) => ({
-                      value: product.product_id,
-                      label: product.product_name,
-                      data: product,
-                    }))}
-                    onSearch={loadProducts}
-                    onSelect={(option) => {
-                      const product = option.data as ProductDropdownOption;
+              {/* Product row */}
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-end gap-2">
+                <SearchSelect
+                  label={`Product ${index + 1}`}
+                  value={item?.productName ?? ""}
+                  placeholder="Search product..."
+                  loading={loadingProducts}
+                  options={products.map((product) => ({
+                    value: product.product_id,
+                    label: product.product_name,
+                    data: product,
+                  }))}
+                  onSearch={loadProducts}
+                  onSelect={(option) => {
+                    const product = option.data as ProductDropdownOption;
 
-                      /*
-                       * Prevent duplicate product
-                       */
+                    const alreadySelected = productServices.some(
+                      (selectedProduct, currentIndex) =>
+                        currentIndex !== index &&
+                        selectedProduct.productId === product.product_id,
+                    );
 
-                      const alreadySelected = productServices.some(
-                        (selectedProduct, currentIndex) =>
-                          currentIndex !== index &&
-                          selectedProduct.productId === product.product_id,
-                      );
-
-                      if (alreadySelected) {
-                        toast.error("This product is already selected.");
-
-                        return;
-                      }
-
-                      /*
-                       * Set selected product
-                       */
-
-                      setValue(
-                        `productServices.${index}.productId`,
-                        product.product_id,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        },
-                      );
-
-                      setValue(
-                        `productServices.${index}.productName`,
-                        product.product_name,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        },
-                      );
-
-                      /*
-                       * Product changed
-                       * Remove old selected services
-                       */
-
-                      setValue(`productServices.${index}.categories`, [], {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
-                    }}
-                    onClear={() => {
-                      setValue(
-                        `productServices.${index}.productId`,
-                        undefined,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        },
-                      );
-
-                      setValue(`productServices.${index}.productName`, "");
-
-                      setValue(`productServices.${index}.categories`, [], {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
-                    }}
-                    error={
-                      errors.productServices?.[index]?.productId
-                        ?.message as string
+                    if (alreadySelected) {
+                      toast.error("This product is already selected.");
+                      return;
                     }
-                  />
-                </div>
 
-                {/* GET SERVICES */}
+                    setValue(
+                      `productServices.${index}.productId`,
+                      product.product_id,
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
 
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    disabled={!item?.productId}
-                    onClick={() => setServicesModalProductIndex(index)}
-                    className="h-[42px] rounded-lg bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
-                  >
-                    Get Services
-                  </button>
-                </div>
+                    setValue(
+                      `productServices.${index}.productName`,
+                      product.product_name,
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
 
-                {/* REMOVE PRODUCT */}
+                    setValue(`productServices.${index}.categories`, [], {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
+                  onClear={() => {
+                    setValue(`productServices.${index}.productId`, undefined, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
 
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (fields.length > 1) {
-                        remove(index);
-                      }
-                    }}
-                    disabled={fields.length === 1}
-                    className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-                    title="Remove product"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+                    setValue(`productServices.${index}.productName`, "");
+
+                    setValue(`productServices.${index}.categories`, [], {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
+                  error={
+                    errors.productServices?.[index]?.productId
+                      ?.message as string
+                  }
+                />
+
+                {/* Services */}
+                <button
+                  type="button"
+                  disabled={!item?.productId}
+                  onClick={() => setServicesModalProductIndex(index)}
+                  className="h-8 whitespace-nowrap rounded-md bg-blue-600 px-3 text-xs font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                >
+                  Services
+                </button>
+
+                {/* Remove */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (fields.length > 1) {
+                      remove(index);
+                    }
+                  }}
+                  disabled={fields.length === 1}
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 bg-white text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  title="Remove product"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
 
-              {/* SELECTED SERVICES */}
-
+              {/* Selected Services */}
               {selectedCategories.length > 0 && (
-                <div className="mt-4">
-                  <p className="mb-2 text-xs font-medium text-gray-600">
-                    Selected Services
-                  </p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span className="mr-1 text-[10px] font-medium text-gray-500">
+                    Services:
+                  </span>
 
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCategories.map((category, categoryIndex) => (
-                      <div
-                        key={category.categoryId}
-                        className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+                  {selectedCategories.map((category, categoryIndex) => (
+                    <div
+                      key={category.categoryId}
+                      className="flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-700"
+                    >
+                      <span>
+                        {category.categoryName}
+
+                        {category.rate > 0 && (
+                          <span className="ml-1 font-semibold">
+                            ₹{category.rate}
+                          </span>
+                        )}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = selectedCategories.filter(
+                            (_, i) => i !== categoryIndex,
+                          );
+
+                          setValue(
+                            `productServices.${index}.categories`,
+                            updated,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            },
+                          );
+                        }}
+                        className="ml-0.5 text-blue-400 hover:text-red-600"
+                        title="Remove service"
                       >
-                        {/* <span>
-                    {category.categoryName}
-                  </span> */}
-
-                        <span>
-                          {category.categoryName}
-                          {category.rate > 0 && (
-                            <span className="ml-1 font-semibold">
-                              - ₹{category.rate}
-                            </span>
-                          )}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const updated = selectedCategories.filter(
-                              (_, i) => i !== categoryIndex,
-                            );
-
-                            setValue(
-                              `productServices.${index}.categories`,
-                              updated,
-                              {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              },
-                            );
-                          }}
-                          className="text-blue-500 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              {/* SERVICE VALIDATION ERROR */}
-
+              {/* Validation */}
               {errors.productServices?.[index]?.categories && (
-                <p className="mt-2 text-xs text-red-600">
+                <p className="mt-1 text-[10px] text-red-600">
                   {errors.productServices[index]?.categories?.message as string}
                 </p>
               )}
@@ -292,8 +545,7 @@ export default function ProductServiceFields({
           );
         })}
 
-        {/* ADD PRODUCT */}
-
+        {/* Add Product */}
         <button
           type="button"
           onClick={() =>
@@ -303,15 +555,14 @@ export default function ProductServiceFields({
               categories: [],
             })
           }
-          className="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-blue-600 px-3 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
         >
-          <Plus size={17} />
+          <Plus size={14} />
           Add Product
         </button>
       </div>
 
-      {/* SERVICES MODAL */}
-
+      {/* Services Modal */}
       {servicesModalProductIndex !== null && (
         <ProductServicesModal
           productIndex={servicesModalProductIndex}
@@ -321,20 +572,7 @@ export default function ProductServiceFields({
             productServices[servicesModalProductIndex]?.categories ?? []
           }
           onClose={() => setServicesModalProductIndex(null)}
-          //   onSave={(categories) => {
-          //     setValue(
-          //       `productServices.${servicesModalProductIndex}.categories`,
-          //       categories,
-          //       {
-          //         shouldValidate: true,
-          //       },
-          //     );
-
-          //     setServicesModalProductIndex(null);
-          //   }}
           onSave={(categories) => {
-            //   console.log("CATEGORIES FROM MODAL:", categories);
-
             const formattedCategories = categories.map((category: any) => ({
               categoryId: category.categoryId ?? category.id ?? category._id,
 
@@ -347,11 +585,6 @@ export default function ProductServiceFields({
 
               rate: Number(category.rate),
             }));
-
-            //   console.log(
-            //     "FORMATTED CATEGORIES:",
-            //     formattedCategories,
-            //   );
 
             setValue(
               `productServices.${servicesModalProductIndex}.categories`,

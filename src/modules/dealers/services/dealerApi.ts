@@ -22,6 +22,7 @@ export interface CategoryDropdownOption {
   category?: string;
   categoryDescription?: string;
   groupCategoryCode?: string;
+  description:string
 }
 
 export interface DealerFilters {

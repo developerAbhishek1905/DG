@@ -710,247 +710,690 @@ export default function AddressFields({
   /* JSX */
   /* ===================================================== */
 
+  // return (
+  //   <div>
+  //     {/* Hidden validation fields */}
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.stateId`, {
+  //         required: "State is required",
+  //       })}
+  //     />
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.districtId`, {
+  //         required: "District is required",
+  //       })}
+  //     />
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.cityId`, {
+  //         required: "City is required",
+  //       })}
+  //     />
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.pinCode`, {
+  //         required: "PIN code is required",
+  //       })}
+  //     />
+
+  //     <h4 className="mb-4 text-sm font-semibold text-gray-900">{title}</h4>
+
+  //     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  //       {/* ================================================= */}
+  //       {/* ADDRESS */}
+  //       {/* ================================================= */}
+
+  //       <div className="md:col-span-2 lg:col-span-3">
+  //         <label className="mb-1 block text-sm font-medium text-gray-700">
+  //           Address
+  //         </label>
+
+  //         <textarea
+  //           rows={3}
+  //           placeholder={`Enter complete ${title.toLowerCase()}`}
+  //           {...register(`${type}.addressLine`, {
+  //             // required: `${title} is required`,
+  //             required:
+  //               type === "businessAddress"
+  //                 ? "Business Address is required"
+  //                 : false,
+  //           })}
+  //           className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+  //         />
+
+  //         {addressErrors?.addressLine && (
+  //           <p className="mt-1 text-xs text-red-600">
+  //             {addressErrors.addressLine.message}
+  //           </p>
+  //         )}
+  //       </div>
+
+  //       {/* ================================================= */}
+  //       {/* STATE */}
+  //       {/* ================================================= */}
+
+  //       {/* <SearchSelect
+  //         label="State"
+  //         value={stateName}
+  //         placeholder="Search state..."
+  //         loading={stateLoading}
+  //         options={states.map((state) => ({
+  //           value: state.state_id,
+  //           label: state.state_name,
+  //           data: state,
+  //         }))}
+  //         onSearch={loadStates}
+  //         onSelect={(option) => handleStateSelect(option.data as StateOption)}
+  //         onClear={() => {
+  //           setValue(`${type}.stateId`, undefined);
+
+  //           setValue(`${type}.state`, "");
+
+  //           setValue(`${type}.stateCode`, "");
+
+  //           resetDistrict();
+  //         }}
+  //         error={addressErrors?.state?.message}
+  //       /> */}
+
+  //       <SearchSelect
+  //         label="State"
+  //         value={stateName}
+  //         placeholder="Search state..."
+  //         loading={stateLoading}
+  //         options={states.map((state) => ({
+  //           value: state.state_id,
+  //           label: state.state_name,
+  //           data: state,
+  //         }))}
+  //         onSearch={setStateSearch}
+  //         onSelect={(option) => handleStateSelect(option.data as StateOption)}
+  //         onClear={() => {
+  //           setValue(`${type}.stateId`, undefined);
+  //           setValue(`${type}.state`, "");
+  //           setValue(`${type}.stateCode`, "");
+
+  //           setStateSearch("");
+  //           resetDistrict();
+  //         }}
+  //         error={addressErrors?.state?.message}
+  //       />
+  //       {/* ================================================= */}
+  //       {/* DISTRICT */}
+  //       {/* ================================================= */}
+
+  //       {/* <SearchSelect
+  //         label="District"
+  //         value={districtName}
+  //         placeholder="Search district..."
+  //         loading={districtLoading}
+  //         options={districts.map((district) => ({
+  //           value: district.district_id,
+
+  //           label: district.state_name
+  //             ? `${district.district_name} - ${district.state_name}`
+  //             : district.district_name,
+
+  //           data: district,
+  //         }))}
+  //         onSearch={loadDistricts}
+  //         onSelect={(option) =>
+  //           handleDistrictSelect(option.data as DistrictOption)
+  //         }
+  //         onClear={() => {
+  //           setValue(`${type}.districtId`, undefined);
+
+  //           setValue(`${type}.district`, "");
+
+  //           resetCity();
+  //         }}
+  //         error={addressErrors?.district?.message}
+  //       /> */}
+
+  //       <SearchSelect
+  //         label="District"
+  //         value={districtName}
+  //         placeholder="Search district..."
+  //         loading={districtLoading}
+  //         options={districts.map((district) => ({
+  //           value: district.district_id,
+  //           label: district.state_name
+  //             ? `${district.district_name} - ${district.state_name}`
+  //             : district.district_name,
+  //           data: district,
+  //         }))}
+  //         onSearch={setDistrictSearch}
+  //         onSelect={(option) =>
+  //           handleDistrictSelect(option.data as DistrictOption)
+  //         }
+  //         onClear={() => {
+  //           setValue(`${type}.districtId`, undefined);
+  //           setValue(`${type}.district`, "");
+
+  //           setDistrictSearch("");
+
+  //           resetCity();
+  //         }}
+  //         error={addressErrors?.district?.message}
+  //       />
+  //       {/* ================================================= */}
+  //       {/* CITY */}
+  //       {/* ================================================= */}
+
+  //       {/* <SearchSelect
+  //         label="City"
+  //         value={cityName}
+  //         placeholder="Search city..."
+  //         loading={cityLoading}
+  //         options={cities.map((city) => ({
+  //           value: city.city_id,
+
+  //           label: [city.city_name, city.district_name, city.state_name]
+  //             .filter(Boolean)
+  //             .join(" - "),
+
+  //           data: city,
+  //         }))}
+  //         onSearch={loadCities}
+  //         onSelect={(option) => handleCitySelect(option.data as CityOption)}
+  //         onClear={() => {
+  //           setValue(`${type}.cityId`, undefined);
+
+  //           setValue(`${type}.city`, "");
+
+  //           resetPincode();
+  //         }}
+  //         error={addressErrors?.city?.message}
+  //       /> */}
+
+  //       <SearchSelect
+  //         label="City"
+  //         value={cityName}
+  //         placeholder="Search city..."
+  //         loading={cityLoading}
+  //         options={cities.map((city) => ({
+  //           value: city.city_id,
+  //           label: [city.city_name, city.district_name, city.state_name]
+  //             .filter(Boolean)
+  //             .join(" - "),
+  //           data: city,
+  //         }))}
+  //         onSearch={setCitySearch}
+  //         onSelect={(option) => handleCitySelect(option.data as CityOption)}
+  //         onClear={() => {
+  //           setValue(`${type}.cityId`, undefined);
+  //           setValue(`${type}.city`, "");
+
+  //           setCitySearch("");
+
+  //           resetPincode();
+  //         }}
+  //         error={addressErrors?.city?.message}
+  //       />
+
+  //       {/* ================================================= */}
+  //       {/* PINCODE */}
+  //       {/* ================================================= */}
+
+  //       {/* <SearchSelect
+  //         label="PIN Code"
+  //         value={pinCode}
+  //         placeholder="Search pincode..."
+  //         loading={pincodeLoading}
+  //         options={pincodes.map((pincode) => ({
+  //           value: pincode.pincode_id ?? pincode.pincode,
+
+  //           label: [
+  //             pincode.pincode,
+  //             pincode.city_name,
+  //             pincode.district_name,
+  //             pincode.state_name,
+  //           ]
+  //             .filter(Boolean)
+  //             .join(" - "),
+
+  //           data: pincode,
+  //         }))}
+  //         onSearch={loadPincodes}
+  //         onSelect={(option) =>
+  //           handlePincodeSelect(option.data as PincodeOption)
+  //         }
+  //         onClear={() => {
+  //           resetPincode();
+  //         }}
+  //         error={addressErrors?.pinCode?.message}
+  //       /> */}
+
+  //       <SearchSelect
+  //         label="PIN Code"
+  //         value={pinCode ?? ""}
+  //         placeholder="Search pincode..."
+  //         loading={pincodeLoading}
+  //         options={pincodes.map((pincode) => {
+  //           const optionValue =
+  //             pincode.pincode_id ??
+  //             pincode.pincode_name ??
+  //             pincode.pincode ??
+  //             "";
+
+  //           return {
+  //             value: optionValue,
+  //             label: [
+  //               pincode.pincode_name,
+  //               pincode.city_name,
+  //               pincode.district_name,
+  //               pincode.state_name,
+  //             ]
+  //               .filter(Boolean)
+  //               .join(" - "),
+  //             data: pincode,
+  //           };
+  //         })}
+  //         onSearch={setPincodeSearch}
+  //         onSelect={(option) =>
+  //           handlePincodeSelect(option.data as PincodeOption)
+  //         }
+  //         onClear={resetPincode}
+  //         error={addressErrors?.pinCode?.message}
+  //       />
+
+  //       {/* ================================================= */}
+  //       {/* STATE CODE */}
+  //       {/* ================================================= */}
+
+  //       <div>
+  //         <label className="mb-1 block text-sm font-medium text-gray-700">
+  //           State Code
+  //         </label>
+
+  //         <input
+  //           {...register(`${type}.stateCode`)}
+  //           placeholder="State code"
+  //           className="w-full rounded-lg border border-gray-300  px-3 py-2.5 text-sm text-gray-600 outline-none"
+  //         />
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
+  // return (
+  //   <div className="rounded-lg border border-gray-200 bg-gray-50/40 p-2.5">
+  //     {/* Hidden validation fields */}
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.stateId`, {
+  //         required: "State is required",
+  //       })}
+  //     />
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.districtId`, {
+  //         required: "District is required",
+  //       })}
+  //     />
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.cityId`, {
+  //         required: "City is required",
+  //       })}
+  //     />
+
+  //     <input
+  //       type="hidden"
+  //       {...register(`${type}.pinCode`, {
+  //         required: "PIN code is required",
+  //       })}
+  //     />
+
+  //     {/* Header */}
+  //     <div className="mb-2 flex items-center justify-between">
+  //       <h4 className="text-xs font-semibold text-gray-800">{title}</h4>
+  //     </div>
+
+  //     <div className="grid grid-cols-1 gap-x-2 gap-y-2 md:grid-cols-2 xl:grid-cols-3">
+  //       {/* Address */}
+  //       <div className="md:col-span-2 xl:col-span-3">
+  //         <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+  //           Address
+  //           {type === "businessAddress" && (
+  //             <span className="ml-0.5 text-red-500">*</span>
+  //           )}
+  //         </label>
+
+  //         <textarea
+  //           rows={2}
+  //           placeholder={`Enter ${title.toLowerCase()}`}
+  //           {...register(`${type}.addressLine`, {
+  //             required:
+  //               type === "businessAddress"
+  //                 ? "Business Address is required"
+  //                 : false,
+  //           })}
+  //           className="min-h-[54px] w-full resize-none rounded-md border border-gray-300 bg-white px-2 py-1.5 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+  //         />
+
+  //         {addressErrors?.addressLine && (
+  //           <p className="mt-0.5 text-[10px] text-red-600">
+  //             {addressErrors.addressLine.message}
+  //           </p>
+  //         )}
+  //       </div>
+
+  //       {/* State */}
+  //       <SearchSelect
+  //         label="State"
+  //         value={stateName}
+  //         placeholder="Search state..."
+  //         loading={stateLoading}
+  //         options={states.map((state) => ({
+  //           value: state.state_id,
+  //           label: state.state_name,
+  //           data: state,
+  //         }))}
+  //         onSearch={setStateSearch}
+  //         onSelect={(option) => handleStateSelect(option.data as StateOption)}
+  //         onClear={() => {
+  //           setValue(`${type}.stateId`, undefined);
+  //           setValue(`${type}.state`, "");
+  //           setValue(`${type}.stateCode`, "");
+
+  //           setStateSearch("");
+  //           resetDistrict();
+  //         }}
+  //         error={addressErrors?.state?.message}
+  //       />
+
+  //       {/* District */}
+  //       <SearchSelect
+  //         label="District"
+  //         value={districtName}
+  //         placeholder="Search district..."
+  //         loading={districtLoading}
+  //         options={districts.map((district) => ({
+  //           value: district.district_id,
+  //           label: district.state_name
+  //             ? `${district.district_name} - ${district.state_name}`
+  //             : district.district_name,
+  //           data: district,
+  //         }))}
+  //         onSearch={setDistrictSearch}
+  //         onSelect={(option) =>
+  //           handleDistrictSelect(option.data as DistrictOption)
+  //         }
+  //         onClear={() => {
+  //           setValue(`${type}.districtId`, undefined);
+  //           setValue(`${type}.district`, "");
+
+  //           setDistrictSearch("");
+  //           resetCity();
+  //         }}
+  //         error={addressErrors?.district?.message}
+  //       />
+
+  //       {/* City */}
+  //       <SearchSelect
+  //         label="City"
+  //         value={cityName}
+  //         placeholder="Search city..."
+  //         loading={cityLoading}
+  //         options={cities.map((city) => ({
+  //           value: city.city_id,
+  //           label: [city.city_name, city.district_name, city.state_name]
+  //             .filter(Boolean)
+  //             .join(" - "),
+  //           data: city,
+  //         }))}
+  //         onSearch={setCitySearch}
+  //         onSelect={(option) => handleCitySelect(option.data as CityOption)}
+  //         onClear={() => {
+  //           setValue(`${type}.cityId`, undefined);
+  //           setValue(`${type}.city`, "");
+
+  //           setCitySearch("");
+  //           resetPincode();
+  //         }}
+  //         error={addressErrors?.city?.message}
+  //       />
+
+  //       {/* PIN Code */}
+  //       <SearchSelect
+  //         label="PIN Code"
+  //         value={pinCode ?? ""}
+  //         placeholder="Search pincode..."
+  //         loading={pincodeLoading}
+  //         options={pincodes.map((pincode) => {
+  //           const optionValue =
+  //             pincode.pincode_id ??
+  //             pincode.pincode_name ??
+  //             pincode.pincode ??
+  //             "";
+
+  //           return {
+  //             value: optionValue,
+  //             label: [
+  //               pincode.pincode_name,
+  //               pincode.city_name,
+  //               pincode.district_name,
+  //               pincode.state_name,
+  //             ]
+  //               .filter(Boolean)
+  //               .join(" - "),
+  //             data: pincode,
+  //           };
+  //         })}
+  //         onSearch={setPincodeSearch}
+  //         onSelect={(option) =>
+  //           handlePincodeSelect(option.data as PincodeOption)
+  //         }
+  //         onClear={resetPincode}
+  //         error={addressErrors?.pinCode?.message}
+  //       />
+
+  //       {/* State Code */}
+  //       <div>
+  //         <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+  //           State Code
+  //         </label>
+
+  //         <input
+  //           {...register(`${type}.stateCode`)}
+  //           placeholder="State code"
+  //           readOnly
+  //           className="h-8 w-full rounded-md border border-gray-300 bg-gray-100 px-2 text-xs text-gray-600 outline-none"
+  //         />
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
+
   return (
-    <div>
-      {/* Hidden validation fields */}
+  <div className="h-full">
+    {/* Hidden fields */}
+    <input
+      type="hidden"
+      {...register(`${type}.stateId`, {
+        required: "State is required",
+      })}
+    />
 
-      <input
-        type="hidden"
-        {...register(`${type}.stateId`, {
-          required: "State is required",
-        })}
-      />
+    <input
+      type="hidden"
+      {...register(`${type}.districtId`, {
+        required: "District is required",
+      })}
+    />
 
-      <input
-        type="hidden"
-        {...register(`${type}.districtId`, {
-          required: "District is required",
-        })}
-      />
+    <input
+      type="hidden"
+      {...register(`${type}.cityId`, {
+        required: "City is required",
+      })}
+    />
 
-      <input
-        type="hidden"
-        {...register(`${type}.cityId`, {
-          required: "City is required",
-        })}
-      />
+    <input
+      type="hidden"
+      {...register(`${type}.pinCode`, {
+        required: "PIN code is required",
+      })}
+    />
 
-      <input
-        type="hidden"
-        {...register(`${type}.pinCode`, {
-          required: "PIN code is required",
-        })}
-      />
+    {/* Address title */}
+    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
+      {title}
+    </h4>
 
-      <h4 className="mb-4 text-sm font-semibold text-gray-900">{title}</h4>
+    <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+      {/* ================= ADDRESS LINE ================= */}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* ================================================= */}
-        {/* ADDRESS */}
-        {/* ================================================= */}
-
-        <div className="md:col-span-2 lg:col-span-3">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Address
-          </label>
-
-          <textarea
-            rows={3}
-            placeholder={`Enter complete ${title.toLowerCase()}`}
-            {...register(`${type}.addressLine`, {
-              // required: `${title} is required`,
-              required:
-                type === "businessAddress"
-                  ? "Business Address is required"
-                  : false,
-            })}
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-
-          {addressErrors?.addressLine && (
-            <p className="mt-1 text-xs text-red-600">
-              {addressErrors.addressLine.message}
-            </p>
+      <div className="col-span-2">
+        <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+          Address Line
+          {type === "businessAddress" && (
+            <span className="ml-0.5 text-red-500">*</span>
           )}
-        </div>
+        </label>
 
-        {/* ================================================= */}
-        {/* STATE */}
-        {/* ================================================= */}
-
-        {/* <SearchSelect
-          label="State"
-          value={stateName}
-          placeholder="Search state..."
-          loading={stateLoading}
-          options={states.map((state) => ({
-            value: state.state_id,
-            label: state.state_name,
-            data: state,
-          }))}
-          onSearch={loadStates}
-          onSelect={(option) => handleStateSelect(option.data as StateOption)}
-          onClear={() => {
-            setValue(`${type}.stateId`, undefined);
-
-            setValue(`${type}.state`, "");
-
-            setValue(`${type}.stateCode`, "");
-
-            resetDistrict();
-          }}
-          error={addressErrors?.state?.message}
-        /> */}
-
-        <SearchSelect
-          label="State"
-          value={stateName}
-          placeholder="Search state..."
-          loading={stateLoading}
-          options={states.map((state) => ({
-            value: state.state_id,
-            label: state.state_name,
-            data: state,
-          }))}
-          onSearch={setStateSearch}
-          onSelect={(option) => handleStateSelect(option.data as StateOption)}
-          onClear={() => {
-            setValue(`${type}.stateId`, undefined);
-            setValue(`${type}.state`, "");
-            setValue(`${type}.stateCode`, "");
-
-            setStateSearch("");
-            resetDistrict();
-          }}
-          error={addressErrors?.state?.message}
-        />
-        {/* ================================================= */}
-        {/* DISTRICT */}
-        {/* ================================================= */}
-
-        {/* <SearchSelect
-          label="District"
-          value={districtName}
-          placeholder="Search district..."
-          loading={districtLoading}
-          options={districts.map((district) => ({
-            value: district.district_id,
-
-            label: district.state_name
-              ? `${district.district_name} - ${district.state_name}`
-              : district.district_name,
-
-            data: district,
-          }))}
-          onSearch={loadDistricts}
-          onSelect={(option) =>
-            handleDistrictSelect(option.data as DistrictOption)
-          }
-          onClear={() => {
-            setValue(`${type}.districtId`, undefined);
-
-            setValue(`${type}.district`, "");
-
-            resetCity();
-          }}
-          error={addressErrors?.district?.message}
-        /> */}
-
-        <SearchSelect
-          label="District"
-          value={districtName}
-          placeholder="Search district..."
-          loading={districtLoading}
-          options={districts.map((district) => ({
-            value: district.district_id,
-            label: district.state_name
-              ? `${district.district_name} - ${district.state_name}`
-              : district.district_name,
-            data: district,
-          }))}
-          onSearch={setDistrictSearch}
-          onSelect={(option) =>
-            handleDistrictSelect(option.data as DistrictOption)
-          }
-          onClear={() => {
-            setValue(`${type}.districtId`, undefined);
-            setValue(`${type}.district`, "");
-
-            setDistrictSearch("");
-
-            resetCity();
-          }}
-          error={addressErrors?.district?.message}
-        />
-        {/* ================================================= */}
-        {/* CITY */}
-        {/* ================================================= */}
-
-        {/* <SearchSelect
-          label="City"
-          value={cityName}
-          placeholder="Search city..."
-          loading={cityLoading}
-          options={cities.map((city) => ({
-            value: city.city_id,
-
-            label: [city.city_name, city.district_name, city.state_name]
-              .filter(Boolean)
-              .join(" - "),
-
-            data: city,
-          }))}
-          onSearch={loadCities}
-          onSelect={(option) => handleCitySelect(option.data as CityOption)}
-          onClear={() => {
-            setValue(`${type}.cityId`, undefined);
-
-            setValue(`${type}.city`, "");
-
-            resetPincode();
-          }}
-          error={addressErrors?.city?.message}
-        /> */}
-
-        <SearchSelect
-          label="City"
-          value={cityName}
-          placeholder="Search city..."
-          loading={cityLoading}
-          options={cities.map((city) => ({
-            value: city.city_id,
-            label: [city.city_name, city.district_name, city.state_name]
-              .filter(Boolean)
-              .join(" - "),
-            data: city,
-          }))}
-          onSearch={setCitySearch}
-          onSelect={(option) => handleCitySelect(option.data as CityOption)}
-          onClear={() => {
-            setValue(`${type}.cityId`, undefined);
-            setValue(`${type}.city`, "");
-
-            setCitySearch("");
-
-            resetPincode();
-          }}
-          error={addressErrors?.city?.message}
+        <input
+          type="text"
+          placeholder="Enter address"
+          {...register(`${type}.addressLine`, {
+            required:
+              type === "businessAddress"
+                ? "Business Address is required"
+                : false,
+          })}
+          className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
         />
 
-        {/* ================================================= */}
-        {/* PINCODE */}
-        {/* ================================================= */}
+        {addressErrors?.addressLine && (
+          <p className="mt-0.5 text-[10px] text-red-600">
+            {addressErrors.addressLine.message}
+          </p>
+        )}
+      </div>
 
-        {/* <SearchSelect
-          label="PIN Code"
-          value={pinCode}
-          placeholder="Search pincode..."
-          loading={pincodeLoading}
-          options={pincodes.map((pincode) => ({
-            value: pincode.pincode_id ?? pincode.pincode,
+      {/* ================= STATE ================= */}
+
+      <SearchSelect
+        label="State"
+        value={stateName}
+        placeholder="Search state..."
+        loading={stateLoading}
+        options={states.map((state) => ({
+          value: state.state_id,
+          label: state.state_name,
+          data: state,
+        }))}
+        onSearch={setStateSearch}
+        onSelect={(option) =>
+          handleStateSelect(option.data as StateOption)
+        }
+        onClear={() => {
+          setValue(`${type}.stateId`, undefined);
+          setValue(`${type}.state`, "");
+          setValue(`${type}.stateCode`, "");
+
+          setStateSearch("");
+
+          resetDistrict();
+        }}
+        error={addressErrors?.state?.message}
+      />
+
+      {/* ================= DISTRICT ================= */}
+
+      <SearchSelect
+        label="District"
+        value={districtName}
+        placeholder="Search district..."
+        loading={districtLoading}
+        options={districts.map((district) => ({
+          value: district.district_id,
+
+          label: district.state_name
+            ? `${district.district_name} - ${district.state_name}`
+            : district.district_name,
+
+          data: district,
+        }))}
+        onSearch={setDistrictSearch}
+        onSelect={(option) =>
+          handleDistrictSelect(option.data as DistrictOption)
+        }
+        onClear={() => {
+          setValue(`${type}.districtId`, undefined);
+          setValue(`${type}.district`, "");
+
+          setDistrictSearch("");
+
+          resetCity();
+        }}
+        error={addressErrors?.district?.message}
+      />
+
+      {/* ================= CITY ================= */}
+
+      <SearchSelect
+        label="City"
+        value={cityName}
+        placeholder="Search city..."
+        loading={cityLoading}
+        options={cities.map((city) => ({
+          value: city.city_id,
+
+          label: [
+            city.city_name,
+            city.district_name,
+            city.state_name,
+          ]
+            .filter(Boolean)
+            .join(" - "),
+
+          data: city,
+        }))}
+        onSearch={setCitySearch}
+        onSelect={(option) =>
+          handleCitySelect(option.data as CityOption)
+        }
+        onClear={() => {
+          setValue(`${type}.cityId`, undefined);
+          setValue(`${type}.city`, "");
+
+          setCitySearch("");
+
+          resetPincode();
+        }}
+        error={addressErrors?.city?.message}
+      />
+
+      {/* ================= PINCODE ================= */}
+
+      <SearchSelect
+        label="Pincode"
+        value={pinCode ?? ""}
+        placeholder="Search pincode..."
+        loading={pincodeLoading}
+        options={pincodes.map((pincode) => {
+          const optionValue =
+            pincode.pincode_id ??
+            pincode.pincode_name ??
+            pincode.pincode ??
+            "";
+
+          return {
+            value: optionValue,
 
             label: [
-              pincode.pincode,
+              pincode.pincode_name,
               pincode.city_name,
               pincode.district_name,
               pincode.state_name,
@@ -959,66 +1402,31 @@ export default function AddressFields({
               .join(" - "),
 
             data: pincode,
-          }))}
-          onSearch={loadPincodes}
-          onSelect={(option) =>
-            handlePincodeSelect(option.data as PincodeOption)
-          }
-          onClear={() => {
-            resetPincode();
-          }}
-          error={addressErrors?.pinCode?.message}
-        /> */}
+          };
+        })}
+        onSearch={setPincodeSearch}
+        onSelect={(option) =>
+          handlePincodeSelect(option.data as PincodeOption)
+        }
+        onClear={resetPincode}
+        error={addressErrors?.pinCode?.message}
+      />
 
-        <SearchSelect
-          label="PIN Code"
-          value={pinCode ?? ""}
-          placeholder="Search pincode..."
-          loading={pincodeLoading}
-          options={pincodes.map((pincode) => {
-            const optionValue =
-              pincode.pincode_id ??
-              pincode.pincode_name ??
-              pincode.pincode ??
-              "";
+      {/* ================= STATE CODE ================= */}
 
-            return {
-              value: optionValue,
-              label: [
-                pincode.pincode_name,
-                pincode.city_name,
-                pincode.district_name,
-                pincode.state_name,
-              ]
-                .filter(Boolean)
-                .join(" - "),
-              data: pincode,
-            };
-          })}
-          onSearch={setPincodeSearch}
-          onSelect={(option) =>
-            handlePincodeSelect(option.data as PincodeOption)
-          }
-          onClear={resetPincode}
-          error={addressErrors?.pinCode?.message}
+      <div className="col-span-2">
+        <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+          State Code
+        </label>
+
+        <input
+          {...register(`${type}.stateCode`)}
+          placeholder="State code"
+          
+          className="h-8 w-full rounded-md border border-gray-300  px-2 text-xs text-gray-600 outline-none"
         />
-
-        {/* ================================================= */}
-        {/* STATE CODE */}
-        {/* ================================================= */}
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            State Code
-          </label>
-
-          <input
-            {...register(`${type}.stateCode`)}
-            placeholder="State code"
-            className="w-full rounded-lg border border-gray-300  px-3 py-2.5 text-sm text-gray-600 outline-none"
-          />
-        </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

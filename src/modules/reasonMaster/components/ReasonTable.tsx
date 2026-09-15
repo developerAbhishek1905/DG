@@ -1,24 +1,15 @@
 import { Pencil, Trash2 } from "lucide-react";
-
 import type { Reason } from "../types/reason.types";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface ReasonTableProps {
   reasons: Reason[];
-
   loading: boolean;
-
   page: number;
-
   limit: number;
-
   onEdit: (reason: Reason) => void;
-
   onDelete: (reason: Reason) => void;
-
-  onStatusChange: (
-    reason: Reason,
-    status: boolean,
-  ) => void;
+  onStatusChange: (reason: Reason, status: boolean) => void;
 }
 
 export default function ReasonTable({
@@ -29,11 +20,12 @@ export default function ReasonTable({
   onEdit,
   onDelete,
   onStatusChange,
-
 }: ReasonTableProps) {
+  const { hasPermission } = usePermission();
+
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
+      <div className="flex min-h-75 items-center justify-center">
         <p className="text-sm text-gray-500">Loading reasons...</p>
       </div>
     );
@@ -41,7 +33,7 @@ export default function ReasonTable({
 
   if (!reasons.length) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
+      <div className="flex min-h-75 items-center justify-center">
         <div className="text-center">
           <p className="font-medium text-gray-700">No reasons found</p>
 
@@ -82,7 +74,9 @@ export default function ReasonTable({
               key={reason._id}
               className="border-b border-gray-200 transition last:border-b-0 hover:bg-gray-50"
             >
-              <td className="px-5 py-4 text-sm text-gray-600">{(page - 1) * limit + index + 1}</td>
+              <td className="px-5 py-4 text-sm text-gray-600">
+                {(page - 1) * limit + index + 1}
+              </td>
 
               <td className="px-5 py-4">
                 <p className="text-sm font-medium text-gray-900">
@@ -91,38 +85,44 @@ export default function ReasonTable({
               </td>
 
               <td className="px-5 py-4">
-                <button
-                  type="button"
-                  onClick={() => onStatusChange(reason, !reason.isActive)}
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                    reason.isActive
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {reason.isActive ? "Active" : "Inactive"}
-                </button>
+                {hasPermission("reason.active") && (
+                  <button
+                    type="button"
+                    onClick={() => onStatusChange(reason, !reason.isActive)}
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                      reason.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {reason.isActive ? "Active" : "Inactive"}
+                  </button>
+                )}
               </td>
 
               <td className="px-5 py-4">
                 <div className="flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onEdit(reason)}
-                    title="Edit Reason"
-                    className="rounded-lg border border-gray-200 p-2 text-[#123B7A] transition hover:bg-blue-50"
-                  >
-                    <Pencil size={16} />
-                  </button>
+                  {hasPermission("reason.update") && (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(reason)}
+                      title="Edit Reason"
+                      className="rounded-lg border border-gray-200 p-2 text-[#123B7A] transition hover:bg-blue-50"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  )}
 
-                  <button
-                    type="button"
-                    onClick={() => onDelete(reason)}
-                    title="Delete Reason"
-                    className="rounded-lg border border-gray-200 p-2 text-red-600 transition hover:bg-red-50"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {hasPermission("reason.delete") && (
+                    <button
+                      type="button"
+                      onClick={() => onDelete(reason)}
+                      title="Delete Reason"
+                      className="rounded-lg border border-gray-200 p-2 text-red-600 transition hover:bg-red-50"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

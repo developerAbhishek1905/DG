@@ -1,9 +1,6 @@
 import { Plus, RefreshCcw, Search } from "lucide-react";
-
 import { useEffect, useState } from "react";
-
 import { toast } from "react-toastify";
-
 import {
   createReason,
   deleteReason,
@@ -11,12 +8,8 @@ import {
   updateReason,
   updateReasonStatus,
 } from "../services/reason.api";
-
-// import Pagination from "../components/Pagination";
-
 import ReasonForm from "../components/ReasonForm";
 import ReasonTable from "../components/ReasonTable";
-
 import type {
   Pagination as PaginationType,
   Reason,
@@ -24,10 +17,11 @@ import type {
   ReasonType,
 } from "../types/reason.types";
 import Pagination from "../../../components/ui/Pagination";
+import { useDebounce } from "../../../hooks/useDebounce";
+import { usePermission } from "../../../hooks/usePermission";
 
 interface Tab {
   label: string;
-
   value: ReasonType;
 }
 
@@ -60,66 +54,50 @@ const tabs: Tab[] = [
 
 const initialPagination: PaginationType = {
   total: 0,
-
   page: 1,
-
   limit: 10,
-
   totalPages: 0,
-
   hasNextPage: false,
-
   hasPreviousPage: false,
 };
 
 export default function ReasonMasterPage() {
   const [activeTab, setActiveTab] = useState<ReasonType>("close");
-
   const [reasons, setReasons] = useState<Reason[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [formLoading, setFormLoading] = useState(false);
-
   const [search, setSearch] = useState("");
-
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
   const [status, setStatus] = useState<"" | "active" | "inactive">("");
-
   const [page, setPage] = useState(1);
-
   const [limit, setLimit] = useState(10);
-
   const [pagination, setPagination] =
     useState<PaginationType>(initialPagination);
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [selectedReason, setSelectedReason] = useState<Reason | null>(null);
-
+  const debouncedSearch = useDebounce(search.trim(), 500);
+  const { hasPermission } = usePermission();
   /*
   |--------------------------------------------------------------------------
   | Debounce Search
   |--------------------------------------------------------------------------
   */
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       setDebouncedSearch(search.trim());
 
-      /*
-       * Whenever search changes
-       * go back to first page.
-       */
+  //       /*
+  //        * Whenever search changes
+  //        * go back to first page.
+  //        */
 
-      setPage(1);
-    }, 500);
+  //       setPage(1);
+  //     }, 500);
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [search]);
+  //     return () => {
+  //       clearTimeout(timer);
+  //     };
+  //   }, [search]);
 
   /*
   |--------------------------------------------------------------------------
@@ -169,19 +147,17 @@ export default function ReasonMasterPage() {
   |--------------------------------------------------------------------------
   */
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
   const handleTabChange = (type: ReasonType) => {
     setActiveTab(type);
-
     setSearch("");
-
-    setDebouncedSearch("");
-
     setStatus("");
-
     setPage(1);
-
     setSelectedReason(null);
-
     setFormOpen(false);
   };
 
@@ -353,11 +329,7 @@ export default function ReasonMasterPage() {
 
   const handleReset = () => {
     setSearch("");
-
-    setDebouncedSearch("");
-
     setStatus("");
-
     setPage(1);
   };
 
@@ -378,136 +350,143 @@ export default function ReasonMasterPage() {
             Manage complaint reasons.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={handleAddReason}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#032963]"
-        >
-          <Plus size={18} />
-          Add Reason
-        </button>
-      </div>
-
-      {/* Main Card */}
-
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        {/* Tabs */}
-
-        <div className="overflow-x-auto">
-          <div className="flex min-w-max border-b border-gray-200 px-4">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.value;
-
-              return (
-                <button
-                  type="button"
-                  key={tab.value}
-                  onClick={() => handleTabChange(tab.value)}
-                  className={`relative whitespace-nowrap px-5 py-4 text-sm font-medium transition ${
-                    isActive
-                      ? "text-[#123B7A]"
-                      : "text-gray-500 hover:text-gray-800"
-                  }`}
-                >
-                  {tab.label}
-
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#123B7A]" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Heading */}
-
-        <div className="flex flex-col justify-between gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {activeTabLabel} Reasons
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Manage {activeTabLabel.toLowerCase()} reasons.
-            </p>
-          </div>
-
-          <div className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600">
-            Total: {pagination.total}
-          </div>
-        </div>
-
-        {/* Filters */}
-
-        <div className="border-b border-gray-200 p-4">
-          <div className="flex flex-col gap-3 md:flex-row">
-            <div className="relative flex-1">
-              <Search
-                size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={`Search ${activeTabLabel.toLowerCase()} reason...`}
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <select
-              value={status}
-              onChange={(e) =>
-                handleStatusFilter(e.target.value as "" | "active" | "inactive")
-              }
-              className="min-w-[180px] rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
-            >
-              <option value="">All Status</option>
-
-              <option value="active">Active</option>
-
-              <option value="inactive">Inactive</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={handleReset}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              <RefreshCcw size={17} />
-              Reset
-            </button>
-          </div>
-        </div>
-
-        {/* Table */}
-
-        <ReasonTable
-          reasons={reasons}
-          loading={loading}
-          page={pagination.page}
-          limit={pagination.limit}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onStatusChange={handleStatusChange}
-        />
-
-        {/* Pagination */}
-
-        {!loading && pagination.total > 0 && (
-          <Pagination
-            page={pagination.page}
-            totalPages={pagination.totalPages}
-            total={pagination.total}
-            limit={pagination.limit}
-            onPageChange={setPage}
-            onLimitChange={handleLimitChange}
-          />
+        {hasPermission("reason.create") && (
+          <button
+            type="button"
+            onClick={handleAddReason}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#032963]"
+          >
+            <Plus size={18} />
+            Add Reason
+          </button>
         )}
       </div>
+
+      {hasPermission("reason.table") && (
+        <>
+          {/* Main Card */}
+
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+            {/* Tabs */}
+
+            <div className="overflow-x-auto">
+              <div className="flex min-w-max border-b border-gray-200 px-4">
+                {tabs.map((tab) => {
+                  const isActive = activeTab === tab.value;
+
+                  return (
+                    <button
+                      type="button"
+                      key={tab.value}
+                      onClick={() => handleTabChange(tab.value)}
+                      className={`relative whitespace-nowrap px-5 py-4 text-sm font-medium transition ${
+                        isActive
+                          ? "text-[#123B7A]"
+                          : "text-gray-500 hover:text-gray-800"
+                      }`}
+                    >
+                      {tab.label}
+
+                      {isActive && (
+                        <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#123B7A]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Heading */}
+
+            <div className="flex flex-col justify-between gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {activeTabLabel} Reasons
+                </h2>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Manage {activeTabLabel.toLowerCase()} reasons.
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600">
+                Total: {pagination.total}
+              </div>
+            </div>
+
+            {/* Filters */}
+
+            <div className="border-b border-gray-200 p-4">
+              <div className="flex flex-col gap-3 md:flex-row">
+                <div className="relative flex-1">
+                  <Search
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    placeholder={`Search ${activeTabLabel.toLowerCase()} reason...`}
+                    className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <select
+                  value={status}
+                  onChange={(e) =>
+                    handleStatusFilter(
+                      e.target.value as "" | "active" | "inactive",
+                    )
+                  }
+                  className="min-w-45 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+                >
+                  <option value="">All Status</option>
+
+                  <option value="active">Active</option>
+
+                  <option value="inactive">Inactive</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  <RefreshCcw size={17} />
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {/* Table */}
+
+            <ReasonTable
+              reasons={reasons}
+              loading={loading}
+              page={pagination.page}
+              limit={pagination.limit}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+            />
+
+            {/* Pagination */}
+
+            {!loading && pagination.total > 0 && (
+              <Pagination
+                page={pagination.page}
+                totalPages={pagination.totalPages}
+                total={pagination.total}
+                limit={pagination.limit}
+                onPageChange={setPage}
+                onLimitChange={handleLimitChange}
+              />
+            )}
+          </div>
+        </>
+      )}
 
       {/* Form */}
 

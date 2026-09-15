@@ -15,7 +15,7 @@ export interface DealerProductCategory {
   categoryId: string;
   categoryName: string;
   description: string;
-  rate?: number;
+  rate: number;
 }
 
 export interface DealerProductService {
@@ -114,6 +114,7 @@ export interface DealerFormData {
   documentUpload?: FileList;
 
   productId: string;
+  billingType: "FIXED" | "PARTIAL_PAYMENT" | "PROFIT_SHARING";
 
   productServiceType: string;
 

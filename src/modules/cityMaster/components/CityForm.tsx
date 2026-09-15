@@ -5,7 +5,7 @@ import { getDistrictsByState } from "../../districtMaster/services/districtApi";
 import type { StateMaster } from "../../stateMaster/types/state.types";
 import type { DistrictMaster } from "../../districtMaster/types/district.types";
 import type { CityFormData, CityMaster } from "../types/city.types";
-import { usePermission } from "../../../hooks/usePermission";
+// import { usePermission } from "../../../hooks/usePermission";
 
 interface Props {
   city?: CityMaster | null;
@@ -41,7 +41,7 @@ export default function CityForm({
     },
   });
   const selectedStateId = watch("state_id");
-  const { hasPermission } = usePermission();
+  // const { hasPermission } = usePermission();
   /* ==========================================
      FETCH STATES
   ========================================== */

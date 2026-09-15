@@ -147,8 +147,9 @@ export const PERMISSIONS = {
   REASON_VIEW: "reason.view",
   REASON_UPDATE: "reason.update",
   REASON_DELETE: "reason.delete",
-  REASON_IMPORT: "reason.import",
-  REASON_EXPORT: "reason.export",
+  // REASON_IMPORT: "reason.import",
+  // REASON_EXPORT: "reason.export",
+  REASON_ACTIVE: "reason.active",
 
   ITEM_ACCESS: "item.access",
 
@@ -944,21 +945,27 @@ export const PERMISSION_LIST: Permission[] = [
     action: "delete",
     label: "Delete Reason",
   },
+  // {
+  //   id: "P-087",
+  //   key: PERMISSIONS.REASON_IMPORT,
+  //   module: "Reason",
+  //   action: "import",
+  //   label: "Import Reason",
+  // },
+  // {
+  //   id: "P-088",
+  //   key: PERMISSIONS.REASON_EXPORT,
+  //   module: "Reason",
+  //   action: "export",
+  //   label: "Export Reason",
+  // },
   {
-    id: "P-087",
-    key: PERMISSIONS.REASON_IMPORT,
+    id: "P-089",
+    key: PERMISSIONS.REASON_ACTIVE,
     module: "Reason",
-    action: "import",
-    label: "Import Reason",
+    action: "active",
+    label: "Active Reason",
   },
-  {
-    id: "P-088",
-    key: PERMISSIONS.REASON_EXPORT,
-    module: "Reason",
-    action: "export",
-    label: "Export Reason",
-  },
-
   // {
   //   id: "P-004",
   //   key: PERMISSIONS.CATEGORY_ACCESS,
