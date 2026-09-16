@@ -30,20 +30,21 @@ export default function DealerForm({
   // const [categoriesError, setCategoriesError] = useState("");
   const [aadhaarFrontPreview, setAadhaarFrontPreview] = useState("");
   const [aadhaarBackPreview, setAadhaarBackPreview] = useState("");
-
   const [panFrontPreview, setPanFrontPreview] = useState("");
   const [panBackPreview, setPanBackPreview] = useState("");
-
   const [drivingFrontPreview, setDrivingFrontPreview] = useState("");
   const [drivingBackPreview, setDrivingBackPreview] = useState("");
-  const [otherDocuments, setOtherDocuments] = useState<File[]>([]);
+  const [
+    ,
+    // otherDocuments
+    setOtherDocuments,
+  ] = useState<File[]>([]);
 
   const [capacityProducts, setCapacityProducts] = useState<
     ProductDropdownOption[]
   >([]);
 
   const [capacityProductsLoading, setCapacityProductsLoading] = useState(false);
-
   const [otherDocumentPreviews, setOtherDocumentPreviews] = useState<
     {
       name: string;
@@ -51,9 +52,7 @@ export default function DealerForm({
       url: string;
     }[]
   >([]);
-
   const [activeTab, setActiveTab] = useState<DealerFormTab>("basic");
-
   const dealerTabs: {
     id: DealerFormTab;
     label: string;
@@ -89,13 +88,10 @@ export default function DealerForm({
   const loadCapacityProducts = async (search = "") => {
     try {
       setCapacityProductsLoading(true);
-
       const data = await searchProducts(search);
-
       setCapacityProducts(data);
     } catch (error) {
       console.error("Failed to load capacity products:", error);
-
       setCapacityProducts([]);
     } finally {
       setCapacityProductsLoading(false);
@@ -120,19 +116,13 @@ export default function DealerForm({
       technicianCode: dealer?.technicianCode ?? "",
       technicianFirmName: dealer?.technicianFirmName ?? "",
       technicianName: dealer?.technicianName ?? "",
-
       aadhaarNumber: dealer?.aadhaarNumber ?? "",
-
       alternativeNumber: dealer?.alternativeNumber ?? "",
-
       panNumber: dealer?.panNumber ?? "",
       billingType: "FIXED",
-
       drivingLicenceNumber: dealer?.drivingLicenceNumber ?? "",
-
       // productId: dealer?.productId ?? "",
       // productServiceType: dealer?.productServiceType ?? "",
-
       productServices: dealer?.productServices?.length
         ? dealer.productServices
         : [
@@ -142,16 +132,11 @@ export default function DealerForm({
               categories: [],
             },
           ],
-
       technicianStatus: dealer?.technicianStatus ?? "ACTIVE",
       headCode: dealer?.headCode ?? "",
-
       groupHead: dealer?.groupHead ?? "",
-
       headName: dealer?.headName ?? "SUNDRY DEBTORS",
-
       grade: dealer?.grade ?? "",
-
       // address: dealer?.address?.length
       //   ? dealer.address
       //   : [
@@ -186,91 +171,54 @@ export default function DealerForm({
       //   stateCode: dealer?.residentialAddress?.stateCode ?? "",
       //   pinCode: dealer?.residentialAddress?.pinCode ?? "",
       // },
-
       businessAddress: {
         addressLine: dealer?.businessAddress?.addressLine ?? "",
-
         stateId: dealer?.businessAddress?.stateId ?? undefined,
         state: dealer?.businessAddress?.state ?? "",
         stateCode: dealer?.businessAddress?.stateCode ?? "",
-
         districtId: dealer?.businessAddress?.districtId ?? undefined,
         district: dealer?.businessAddress?.district ?? "",
-
         cityId: dealer?.businessAddress?.cityId ?? undefined,
         city: dealer?.businessAddress?.city ?? "",
-
         pinCode: dealer?.businessAddress?.pinCode ?? "",
       },
-
       residentialAddress: {
         addressLine: dealer?.residentialAddress?.addressLine ?? "",
-
         stateId: dealer?.residentialAddress?.stateId ?? undefined,
         state: dealer?.residentialAddress?.state ?? "",
         stateCode: dealer?.residentialAddress?.stateCode ?? "",
-
         districtId: dealer?.residentialAddress?.districtId ?? undefined,
         district: dealer?.residentialAddress?.district ?? "",
-
         cityId: dealer?.residentialAddress?.cityId ?? undefined,
         city: dealer?.residentialAddress?.city ?? "",
-
         pinCode: dealer?.residentialAddress?.pinCode ?? "",
       },
-
       zone: dealer?.zone ?? "",
-
       contactPerson: dealer?.contactPerson ?? "",
-
       phoneNumbers: dealer?.phoneNumbers ?? "",
-
       mobileNumber: dealer?.mobileNumber ?? "",
-
       email: dealer?.email ?? "",
-
       taxApply: dealer?.taxApply ?? "",
-
       gstNumber: dealer?.gstNumber ?? "",
-
       tinNumber: dealer?.tinNumber ?? "",
-
       uinNumber: dealer?.uinNumber ?? "",
-
       gstApplicable: dealer?.gstApplicable ?? "",
-
       gstRate: dealer?.gstRate ?? 0,
-
       hsnCode: dealer?.hsnCode ?? "",
-
       reverseChargeLimit: dealer?.reverseChargeLimit ?? 0,
-
       taxInputPayable: dealer?.taxInputPayable ?? "",
-
       vat15Column: dealer?.vat15Column ?? "",
-
       segment: dealer?.segment ?? "",
-
       creditDays: dealer?.creditDays ?? 0,
-
       creditLimit: dealer?.creditLimit ?? 0,
-
       accountType: dealer?.accountType ?? "STANDARD",
-
       isDealer: dealer?.isDealer ?? true,
-
       disableChallan: dealer?.disableChallan ?? false,
-
       ledgerSummaryOnly: dealer?.ledgerSummaryOnly ?? false,
-
       accountDeactivated: dealer?.accountDeactivated ?? false,
-
       otherInfo: dealer?.otherInfo ?? "",
-
       rating: dealer?.rating ?? 0,
-
       openingBalance: dealer?.openingBalance ?? 0,
-
       openingBalanceType: dealer?.openingBalanceType ?? "DR",
 
       // capacityMaster: dealer?.capacityMaster?.length
@@ -290,7 +238,6 @@ export default function DealerForm({
         products: [],
         capacity: 0,
       },
-
       individualCapacities: dealer?.individualCapacities?.length
         ? dealer.individualCapacities.map((item) => ({
             productId: Number(item.productId),
@@ -366,25 +313,16 @@ export default function DealerForm({
       technicianCode: dealer.technicianCode ?? "",
       technicianFirmName: dealer.technicianFirmName ?? "",
       technicianName: dealer.technicianName ?? "",
-
       aadhaarNumber: dealer.aadhaarNumber ?? "",
-
       alternativeNumber: dealer.alternativeNumber ?? "",
-
       panNumber: dealer.panNumber ?? "",
-
       drivingLicenceNumber: dealer.drivingLicenceNumber ?? "",
-
       productId: dealer.productId ?? "",
       productServiceType: dealer.productServiceType ?? "",
-
       technicianStatus: dealer.technicianStatus ?? "ACTIVE",
       headCode: dealer.headCode,
-
       groupHead: dealer.groupHead,
-
       headName: dealer.headName,
-
       grade: dealer.grade ?? "",
 
       // address: dealer.address ?? "",
@@ -419,110 +357,70 @@ export default function DealerForm({
 
       businessAddress: {
         addressLine: dealer.businessAddress?.addressLine ?? "",
-
         stateId:
           dealer.businessAddress?.stateId !== undefined
             ? Number(dealer.businessAddress.stateId)
             : undefined,
-
         state: dealer.businessAddress?.state ?? "",
         stateCode: dealer.businessAddress?.stateCode ?? "",
-
         districtId:
           dealer.businessAddress?.districtId !== undefined
             ? Number(dealer.businessAddress.districtId)
             : undefined,
-
         district: dealer.businessAddress?.district ?? "",
-
         cityId:
           dealer.businessAddress?.cityId !== undefined
             ? Number(dealer.businessAddress.cityId)
             : undefined,
-
         city: dealer.businessAddress?.city ?? "",
-
         pinCode: dealer.businessAddress?.pinCode ?? "",
       },
 
       residentialAddress: {
         addressLine: dealer.residentialAddress?.addressLine ?? "",
-
         stateId:
           dealer.residentialAddress?.stateId !== undefined
             ? Number(dealer.residentialAddress.stateId)
             : undefined,
-
         state: dealer.residentialAddress?.state ?? "",
         stateCode: dealer.residentialAddress?.stateCode ?? "",
-
         districtId:
           dealer.residentialAddress?.districtId !== undefined
             ? Number(dealer.residentialAddress.districtId)
             : undefined,
-
         district: dealer.residentialAddress?.district ?? "",
-
         cityId:
           dealer.residentialAddress?.cityId !== undefined
             ? Number(dealer.residentialAddress.cityId)
             : undefined,
-
         city: dealer.residentialAddress?.city ?? "",
-
         pinCode: dealer.residentialAddress?.pinCode ?? "",
       },
-
       zone: dealer.zone ?? "",
-
       contactPerson: dealer.contactPerson ?? "",
-
       phoneNumbers: dealer.phoneNumbers ?? "",
-
       mobileNumber: dealer.mobileNumber ?? "",
-
       email: dealer.email ?? "",
-
       taxApply: dealer.taxApply ?? "",
-
       gstNumber: dealer.gstNumber ?? "",
-
       tinNumber: dealer.tinNumber ?? "",
-
       uinNumber: dealer.uinNumber ?? "",
-
       gstApplicable: dealer.gstApplicable ?? "",
-
       gstRate: dealer.gstRate ?? 0,
-
       hsnCode: dealer.hsnCode ?? "",
-
       reverseChargeLimit: dealer.reverseChargeLimit ?? 0,
-
       taxInputPayable: dealer.taxInputPayable ?? "",
-
       vat15Column: dealer.vat15Column ?? "",
-
       segment: dealer.segment ?? "",
-
       creditDays: dealer.creditDays ?? 0,
-
       creditLimit: dealer.creditLimit ?? 0,
-
       accountType: dealer.accountType,
-
       isDealer: dealer.isDealer,
-
       disableChallan: dealer.disableChallan,
-
       ledgerSummaryOnly: dealer.ledgerSummaryOnly,
-
       accountDeactivated: dealer.accountDeactivated,
-
       otherInfo: dealer.otherInfo ?? "",
-
       rating: dealer.rating ?? 0,
-
       openingBalance: dealer.openingBalance ?? 0,
 
       // productServices: dealer?.productServices?.length
@@ -534,30 +432,24 @@ export default function DealerForm({
       //         categories: [],
       //       },
       //     ],
-
       productServices:
         dealer.productServices?.map((product: any) => ({
           productId: product.productId,
           productName: product.productName,
-
           categories:
             product.categories?.map((category: any) => ({
               categoryId: category.categoryId ?? category._id ?? category.id,
-
               categoryName:
                 category.categoryName ??
                 category.category ??
                 category.category_name,
-
               description: category.description ?? "",
-
               rate: Number(category.rate ?? 0),
             })) ?? [],
         })) ?? [],
 
       openingBalanceType: dealer.openingBalanceType,
       // capacityType: dealer?.capacityType ?? "INDIVIDUAL",
-
       combinedCapacity: dealer?.combinedCapacity ?? {
         products: [],
         capacity: 0,
@@ -573,7 +465,6 @@ export default function DealerForm({
       //         serviceType: "",
       //       },
       //     ],
-
       capacityMaster: dealer?.capacityMaster?.length
         ? dealer.capacityMaster
         : [
@@ -583,7 +474,6 @@ export default function DealerForm({
               capacity: 0,
             },
           ],
-
       individualCapacities: dealer?.individualCapacities?.length
         ? dealer.individualCapacities.map((item) => ({
             productId: Number(item.productId),
@@ -603,7 +493,6 @@ export default function DealerForm({
   // const capacityType = watch("capacityType");
 
   const combinedCapacityProducts = watch("combinedCapacity.products") || [];
-
   const individualCapacities = watch("individualCapacities") || [];
 
   // const handleCapacityTypeChange = (type: "COMBINED" | "INDIVIDUAL") => {
@@ -652,16 +541,13 @@ export default function DealerForm({
 
   const handleOtherDocuments = (files: FileList | null) => {
     if (!files) return;
-
     const selectedFiles = Array.from(files);
-
     if (selectedFiles.length > 5) {
       toast.error("You can upload maximum 5 documents.");
       return;
     }
 
     setOtherDocuments(selectedFiles);
-
     const previews = selectedFiles.map((file) => ({
       name: file.name,
       type: file.type,
@@ -674,37 +560,26 @@ export default function DealerForm({
   const removeOtherDocument = (index: number) => {
     setOtherDocumentPreviews((prev) => {
       const removed = prev[index];
-
       if (removed?.url) {
         URL.revokeObjectURL(removed.url);
       }
-
       return prev.filter((_, i) => i !== index);
     });
-
     setOtherDocuments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const submitForm = async (data: DealerFormData) => {
     const payload: DealerFormData = {
       ...data,
-
       gstRate: Number(data.gstRate || 0),
-
       reverseChargeLimit: Number(data.reverseChargeLimit || 0),
-
       creditDays: Number(data.creditDays || 0),
-
       creditLimit: Number(data.creditLimit || 0),
-
       rating: Number(data.rating || 0),
-
       openingBalance: Number(data.openingBalance || 0),
-
       // COMBINED CAPACITY
       combinedCapacity: {
         products: data.combinedCapacity?.products ?? [],
-
         capacity: Number(data.combinedCapacity?.capacity || 0),
       },
 
@@ -725,8 +600,8 @@ export default function DealerForm({
   return (
     <form
       onSubmit={handleSubmit(submitForm, (errors) => {
+        console.error(errors)
         // console.log("FORM VALIDATION ERRORS:", errors);
-
         toast.error("Please fix the required fields before submitting.");
       })}
       // className="space-y-7"
@@ -753,25 +628,17 @@ export default function DealerForm({
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 title={tab.label}
-                className={`
-            relative flex min-w-0 items-center justify-center
-            gap-1 border-b-2
-            px-0.5 py-2
-            text-[9px] font-medium
-            transition
-            sm:gap-1.5 sm:px-1 sm:text-[10px]
-            md:gap-2 md:px-2 md:py-2.5 md:text-xs
-            lg:px-3 lg:text-sm
-            ${
-              active
-                ? "border-[#123B7A] text-[#123B7A]"
-                : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-800"
-            }
-          `}
+                className={`relative flex min-w-0 items-center justify-center gap-1 border-b-2 px-0.5 py-2 text-[9px] font-medium transition sm:gap-1.5 sm:px-1 sm:text-[10px] md:gap-2 md:px-2 md:py-2.5 md:text-xs lg:px-3 lg:text-sm
+                            ${
+                              active
+                                ? "border-[#123B7A] text-[#123B7A]"
+                                : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                            }
+                          `}
               >
                 {/* Number */}
                 <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold sm:h-[18px] sm:w-[18px] sm:text-[9px] md:h-5 md:w-5 md:text-[10px] ${active ? "bg-[#123B7A] text-white" : "bg-gray-100 text-gray-500"}`}
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold sm:h-4.5 sm:w-4.5 sm:text-[9px] md:h-5 md:w-5 md:text-[10px] ${active ? "bg-[#123B7A] text-white" : "bg-gray-100 text-gray-500"}`}
                 >
                   {tab.number}
                 </span>
@@ -803,7 +670,7 @@ export default function DealerForm({
                 readOnly
                 error={errors.headCode?.message}
                 {...register("headCode", {
-                  required: "Head code is required",
+                  // required: "Head code is required",
                 })}
               />
 
@@ -1414,34 +1281,34 @@ export default function DealerForm({
           <Input label="Email" type="email" {...register("email")} />
         </div>
       </Section> */}
-{activeTab === "account" && (
-  <div className="space-y-3">
-    {/* ================================================= */}
-    {/* BILLING TYPE */}
-    {/* ================================================= */}
+      {activeTab === "account" && (
+        <div className="space-y-3">
+          {/* ================================================= */}
+          {/* BILLING TYPE */}
+          {/* ================================================= */}
 
-    <Section title="Billing Type">
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {[
-          {
-            value: "FIXED",
-            label: "Fixed",
-          },
-          {
-            value: "PARTIAL_PAYMENT",
-            label: "Partial Payment",
-          },
-          {
-            value: "PROFIT_SHARING",
-            label: "Profit Sharing",
-          },
-        ].map((option) => {
-          const selected = watch("billingType") === option.value;
+          <Section title="Billing Type">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {[
+                {
+                  value: "FIXED",
+                  label: "Fixed",
+                },
+                {
+                  value: "PARTIAL_PAYMENT",
+                  label: "Partial Payment",
+                },
+                {
+                  value: "PROFIT_SHARING",
+                  label: "Profit Sharing",
+                },
+              ].map((option) => {
+                const selected = watch("billingType") === option.value;
 
-          return (
-            <label
-              key={option.value}
-              className={`
+                return (
+                  <label
+                    key={option.value}
+                    className={`
                 flex h-8 cursor-pointer items-center gap-2
                 rounded-md border px-3
                 text-xs font-medium transition
@@ -1451,10 +1318,10 @@ export default function DealerForm({
                     : "border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
                 }
               `}
-            >
-              {/* Checkbox visual */}
-              <span
-                className={`
+                  >
+                    {/* Checkbox visual */}
+                    <span
+                      className={`
                   flex h-4 w-4 shrink-0 items-center justify-center
                   rounded border transition
                   ${
@@ -1463,194 +1330,171 @@ export default function DealerForm({
                       : "border-gray-300 bg-white"
                   }
                 `}
-              >
-                {selected && (
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    className="h-3 w-3"
-                  >
-                    <path
-                      d="M4 10L8 14L16 6"
-                      stroke="white"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </span>
+                    >
+                      {selected && (
+                        <svg
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          className="h-3 w-3"
+                        >
+                          <path
+                            d="M4 10L8 14L16 6"
+                            stroke="white"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
+                    </span>
 
-              <input
-                type="radio"
-                value={option.value}
-                {...register("billingType", {
-                  required: "Billing type is required",
+                    <input
+                      type="radio"
+                      value={option.value}
+                      {...register("billingType", {
+                        required: "Billing type is required",
+                      })}
+                      className="sr-only"
+                    />
+
+                    {option.label}
+                  </label>
+                );
+              })}
+            </div>
+
+            {errors.billingType && (
+              <p className="mt-1 text-[10px] text-red-600">
+                {errors.billingType.message}
+              </p>
+            )}
+          </Section>
+
+          {/* ================================================= */}
+          {/* TAX INFORMATION */}
+          {/* ================================================= */}
+
+          <Section title="Tax Information">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {/* GST Number */}
+
+              <Input label="GST No." {...register("gstNumber")} />
+
+              {/* TIN Number */}
+
+              <Input label="TIN No." {...register("tinNumber")} />
+
+              {/* GST Applicable */}
+
+              <div>
+                <label className={labelClass}>GST Applicable</label>
+
+                <select {...register("gstApplicable")} className={inputClass}>
+                  <option value="">Select</option>
+                  <option value="YES">Yes</option>
+                  <option value="NO">No</option>
+                </select>
+              </div>
+
+              {/* GST Rate */}
+
+              <Input
+                label="GST Rate"
+                type="number"
+                min={0}
+                step="0.01"
+                {...register("gstRate", {
+                  valueAsNumber: true,
                 })}
-                className="sr-only"
               />
 
-              {option.label}
-            </label>
-          );
-        })}
-      </div>
+              {/* HSN Code */}
 
-      {errors.billingType && (
-        <p className="mt-1 text-[10px] text-red-600">
-          {errors.billingType.message}
-        </p>
+              <Input label="HSN Code" {...register("hsnCode")} />
+
+              {/* Reverse Charge Limit */}
+
+              <Input
+                label="Limit of Reverse Charges"
+                type="number"
+                min={0}
+                {...register("reverseChargeLimit", {
+                  valueAsNumber: true,
+                })}
+              />
+
+              {/* Tax Input / Payable */}
+
+              <div>
+                <label className={labelClass}>Tax Input / Payable</label>
+
+                <select {...register("taxInputPayable")} className={inputClass}>
+                  <option value="">Select</option>
+                  <option value="INPUT">Input</option>
+                  <option value="PAYABLE">Payable</option>
+                </select>
+              </div>
+            </div>
+          </Section>
+
+          {/* ================================================= */}
+          {/* CREDIT + OPENING BALANCE + OTHER INFO */}
+          {/* ================================================= */}
+
+          <Section title="Credit & Opening Balance Information">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Credit Limit */}
+
+              <Input
+                label="Credit Limit"
+                type="number"
+                min={0}
+                {...register("creditLimit", {
+                  valueAsNumber: true,
+                })}
+              />
+
+              {/* Opening Balance */}
+
+              <Input
+                label="Opening Balance"
+                type="number"
+                step="0.01"
+                {...register("openingBalance", {
+                  valueAsNumber: true,
+                })}
+              />
+
+              {/* Balance Type */}
+
+              <div>
+                <label className={labelClass}>Balance Type</label>
+
+                <select
+                  {...register("openingBalanceType")}
+                  className={inputClass}
+                >
+                  <option value="DR">Debit (Dr)</option>
+                  <option value="CR">Credit (Cr)</option>
+                </select>
+              </div>
+
+              {/* Other Info */}
+
+              <div>
+                <label className={labelClass}>Other Info.</label>
+
+                <input
+                  type="text"
+                  placeholder="Enter other information"
+                  {...register("otherInfo")}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          </Section>
+        </div>
       )}
-    </Section>
-
-    {/* ================================================= */}
-    {/* TAX INFORMATION */}
-    {/* ================================================= */}
-
-    <Section title="Tax Information">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {/* GST Number */}
-
-        <Input
-          label="GST No."
-          {...register("gstNumber")}
-        />
-
-        {/* TIN Number */}
-
-        <Input
-          label="TIN No."
-          {...register("tinNumber")}
-        />
-
-        {/* GST Applicable */}
-
-        <div>
-          <label className={labelClass}>
-            GST Applicable
-          </label>
-
-          <select
-            {...register("gstApplicable")}
-            className={inputClass}
-          >
-            <option value="">Select</option>
-            <option value="YES">Yes</option>
-            <option value="NO">No</option>
-          </select>
-        </div>
-
-        {/* GST Rate */}
-
-        <Input
-          label="GST Rate"
-          type="number"
-          min={0}
-          step="0.01"
-          {...register("gstRate", {
-            valueAsNumber: true,
-          })}
-        />
-
-        {/* HSN Code */}
-
-        <Input
-          label="HSN Code"
-          {...register("hsnCode")}
-        />
-
-        {/* Reverse Charge Limit */}
-
-        <Input
-          label="Limit of Reverse Charges"
-          type="number"
-          min={0}
-          {...register("reverseChargeLimit", {
-            valueAsNumber: true,
-          })}
-        />
-
-        {/* Tax Input / Payable */}
-
-        <div>
-          <label className={labelClass}>
-            Tax Input / Payable
-          </label>
-
-          <select
-            {...register("taxInputPayable")}
-            className={inputClass}
-          >
-            <option value="">Select</option>
-            <option value="INPUT">Input</option>
-            <option value="PAYABLE">Payable</option>
-          </select>
-        </div>
-      </div>
-    </Section>
-
-    {/* ================================================= */}
-    {/* CREDIT + OPENING BALANCE + OTHER INFO */}
-    {/* ================================================= */}
-
-    <Section title="Credit & Opening Balance Information">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Credit Limit */}
-
-        <Input
-          label="Credit Limit"
-          type="number"
-          min={0}
-          {...register("creditLimit", {
-            valueAsNumber: true,
-          })}
-        />
-
-        {/* Opening Balance */}
-
-        <Input
-          label="Opening Balance"
-          type="number"
-          step="0.01"
-          {...register("openingBalance", {
-            valueAsNumber: true,
-          })}
-        />
-
-        {/* Balance Type */}
-
-        <div>
-          <label className={labelClass}>
-            Balance Type
-          </label>
-
-          <select
-            {...register("openingBalanceType")}
-            className={inputClass}
-          >
-            <option value="DR">Debit (Dr)</option>
-            <option value="CR">Credit (Cr)</option>
-          </select>
-        </div>
-
-        {/* Other Info */}
-
-        <div>
-          <label className={labelClass}>
-            Other Info.
-          </label>
-
-          <input
-            type="text"
-            placeholder="Enter other information"
-            {...register("otherInfo")}
-            className={inputClass}
-          />
-        </div>
-      </div>
-    </Section>
-  </div>
-)}
 
       {activeTab === "service" && (
         <div className="grid grid-cols-1 divide-y divide-gray-200 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
@@ -1980,7 +1824,7 @@ export default function DealerForm({
                             <button
                               type="button"
                               onClick={() => removeIndividualCapacity(index)}
-                              className="flex h-[42px] w-[42px] items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                              className="flex h-10.5 w-10.5 items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50"
                               title="Remove product"
                             >
                               <Trash2 size={18} />
@@ -2064,33 +1908,33 @@ function Input({ label, error, ...props }: InputProps) {
   );
 }
 
-interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-}
+// interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+//   label: string;
+// }
 
-function Checkbox({ label, ...props }: CheckboxProps) {
-  return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-      <input {...props} type="checkbox" />
+// function Checkbox({ label, ...props }: CheckboxProps) {
+//   return (
+//     <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
+//       <input {...props} type="checkbox" />
 
-      <span className="text-sm text-gray-700">{label}</span>
-    </label>
-  );
-}
+//       <span className="text-sm text-gray-700">{label}</span>
+//     </label>
+//   );
+// }
 
-interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-}
+// interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
+//   label: string;
+// }
 
-function Radio({ label, ...props }: RadioProps) {
-  return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-      <input {...props} type="radio" />
+// function Radio({ label, ...props }: RadioProps) {
+//   return (
+//     <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
+//       <input {...props} type="radio" />
 
-      <span className="text-sm text-gray-700">{label}</span>
-    </label>
-  );
-}
+//       <span className="text-sm text-gray-700">{label}</span>
+//     </label>
+//   );
+// }
 
 function ErrorText({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-red-600">{children}</p>;
@@ -2111,36 +1955,36 @@ const inputClass =
   "text-xs outline-none transition " +
   "focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
 
-const textareaClass =
-  "w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 " +
-  "text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
+// const textareaClass =
+//   "w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 " +
+//   "text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
 
-interface ImagePreviewProps {
-  src: string;
-  label: string;
-  onRemove: () => void;
-}
+// interface ImagePreviewProps {
+//   src: string;
+//   label: string;
+//   onRemove: () => void;
+// }
 
-function ImagePreview({ src, label, onRemove }: ImagePreviewProps) {
-  return (
-    <div className="mt-3">
-      <p className="mb-2 text-xs font-medium text-gray-600">{label}</p>
+// function ImagePreview({ src, label, onRemove }: ImagePreviewProps) {
+//   return (
+//     <div className="mt-3">
+//       <p className="mb-2 text-xs font-medium text-gray-600">{label}</p>
 
-      <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-        <img src={src} alt={label} className="h-40 w-full object-contain" />
+//       <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+//         <img src={src} alt={label} className="h-40 w-full object-contain" />
 
-        <button
-          type="button"
-          onClick={onRemove}
-          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
-          title="Remove image"
-        >
-          <X size={16} />
-        </button>
-      </div>
-    </div>
-  );
-}
+//         <button
+//           type="button"
+//           onClick={onRemove}
+//           className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
+//           title="Remove image"
+//         >
+//           <X size={16} />
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 

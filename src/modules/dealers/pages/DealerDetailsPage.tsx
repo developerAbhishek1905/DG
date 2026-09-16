@@ -7,23 +7,18 @@ import {
   Phone,
   User,
 } from "lucide-react";
-
 import { useNavigate, useParams } from "react-router-dom";
-
 import Card from "../../../components/ui/Card";
 import DealerStatusBadge from "../components/DealerStatusBadge";
-
 import { useDealerDetails } from "../hooks/useDealers";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function DealerDetailsPage() {
   const navigate = useNavigate();
-
+  const { hasPermission } = usePermission();
   const { id } = useParams();
-
-  const IMAGE_UPLOAD_URL = "http://localhost:5004"
-
+  const IMAGE_UPLOAD_URL = "http://localhost:5004";
   const { dealer, loading } = useDealerDetails(id);
-
   type DealerDocuments = {
     aadhaarFront?: string | null;
     aadhaarBack?: string | null;
@@ -62,18 +57,13 @@ export default function DealerDetailsPage() {
   }
 
   const combinedProducts = dealer.combinedCapacity?.products ?? [];
-
   const combinedCapacity = Number(dealer.combinedCapacity?.capacity ?? 0);
-
   const individualCapacities = dealer.individualCapacities ?? [];
-
   const totalIndividualCapacity = individualCapacities.reduce(
     (total, item) => total + Number(item.capacity || 0),
     0,
   );
-
   const totalCapacity = combinedCapacity + totalIndividualCapacity;
-
   const productServices = dealer.productServices ?? [];
 
   return (
@@ -92,14 +82,16 @@ export default function DealerDetailsPage() {
           Back to Dealers
         </button>
 
-        <button
-          type="button"
-          onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854]"
-        >
-          <Edit size={17} />
-          Edit Dealer
-        </button>
+        {hasPermission("dealers.update") && (
+          <button
+            type="button"
+            onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854]"
+          >
+            <Edit size={17} />
+            Edit Dealer
+          </button>
+        )}
       </div>
 
       {/* ======================================
@@ -140,7 +132,6 @@ export default function DealerDetailsPage() {
 
           <div className="rounded-lg bg-blue-50 px-5 py-4">
             <p className="text-xs font-medium text-blue-600">Total Capacity</p>
-
             <p className="mt-1 text-3xl font-bold text-[#123B7A]">
               {totalCapacity}
             </p>
@@ -388,7 +379,10 @@ export default function DealerDetailsPage() {
                         key={category.categoryId}
                         className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
                       >
-                        {category.categoryName} - {category?.description} - {category.rate !== undefined ? `₹${Number(category.rate).toLocaleString("en-IN")}` : "-"}
+                        {category.categoryName} - {category?.description} -{" "}
+                        {category.rate !== undefined
+                          ? `₹${Number(category.rate).toLocaleString("en-IN")}`
+                          : "-"}
                       </span>
                     ))
                   ) : (
@@ -689,7 +683,7 @@ function Info({
       <div className="min-w-0">
         <p className="text-xs text-gray-500">{label}</p>
 
-        <p className="mt-1 break-words text-sm font-medium text-gray-900">
+        <p className="mt-1 wrap-break-word text-sm font-medium text-gray-900">
           {value}
         </p>
       </div>
@@ -732,7 +726,7 @@ function DetailItem({
     <div>
       <p className="text-xs text-gray-500">{label}</p>
 
-      <p className="mt-1 break-words text-sm font-medium text-gray-900">
+      <p className="mt-1 wrap-break-word text-sm font-medium text-gray-900">
         {value}
       </p>
     </div>
@@ -897,26 +891,26 @@ function DocumentPreview({
   );
 }
 
-function BooleanDetailItem({
-  label,
-  value,
-}: {
-  label: string;
-  value?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-xs text-gray-500">{label}</p>
+// function BooleanDetailItem({
+//   label,
+//   value,
+// }: {
+//   label: string;
+//   value?: boolean;
+// }) {
+//   return (
+//     <div>
+//       <p className="text-xs text-gray-500">{label}</p>
 
-      <div className="mt-1">
-        <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-            value ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-          }`}
-        >
-          {value ? "Yes" : "No"}
-        </span>
-      </div>
-    </div>
-  );
-}
+//       <div className="mt-1">
+//         <span
+//           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+//             value ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+//           }`}
+//         >
+//           {value ? "Yes" : "No"}
+//         </span>
+//       </div>
+//     </div>
+//   );
+// }

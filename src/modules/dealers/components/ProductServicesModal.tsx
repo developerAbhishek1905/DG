@@ -155,7 +155,7 @@ export default function ProductServicesModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-xl">
         {/* HEADER */}
 
@@ -204,7 +204,7 @@ export default function ProductServicesModal({
 
         {/* LIST */}
 
-        <div className="max-h-[420px] overflow-y-auto p-4">
+        <div className="max-h-105 overflow-y-auto p-4">
           {loading ? (
             <div className="py-10 text-center text-sm text-gray-500">
               Loading services...
@@ -260,7 +260,7 @@ export default function ProductServicesModal({
 
                         {checked && (
                           <div className=" border-t border-blue-100 ">
-                            <div className="relative max-w-[220px]">
+                            <div className="relative max-w-55">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
                                 ₹
                               </span>

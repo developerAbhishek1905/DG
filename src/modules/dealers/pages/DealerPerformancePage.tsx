@@ -121,37 +121,20 @@
 //   );
 // }
 
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock3,
-  Star,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, Star, XCircle } from "lucide-react";
 
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Card from "../../../components/ui/Card";
 
-import {
-  useDealerDetails,
-} from "../hooks/useDealers";
+import { useDealerDetails } from "../hooks/useDealers";
 
 export default function DealerPerformancePage() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const { id } =
-    useParams();
+  const { id } = useParams();
 
-  const {
-    dealer,
-    loading,
-  } =
-    useDealerDetails(id);
+  const { dealer, loading } = useDealerDetails(id);
 
   if (loading) {
     return (
@@ -169,29 +152,19 @@ export default function DealerPerformancePage() {
     );
   }
 
-  const {
-    performance,
-  } = dealer;
+  const { performance  } = dealer;
 
-  const completionRate =
-    performance.totalComplaints
-      ? (
-          (performance
-            .completedComplaints /
-            performance
-              .totalComplaints) *
-          100
-        ).toFixed(1)
-      : "0";
+  const completionRate = performance.totalComplaints
+    ? (
+        (performance.completedComplaints / performance.totalComplaints) *
+        100
+      ).toFixed(1)
+    : "0";
 
   return (
     <div className="space-y-6">
       <button
-        onClick={() =>
-          navigate(
-            `/dealers/${dealer._id}`
-          )
-        }
+        onClick={() => navigate(`/dealers/${dealer._id}`)}
         className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
       >
         <ArrowLeft size={17} />
@@ -199,21 +172,16 @@ export default function DealerPerformancePage() {
       </button>
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          Dealer Performance
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Dealer Performance</h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          {dealer.name} •{" "}
-          {dealer.dealerCode}
+          {dealer.name} • {dealer.dealerCode}
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KPI
-          icon={
-            CheckCircle2
-          }
+          icon={CheckCircle2}
           label="Completion Rate"
           value={`${completionRate}%`}
         />
@@ -239,19 +207,13 @@ export default function DealerPerformancePage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-1">
-          <p className="text-sm text-gray-500">
-            Overall Score
-          </p>
+          <p className="text-sm text-gray-500">Overall Score</p>
 
           <p className="mt-3 text-5xl font-bold text-[#123B7A]">
-            {
-              performance.performanceScore
-            }
+            {performance.performanceScore}
           </p>
 
-          <p className="mt-1 text-sm text-gray-500">
-            out of 100
-          </p>
+          <p className="mt-1 text-sm text-gray-500">out of 100</p>
 
           <div className="mt-6 h-3 overflow-hidden rounded-full bg-gray-100">
             <div
@@ -264,69 +226,37 @@ export default function DealerPerformancePage() {
         </Card>
 
         <Card className="p-6 lg:col-span-2">
-          <h3 className="font-semibold text-gray-900">
-            Complaint Summary
-          </h3>
+          <h3 className="font-semibold text-gray-900">Complaint Summary</h3>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Summary
-              label="Total"
-              value={
-                performance.totalComplaints
-              }
-            />
+            <Summary label="Total" value={performance.totalComplaints} />
 
             <Summary
               label="Completed"
-              value={
-                performance.completedComplaints
-              }
+              value={performance.completedComplaints}
             />
 
-            <Summary
-              label="Pending"
-              value={
-                performance.pendingComplaints
-              }
-            />
+            <Summary label="Pending" value={performance.pendingComplaints} />
 
             <Summary
               label="Cancelled"
-              value={
-                performance.cancelledComplaints
-              }
+              value={performance.cancelledComplaints}
             />
           </div>
         </Card>
       </div>
 
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900">
-          Performance Indicators
-        </h3>
+        <h3 className="font-semibold text-gray-900">Performance Indicators</h3>
 
         <div className="mt-6 space-y-6">
-          <Progress
-            label="SLA Compliance"
-            value={
-              performance.slaCompliance
-            }
-          />
+          <Progress label="SLA Compliance" value={performance.slaCompliance} />
 
-          <Progress
-            label="Completion Rate"
-            value={
-              Number(
-                completionRate
-              )
-            }
-          />
+          <Progress label="Completion Rate" value={Number(completionRate)} />
 
           <Progress
             label="Performance Score"
-            value={
-              performance.performanceScore
-            }
+            value={performance.performanceScore}
           />
         </div>
       </Card>
@@ -351,66 +281,39 @@ function KPI({
         </div>
 
         <div>
-          <p className="text-xs text-gray-500">
-            {label}
-          </p>
+          <p className="text-xs text-gray-500">{label}</p>
 
-          <p className="mt-1 text-xl font-bold text-gray-900">
-            {value}
-          </p>
+          <p className="mt-1 text-xl font-bold text-gray-900">{value}</p>
         </div>
       </div>
     </Card>
   );
 }
 
-function Summary({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+function Summary({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg bg-gray-50 p-4">
-      <p className="text-2xl font-bold text-gray-900">
-        {value}
-      </p>
+      <p className="text-2xl font-bold text-gray-900">{value}</p>
 
-      <p className="mt-1 text-xs text-gray-500">
-        {label}
-      </p>
+      <p className="mt-1 text-xs text-gray-500">{label}</p>
     </div>
   );
 }
 
-function Progress({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+function Progress({ label, value }: { label: string; value: number }) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-700">
-          {label}
-        </p>
+        <p className="text-sm font-medium text-gray-700">{label}</p>
 
-        <p className="text-sm font-semibold text-gray-900">
-          {value}%
-        </p>
+        <p className="text-sm font-semibold text-gray-900">{value}%</p>
       </div>
 
       <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
         <div
           className="h-full rounded-full bg-[#123B7A]"
           style={{
-            width: `${Math.min(
-              value,
-              100
-            )}%`,
+            width: `${Math.min(value, 100)}%`,
           }}
         />
       </div>

@@ -151,6 +151,18 @@ export const PERMISSIONS = {
   // REASON_EXPORT: "reason.export",
   REASON_ACTIVE: "reason.active",
 
+  // =========================
+  // DEALER MASTER
+  // =========================
+
+  DEALER_VIEW: "dealers.view",
+  DEAlER_TABLE: "dealers.table",
+  DEALER_CREATE: "dealers.create",
+  DEALER_UPDATE: "dealers.update",
+  DEALER_DELETE: "dealers.delete",
+  DEALER_PERFORMANCE_VIEW: "dealers.performance.view",
+  DEALER_CAPACITY_MANAGE: "dealers.capacity.manage",
+
   ITEM_ACCESS: "item.access",
 
   APPOINTMENT_ACCESS: "appointments.access",
@@ -193,13 +205,6 @@ export const PERMISSIONS = {
   COMPLAINT_CANCEL: "complaints.cancel",
   COMPLAINT_CLOSE: "complaints.close",
   COMPLAINT_VERIFY: "complaints.verify",
-
-  DEALER_VIEW: "dealers.view",
-  DEALER_CREATE: "dealers.create",
-  DEALER_UPDATE: "dealers.update",
-  DEALER_DELETE: "dealers.delete",
-  DEALER_PERFORMANCE_VIEW: "dealers.performance.view",
-  DEALER_CAPACITY_MANAGE: "dealers.capacity.manage",
 
   APPOINTMENT_VIEW: "appointments.view",
   APPOINTMENT_CREATE: "appointments.create",
@@ -981,6 +986,58 @@ export const PERMISSION_LIST: Permission[] = [
   //   action: "access",
   //   label: "Access Item Master",
   // },
+
+  // =========================
+  // DEALER MASTER
+  // =========================
+
+  {
+    id: "P-019",
+    key: PERMISSIONS.DEALER_VIEW,
+    module: "Dealers",
+    action: "view",
+    label: "View Dealers",
+  },
+  {
+    id: "P-019",
+    key: PERMISSIONS.DEAlER_TABLE,
+    module: "Dealers",
+    action: "table",
+    label: "View Dealers Table",
+  },
+
+  {
+    id: "P-020",
+    key: PERMISSIONS.DEALER_CREATE,
+    module: "Dealers",
+    action: "create",
+    label: "Create Dealers",
+  },
+
+  {
+    id: "P-021",
+    key: PERMISSIONS.DEALER_UPDATE,
+    module: "Dealers",
+    action: "update",
+    label: "Update Dealers",
+  },
+
+  {
+    id: "P-022",
+    key: PERMISSIONS.DEALER_DELETE,
+    module: "Dealers",
+    action: "delete",
+    label: "Delete Dealers",
+  },
+
+  {
+    id: "P-023",
+    key: PERMISSIONS.DEALER_PERFORMANCE_VIEW,
+    module: "Dealers",
+    action: "performance",
+    label: "View Performance",
+  },
+
   {
     id: "P-006",
     key: PERMISSIONS.APPOINTMENT_ACCESS,
@@ -1325,46 +1382,6 @@ export const PERMISSION_LIST: Permission[] = [
     module: "Complaints",
     action: "verify",
     label: "Verify Complaint",
-  },
-
-  {
-    id: "P-019",
-    key: PERMISSIONS.DEALER_VIEW,
-    module: "Dealers",
-    action: "view",
-    label: "View Dealers",
-  },
-
-  {
-    id: "P-020",
-    key: PERMISSIONS.DEALER_CREATE,
-    module: "Dealers",
-    action: "create",
-    label: "Create Dealers",
-  },
-
-  {
-    id: "P-021",
-    key: PERMISSIONS.DEALER_UPDATE,
-    module: "Dealers",
-    action: "update",
-    label: "Update Dealers",
-  },
-
-  {
-    id: "P-022",
-    key: PERMISSIONS.DEALER_DELETE,
-    module: "Dealers",
-    action: "delete",
-    label: "Delete Dealers",
-  },
-
-  {
-    id: "P-023",
-    key: PERMISSIONS.DEALER_PERFORMANCE_VIEW,
-    module: "Dealers",
-    action: "performance",
-    label: "View Performance",
   },
 
   {
