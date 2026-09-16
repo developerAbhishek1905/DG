@@ -31,25 +31,16 @@
 //   );
 // }
 
-
-import {
-  ArrowLeft,
-} from "lucide-react";
-import {
-  useState,
-} from "react";
-import {
-  useNavigate,
-} from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ComplaintForm from "../components/ComplaintForm";
 import DealerAllocationModal, {
   type AllocationDealer,
 } from "../components/DealerAllocationModal";
 
-import type {
-  Complaint,
-} from "../types/complaint.types";
+import type { Complaint } from "../types/complaint.types";
 
 const mockDealers: AllocationDealer[] = [
   {
@@ -150,59 +141,34 @@ const mockDealers: AllocationDealer[] = [
 ];
 
 export default function CreateComplaintPage() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [
-    createdComplaint,
-    setCreatedComplaint,
-  ] =
-    useState<Complaint | null>(
-      null
-    );
+  const [createdComplaint, setCreatedComplaint] = useState<Complaint | null>(
+    null,
+  );
 
-  const [
-    allocationOpen,
-    setAllocationOpen,
-  ] = useState(false);
+  const [allocationOpen, setAllocationOpen] = useState(false);
 
-  const [
-    selectedDealerId,
-    setSelectedDealerId,
-  ] =
-    useState<string>("");
+  const [selectedDealerId, setSelectedDealerId] = useState<string>("");
 
-  const [
-    allocationLoading,
-    setAllocationLoading,
-  ] = useState(false);
+  const [allocationLoading, setAllocationLoading] = useState(false);
 
   /*
    * Called after complaint
    * creation succeeds.
    */
-  const handleComplaintCreated = (
-    complaint: Complaint
-  ) => {
-    setCreatedComplaint(
-      complaint
-    );
+  const handleComplaintCreated = (complaint: Complaint) => {
+    setCreatedComplaint(complaint);
 
     /*
      * Automatically select
      * recommended dealer.
      */
-    const recommendedDealer =
-      mockDealers.find(
-        (dealer) =>
-          dealer.available &&
-          dealer.serviceMatch
-      );
-
-    setSelectedDealerId(
-      recommendedDealer?.id ||
-        ""
+    const recommendedDealer = mockDealers.find(
+      (dealer) => dealer.available && dealer.serviceMatch,
     );
+
+    setSelectedDealerId(recommendedDealer?.id || "");
 
     /*
      * Open allocation popup.
@@ -213,90 +179,60 @@ export default function CreateComplaintPage() {
   /*
    * Allocate dealer
    */
-  const handleAllocateDealer =
-    async () => {
-      if (
-        !createdComplaint ||
-        !selectedDealerId
-      ) {
-        return;
-      }
+  const handleAllocateDealer = async () => {
+    if (!createdComplaint || !selectedDealerId) {
+      return;
+    }
 
-      try {
-        setAllocationLoading(
-          true
-        );
+    try {
+      setAllocationLoading(true);
 
-        /*
-         * MOCK allocation API
-         *
-         * Later:
-         *
-         * await allocateDealer({
-         *   complaintId:
-         *     createdComplaint.id,
-         *   dealerId:
-         *     selectedDealerId,
-         * });
-         */
+      /*
+       * MOCK allocation API
+       *
+       * Later:
+       *
+       * await allocateDealer({
+       *   complaintId:
+       *     createdComplaint.id,
+       *   dealerId:
+       *     selectedDealerId,
+       * });
+       */
 
-        await new Promise(
-          (resolve) =>
-            setTimeout(
-              resolve,
-              700
-            )
-        );
+      await new Promise((resolve) => setTimeout(resolve, 700));
 
-        console.log(
-          "Dealer allocation:",
-          {
-            complaintId:
-              createdComplaint.id,
+      console.log("Dealer allocation:", {
+        complaintId: createdComplaint.id,
 
-            dealerId:
-              selectedDealerId,
-          }
-        );
+        dealerId: selectedDealerId,
+      });
 
-        setAllocationOpen(
-          false
-        );
+      setAllocationOpen(false);
 
-        /*
-         * Later we can navigate to
-         * allocation details instead.
-         */
-        navigate(
-          `/complaints/${createdComplaint.id}`
-        );
-      } finally {
-        setAllocationLoading(
-          false
-        );
-      }
-    };
+      /*
+       * Later we can navigate to
+       * allocation details instead.
+       */
+      navigate(`/complaints/${createdComplaint.id}`);
+    } finally {
+      setAllocationLoading(false);
+    }
+  };
 
   /*
    * User wants to allocate
    * dealer later.
    */
-  const handleAllocateLater =
-    () => {
-      setAllocationOpen(false);
+  const handleAllocateLater = () => {
+    setAllocationOpen(false);
 
-      if (
-        createdComplaint
-      ) {
-        navigate(
-          `/complaints/${createdComplaint.id}`
-        );
-      } else {
-        navigate(
-          "/complaints"
-        );
-      }
-    };
+    if (createdComplaint) {
+      navigate(`/complaints/${createdComplaint.id}`);
+    } else {
+      navigate("/complaints");
+    }
+  };
 
   return (
     <div>
@@ -305,17 +241,10 @@ export default function CreateComplaintPage() {
       ============================ */}
 
       <button
-        onClick={() =>
-          navigate(
-            "/complaints"
-          )
-        }
+        onClick={() => navigate("/complaints")}
         className="mb-5 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
       >
-        <ArrowLeft
-          size={17}
-        />
-
+        <ArrowLeft size={17} />
         Back to Complaints
       </button>
 
@@ -324,56 +253,32 @@ export default function CreateComplaintPage() {
       ============================ */}
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Create Complaint
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Create Complaint</h1>
 
-        <p className="mt-1 text-sm text-gray-500">
-          Register a new
-          customer complaint.
-        </p>
+        {/* <p className="mt-1 text-sm text-gray-500">
+          Register a new customer complaint.
+        </p> */}
       </div>
 
       {/* ===========================
           FORM
       ============================ */}
 
-      <ComplaintForm
-        onComplaintCreated={
-          handleComplaintCreated
-        }
-      />
+      <ComplaintForm onComplaintCreated={handleComplaintCreated} />
 
       {/* ===========================
           DEALER ALLOCATION MODAL
       ============================ */}
 
       <DealerAllocationModal
-        open={
-          allocationOpen
-        }
-        complaintNumber={
-          createdComplaint
-            ?.complaintNumber
-        }
-        dealers={
-          mockDealers
-        }
-        selectedDealerId={
-          selectedDealerId
-        }
-        onSelectDealer={
-          setSelectedDealerId
-        }
-        onAllocate={
-          handleAllocateDealer
-        }
-        onSkip={
-          handleAllocateLater
-        }
-        loading={
-          allocationLoading
-        }
+        open={allocationOpen}
+        complaintNumber={createdComplaint?.complaintNumber}
+        dealers={mockDealers}
+        selectedDealerId={selectedDealerId}
+        onSelectDealer={setSelectedDealerId}
+        onAllocate={handleAllocateDealer}
+        onSkip={handleAllocateLater}
+        loading={allocationLoading}
       />
     </div>
   );

@@ -156,6 +156,10 @@ const normalizeHistoryItem = (
 
     productName: complaint.productName,
 
+    technicianName: complaint?.allocatedDealerId?.technicianName,
+
+    technicianNumber: complaint?.allocatedDealerId?.mobileNumber,
+
     faultReported: complaint.faultReported,
 
     status: complaint.status,

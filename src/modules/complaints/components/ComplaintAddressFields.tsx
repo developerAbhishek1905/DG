@@ -394,7 +394,7 @@ export default function ComplaintAddressFields({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Hidden IDs */}
 
       <input
@@ -425,11 +425,12 @@ export default function ComplaintAddressFields({
         })}
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {/* ADDRESS */}
 
         <div className="md:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-xs font-medium text-gray-700">
             Customer Address
             {/* <span className="ml-1 text-red-500">*</span> */}
           </label>
@@ -439,8 +440,8 @@ export default function ComplaintAddressFields({
             {...register("address.addressLine", {
               required: "Customer address is required",
             })}
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
+className={inputClass}
+/>
 
           {addressErrors?.addressLine && (
             <p className="mt-1 text-xs text-red-600">
@@ -579,3 +580,6 @@ export default function ComplaintAddressFields({
     </div>
   );
 }
+
+const inputClass =
+  "w-full h-8 rounded-md border border-gray-300 bg-white px-2.5 text-xs text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-100";

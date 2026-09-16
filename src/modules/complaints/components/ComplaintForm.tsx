@@ -242,6 +242,27 @@ export default function ComplaintForm({
   };
 
   const customerPhone = watch("customerPhone");
+
+  useEffect(() => {
+    const phone = customerPhone?.replace(/\D/g, "") || "";
+
+    if (phone.length < 10) {
+      if (existingCustomer) {
+        clearCustomerForm();
+      }
+
+      setExistingCustomer(null);
+      setLookupError("");
+      setLookupDone(false);
+
+      return;
+    }
+
+    if (phone.length === 10) {
+      lookupCustomer(phone);
+    }
+  }, [customerPhone]);
+
   const [existingCustomer, setExistingCustomer] = useState<Customer | null>(
     null,
   );
@@ -285,19 +306,17 @@ export default function ComplaintForm({
   const selectedProductType = watch("productType");
   const selectedComplaintNumber = watch("repeatComplaintNumber");
 
-const [categories, setCategories] = useState<CategoryDropdownOption[]>([]);
+  const [categories, setCategories] = useState<CategoryDropdownOption[]>([]);
 
-const [categorySearch, setCategorySearch] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
 
-const [categoryLoading, setCategoryLoading] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
 
-const debouncedCategorySearch = useDebounce(categorySearch, 500);
+  const debouncedCategorySearch = useDebounce(categorySearch, 500);
 
-const selectedCategory = watch("category");
+  const selectedCategory = watch("category");
 
   const navigate = useNavigate();
-
-
 
   // useEffect(() => {
   //   const timer = setInterval(() => {
@@ -351,50 +370,48 @@ const selectedCategory = watch("category");
   // };
 
   const loadCategories = async (search: string) => {
-  if (!selectedProductId) {
-    setCategories([]);
-    return;
-  }
+    if (!selectedProductId) {
+      setCategories([]);
+      return;
+    }
 
-  try {
-    setCategoryLoading(true);
+    try {
+      setCategoryLoading(true);
 
-    const data = await searchCategories({
-      productId: Number(selectedProductId),
-      search,
+      const data = await searchCategories({
+        productId: Number(selectedProductId),
+        search,
+      });
+
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to load categories:", error);
+      setCategories([]);
+    } finally {
+      setCategoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedProductId) {
+      setCategories([]);
+      return;
+    }
+
+    loadCategories(debouncedCategorySearch);
+  }, [debouncedCategorySearch, selectedProductId]);
+
+  const handleCategorySelect = (category: CategoryDropdownOption) => {
+    setValue("categoryId", category._id || category.id || "", {
+      shouldDirty: true,
+      shouldValidate: true,
     });
 
-    setCategories(data);
-  } catch (error) {
-    console.error("Failed to load categories:", error);
-    setCategories([]);
-  } finally {
-    setCategoryLoading(false);
-  }
-};
-
-useEffect(() => {
-  if (!selectedProductId) {
-    setCategories([]);
-    return;
-  }
-
-  loadCategories(debouncedCategorySearch);
-}, [debouncedCategorySearch, selectedProductId]);
-
-const handleCategorySelect = (
-  category: CategoryDropdownOption,
-) => {
-  setValue("categoryId", category._id || category.id || "", {
-    shouldDirty: true,
-    shouldValidate: true,
-  });
-
-  setValue("category", category.category, {
-    shouldDirty: true,
-    shouldValidate: true,
-  });
-};
+    setValue("category", category.category, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
 
   const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
     // if (selectedComplaintType !== "WARRANTY") {
@@ -520,11 +537,11 @@ const handleCategorySelect = (
     setProductTypeSearch("");
     setProductTypes([]);
 
-      // reset category
-  setValue("category", "");
+    // reset category
+    setValue("category", "");
 
-  setCategorySearch("");
-  setCategories([]);
+    setCategorySearch("");
+    setCategories([]);
   };
 
   const handleProductTypeSelect = (productType: ProductTypeDropdownOption) => {
@@ -602,6 +619,34 @@ const handleCategorySelect = (
   //   setValue("pincode", customer.address?.pinCode || "");
   //   setValue("contactInfo", customer.contactInfo || "");
   // };
+
+  const clearCustomerForm = () => {
+    // Customer
+    setValue("customerName", "");
+    setValue("alternatePhone", "");
+    setValue("email", "");
+
+    // Address
+    setValue("address.addressLine", "");
+
+    setValue("address.stateId", undefined);
+    setValue("address.state", "");
+
+    setValue("address.districtId", undefined);
+    setValue("address.district", "");
+
+    setValue("address.cityId", undefined);
+    setValue("address.city", "");
+
+    setValue("address.pincodeId", undefined);
+    setValue("address.pinCode", "");
+
+    // Existing customer state
+    setExistingCustomer(null);
+    setLookupError("");
+    setLookupDone(false);
+  };
+
   const fillCustomerDetails = (customer: Customer) => {
     setValue("customerId", customer.id);
 
@@ -672,14 +717,14 @@ const handleCategorySelect = (
         units: Number(data.units),
         quoteAmount: data.quoteAmount ? Number(data.quoteAmount) : undefined,
         productDescription: data.productDescription,
-          productId: data.productId,
-  productName: data.productName,
+        productId: data.productId,
+        productName: data.productName,
 
-  productTypeId: data.productTypeId,
-  productType: data.productType,
+        productTypeId: data.productTypeId,
+        productType: data.productType,
 
-  categoryId: data.categoryId,
-  // category: data.category,
+        categoryId: data.categoryId,
+        // category: data.category,
         faultReported: data.faultReported,
         category: data.category,
         priority: data.priority,
@@ -690,9 +735,8 @@ const handleCategorySelect = (
         description: data.description,
       });
       // onComplaintCreated?.(createdComplaint);
-      navigate("/complaints");  
+      navigate("/complaints");
       toast.success("Complaint created successfully");
-
     } catch (error) {
       console.error("Create complaint error:", error);
     } finally {
@@ -728,520 +772,907 @@ const handleCategorySelect = (
   //   }
   // }, [selectedComplaintType, setValue]);
 
+  //   return (
+  //     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+  //       {/* COMPLAINT INFORMATION */}
+
+  //       {/*  CUSTOMER INFORMATION */}
+
+  //       <Section title="Customer Information">
+  //         {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> */}
+  //         <div className="grid grid-cols-1 gap-x-3 gap-y-2 md:grid-cols-2 lg:grid-cols-4">
+  //           {/* Registered Mobile Number */}
+  //           <div>
+  //             <label className="mb-1 block text-sm font-medium text-gray-700">
+  //               Registered Mobile Number
+  //               <span className="ml-1 text-red-500">*</span>
+  //             </label>
+
+  //             <div className="relative">
+  //               <input
+  //                 {...register("customerPhone", {
+  //                   required: "Registered mobile number is required",
+  //                   pattern: {
+  //                     value: /^[0-9]{10}$/,
+  //                     message: "Enter valid 10 digit mobile number",
+  //                   },
+  //                 })}
+  //                 maxLength={10}
+  //                 inputMode="numeric"
+  //                 placeholder="9876543210"
+  //                 className={inputClass}
+  //               />
+
+  //               {lookupLoading && (
+  //                 <Loader2
+  //                   size={17}
+  //                   className="absolute right-3 top-3 animate-spin text-gray-400"
+  //                 />
+  //               )}
+  //             </div>
+
+  //             {errors.customerPhone && (
+  //               <ErrorText>{errors.customerPhone.message}</ErrorText>
+  //             )}
+  //           </div>
+
+  //           <Input
+  //             label="Alternative Phone No."
+  //             placeholder="9876543210"
+  //             maxLength={10}
+  //             inputMode="numeric"
+  //             error={errors.alternatePhone?.message}
+  //             {...register("alternatePhone", {
+  //               pattern: {
+  //                 value: /^$|^[0-9]{10}$/,
+  //                 message: "Enter valid 10 digit mobile number",
+  //               },
+  //             })}
+  //           />
+
+  //           <Input
+  //             label="Customer Name"
+  //             placeholder="Customer name"
+  //             error={errors.customerName?.message}
+  //             {...register("customerName", {
+  //               required: "Customer name is required",
+  //             })}
+  //           />
+
+  //           {/* City */}
+
+  //           {/* <div className="md:col-span-2">
+  //             <label className="mb-1 block text-sm font-medium text-gray-700">
+  //               Customer Address
+  //               <span className="ml-1 text-red-500">*</span>
+  //             </label>
+
+  //             <input
+  //               {...register("address", {
+  //                 required: "Customer address is required",
+  //               })}
+  //               placeholder="Enter customer address"
+  //               className={inputClass}
+  //             />
+
+  //             {errors.address && <ErrorText>{errors.address.message}</ErrorText>}
+  //           </div>
+
+  //           <Input
+  //             label="City"
+  //             placeholder="City"
+  //             error={errors.city?.message}
+  //             {...register("city", {
+  //               required: "City is required",
+  //             })}
+  //           /> */}
+
+  //           {/* District */}
+
+  //           {/* <Input
+  //             label="District"
+  //             placeholder="District"
+  //             {...register("district")}
+  //           /> */}
+
+  //           {/* State */}
+
+  //           {/* <Input
+  //             label="State"
+  //             placeholder="State"
+  //             error={errors.state?.message}
+  //             {...register("state", {
+  //               required: "State is required",
+  //             })}
+  //           /> */}
+
+  //           {/* Pin Code */}
+
+  //           {/* <Input
+  //             label="Pin Code"
+  //             placeholder="452001"
+  //             maxLength={6}
+  //             inputMode="numeric"
+  //             error={errors.pincode?.message}
+  //             {...register("pincode", {
+  //               pattern: {
+  //                 value: /^[0-9]{6}$/,
+  //                 message: "Enter valid 6 digit pin code",
+  //               },
+  //             })}
+  //           /> */}
+  //         </div>
+
+  //         <div className="mt-5">
+  //           <ComplaintAddressFields
+  //             register={register}
+  //             setValue={setValue}
+  //             watch={watch}
+  //             errors={errors}
+  //           />
+  //         </div>
+
+  //         {existingCustomer && (
+  //           <button
+  //             type="button"
+  //             onClick={handleUpdateCustomer}
+  //             disabled={updatingCustomer}
+  //             className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+  //           >
+  //             {updatingCustomer ? "Updating..." : "Update Customer"}
+  //           </button>
+  //         )}
+
+  //         {/* Existing Customer Status */}
+
+  //         {lookupError && (
+  //           <div className="mt-5 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+  //             <AlertCircle size={18} />
+
+  //             {lookupError}
+  //           </div>
+  //         )}
+
+  // {lookupDone && !lookupError && existingCustomer && (
+  //   <div className="mt-2 flex items-center justify-between rounded-md border border-green-200 bg-green-50 px-3 py-1.5">
+  //     <div className="flex items-center gap-2 text-xs text-green-700">
+  //       <UserCheck size={15} />
+  //       <span>
+  //         Existing customer:{" "}
+  //         <strong>{existingCustomer.name}</strong>
+  //       </span>
+  //     </div>
+
+  //     <button
+  //       type="button"
+  //       onClick={handleUpdateCustomer}
+  //       disabled={updatingCustomer}
+  //       className="text-xs font-medium text-[#123B7A] hover:underline"
+  //     >
+  //       {updatingCustomer ? "Updating..." : "Update Customer"}
+  //     </button>
+  //   </div>
+  // )}
+  //       </Section>
+
+  //       {/* PRODUCT INFORMATION */}
+
+  //       <Section title="Product & Complaint Details">
+  //         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  //           {/* <Input
+  //             label="Brand"
+  //             placeholder="Brand"
+  //             {...register("contactInfo")}
+  //           /> */}
+
+  //           {/* BRAND */}
+
+  //           <SearchSelect
+  //             label="Brand"
+  //             value={selectedBrand || ""}
+  //             placeholder="Search brand..."
+  //             loading={brandLoading}
+  //             options={brands.map((brand) => ({
+  //               value: brand.id,
+
+  //               label: brand.brandName,
+
+  //               data: brand,
+  //             }))}
+  //             onSearch={setBrandSearch}
+  //             onSelect={(option) =>
+  //               handleBrandSelect(option.data as BrandDropdownOption)
+  //             }
+  //             onClear={() => {
+  //               setValue("brandId", "");
+
+  //               setValue("brand", "");
+
+  //               setBrandSearch("");
+  //             }}
+  //           />
+  //           {/* <Input
+  //             label="Product"
+  //             placeholder="Product"
+  //             error={errors.productName?.message}
+  //             {...register("productName", {
+  //               required: "Product is required",
+  //             })}
+  //           /> */}
+
+  //           {/* PRODUCT */}
+
+  //           <SearchSelect
+  //             label="Product"
+  //             value={selectedProductName || ""}
+  //             placeholder="Search product..."
+  //             loading={productLoading}
+  //             options={products.map((product) => ({
+  //               value: product.product_id,
+
+  //               label: product.product_name,
+
+  //               data: product,
+  //             }))}
+  //             onSearch={setProductSearch}
+  //             onSelect={(option) =>
+  //               handleProductSelect(option.data as ProductDropdownOption)
+  //             }
+  //             onClear={() => {
+  //               setValue("productId", undefined);
+
+  //               setValue("productName", "");
+
+  //               setValue("productTypeId", "");
+
+  //               setValue("productType", "");
+
+  //               setProductSearch("");
+  //               setProductTypeSearch("");
+  //               setProductTypes([]);
+  //             }}
+  //             error={errors.productName?.message}
+  //           />
+
+  //           {/* CATEGORY */}
+
+  // <SearchSelect
+  //   label="Category"
+  //   value={selectedCategory || ""}
+  //   placeholder={
+  //     selectedProductId
+  //       ? "Search category..."
+  //       : "Select product first"
+  //   }
+  //   loading={categoryLoading}
+  //   options={categories.map((category) => ({
+  //     value: category.id ?? `${category.product_id}-${category.category}`,
+  //     label: category.category,
+  //     data: category,
+  //   }))}
+  //   onSearch={setCategorySearch}
+  //   onSelect={(option) =>
+  //     handleCategorySelect(option.data as CategoryDropdownOption)
+  //   }
+  //   onClear={() => {
+  //     setValue("category", "");
+  //     setCategorySearch("");
+  //   }}
+  //   error={errors.category?.message}
+  // />
+
+  //           {/* PRODUCT TYPE */}
+
+  //           <SearchSelect
+  //             label="Product Type"
+  //             value={selectedProductType || ""}
+  //             placeholder={
+  //               selectedProductId
+  //                 ? "Search product type..."
+  //                 : "Select product first"
+  //             }
+  //             loading={productTypeLoading}
+  //             options={productTypes.map((type) => ({
+  //               value: type.id ?? `${type.product_id}-${type.product_type}`,
+
+  //               label: type.product_code
+  //                 ? `${type.product_type} - ${type.product_code}`
+  //                 : type.product_type,
+
+  //               data: type,
+  //             }))}
+  //             onSearch={setProductTypeSearch}
+  //             onSelect={(option) =>
+  //               handleProductTypeSelect(option.data as ProductTypeDropdownOption)
+  //             }
+  //             onClear={() => {
+  //               setValue("productTypeId", "");
+
+  //               setValue("productType", "");
+
+  //               setProductTypeSearch("");
+  //             }}
+  //           />
+  //           <Input
+  //             label="Unit"
+  //             type="number"
+  //             min={1}
+  //             error={errors.units?.message}
+  //             {...register("units", {
+  //               valueAsNumber: true,
+
+  //               required: "Unit is required",
+
+  //               min: {
+  //                 value: 1,
+  //                 message: "Minimum 1 unit required",
+  //               },
+  //             })}
+  //           />
+
+  //           <Input
+  //             label="Quote"
+  //             type="number"
+  //             min={0}
+  //             placeholder="0"
+  //             {...register("quoteAmount", {
+  //               valueAsNumber: true,
+  //             })}
+  //           />
+
+  //           <Input
+  //             label="Fault Reported"
+  //             placeholder="Enter fault reported by customer"
+  //             error={errors.faultReported?.message}
+  //             {...register("faultReported", {
+  //               required: "Fault reported is required",
+  //             })}
+  //           />
+
+  //           <div>
+  //             <label className="mb-1 block text-sm font-medium text-gray-700">
+  //               Type
+  //               <span className="ml-1 text-red-500">*</span>
+  //             </label>
+
+  //             {/* <select
+  //               {...register("complaintType", {
+  //                 required: "Complaint type is required",
+
+  //                 onChange: (event) => {
+  //                   const type = event.target.value as ComplaintType;
+
+  //                   if (type === "WARRANTY") {
+  //                     // User must select old warranty complaint
+  //                     setValue("repeatComplaintNumber", "");
+  //                     setValue("complaintNumber", "");
+  //                   } else {
+  //                     setValue("repeatComplaintNumber", "");
+  //                     setValue("complaintNumber", generateComplaintNumber());
+  //                   }
+  //                 },
+  //               })}
+  //               className={inputClass}
+  //             >
+  //               <option value="REGULAR">Regular</option>
+  //               <option value="REPEAT">Repeat</option>
+  //               <option value="WARRANTY">Warranty</option>
+  //               <option value="PAID_SERVICE">Paid Service</option>
+  //             </select> */}
+
+  //             <select
+  //               {...register("complaintType", {
+  //                 required: "Complaint type is required",
+
+  //                 onChange: (event) => {
+  //                   const type = event.target.value as ComplaintType;
+
+  //                   setValue("repeatComplaintNumber", "");
+
+  //                   if (type !== "WARRANTY") {
+  //                     setValue("complaintNumber", generateComplaintNumber());
+  //                   }
+  //                 },
+  //               })}
+  //               className={inputClass}
+  //             >
+  //               <option value="REGULAR">Regular</option>
+
+  //               <option value="REPEAT">Repeat</option>
+
+  //               <option value="WARRANTY">Warranty</option>
+
+  //               <option value="INQUIRY">Inquiry</option>
+  //             </select>
+  //           </div>
+  //         </div>
+  //       </Section>
+
+  //       {/* OTHER INFORMATION */}
+
+  //       <Section title="Other Information">
+  //         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  //           <Input
+  //             label="Ad. Name"
+  //             placeholder="Ad. name"
+  //             {...register("adName")}
+  //           />
+
+  //           {/* Status */}
+
+  //           {/* <div>
+  //             <label className="mb-1 block text-sm font-medium text-gray-700">
+  //               Status
+  //             </label>
+  //             <select {...register("status")} className={inputClass}>
+  //               <option value="REGISTERED">Registered</option>
+  //               <option value="PENDING">Pending</option>
+  //               <option value="CANCELLED">Cancelled</option>
+  //             </select>
+  //           </div> */}
+
+  //           {selectedComplaintType === "WARRANTY" && (
+  //             <>
+  //               {/* Old Complaint Number */}
+  //               <div>
+  //                 <label className="mb-1 block text-sm font-medium text-gray-700">
+  //                   Old Complaint Number
+  //                 </label>
+
+  //                 <input
+  //                   {...register("repeatComplaintNumber")}
+  //                   readOnly
+  //                   placeholder="Select warranty complaint from history"
+  //                   className={`${inputClass} cursor-not-allowed bg-gray-50 font-medium text-gray-700`}
+  //                 />
+
+  //                 <p className="mt-1 text-xs text-gray-400">
+  //                   Select a warranty complaint from complaint history.
+  //                 </p>
+  //               </div>
+
+  //               {/* New Complaint Number */}
+  //               <div>
+  //                 <label className="mb-1 block text-sm font-medium text-gray-700">
+  //                   New Complaint Number
+  //                 </label>
+
+  //                 <input
+  //                   {...register("complaintNumber")}
+  //                   readOnly
+  //                   className={`${inputClass} cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]`}
+  //                 />
+  //               </div>
+  //             </>
+  //           )}
+  //         </div>
+  //       </Section>
+
+  //       {/* Existing complaint history */}
+
+  //       {/* <ComplaintHistoryTable
+  //         history={filteredComplaintHistory}
+  //         loading={lookupLoading}
+  //         lookupDone={lookupDone}
+  //         selectedType={selectedComplaintType}
+  //         onWarrantySelect={handleWarrantyHistorySelect}
+  //         selectedComplaintNumber={selectedOldComplaintNumber}
+  //       /> */}
+
+  //       <ComplaintHistoryTable
+  //         history={complaintHistory}
+  //         loading={lookupLoading}
+  //         lookupDone={lookupDone}
+  //         // selectedType={selectedComplaintType}
+  //         selectedComplaintNumber={selectedComplaintNumber}
+  //         onWarrantySelect={handleWarrantySelect}
+  //       />
+
+  //       <div className="flex justify-end">
+  //         <button
+  //           type="submit"
+  //           disabled={submitting}
+  //           className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+  //         >
+  //           {submitting && <Loader2 size={17} className="animate-spin" />}
+  //           {submitting ? "Saving..." : "Save"}
+  //         </button>
+  //       </div>
+  //     </form>
+  //   );
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* COMPLAINT INFORMATION */}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex h-[calc(100vh-120px)] min-h-0 flex-col overflow-hidden"
+    >
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-2">
+        {/* =====================================
+        LEFT SIDE - CREATE COMPLAINT
+    ====================================== */}
 
-      {/*  CUSTOMER INFORMATION */}
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex h-full flex-col rounded-lg border border-gray-200 bg-white">
+            {/* FORM CONTENT */}
 
-      <Section title="Customer Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* Registered Mobile Number */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Registered Mobile Number
-              <span className="ml-1 text-red-500">*</span>
-            </label>
+            <div className="min-h-0 flex-1 overflow-hidden p-3">
+              <div className="space-y-3">
+                {/* =============================
+                CUSTOMER
+            ============================== */}
 
-            <div className="relative">
-              <input
-                {...register("customerPhone", {
-                  required: "Registered mobile number is required",
-                  pattern: {
-                    value: /^[0-9]{10}$/,
-                    message: "Enter valid 10 digit mobile number",
-                  },
-                })}
-                maxLength={10}
-                inputMode="numeric"
-                placeholder="9876543210"
-                className={inputClass}
-              />
+                <CompactSection title="Customer Information">
+                  <div className="grid grid-cols-3 gap-x-2.5 gap-y-2">
+                    {/* MOBILE */}
 
-              {lookupLoading && (
-                <Loader2
-                  size={17}
-                  className="absolute right-3 top-3 animate-spin text-gray-400"
-                />
-              )}
+                    <div>
+                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-gray-600">
+                        Registered Mobile
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
+
+                      <div className="relative">
+                        <input
+                          {...register("customerPhone", {
+                            required: "Registered mobile number is required",
+
+                            pattern: {
+                              value: /^[0-9]{10}$/,
+                              message: "Enter valid 10 digit mobile number",
+                            },
+                          })}
+                          maxLength={10}
+                          inputMode="numeric"
+                          placeholder="9876543210"
+                          className={inputClass}
+                        />
+
+                        {lookupLoading && (
+                          <Loader2
+                            size={13}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 animate-spin text-gray-400"
+                          />
+                        )}
+                      </div>
+
+                      {errors.customerPhone && (
+                        <ErrorText>{errors.customerPhone.message}</ErrorText>
+                      )}
+                    </div>
+
+                    {/* ALT PHONE */}
+
+                    <Input
+                      label="Alternative Phone"
+                      placeholder="9876543210"
+                      maxLength={10}
+                      inputMode="numeric"
+                      error={errors.alternatePhone?.message}
+                      {...register("alternatePhone", {
+                        pattern: {
+                          value: /^$|^[0-9]{10}$/,
+                          message: "Enter valid 10 digit mobile number",
+                        },
+                      })}
+                    />
+
+                    {/* CUSTOMER NAME */}
+
+                    <Input
+                      label="Customer Name"
+                      required
+                      placeholder="Customer name"
+                      error={errors.customerName?.message}
+                      {...register("customerName", {
+                        required: "Customer name is required",
+                      })}
+                    />
+                  </div>
+
+                  {/* ADDRESS */}
+
+                  <div className="mt-2">
+                    <ComplaintAddressFields
+                      register={register}
+                      setValue={setValue}
+                      watch={watch}
+                      errors={errors}
+                    />
+                  </div>
+
+                  {/* CUSTOMER FOUND */}
+
+                  {existingCustomer && (
+                    <div className="mt-2 flex h-8 items-center justify-between rounded-md border border-green-200 bg-green-50 px-2.5">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <UserCheck
+                          size={13}
+                          className="shrink-0 text-green-600"
+                        />
+
+                        <span className="truncate text-[11px] text-green-700">
+                          Existing: <strong>{existingCustomer.name}</strong>
+                          {" • "}
+                          {existingCustomer.phone}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleUpdateCustomer}
+                        disabled={updatingCustomer}
+                        className="ml-2 shrink-0 text-[11px] font-medium text-[#123B7A] hover:underline"
+                      >
+                        {updatingCustomer ? "Updating..." : "Update"}
+                      </button>
+                    </div>
+                  )}
+                </CompactSection>
+
+                {/* =============================
+                PRODUCT
+            ============================== */}
+
+                <CompactSection title="Product & Complaint Details">
+                  <div className="grid grid-cols-4 gap-x-2.5 gap-y-2">
+                    <SearchSelect
+                      label="Brand"
+                      value={selectedBrand || ""}
+                      placeholder="Search brand..."
+                      loading={brandLoading}
+                      options={brands.map((brand) => ({
+                        value: brand.id,
+                        label: brand.brandName,
+                        data: brand,
+                      }))}
+                      onSearch={setBrandSearch}
+                      onSelect={(option) =>
+                        handleBrandSelect(option.data as BrandDropdownOption)
+                      }
+                      onClear={() => {
+                        setValue("brandId", "");
+                        setValue("brand", "");
+                        setBrandSearch("");
+                      }}
+                    />
+
+                    <SearchSelect
+                      label="Product"
+                      value={selectedProductName || ""}
+                      placeholder="Search product..."
+                      loading={productLoading}
+                      options={products.map((product) => ({
+                        value: product.product_id,
+                        label: product.product_name,
+                        data: product,
+                      }))}
+                      onSearch={setProductSearch}
+                      onSelect={(option) =>
+                        handleProductSelect(
+                          option.data as ProductDropdownOption,
+                        )
+                      }
+                      onClear={() => {
+                        setValue("productId", undefined);
+                        setValue("productName", "");
+
+                        setValue("productTypeId", "");
+                        setValue("productType", "");
+
+                        setValue("category", "");
+
+                        setProductSearch("");
+                        setProductTypeSearch("");
+                        setCategorySearch("");
+
+                        setProductTypes([]);
+                        setCategories([]);
+                      }}
+                      error={errors.productName?.message}
+                    />
+
+                    <SearchSelect
+                      label="Category"
+                      value={selectedCategory || ""}
+                      placeholder={
+                        selectedProductId
+                          ? "Search category..."
+                          : "Select product first"
+                      }
+                      loading={categoryLoading}
+                      options={categories.map((category) => ({
+                        value:
+                          category.id ??
+                          `${category.product_id}-${category.category}`,
+
+                        label: category.category,
+                        data: category,
+                      }))}
+                      onSearch={setCategorySearch}
+                      onSelect={(option) =>
+                        handleCategorySelect(
+                          option.data as CategoryDropdownOption,
+                        )
+                      }
+                      onClear={() => {
+                        setValue("category", "");
+                        setCategorySearch("");
+                      }}
+                      error={errors.category?.message}
+                    />
+
+                    <SearchSelect
+                      label="Product Type"
+                      value={selectedProductType || ""}
+                      placeholder={
+                        selectedProductId
+                          ? "Search product type..."
+                          : "Select product first"
+                      }
+                      loading={productTypeLoading}
+                      options={productTypes.map((type) => ({
+                        value:
+                          type.id ?? `${type.product_id}-${type.product_type}`,
+
+                        label: type.product_code
+                          ? `${type.product_type} - ${type.product_code}`
+                          : type.product_type,
+
+                        data: type,
+                      }))}
+                      onSearch={setProductTypeSearch}
+                      onSelect={(option) =>
+                        handleProductTypeSelect(
+                          option.data as ProductTypeDropdownOption,
+                        )
+                      }
+                      onClear={() => {
+                        setValue("productTypeId", "");
+                        setValue("productType", "");
+                        setProductTypeSearch("");
+                      }}
+                    />
+
+                    <Input
+                      label="Unit"
+                      type="number"
+                      min={1}
+                      error={errors.units?.message}
+                      {...register("units", {
+                        valueAsNumber: true,
+                        required: "Unit is required",
+                        min: {
+                          value: 1,
+                          message: "Minimum 1 unit required",
+                        },
+                      })}
+                    />
+
+                    <Input
+                      label="Quote"
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      {...register("quoteAmount", {
+                        valueAsNumber: true,
+                      })}
+                    />
+
+                    <Input
+                      label="Fault Reported"
+                      required
+                      placeholder="Enter fault"
+                      error={errors.faultReported?.message}
+                      {...register("faultReported", {
+                        required: "Fault reported is required",
+                      })}
+                    />
+
+                    {/* TYPE */}
+
+                    <div>
+                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-gray-600">
+                        Type
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
+
+                      <select
+                        {...register("complaintType", {
+                          required: "Complaint type is required",
+
+                          onChange: (event) => {
+                            const type = event.target.value as ComplaintType;
+
+                            setValue("repeatComplaintNumber", "");
+
+                            if (type !== "WARRANTY") {
+                              setValue(
+                                "complaintNumber",
+                                generateComplaintNumber(),
+                              );
+                            }
+                          },
+                        })}
+                        className={inputClass}
+                      >
+                        <option value="REGULAR">Regular</option>
+
+                        <option value="REPEAT">Repeat</option>
+
+                        <option value="WARRANTY">Warranty</option>
+
+                        <option value="INQUIRY">Inquiry</option>
+                      </select>
+                    </div>
+                  </div>
+                </CompactSection>
+
+                {/* =============================
+                OTHER INFORMATION
+            ============================== */}
+
+                <CompactSection title="Other Information">
+                  <div className="grid grid-cols-3 gap-x-2.5 gap-y-2">
+                    <Input
+                      label="Ad. Name"
+                      placeholder="Ad. name"
+                      {...register("adName")}
+                    />
+
+                    {selectedComplaintType === "WARRANTY" && (
+                      <>
+                        <Input
+                          label="Old Complaint No."
+                          readOnly
+                          placeholder="Select from history"
+                          className="cursor-not-allowed bg-gray-50"
+                          {...register("repeatComplaintNumber")}
+                        />
+
+                        <Input
+                          label="New Complaint No."
+                          readOnly
+                          className="cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]"
+                          {...register("complaintNumber")}
+                        />
+                      </>
+                    )}
+                  </div>
+                </CompactSection>
+              </div>
             </div>
 
-            {errors.customerPhone && (
-              <ErrorText>{errors.customerPhone.message}</ErrorText>
-            )}
-          </div>
+            {/* =====================================
+            SAVE - ALWAYS VISIBLE
+        ====================================== */}
 
-          <Input
-            label="Alternative Phone No."
-            placeholder="9876543210"
-            maxLength={10}
-            inputMode="numeric"
-            error={errors.alternatePhone?.message}
-            {...register("alternatePhone", {
-              pattern: {
-                value: /^$|^[0-9]{10}$/,
-                message: "Enter valid 10 digit mobile number",
-              },
-            })}
-          />
+            <div className="flex shrink-0 justify-end border-t border-gray-200 px-3 py-2">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#123B7A] px-4 text-xs font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting && <Loader2 size={13} className="animate-spin" />}
 
-          <Input
-            label="Customer Name"
-            placeholder="Customer name"
-            error={errors.customerName?.message}
-            {...register("customerName", {
-              required: "Customer name is required",
-            })}
-          />
-
-          {/* City */}
-
-          {/* <div className="md:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Customer Address
-              <span className="ml-1 text-red-500">*</span>
-            </label>
-
-            <input
-              {...register("address", {
-                required: "Customer address is required",
-              })}
-              placeholder="Enter customer address"
-              className={inputClass}
-            />
-
-            {errors.address && <ErrorText>{errors.address.message}</ErrorText>}
-          </div>
-
-          <Input
-            label="City"
-            placeholder="City"
-            error={errors.city?.message}
-            {...register("city", {
-              required: "City is required",
-            })}
-          /> */}
-
-          {/* District */}
-
-          {/* <Input
-            label="District"
-            placeholder="District"
-            {...register("district")}
-          /> */}
-
-          {/* State */}
-
-          {/* <Input
-            label="State"
-            placeholder="State"
-            error={errors.state?.message}
-            {...register("state", {
-              required: "State is required",
-            })}
-          /> */}
-
-          {/* Pin Code */}
-
-          {/* <Input
-            label="Pin Code"
-            placeholder="452001"
-            maxLength={6}
-            inputMode="numeric"
-            error={errors.pincode?.message}
-            {...register("pincode", {
-              pattern: {
-                value: /^[0-9]{6}$/,
-                message: "Enter valid 6 digit pin code",
-              },
-            })}
-          /> */}
-        </div>
-
-        <div className="mt-5">
-          <ComplaintAddressFields
-            register={register}
-            setValue={setValue}
-            watch={watch}
-            errors={errors}
-          />
-        </div>
-
-        {existingCustomer && (
-          <button
-            type="button"
-            onClick={handleUpdateCustomer}
-            disabled={updatingCustomer}
-            className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {updatingCustomer ? "Updating..." : "Update Customer"}
-          </button>
-        )}
-
-        {/* Existing Customer Status */}
-
-        {lookupError && (
-          <div className="mt-5 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle size={18} />
-
-            {lookupError}
-          </div>
-        )}
-
-        {lookupDone && !lookupError && (
-          <div className="mt-5">
-            {existingCustomer ? (
-              <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
-                <UserCheck size={21} className="mt-0.5 text-green-600" />
-
-                <div>
-                  <p className="font-medium text-green-800">
-                    Existing Customer Found
-                  </p>
-
-                  <p className="mt-1 text-sm text-green-700">
-                    {existingCustomer.name}
-                    {" • "}
-                    {existingCustomer.phone}
-                  </p>
-
-                  <p className="mt-1 text-xs text-green-600">
-                    Customer details have been filled automatically.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
-                No existing customer found with this mobile number. Enter
-                customer details to continue.
-              </div>
-            )}
-          </div>
-        )}
-      </Section>
-
-      {/* PRODUCT INFORMATION */}
-
-      <Section title="Product & Complaint Details">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* <Input
-            label="Brand"
-            placeholder="Brand"
-            {...register("contactInfo")}
-          /> */}
-
-          {/* BRAND */}
-
-          <SearchSelect
-            label="Brand"
-            value={selectedBrand || ""}
-            placeholder="Search brand..."
-            loading={brandLoading}
-            options={brands.map((brand) => ({
-              value: brand.id,
-
-              label: brand.brandName,
-
-              data: brand,
-            }))}
-            onSearch={setBrandSearch}
-            onSelect={(option) =>
-              handleBrandSelect(option.data as BrandDropdownOption)
-            }
-            onClear={() => {
-              setValue("brandId", "");
-
-              setValue("brand", "");
-
-              setBrandSearch("");
-            }}
-          />
-          {/* <Input
-            label="Product"
-            placeholder="Product"
-            error={errors.productName?.message}
-            {...register("productName", {
-              required: "Product is required",
-            })}
-          /> */}
-
-          {/* PRODUCT */}
-
-          <SearchSelect
-            label="Product"
-            value={selectedProductName || ""}
-            placeholder="Search product..."
-            loading={productLoading}
-            options={products.map((product) => ({
-              value: product.product_id,
-
-              label: product.product_name,
-
-              data: product,
-            }))}
-            onSearch={setProductSearch}
-            onSelect={(option) =>
-              handleProductSelect(option.data as ProductDropdownOption)
-            }
-            onClear={() => {
-              setValue("productId", undefined);
-
-              setValue("productName", "");
-
-              setValue("productTypeId", "");
-
-              setValue("productType", "");
-
-              setProductSearch("");
-              setProductTypeSearch("");
-              setProductTypes([]);
-            }}
-            error={errors.productName?.message}
-          />
-
-          {/* CATEGORY */}
-
-<SearchSelect
-  label="Category"
-  value={selectedCategory || ""}
-  placeholder={
-    selectedProductId
-      ? "Search category..."
-      : "Select product first"
-  }
-  loading={categoryLoading}
-  options={categories.map((category) => ({
-    value: category.id ?? `${category.product_id}-${category.category}`,
-    label: category.category,
-    data: category,
-  }))}
-  onSearch={setCategorySearch}
-  onSelect={(option) =>
-    handleCategorySelect(option.data as CategoryDropdownOption)
-  }
-  onClear={() => {
-    setValue("category", "");
-    setCategorySearch("");
-  }}
-  error={errors.category?.message}
-/>
-
-          {/* PRODUCT TYPE */}
-
-          <SearchSelect
-            label="Product Type"
-            value={selectedProductType || ""}
-            placeholder={
-              selectedProductId
-                ? "Search product type..."
-                : "Select product first"
-            }
-            loading={productTypeLoading}
-            options={productTypes.map((type) => ({
-              value: type.id ?? `${type.product_id}-${type.product_type}`,
-
-              label: type.product_code
-                ? `${type.product_type} - ${type.product_code}`
-                : type.product_type,
-
-              data: type,
-            }))}
-            onSearch={setProductTypeSearch}
-            onSelect={(option) =>
-              handleProductTypeSelect(option.data as ProductTypeDropdownOption)
-            }
-            onClear={() => {
-              setValue("productTypeId", "");
-
-              setValue("productType", "");
-
-              setProductTypeSearch("");
-            }}
-          />
-          <Input
-            label="Unit"
-            type="number"
-            min={1}
-            error={errors.units?.message}
-            {...register("units", {
-              valueAsNumber: true,
-
-              required: "Unit is required",
-
-              min: {
-                value: 1,
-                message: "Minimum 1 unit required",
-              },
-            })}
-          />
-
-          <Input
-            label="Quote"
-            type="number"
-            min={0}
-            placeholder="0"
-            {...register("quoteAmount", {
-              valueAsNumber: true,
-            })}
-          />
-
-          <Input
-            label="Fault Reported"
-            placeholder="Enter fault reported by customer"
-            error={errors.faultReported?.message}
-            {...register("faultReported", {
-              required: "Fault reported is required",
-            })}
-          />
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Type
-              <span className="ml-1 text-red-500">*</span>
-            </label>
-
-            {/* <select
-              {...register("complaintType", {
-                required: "Complaint type is required",
-
-                onChange: (event) => {
-                  const type = event.target.value as ComplaintType;
-
-                  if (type === "WARRANTY") {
-                    // User must select old warranty complaint
-                    setValue("repeatComplaintNumber", "");
-                    setValue("complaintNumber", "");
-                  } else {
-                    setValue("repeatComplaintNumber", "");
-                    setValue("complaintNumber", generateComplaintNumber());
-                  }
-                },
-              })}
-              className={inputClass}
-            >
-              <option value="REGULAR">Regular</option>
-              <option value="REPEAT">Repeat</option>
-              <option value="WARRANTY">Warranty</option>
-              <option value="PAID_SERVICE">Paid Service</option>
-            </select> */}
-
-            <select
-              {...register("complaintType", {
-                required: "Complaint type is required",
-
-                onChange: (event) => {
-                  const type = event.target.value as ComplaintType;
-
-                  setValue("repeatComplaintNumber", "");
-
-                  if (type !== "WARRANTY") {
-                    setValue("complaintNumber", generateComplaintNumber());
-                  }
-                },
-              })}
-              className={inputClass}
-            >
-              <option value="REGULAR">Regular</option>
-
-              <option value="REPEAT">Repeat</option>
-
-              <option value="WARRANTY">Warranty</option>
-
-              <option value="INQUIRY">Inquiry</option>
-            </select>
+                {submitting ? "Saving..." : "Save Complaint"}
+              </button>
+            </div>
           </div>
         </div>
-      </Section>
 
-      {/* OTHER INFORMATION */}
+        {/* =====================================
+        RIGHT 50% - COMPLAINT HISTORY
+    ====================================== */}
 
-      <Section title="Other Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Input
-            label="Ad. Name"
-            placeholder="Ad. name"
-            {...register("adName")}
+        <div className="min-h-0 overflow-hidden">
+          <ComplaintHistoryTable
+            history={complaintHistory}
+            loading={lookupLoading}
+            lookupDone={lookupDone}
+            selectedComplaintNumber={selectedComplaintNumber}
+            onWarrantySelect={handleWarrantySelect}
           />
-
-          {/* Status */}
-
-          {/* <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Status
-            </label>
-            <select {...register("status")} className={inputClass}>
-              <option value="REGISTERED">Registered</option>
-              <option value="PENDING">Pending</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div> */}
-
-          {selectedComplaintType === "WARRANTY" && (
-            <>
-              {/* Old Complaint Number */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Old Complaint Number
-                </label>
-
-                <input
-                  {...register("repeatComplaintNumber")}
-                  readOnly
-                  placeholder="Select warranty complaint from history"
-                  className={`${inputClass} cursor-not-allowed bg-gray-50 font-medium text-gray-700`}
-                />
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Select a warranty complaint from complaint history.
-                </p>
-              </div>
-
-              {/* New Complaint Number */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  New Complaint Number
-                </label>
-
-                <input
-                  {...register("complaintNumber")}
-                  readOnly
-                  className={`${inputClass} cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]`}
-                />
-              </div>
-            </>
-          )}
         </div>
-      </Section>
-
-      {/* Existing complaint history */}
-
-      {/* <ComplaintHistoryTable
-        history={filteredComplaintHistory}
-        loading={lookupLoading}
-        lookupDone={lookupDone}
-        selectedType={selectedComplaintType}
-        onWarrantySelect={handleWarrantyHistorySelect}
-        selectedComplaintNumber={selectedOldComplaintNumber}
-      /> */}
-
-      <ComplaintHistoryTable
-        history={complaintHistory}
-        loading={lookupLoading}
-        lookupDone={lookupDone}
-        // selectedType={selectedComplaintType}
-        selectedComplaintNumber={selectedComplaintNumber}
-        onWarrantySelect={handleWarrantySelect}
-      />
-
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {submitting && <Loader2 size={17} className="animate-spin" />}
-          {submitting ? "Saving..." : "Save"}
-        </button>
       </div>
     </form>
   );
@@ -1269,25 +1700,28 @@ function ComplaintHistoryTable({
   selectedComplaintNumber,
 }: ComplaintHistoryTableProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-      {/* Header */}
+    // <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white"> 
+    {/* Header */}
 
-      <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-          <History size={18} className="text-[#123B7A]" />
-        </div>
+<div className="flex shrink-0 items-center gap-2 border-b border-gray-200 px-3 py-2">
+  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50">
+    <History
+      size={14}
+      className="text-[#123B7A]"
+    />
+  </div>
 
-        <div>
-          <h3 className="text-base font-semibold text-gray-900">
-            Complaint History
-          </h3>
+  <div>
+    <h3 className="text-xs font-semibold text-gray-900">
+      Complaint History
+    </h3>
 
-          <p className="text-xs text-gray-500">
-            Previous complaints registered against the customer's mobile
-            numbers.
-          </p>
-        </div>
-      </div>
+    <p className="text-[10px] text-gray-500">
+      Previous customer complaints
+    </p>
+  </div>
+</div>
 
       {/* Loading */}
 
@@ -1334,9 +1768,10 @@ function ComplaintHistoryTable({
       {/* History Table */}
 
       {!loading && history.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1050px] text-left text-sm">
-            <thead className="bg-gray-50 text-xs font-medium uppercase tracking-wide text-gray-500">
+        // <div className="overflow-x-auto">
+        <div className="min-h-0 flex-1 overflow-auto">
+<table className="w-full min-w-[1000px] text-left text-xs">
+  <thead className="sticky top-0 z-10 bg-gray-50 text-[10px] font-medium uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-5 py-3">Complaint No.</th>
 
@@ -1370,7 +1805,7 @@ function ComplaintHistoryTable({
 
                 const isSelected =
                   selectedComplaintNumber === complaint.complaintNumber;
-
+console.log(complaint)
                 /*
                 |--------------------------------------------------------------------------
                 | Only allow selecting an under-warranty complaint
@@ -1408,7 +1843,7 @@ function ComplaintHistoryTable({
                   >
                     {/* Complaint Number */}
                     {/* 
-                    <td className="whitespace-nowrap px-5 py-4 font-medium text-[#123B7A]">
+                    <td className="whitespace-nowrap px-3 py-2 font-medium text-[#123B7A]">
                       {complaint.complaintNumber}
 
                       {canSelect && (
@@ -1418,7 +1853,7 @@ function ComplaintHistoryTable({
                       )}
                     </td> */}
 
-                    <td className="whitespace-nowrap px-5 py-4 font-medium">
+                    <td className="whitespace-nowrap px-3 py-2 font-medium">
                       {/* {canSelect ? (
                         <button
                           type="button"
@@ -1467,19 +1902,19 @@ function ComplaintHistoryTable({
 
                     {/* Date */}
 
-                    <td className="whitespace-nowrap px-5 py-4 text-gray-600">
+                    <td className="whitespace-nowrap px-3 py-2 text-gray-600">
                       {formatDate(complaint.createdAt)}
                     </td>
 
                     {/* Product */}
 
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2">
                       {complaint.productName || "-"}
                     </td>
 
                     {/* Category */}
 
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2">
                       {complaint.category
                         ? formatEnum(complaint.category)
                         : "-"}
@@ -1487,13 +1922,13 @@ function ComplaintHistoryTable({
 
                     {/* Fault */}
 
-                    <td className="max-w-[250px] px-5 py-4 text-gray-600">
+                    <td className="max-w-[250px] px-3 py-2 text-gray-600">
                       {complaint.faultReported || "-"}
                     </td>
 
                     {/* Type */}
 
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2">
                       {complaint.complaintType
                         ? formatEnum(complaint.complaintType)
                         : "-"}
@@ -1501,13 +1936,13 @@ function ComplaintHistoryTable({
 
                     {/* Technician */}
 
-                    <td className="px-5 py-4">
-                      {complaint.technicianName || "-"}
+                    <td className="px-3 py-2">
+                      {complaint?.allocatedDealerId?.technicianName + " - " + complaint?.allocatedDealerId?.mobileNumber  || "-"}
                     </td>
 
                     {/* Warranty */}
 
-                    <td className="whitespace-nowrap px-5 py-4">
+                    <td className="whitespace-nowrap px-3 py-2">
                       {complaint.isWarranty ? (
                         <div className="flex flex-col items-start gap-1">
                           <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
@@ -1529,7 +1964,7 @@ function ComplaintHistoryTable({
 
                     {/* Status */}
 
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-2">
                       <StatusBadge status={complaint.status} />
                     </td>
                   </tr>
@@ -1545,6 +1980,24 @@ function ComplaintHistoryTable({
 
 /*  SECTION */
 
+// function Section({
+//   title,
+//   children,
+// }: {
+//   title: string;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <section className="rounded-xl border border-gray-200 bg-white">
+//       <div className="border-b border-gray-200 px-3 py-2">
+//         <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+//       </div>
+
+//       <div className="p-5">{children}</div>
+//     </section>
+//   );
+// }
+
 function Section({
   title,
   children,
@@ -1553,39 +2006,80 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+    <section className="rounded-lg border border-gray-200 bg-white">
+      <div className="border-b border-gray-100 px-4 py-2">
+        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
       </div>
 
-      <div className="p-5">{children}</div>
+      <div className="p-3">{children}</div>
     </section>
   );
 }
 
 /* INPUT */
 
+// interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+//   label: string;
+//   error?: string;
+// }
+
+// function Input({ label, error, ...props }: InputProps) {
+//   return (
+//     <div>
+//       <label className="mb-1 block text-sm font-medium text-gray-700">
+//         {label}
+//       </label>
+//       <input {...props} className={inputClass} />
+//       {error && <ErrorText>{error}</ErrorText>}
+//     </div>
+//   );
+// }
+
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
+  required?: boolean;
 }
 
-function Input({ label, error, ...props }: InputProps) {
+function Input({ label, error, required, className, ...props }: InputProps) {
   return (
-    <div>
-      <label className="mb-1 block text-sm font-medium text-gray-700">
+    <div className="min-w-0">
+      <label className="mb-1 block text-xs font-medium text-gray-600">
         {label}
+
+        {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
-      <input {...props} className={inputClass} />
-      {error && <ErrorText>{error}</ErrorText>}
+
+      <input
+        {...props}
+        className={`
+          ${inputClass}
+          ${
+            error
+              ? "border-red-400 focus:border-red-500 focus:ring-red-100"
+              : ""
+          }
+          ${className || ""}
+        `}
+      />
+
+      {error && (
+        <p className="mt-0.5 text-[10px] leading-3 text-red-600">{error}</p>
+      )}
     </div>
   );
 }
 
 /*  ERROR TEXT */
 
+// function ErrorText({ children }: { children: React.ReactNode }) {
+//   return <p className="mt-1 text-xs text-red-600">{children}</p>;
+// }
+
 function ErrorText({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1 text-xs text-red-600">{children}</p>;
+  return (
+    <p className="mt-0.5 text-[11px] leading-tight text-red-600">{children}</p>
+  );
 }
 
 /*  STATUS BADGE */
@@ -1652,5 +2146,33 @@ function formatDate(value: string) {
   });
 }
 
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+function CompactSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-md border border-gray-200">
+      <div className="border-b border-gray-100 bg-gray-50/50 px-2.5 py-1.5">
+        <h3 className="text-xs font-semibold text-gray-800">{title}</h3>
+      </div>
+
+      <div className="p-2.5">{children}</div>
+    </section>
+  );
+}
+
+const inputClass = `
+  h-8 w-full rounded-md border border-gray-300 bg-white
+  px-2.5 text-xs text-gray-700
+  outline-none transition
+  placeholder:text-gray-400
+  focus:border-blue-500
+  focus:ring-1
+  focus:ring-blue-100
+  disabled:cursor-not-allowed
+  disabled:bg-gray-100
+  disabled:text-gray-500
+`;
