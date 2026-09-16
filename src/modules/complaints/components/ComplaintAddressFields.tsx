@@ -25,11 +25,8 @@ import { useDebounce } from "../../../hooks/useDebounce";
 
 interface Props {
   register: UseFormRegister<ComplaintFormData>;
-
   setValue: UseFormSetValue<ComplaintFormData>;
-
   watch: UseFormWatch<ComplaintFormData>;
-
   errors: FieldErrors<ComplaintFormData>;
 }
 
@@ -44,11 +41,8 @@ export default function ComplaintAddressFields({
   ========================= */
 
   const [states, setStates] = useState<StateOption[]>([]);
-
   const [districts, setDistricts] = useState<DistrictOption[]>([]);
-
   const [cities, setCities] = useState<CityOption[]>([]);
-
   const [pincodes, setPincodes] = useState<PincodeOption[]>([]);
 
   /* =========================
@@ -56,19 +50,12 @@ export default function ComplaintAddressFields({
   ========================= */
 
   const [stateSearch, setStateSearch] = useState("");
-
   const [districtSearch, setDistrictSearch] = useState("");
-
   const [citySearch, setCitySearch] = useState("");
-
   const [pincodeSearch, setPincodeSearch] = useState("");
-
   const debouncedStateSearch = useDebounce(stateSearch, 500);
-
   const debouncedDistrictSearch = useDebounce(districtSearch, 500);
-
   const debouncedCitySearch = useDebounce(citySearch, 500);
-
   const debouncedPincodeSearch = useDebounce(pincodeSearch, 500);
 
   /* =========================
@@ -76,11 +63,8 @@ export default function ComplaintAddressFields({
   ========================= */
 
   const [stateLoading, setStateLoading] = useState(false);
-
   const [districtLoading, setDistrictLoading] = useState(false);
-
   const [cityLoading, setCityLoading] = useState(false);
-
   const [pincodeLoading, setPincodeLoading] = useState(false);
 
   /* =========================
@@ -88,19 +72,12 @@ export default function ComplaintAddressFields({
   ========================= */
 
   const stateId = watch("address.stateId");
-
   const districtId = watch("address.districtId");
-
   const cityId = watch("address.cityId");
-
   const stateName = watch("address.state");
-
   const districtName = watch("address.district");
-
   const cityName = watch("address.city");
-
   const pinCode = watch("address.pinCode");
-
   const addressErrors = errors.address;
 
   /* =========================
@@ -130,13 +107,10 @@ export default function ComplaintAddressFields({
   const loadStates = async (search: string) => {
     try {
       setStateLoading(true);
-
       const data = await searchStates(search);
-
       setStates(data);
     } catch (error) {
       console.error("Failed to load states:", error);
-
       setStates([]);
     } finally {
       setStateLoading(false);
@@ -150,10 +124,8 @@ export default function ComplaintAddressFields({
   const loadDistricts = async (search: string) => {
     try {
       setDistrictLoading(true);
-
       const data = await searchDistricts({
         stateId: stateId ? Number(stateId) : undefined,
-
         search,
       });
 
@@ -177,9 +149,7 @@ export default function ComplaintAddressFields({
 
       const data = await searchCities({
         stateId: stateId ? Number(stateId) : undefined,
-
         districtId: districtId ? Number(districtId) : undefined,
-
         search,
       });
 
@@ -203,7 +173,6 @@ export default function ComplaintAddressFields({
 
       const data = await searchPincodes({
         cityId: cityId ? Number(cityId) : undefined,
-
         search,
       });
 
@@ -223,29 +192,21 @@ export default function ComplaintAddressFields({
 
   const resetPincode = () => {
     setValue("address.pincodeId", undefined);
-
     setValue("address.pinCode", "");
-
     setPincodeSearch("");
   };
 
   const resetCity = () => {
     setValue("address.cityId", undefined);
-
     setValue("address.city", "");
-
     setCitySearch("");
-
     resetPincode();
   };
 
   const resetDistrict = () => {
     setValue("address.districtId", undefined);
-
     setValue("address.district", "");
-
     setDistrictSearch("");
-
     resetCity();
   };
 
@@ -325,7 +286,6 @@ export default function ComplaintAddressFields({
 
       const data = await searchPincodes({
         cityId: city.city_id,
-
         search: "",
       });
 
@@ -399,49 +359,56 @@ export default function ComplaintAddressFields({
 
       <input
         type="hidden"
+        autoComplete="off"
         {...register("address.stateId", {
-          required: "State is required",
+          //   required: "State is required",
         })}
       />
 
       <input
         type="hidden"
+        autoComplete="off"
         {...register("address.districtId", {
-          required: "District is required",
+          //   required: "District is required",
         })}
       />
 
       <input
         type="hidden"
+        autoComplete="off"
         {...register("address.cityId", {
-          required: "City is required",
+          //   required: "City is required",
         })}
       />
 
       <input
         type="hidden"
+        autoComplete="off"
         {...register("address.pinCode", {
-          required: "PIN code is required",
+          //   required: "PIN code is required",
         })}
       />
 
       {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
         {/* ADDRESS */}
 
         <div className="md:col-span-2">
-          <label className="mb-1 block text-xs font-medium text-gray-700">
+          <label className="mb-1 block text-xs font-medium text-[#123B7A]">
             Customer Address
             {/* <span className="ml-1 text-red-500">*</span> */}
           </label>
 
-          <input
+          <input    
             placeholder="Enter complete customer address"
+            autoComplete="new-password"
+            data-lpignore="true"
+            data-form-type="other"
             {...register("address.addressLine", {
               required: "Customer address is required",
             })}
-className={inputClass}
-/>
+            className={inputClass}
+          />
 
           {addressErrors?.addressLine && (
             <p className="mt-1 text-xs text-red-600">
@@ -459,20 +426,15 @@ className={inputClass}
           loading={stateLoading}
           options={states.map((state) => ({
             value: state.state_id,
-
             label: state.state_name,
-
             data: state,
           }))}
           onSearch={setStateSearch}
           onSelect={(option) => handleStateSelect(option.data as StateOption)}
           onClear={() => {
             setValue("address.stateId", undefined);
-
             setValue("address.state", "");
-
             setStateSearch("");
-
             resetDistrict();
           }}
           error={addressErrors?.state?.message}
@@ -487,11 +449,9 @@ className={inputClass}
           loading={districtLoading}
           options={districts.map((district) => ({
             value: district.district_id,
-
             label: district.state_name
               ? `${district.district_name} - ${district.state_name}`
               : district.district_name,
-
             data: district,
           }))}
           onSearch={setDistrictSearch}
@@ -500,11 +460,8 @@ className={inputClass}
           }
           onClear={() => {
             setValue("address.districtId", undefined);
-
             setValue("address.district", "");
-
             setDistrictSearch("");
-
             resetCity();
           }}
           error={addressErrors?.district?.message}
@@ -519,22 +476,17 @@ className={inputClass}
           loading={cityLoading}
           options={cities.map((city) => ({
             value: city.city_id,
-
             label: [city.city_name, city.district_name, city.state_name]
               .filter(Boolean)
               .join(" - "),
-
             data: city,
           }))}
           onSearch={setCitySearch}
           onSelect={(option) => handleCitySelect(option.data as CityOption)}
           onClear={() => {
             setValue("address.cityId", undefined);
-
             setValue("address.city", "");
-
             setCitySearch("");
-
             resetPincode();
           }}
           error={addressErrors?.city?.message}
@@ -556,7 +508,6 @@ className={inputClass}
 
             return {
               value,
-
               label: [
                 pincode.pincode_name,
                 pincode.city_name,

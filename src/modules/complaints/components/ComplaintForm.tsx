@@ -1281,15 +1281,21 @@ export default function ComplaintForm({
   //     </form>
   //   );
 
+  console.log(errors);
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex h-[calc(100vh-120px)] min-h-0 flex-col overflow-hidden"
+      autoComplete="off"
+      data-form-type="other"
+      // className="flex h-[calc(100vh-120px)] min-h-0 flex-col overflow-hidden"
+      className="space-y-4"
     >
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-2">
+      {/* <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-2"> */}
+      <div className="flex flex-col gap-4">
         {/* =====================================
-        LEFT SIDE - CREATE COMPLAINT
-    ====================================== */}
+            LEFT SIDE - CREATE COMPLAINT
+        ====================================== */}
 
         <div className="min-h-0 overflow-hidden">
           <div className="flex h-full flex-col rounded-lg border border-gray-200 bg-white">
@@ -1298,15 +1304,15 @@ export default function ComplaintForm({
             <div className="min-h-0 flex-1 overflow-hidden p-3">
               <div className="space-y-3">
                 {/* =============================
-                CUSTOMER
-            ============================== */}
+                    CUSTOMER
+                ============================== */}
 
                 <CompactSection title="Customer Information">
                   <div className="grid grid-cols-3 gap-x-2.5 gap-y-2">
                     {/* MOBILE */}
 
                     <div>
-                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-gray-600">
+                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
                         Registered Mobile
                         <span className="ml-0.5 text-red-500">*</span>
                       </label>
@@ -1323,7 +1329,11 @@ export default function ComplaintForm({
                           })}
                           maxLength={10}
                           inputMode="numeric"
+                          // autoComplete="off"
                           placeholder="9876543210"
+                          autoComplete="new-password"
+                          data-lpignore="true"
+                          data-form-type="other"
                           className={inputClass}
                         />
 
@@ -1345,6 +1355,10 @@ export default function ComplaintForm({
                     <Input
                       label="Alternative Phone"
                       placeholder="9876543210"
+                      // autoComplete="off"
+                      autoComplete="new-password"
+                      data-lpignore="true"
+                      data-form-type="other"
                       maxLength={10}
                       inputMode="numeric"
                       error={errors.alternatePhone?.message}
@@ -1361,6 +1375,10 @@ export default function ComplaintForm({
                     <Input
                       label="Customer Name"
                       required
+                      // autoComplete="off"
+                      autoComplete="new-password"
+                      data-lpignore="true"
+                      data-form-type="other"
                       placeholder="Customer name"
                       error={errors.customerName?.message}
                       {...register("customerName", {
@@ -1410,8 +1428,8 @@ export default function ComplaintForm({
                 </CompactSection>
 
                 {/* =============================
-                PRODUCT
-            ============================== */}
+                    PRODUCT
+                ============================== */}
 
                 <CompactSection title="Product & Complaint Details">
                   <div className="grid grid-cols-4 gap-x-2.5 gap-y-2">
@@ -1455,16 +1473,12 @@ export default function ComplaintForm({
                       onClear={() => {
                         setValue("productId", undefined);
                         setValue("productName", "");
-
                         setValue("productTypeId", "");
                         setValue("productType", "");
-
                         setValue("category", "");
-
                         setProductSearch("");
                         setProductTypeSearch("");
                         setCategorySearch("");
-
                         setProductTypes([]);
                         setCategories([]);
                       }}
@@ -1484,8 +1498,7 @@ export default function ComplaintForm({
                         value:
                           category.id ??
                           `${category.product_id}-${category.category}`,
-
-                        label: category.category,
+                        label: `${category.category} - ${category.description}`,
                         data: category,
                       }))}
                       onSearch={setCategorySearch}
@@ -1536,23 +1549,25 @@ export default function ComplaintForm({
                     <Input
                       label="Unit"
                       type="number"
-                      min={1}
+                      autoComplete="off"
+                      // min={1}
                       error={errors.units?.message}
                       {...register("units", {
                         valueAsNumber: true,
-                        required: "Unit is required",
-                        min: {
-                          value: 1,
-                          message: "Minimum 1 unit required",
-                        },
+                        // required: "Unit is required",
+                        // min: {
+                        //   value: 1,
+                        //   message: "Minimum 1 unit required",
+                        // },
                       })}
                     />
 
                     <Input
                       label="Quote"
                       type="number"
-                      min={0}
+                      // min={0}
                       placeholder="0"
+                      autoComplete="off"
                       {...register("quoteAmount", {
                         valueAsNumber: true,
                       })}
@@ -1562,6 +1577,7 @@ export default function ComplaintForm({
                       label="Fault Reported"
                       required
                       placeholder="Enter fault"
+                      autoComplete="off"
                       error={errors.faultReported?.message}
                       {...register("faultReported", {
                         required: "Fault reported is required",
@@ -1594,13 +1610,11 @@ export default function ComplaintForm({
                           },
                         })}
                         className={inputClass}
+                        autoComplete="off"
                       >
                         <option value="REGULAR">Regular</option>
-
                         <option value="REPEAT">Repeat</option>
-
                         <option value="WARRANTY">Warranty</option>
-
                         <option value="INQUIRY">Inquiry</option>
                       </select>
                     </div>
@@ -1701,27 +1715,24 @@ function ComplaintHistoryTable({
 }: ComplaintHistoryTableProps) {
   return (
     // <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white"> 
-    {/* Header */}
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
+      {/* Header */}
 
-<div className="flex shrink-0 items-center gap-2 border-b border-gray-200 px-3 py-2">
-  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50">
-    <History
-      size={14}
-      className="text-[#123B7A]"
-    />
-  </div>
+      <div className="flex shrink-0 items-center gap-2 border-b border-gray-200 px-3 py-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50">
+          <History size={14} className="text-[#123B7A]" />
+        </div>
 
-  <div>
-    <h3 className="text-xs font-semibold text-gray-900">
-      Complaint History
-    </h3>
+        <div>
+          <h3 className="text-xs font-semibold text-gray-900">
+            Complaint History
+          </h3>
 
-    <p className="text-[10px] text-gray-500">
-      Previous customer complaints
-    </p>
-  </div>
-</div>
+          <p className="text-[10px] text-gray-500">
+            Previous customer complaints
+          </p>
+        </div>
+      </div>
 
       {/* Loading */}
 
@@ -1770,11 +1781,10 @@ function ComplaintHistoryTable({
       {!loading && history.length > 0 && (
         // <div className="overflow-x-auto">
         <div className="min-h-0 flex-1 overflow-auto">
-<table className="w-full min-w-[1000px] text-left text-xs">
-  <thead className="sticky top-0 z-10 bg-gray-50 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+          <table className="w-full min-w-[1000px] text-left text-xs">
+            <thead className="sticky top-0 z-10 bg-gray-50 text-[10px] font-medium uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-5 py-3">Complaint No.</th>
-
                 <th className="px-5 py-3">Date</th>
 
                 <th className="px-5 py-3">Product</th>
@@ -1805,7 +1815,7 @@ function ComplaintHistoryTable({
 
                 const isSelected =
                   selectedComplaintNumber === complaint.complaintNumber;
-console.log(complaint)
+                console.log(complaint);
                 /*
                 |--------------------------------------------------------------------------
                 | Only allow selecting an under-warranty complaint
@@ -1937,7 +1947,9 @@ console.log(complaint)
                     {/* Technician */}
 
                     <td className="px-3 py-2">
-                      {complaint?.allocatedDealerId?.technicianName + " - " + complaint?.allocatedDealerId?.mobileNumber  || "-"}
+                      {complaint?.allocatedDealerId?.technicianName +
+                        " - " +
+                        complaint?.allocatedDealerId?.mobileNumber || "-"}
                     </td>
 
                     {/* Warranty */}
@@ -2044,7 +2056,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 function Input({ label, error, required, className, ...props }: InputProps) {
   return (
     <div className="min-w-0">
-      <label className="mb-1 block text-xs font-medium text-gray-600">
+      <label className="mb-1 block text-xs font-medium text-[#123B7A]">
         {label}
 
         {required && <span className="ml-0.5 text-red-500">*</span>}
@@ -2052,6 +2064,10 @@ function Input({ label, error, required, className, ...props }: InputProps) {
 
       <input
         {...props}
+        // autoComplete="off"
+        autoComplete="new-password"
+        data-lpignore="true"
+        data-form-type="other"
         className={`
           ${inputClass}
           ${
