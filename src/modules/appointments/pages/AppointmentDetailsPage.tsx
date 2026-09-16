@@ -650,7 +650,7 @@ export default function AppointmentDetailsPage() {
         {/* =========================
       NEW / ALLOCATED
   ========================= */}
-        {appointment.status === "ALLOCATED" && (
+        {(appointment.status === "ALLOCATED" || appointment.status === "REOPEN" )&& (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <button
               type="button"

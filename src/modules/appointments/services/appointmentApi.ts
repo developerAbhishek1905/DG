@@ -84,7 +84,7 @@ export async function getAppointments(params?: {
 export async function getAppointmentById(id: string) {
   const response = await api.get(`/complaints/${id}`);
 
-  return response.data;
+  return response.data.data;
 }
 
 /*
@@ -121,7 +121,7 @@ export async function updateAppointmentStatus(
   console.log(payload)
   const response = await api.patch(`/appointments/${id}/status`, {status,...payload});
 
-  return response.data;
+  return response.data.data;
 }
 
 /*
