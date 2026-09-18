@@ -115,11 +115,11 @@ export async function createAppointment(data: AppointmentFormData) {
 
 export async function updateAppointmentStatus(
   id: string,
-  status,
-  payload: UpdateAppointmentStatusPayload,
+  status: string | Partial<UpdateAppointmentStatusPayload>,
+  payload: Partial<UpdateAppointmentStatusPayload> = {},
 ) {
   console.log(payload)
-  const response = await api.patch(`/appointments/${id}/status`, {status,...payload});
+  const response = await api.patch(`/appointments/${id}/status`, typeof status === "string" ? { status, ...payload } : status);
 
   return response.data.data;
 }

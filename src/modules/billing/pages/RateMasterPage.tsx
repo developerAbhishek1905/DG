@@ -17,11 +17,11 @@ import {
 import RateForm from "../components/RateForm";
 import RateTable from "../components/RateTable";
 
-import {
-  createRate,
-  getRates,
-  updateRate,
-} from "../services/billingApi";
+// import {
+//   createRate,
+//   getRates,
+//   updateRate,
+// } from "../services/billingApi";
 
 import {
   setRateSearch,

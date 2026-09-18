@@ -17,9 +17,9 @@ import {
   useParams,
 } from "react-router-dom";
 
-import {
-  getLedgerTransactionById,
-} from "../services/ledgerApi";
+// import {
+//   getLedgerTransactionById,
+// } from "../services/ledgerApi";
 
 import type {
   LedgerTransaction,
@@ -46,33 +46,33 @@ export default function LedgerTransactionPage() {
   ] =
     useState(true);
 
-  useEffect(() => {
-    if (!id) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!id) {
+  //     return;
+  //   }
 
-    const load =
-      async () => {
-        try {
-          setLoading(true);
+  //   const load =
+  //     async () => {
+  //       try {
+  //         setLoading(true);
 
-          const data =
-            await getLedgerTransactionById(
-              id
-            );
+  //         const data =
+  //           await getLedgerTransactionById(
+  //             id
+  //           );
 
-          setTransaction(
-            data
-              ? { ...data }
-              : null
-          );
-        } finally {
-          setLoading(false);
-        }
-      };
+  //         setTransaction(
+  //           data
+  //             ? { ...data }
+  //             : null
+  //         );
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
 
-    load();
-  }, [id]);
+  //   load();
+  // }, [id]);
 
   if (loading) {
     return (

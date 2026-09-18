@@ -116,6 +116,10 @@ export interface DealerFormData {
   productId: string;
   billingType: "FIXED" | "PARTIAL_PAYMENT" | "PROFIT_SHARING";
 
+  billingPercentage?: number;
+  cancellationBillingEnabled?: boolean;
+  cancellationCharge?: number;
+
   productServiceType: string;
 
   technicianStatus: "ACTIVE" | "INACTIVE";

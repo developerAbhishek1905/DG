@@ -1,3 +1,4 @@
+import PercentageClosureForm from "../components/PercentageClosureForm";
 // import {
 //   ArrowLeft,
 //   CalendarDays,
@@ -285,7 +286,6 @@ import AppointmentStatusBadge from "../components/AppointmentStatusBadge";
 import RescheduleModal from "../components/RescheduleModal";
 
 import { useAppointmentDetails } from "../hooks/useAppointments";
-
 import {
   rescheduleAppointment,
   updateAppointmentStatus,
@@ -295,8 +295,13 @@ import {
 
 import type { RescheduleAppointmentPayload } from "../types/appointment.types";
 import ComplaintActivityModal from "../components/ComplaintActivityModal";
+import { toast } from "react-toastify";
+import { useAppSelector } from "../../../app/hooks";
+import PercentageClosureModal from "../components/PercentageClosureForm";
+
 
 export default function AppointmentDetailsPage() {
+  const [percentageBilling, setPercentageBilling] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -334,6 +339,15 @@ export default function AppointmentDetailsPage() {
   const [activityLoading, setActivityLoading] = useState(false);
 
   const [activities, setActivities] = useState<ComplaintActivity[]>([]);
+  const [billingModalOpen, setBillingModalOpen] = useState(false);
+
+  const [billingLoading, setBillingLoading] = useState(false);
+
+  const { user } = useAppSelector((state) => state.auth);
+  const billingType = user?.dealerId?.billingType
+
+  // const [percentageBilling, setPercentageBilling] =
+  // useState(false);
 
   console.log(reasons);
   if (loading) {
@@ -570,6 +584,227 @@ export default function AppointmentDetailsPage() {
       setActivityLoading(false);
     }
   };
+  // const handleCloseOnBilling = async () => {
+  //   const dealer = appointment.allocatedDealerId;
+
+  //   if (!dealer) {
+  //     toast.error("Dealer not found");
+  //     return;
+  //   }
+
+  //   const billingType = dealer.billingType;
+
+  //   /*
+  // |--------------------------------------------------------------------------
+  // | FIXED
+  // |--------------------------------------------------------------------------
+  // */
+
+  //   if (billingType === "FIXED") {
+  //     try {
+  //       setActionLoading(true);
+
+  //       const updated = await updateAppointmentStatus(
+  //         appointment._id,
+  //         "CLOSE_ON_BILLING",
+  //       );
+
+  //       if (updated) {
+  //         setAppointment(updated);
+  //       }
+  //     } catch (error) {
+  //       console.error("Close billing failed:", error);
+  //     } finally {
+  //       setActionLoading(false);
+  //     }
+
+  //     return;
+  //   }
+
+  //   /*
+  // |--------------------------------------------------------------------------
+  // | PARTIAL / PROFIT
+  // |--------------------------------------------------------------------------
+  // */
+
+  //   if (billingType === "PARTIAL_PAYMENT" || billingType === "PROFIT_SHARING") {
+  //     setBillingModalOpen(true);
+  //     return;
+  //   }
+
+  //   toast.error("Dealer billing type is not configured");
+  // };
+console.log(user)
+  const handleCloseOnBilling = async () => {
+    /*
+  |--------------------------------------------------------------------------
+  | Dealer billing configuration from logged-in user
+  |--------------------------------------------------------------------------
+  */
+
+    const dealer = user?.dealerId;
+
+    if (!dealer) {
+      toast.error("Dealer billing information not found");
+      return;
+    }
+
+    const billingType = dealer.billingType;
+
+    /*
+  |--------------------------------------------------------------------------
+  | FIXED
+  |--------------------------------------------------------------------------
+  */
+
+    if (billingType === "FIXED") {
+      try {
+        setActionLoading(true);
+
+        const updated = await updateAppointmentStatus(
+          appointment._id,
+          "CLOSE_ON_BILLING",
+        );
+
+        if (updated) {
+          setAppointment(updated);
+        }
+      } catch (error) {
+        console.error("Close billing failed:", error);
+      } finally {
+        setActionLoading(false);
+      }
+
+      return;
+    }
+
+    /*
+  |--------------------------------------------------------------------------
+  | PARTIAL PAYMENT
+  |--------------------------------------------------------------------------
+  */
+
+    if (billingType === "PARTIAL_PAYMENT") {
+      setBillingModalOpen(true);
+      return;
+    }
+
+    /*
+  |--------------------------------------------------------------------------
+  | PROFIT SHARING
+  |--------------------------------------------------------------------------
+  */
+
+    if (billingType === "PROFIT_SHARING") {
+      setBillingModalOpen(true);
+      return;
+    }
+
+    toast.error("Dealer billing type is not configured");
+  };
+
+  const handleBillingSubmit = async ({
+  customerAmount,
+  profitAmount,
+}: {
+  customerAmount: number;
+  profitAmount?: number;
+}) => {
+  try {
+    setBillingLoading(true);
+
+    const payload =
+      billingType ===
+      "PROFIT_SHARING"
+        ? {
+            customerAmount,
+            profitAmount,
+          }
+        : {
+            customerAmount,
+          };
+
+    const updated =
+      await updateAppointmentStatus(
+        appointment._id,
+        "CLOSE_ON_BILLING",
+        payload,
+      );
+
+    if (updated) {
+      setAppointment(updated);
+
+      setBillingModalOpen(false);
+
+      toast.success(
+        "Billing submitted for verification",
+      );
+    }
+  } catch (error) {
+    console.error(
+      "Billing submission failed:",
+      error,
+    );
+  } finally {
+    setBillingLoading(false);
+  }
+};
+
+  const handlePercentageBillingSubmit = async ({
+    customerAmount,
+    profitAmount,
+    percentage,
+    charge,
+  }: {
+    customerAmount: number;
+    profitAmount?: number;
+    percentage: number;
+    charge: number;
+  }) => {
+    try {
+      setBillingLoading(true);
+
+      const billingType = appointment.allocatedDealerId?.billingType;
+
+      const payload = {
+        customerAmount,
+
+        profitAmount:
+          billingType === "PROFIT_SHARING" ? profitAmount : undefined,
+
+        percentage,
+
+        charge,
+      };
+
+      console.log("Billing payload:", payload);
+
+      /*
+       * Call billing submission API here.
+       *
+       * IMPORTANT:
+       * Backend should calculate percentage
+       * and charge again. Never trust the
+       * percentage/charge sent by frontend.
+       */
+
+      const response = await submitComplaintBilling(appointment._id, payload);
+
+      if (response) {
+        setAppointment(response);
+
+        setBillingModalOpen(false);
+
+        toast.success("Billing submitted for DG approval");
+      }
+    } catch (error) {
+      console.error("Billing submission failed:", error);
+
+      toast.error("Failed to submit billing");
+    } finally {
+      setBillingLoading(false);
+    }
+  };
 
   //   const openCancelModal = async () => {
   //   try {
@@ -602,6 +837,13 @@ export default function AppointmentDetailsPage() {
 
   return (
     <div className="space-y-5">
+      <PercentageClosureForm
+        complaintId={appointment._id}
+        status={appointment.status}
+        onSubmitted={setAppointment}
+        onMethod={setPercentageBilling}
+      />
+      {/* <PercentageClosureForm complaintId={appointment._id} status={appointment.status} onSubmitted={setAppointment} onMethod={setPercentageBilling} /> */}
       {/* =========================
           TOP BAR
       ========================= */}
@@ -650,7 +892,8 @@ export default function AppointmentDetailsPage() {
         {/* =========================
       NEW / ALLOCATED
   ========================= */}
-        {(appointment.status === "ALLOCATED" || appointment.status === "REOPEN" )&& (
+        {(appointment.status === "ALLOCATED" ||
+          appointment.status === "REOPEN") && (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <button
               type="button"
@@ -790,7 +1033,8 @@ export default function AppointmentDetailsPage() {
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {/* CLOSE ON BILLING */}
 
-            <button
+            {/* <button
+              hidden={percentageBilling}
               type="button"
               disabled={actionLoading}
               onClick={async () => {
@@ -814,6 +1058,15 @@ export default function AppointmentDetailsPage() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               Close on Billing
+            </button> */}
+
+            <button
+              type="button"
+              disabled={actionLoading}
+              onClick={handleCloseOnBilling}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {actionLoading ? "Processing..." : "Close on Billing"}
             </button>
 
             {/* PENDING ON VISIT */}
@@ -840,12 +1093,12 @@ export default function AppointmentDetailsPage() {
         )}
 
         {/* =========================
-    PENDING ON VISIT
-========================= */}
+            PENDING ON VISIT
+        ========================= */}
 
-        {appointment.status === "PENDING_ON_VISIT" && (
+        {appointment.status === "PENDING_ON_VISIT" && !percentageBilling && (
           <div className="grid grid-cols-1 gap-2">
-            <button
+            {/* <button
               type="button"
               onClick={async () => {
                 try {
@@ -869,13 +1122,22 @@ export default function AppointmentDetailsPage() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               close on billing
+            </button> */}
+
+            <button
+              type="button"
+              onClick={handleCloseOnBilling}
+              disabled={actionLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {actionLoading ? "Processing..." : "Close on Billing"}
             </button>
           </div>
         )}
 
         {/* =========================
-    PENDING ON CALL
-========================= */}
+            PENDING ON CALL
+        ========================= */}
 
         {appointment.status === "PENDING_ON_CALL" && (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -1608,8 +1870,8 @@ export default function AppointmentDetailsPage() {
       )}
 
       {/* =========================
-    ON CALL CANCEL REASON MODAL
-========================= */}
+          ON CALL CANCEL REASON MODAL
+      ========================= */}
 
       {cancelOpen && (
         <ReasonModal
@@ -1664,6 +1926,37 @@ export default function AppointmentDetailsPage() {
           }}
         />
       )}
+      {/* 
+      {billingModalOpen &&
+        (appointment.allocatedDealerId?.billingType === "PARTIAL_PAYMENT" ||
+          appointment.allocatedDealerId?.billingType === "PROFIT_SHARING") && (
+          <PercentageClosureModal
+            open={billingModalOpen}
+            complaintNumber={appointment.complaintNumber}
+            billingType={appointment.allocatedDealerId.billingType}
+            percentage={Number(
+              appointment.allocatedDealerId.billingPercentage || 0,
+            )}
+            loading={billingLoading}
+            onClose={() => setBillingModalOpen(false)}
+            onSubmit={handlePercentageBillingSubmit}
+          />
+        )} */}
+
+      {billingModalOpen &&
+        (billingType === "PARTIAL_PAYMENT" ||
+          billingType === "PROFIT_SHARING") && (
+          <PercentageClosureModal
+            open={billingModalOpen}
+            billingType={billingType}
+            // percentage={billingPercentage}
+            complaintNumber={appointment.complaintNumber}
+            loading={billingLoading}
+            onClose={() => setBillingModalOpen(false)}
+            onSubmit={handleBillingSubmit}
+          />
+        )}
+
       <ComplaintActivityModal
         open={activityOpen}
         loading={activityLoading}

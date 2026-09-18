@@ -312,6 +312,9 @@ export default function ComplaintForm({
 
   const [categoryLoading, setCategoryLoading] = useState(false);
 
+  const [selectedCategoryLabel, setSelectedCategoryLabel] =
+  useState("");
+
   const debouncedCategorySearch = useDebounce(categorySearch, 500);
 
   const selectedCategory = watch("category");
@@ -401,18 +404,35 @@ export default function ComplaintForm({
     loadCategories(debouncedCategorySearch);
   }, [debouncedCategorySearch, selectedProductId]);
 
-  const handleCategorySelect = (category: CategoryDropdownOption) => {
-    setValue("categoryId", category._id || category.id || "", {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+  // const handleCategorySelect = (category: CategoryDropdownOption) => {
+  //   setValue("categoryId", category._id || category.id || "", {
+  //     shouldDirty: true,
+  //     shouldValidate: true,
+  //   });
 
-    setValue("category", category.category, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  };
+  //   setValue("category", category.category, {
+  //     shouldDirty: true,
+  //     shouldValidate: true,
+      
+  //   });
+  // };
 
+  const handleCategorySelect = (
+  category: CategoryDropdownOption,
+) => {
+  // Actual value submitted to backend
+  setValue("category", category.category, {
+    shouldValidate: true,
+    shouldDirty: true,
+  });
+
+  // Value shown inside SearchSelect
+  setSelectedCategoryLabel(
+    `${category.category} - ${category.description}`,
+  );
+
+  setCategorySearch("");
+};
   const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
     // if (selectedComplaintType !== "WARRANTY") {
     //   return;
@@ -739,6 +759,7 @@ export default function ComplaintForm({
       toast.success("Complaint created successfully");
     } catch (error) {
       console.error("Create complaint error:", error);
+      toast.error(error.response?.data?.message);
     } finally {
       setSubmitting(false);
     }
@@ -1330,7 +1351,7 @@ export default function ComplaintForm({
                           maxLength={10}
                           inputMode="numeric"
                           // autoComplete="off"
-                          placeholder="9876543210"
+                          // placeholder="9876543210"
                           autoComplete="new-password"
                           data-lpignore="true"
                           data-form-type="other"
@@ -1354,7 +1375,7 @@ export default function ComplaintForm({
 
                     <Input
                       label="Alternative Phone"
-                      placeholder="9876543210"
+                      // placeholder="9876543210"
                       // autoComplete="off"
                       autoComplete="new-password"
                       data-lpignore="true"
@@ -1379,7 +1400,7 @@ export default function ComplaintForm({
                       autoComplete="new-password"
                       data-lpignore="true"
                       data-form-type="other"
-                      placeholder="Customer name"
+                      // placeholder="Customer name"
                       error={errors.customerName?.message}
                       {...register("customerName", {
                         required: "Customer name is required",
@@ -1487,7 +1508,8 @@ export default function ComplaintForm({
 
                     <SearchSelect
                       label="Category"
-                      value={selectedCategory || ""}
+                      // value={selectedCategory || ""}
+                      value={selectedCategoryLabel}
                       placeholder={
                         selectedProductId
                           ? "Search category..."
@@ -1566,7 +1588,7 @@ export default function ComplaintForm({
                       label="Quote"
                       type="number"
                       // min={0}
-                      placeholder="0"
+                      // placeholder="0"
                       autoComplete="off"
                       {...register("quoteAmount", {
                         valueAsNumber: true,
@@ -1575,21 +1597,21 @@ export default function ComplaintForm({
 
                     <Input
                       label="Fault Reported"
-                      required
-                      placeholder="Enter fault"
+                      // required
+                      // placeholder="Enter fault"
                       autoComplete="off"
                       error={errors.faultReported?.message}
                       {...register("faultReported", {
-                        required: "Fault reported is required",
+                        // required: "Fault reported is required",
                       })}
                     />
 
                     {/* TYPE */}
 
                     <div>
-                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-gray-600">
+                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
                         Type
-                        <span className="ml-0.5 text-red-500">*</span>
+                        {/* <span className="ml-0.5 text-red-500">*</span> */}
                       </label>
 
                       <select
@@ -1629,7 +1651,7 @@ export default function ComplaintForm({
                   <div className="grid grid-cols-3 gap-x-2.5 gap-y-2">
                     <Input
                       label="Ad. Name"
-                      placeholder="Ad. name"
+                      // placeholder="Ad. name"
                       {...register("adName")}
                     />
 

@@ -68,6 +68,10 @@ export interface VerificationClosureSummary {
 }
 
 export interface VerificationRecord {
+  billingMethod?: "PARTIAL_PAYMENT" | "PROFIT_SHARING";
+  billingPercentage?: number;
+  billingCharge?: number;
+  revision?: number;
   id: string;
 
   complaintId: string;
@@ -113,6 +117,7 @@ export interface VerificationRecord {
 }
 
 export interface VerifyComplaintPayload {
+  revision?: number;
   verificationId: string;
 
   remarks?: string;

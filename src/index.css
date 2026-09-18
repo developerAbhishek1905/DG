@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
 :root {
   --color-primary: #123b7a;
   --color-primary-dark: #0b2854;

@@ -16,11 +16,11 @@ import {
 
 import BillDetails from "../components/BillDetails";
 
-import {
-  approveBill,
-  getBillById,
-  rejectBill,
-} from "../services/billingApi";
+// import {
+//   approveBill,
+//   getBillById,
+//   rejectBill,
+// } from "../services/billingApi";
 
 import type {
   Bill,
@@ -44,14 +44,14 @@ export default function BillDetailsPage() {
   useEffect(() => {
     if (!id) return;
 
-    getBillById(id).then(
-      (data) =>
-        setBill(
-          data
-            ? { ...data }
-            : null
-        )
-    );
+    // getBillById(id).then(
+    //   (data) =>
+    //     setBill(
+    //       data
+    //         ? { ...data }
+    //         : null
+    //     )
+    // );
   }, [id]);
 
   if (!bill) {

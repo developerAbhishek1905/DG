@@ -14,9 +14,9 @@ import {
 
 import BillingStats from "../components/BillingStats";
 
-import {
-  getBills,
-} from "../services/billingApi";
+// import {
+//   getBills,
+// } from "../services/billingApi";
 
 import type {
   Bill,
@@ -32,11 +32,11 @@ export default function BillingOverviewPage() {
   ] =
     useState<Bill[]>([]);
 
-  useEffect(() => {
-    getBills().then(
-      setBills
-    );
-  }, []);
+  // useEffect(() => {
+  //   getBills().then(
+  //     setBills
+  //   );
+  // }, []);
 
   const approvedAmount =
     bills

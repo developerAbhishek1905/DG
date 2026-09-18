@@ -119,7 +119,10 @@ export default function DealerForm({
       aadhaarNumber: dealer?.aadhaarNumber ?? "",
       alternativeNumber: dealer?.alternativeNumber ?? "",
       panNumber: dealer?.panNumber ?? "",
-      billingType: "FIXED",
+      billingType: dealer?.billingType ?? "FIXED",
+      billingPercentage: dealer?.billingPercentage ?? 0,
+      cancellationBillingEnabled: dealer?.cancellationBillingEnabled ?? false,
+      cancellationCharge: dealer?.cancellationCharge ?? 0,
       drivingLicenceNumber: dealer?.drivingLicenceNumber ?? "",
       // productId: dealer?.productId ?? "",
       // productServiceType: dealer?.productServiceType ?? "",
@@ -310,6 +313,10 @@ export default function DealerForm({
     }
 
     reset({
+      billingType: dealer.billingType ?? "FIXED",
+      billingPercentage: dealer.billingPercentage ?? 0,
+      cancellationBillingEnabled: dealer.cancellationBillingEnabled ?? false,
+      cancellationCharge: dealer.cancellationCharge ?? 0,
       technicianCode: dealer.technicianCode ?? "",
       technicianFirmName: dealer.technicianFirmName ?? "",
       technicianName: dealer.technicianName ?? "",
@@ -571,6 +578,8 @@ export default function DealerForm({
   const submitForm = async (data: DealerFormData) => {
     const payload: DealerFormData = {
       ...data,
+      billingPercentage: data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
+      cancellationCharge: data.cancellationBillingEnabled ? Number(data.cancellationCharge) : 0,
       gstRate: Number(data.gstRate || 0),
       reverseChargeLimit: Number(data.reverseChargeLimit || 0),
       creditDays: Number(data.creditDays || 0),
@@ -600,6 +609,7 @@ export default function DealerForm({
   return (
     <form
       onSubmit={handleSubmit(submitForm, (errors) => {
+        if (errors.billingType || errors.billingPercentage || errors.cancellationCharge) setActiveTab("account");
         console.error(errors)
         // console.log("FORM VALIDATION ERRORS:", errors);
         toast.error("Please fix the required fields before submitting.");
@@ -685,7 +695,7 @@ export default function DealerForm({
 
               <Input
                 label="Technician Firm Name"
-                placeholder="Enter technician firm name"
+                // placeholder="Enter technician firm name"
                 error={errors.technicianFirmName?.message}
                 {...register("technicianFirmName", {
                   required: "Technician firm name is required",
@@ -694,7 +704,7 @@ export default function DealerForm({
 
               <Input
                 label="Technician Name"
-                placeholder="Enter technician name"
+                // placeholder="Enter technician name"
                 error={errors.technicianName?.message}
                 {...register("technicianName", {
                   required: "Technician name is required",
@@ -705,7 +715,7 @@ export default function DealerForm({
                 label="Phone Number"
                 maxLength={10}
                 inputMode="numeric"
-                placeholder="Enter phone number"
+                // placeholder="Enter phone number"
                 error={errors.mobileNumber?.message}
                 {...register("mobileNumber", {
                   required: "Phone number is required",
@@ -720,7 +730,7 @@ export default function DealerForm({
                 label="Alternative Number"
                 maxLength={10}
                 inputMode="numeric"
-                placeholder="Enter alternative number"
+                // placeholder="Enter alternative number"
                 error={errors.alternativeNumber?.message}
                 {...register("alternativeNumber", {
                   pattern: {
@@ -733,7 +743,7 @@ export default function DealerForm({
               <Input
                 label="Email ID"
                 type="email"
-                placeholder="Enter email address"
+                // placeholder="Enter email address"
                 error={errors.email?.message}
                 {...register("email", {
                   required: "Email is required",
@@ -817,7 +827,7 @@ export default function DealerForm({
                   label="Aadhaar Number"
                   maxLength={12}
                   inputMode="numeric"
-                  placeholder="Enter 12 digit Aadhaar number"
+                  // placeholder="Enter 12 digit Aadhaar number"
                   error={errors.aadhaarNumber?.message}
                   {...register("aadhaarNumber", {
                     pattern: {
@@ -936,7 +946,7 @@ export default function DealerForm({
                 <Input
                   label="PAN Number"
                   maxLength={10}
-                  placeholder="ABCDE1234F"
+                  // placeholder="ABCDE1234F"
                   error={errors.panNumber?.message}
                   {...register("panNumber", {
                     pattern: {
@@ -1058,7 +1068,7 @@ export default function DealerForm({
 
                 <Input
                   label="Licence Number"
-                  placeholder="Enter driving licence number"
+                  // placeholder="Enter driving licence number"
                   error={errors.drivingLicenceNumber?.message}
                   {...register("drivingLicenceNumber")}
                 />
@@ -1287,87 +1297,50 @@ export default function DealerForm({
           {/* BILLING TYPE */}
           {/* ================================================= */}
 
-          <Section title="Billing Type">
+          <Section title="Dealer Billing">
+            <p className="mb-3 text-xs text-gray-500">
+              Choose one billing method. Normal billing applies after the dealer closes a complaint.
+              Change agreed rates or the billing method only with dealer consent.
+            </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {[
-                {
-                  value: "FIXED",
-                  label: "Fixed",
-                },
-                {
-                  value: "PARTIAL_PAYMENT",
-                  label: "Partial Payment",
-                },
-                {
-                  value: "PROFIT_SHARING",
-                  label: "Profit Sharing",
-                },
-              ].map((option) => {
-                const selected = watch("billingType") === option.value;
-
-                return (
-                  <label
-                    key={option.value}
-                    className={`
-                flex h-8 cursor-pointer items-center gap-2
-                rounded-md border px-3
-                text-xs font-medium transition
-                ${
-                  selected
-                    ? "border-[#123B7A] bg-blue-50 text-[#123B7A]"
-                    : "border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
-                }
-              `}
-                  >
-                    {/* Checkbox visual */}
-                    <span
-                      className={`
-                  flex h-4 w-4 shrink-0 items-center justify-center
-                  rounded border transition
-                  ${
-                    selected
-                      ? "border-[#123B7A] bg-[#123B7A]"
-                      : "border-gray-300 bg-white"
-                  }
-                `}
-                    >
-                      {selected && (
-                        <svg
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          className="h-3 w-3"
-                        >
-                          <path
-                            d="M4 10L8 14L16 6"
-                            stroke="white"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      )}
-                    </span>
-
-                    <input
-                      type="radio"
-                      value={option.value}
-                      {...register("billingType", {
-                        required: "Billing type is required",
-                      })}
-                      className="sr-only"
-                    />
-
-                    {option.label}
-                  </label>
-                );
-              })}
+                { value: "FIXED", label: "Service-wise fixed charge", description: "Use the agreed rate for the service selected at closure." },
+                { value: "PARTIAL_PAYMENT", label: "Customer amount percentage", description: "Charge a percentage of the customer amount entered after closure." },
+                { value: "PROFIT_SHARING", label: "Profit percentage", description: "Charge a percentage of the profit on the closed complaint." },
+              ].map((option) => (
+                <label key={option.value} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-xs ${watch("billingType") === option.value ? "border-[#123B7A] bg-blue-50 text-[#123B7A]" : "border-gray-300 text-gray-600"}`}>
+                  <input type="radio" value={option.value} {...register("billingType", { required: "Choose a billing method" })} className="mt-0.5 accent-[#123B7A]" />
+                  <span><span className="block font-semibold">{option.label}</span><span className="mt-1 block leading-5">{option.description}</span></span>
+                </label>
+              ))}
             </div>
-
-            {errors.billingType && (
-              <p className="mt-1 text-[10px] text-red-600">
-                {errors.billingType.message}
-              </p>
+            {errors.billingType && <ErrorText>{errors.billingType.message}</ErrorText>}
+            {watch("billingType") === "FIXED" ? (
+              <div className="mt-3 rounded-md bg-gray-50 p-3 text-xs text-gray-600">
+                <p>Service rates are configured under Product &amp; Capacity. For example, an agreed AC service rate of ₹300 means a ₹300 charge when closed as AC service.</p>
+                <button type="button" onClick={() => setActiveTab("service")} className="mt-2 font-medium text-[#123B7A] underline">Configure service rates</button>
+              </div>
+            ) : (
+              <div className="mt-3 max-w-sm">
+                <Input label={watch("billingType") === "PROFIT_SHARING" ? "Percentage of profit (%)" : "Percentage of customer amount (%)"} type="number" min="0.01" max="100" step="0.01"
+                  {...register("billingPercentage", { valueAsNumber: true, validate: (value, values) => values.billingType === "FIXED" || (Number.isFinite(value) && Number(value) > 0 && Number(value) <= 100) || "Enter a percentage greater than 0 and up to 100" })}
+                  error={errors.billingPercentage?.message} />
+              </div>
             )}
+            <div className="mt-4 border-t border-gray-200 pt-3">
+              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-gray-700">
+                <input type="checkbox" {...register("cancellationBillingEnabled")} className="accent-[#123B7A]" />
+                Also charge for cancelled complaints
+              </label>
+              <p className="mt-2 text-xs leading-5 text-gray-500">Cancellation at any stage is billable only after DG team approval. Each complaint can have either a closure charge or a cancellation charge, never both.</p>
+              {watch("cancellationBillingEnabled") && (
+                <div className="mt-3 max-w-sm">
+                  <Input label="Cancellation charge (₹)" type="number" min="0.01" step="0.01"
+                    {...register("cancellationCharge", { valueAsNumber: true, validate: (value, values) => !values.cancellationBillingEnabled || (Number.isFinite(value) && Number(value) > 0) || "Enter a cancellation charge greater than 0" })}
+                    error={errors.cancellationCharge?.message} />
+                </div>
+              )}
+            </div>
           </Section>
 
           {/* ================================================= */}

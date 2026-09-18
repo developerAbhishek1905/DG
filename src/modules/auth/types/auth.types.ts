@@ -9,18 +9,56 @@ export type UserRole =
 
 export type Permission = string;
 
-export interface AuthUser {
+// export interface AuthUser {
+//   id: string;
+//   name: string;
+//   email: string;
+
+//   role: UserRole;
+
+//   permissions: Permission[];
+
+//   avatar?: string;
+
+//   dealerId?: string;
+// }
+
+interface AuthUser {
   id: string;
   name: string;
   email: string;
+  phone?: string;
 
-  role: UserRole;
+  roleId: string;
 
-  permissions: Permission[];
-
-  avatar?: string;
+  role: {
+    id: string;
+    name: string;
+    code: string;
+    permissions: string[];
+  };
 
   dealerId?: string;
+
+  dealer?: {
+    _id: string;
+    headCode?: string;
+    technicianFirmName?: string;
+    technicianName?: string;
+    mobileNumber?: string;
+
+    billingType:
+      | "FIXED"
+      | "PARTIAL_PAYMENT"
+      | "PROFIT_SHARING";
+
+    billingPercentage: number;
+
+    cancellationBillingEnabled?: boolean;
+    cancellationCharge?: number;
+  };
+
+  status: string;
 }
 
 export interface LoginCredentials {

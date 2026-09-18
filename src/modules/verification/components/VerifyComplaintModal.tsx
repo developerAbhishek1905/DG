@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import {
   CheckCircle2,
   X,
@@ -83,7 +84,9 @@ export default function VerifyComplaintModal({
   const submit = async (
     data: FormValues
   ) => {
+    try {
     await onSubmit({
+      revision: verification.revision,
       verificationId:
         verification.id,
 
@@ -100,6 +103,10 @@ export default function VerifyComplaintModal({
         data.remarks ||
         undefined,
     });
+    } catch (error) {
+      const failure = error as { response?: { data?: { message?: string } } };
+      toast.error(failure.response?.data?.message || "Unable to approve closure. Please try again.");
+    }
   };
 
   return (
@@ -141,8 +148,13 @@ export default function VerifyComplaintModal({
           }
           className="space-y-5 p-6"
         >
+          {verification?.billingMethod && <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+            <p>{verification.billingMethod === "PROFIT_SHARING" ? "Profit" : "Customer amount"}: ₹{verification.closure.amount}</p>
+            <p>{verification.billingPercentage}% · Ledger charge on approval: ₹{verification.billingCharge}</p>
+            <p className="mt-2">{verification.closure.workSummary}</p>
+          </div>}
           <CheckItem
-            label="Closure proof has been verified"
+            label="Billing amount and supporting evidence have been verified"
             {...register(
               "proofVerified",
               {
@@ -210,7 +222,7 @@ export default function VerifyComplaintModal({
           </div>
 
           <div className="rounded-lg border border-green-100 bg-green-50 p-3 text-xs leading-5 text-green-700">
-            After verification, the complaint can move to Closed and become eligible for billing.
+            Approval closes the complaint and posts its percentage charge to the dealer ledger.
           </div>
 
           <div className="flex justify-end gap-3 border-t pt-5">

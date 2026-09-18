@@ -400,7 +400,7 @@ export default function ComplaintAddressFields({
           </label>
 
           <input    
-            placeholder="Enter complete customer address"
+            // placeholder="Enter complete customer address"
             autoComplete="new-password"
             data-lpignore="true"
             data-form-type="other"
@@ -417,27 +417,29 @@ export default function ComplaintAddressFields({
           )}
         </div>
 
-        {/* STATE */}
+        {/* CITY */}
 
         <SearchSelect
-          label="State"
-          value={stateName || ""}
-          placeholder="Search state..."
-          loading={stateLoading}
-          options={states.map((state) => ({
-            value: state.state_id,
-            label: state.state_name,
-            data: state,
+          label="City"
+          value={cityName || ""}
+          placeholder="Search city..."
+          loading={cityLoading}
+          options={cities.map((city) => ({
+            value: city.city_id,
+            label: [city.city_name, city.district_name, city.state_name]
+              .filter(Boolean)
+              .join(" - "),
+            data: city,
           }))}
-          onSearch={setStateSearch}
-          onSelect={(option) => handleStateSelect(option.data as StateOption)}
+          onSearch={setCitySearch}
+          onSelect={(option) => handleCitySelect(option.data as CityOption)}
           onClear={() => {
-            setValue("address.stateId", undefined);
-            setValue("address.state", "");
-            setStateSearch("");
-            resetDistrict();
+            setValue("address.cityId", undefined);
+            setValue("address.city", "");
+            setCitySearch("");
+            resetPincode();
           }}
-          error={addressErrors?.state?.message}
+          error={addressErrors?.city?.message}
         />
 
         {/* DISTRICT */}
@@ -467,29 +469,27 @@ export default function ComplaintAddressFields({
           error={addressErrors?.district?.message}
         />
 
-        {/* CITY */}
+        {/* STATE */}
 
         <SearchSelect
-          label="City"
-          value={cityName || ""}
-          placeholder="Search city..."
-          loading={cityLoading}
-          options={cities.map((city) => ({
-            value: city.city_id,
-            label: [city.city_name, city.district_name, city.state_name]
-              .filter(Boolean)
-              .join(" - "),
-            data: city,
+          label="State"
+          value={stateName || ""}
+          placeholder="Search state..."
+          loading={stateLoading}
+          options={states.map((state) => ({
+            value: state.state_id,
+            label: state.state_name,
+            data: state,
           }))}
-          onSearch={setCitySearch}
-          onSelect={(option) => handleCitySelect(option.data as CityOption)}
+          onSearch={setStateSearch}
+          onSelect={(option) => handleStateSelect(option.data as StateOption)}
           onClear={() => {
-            setValue("address.cityId", undefined);
-            setValue("address.city", "");
-            setCitySearch("");
-            resetPincode();
+            setValue("address.stateId", undefined);
+            setValue("address.state", "");
+            setStateSearch("");
+            resetDistrict();
           }}
-          error={addressErrors?.city?.message}
+          error={addressErrors?.state?.message}
         />
 
         {/* PINCODE */}

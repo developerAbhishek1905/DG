@@ -225,8 +225,8 @@ export default function AppRoutes() {
             path="/verification/:id"
             element={<VerificationDetailsPage />}
           />
-          <Route path="/billing" element={<BillingOverviewPage />} />
-          <Route path="/billing/bills" element={<BillListPage />} />
+          <Route path="/billing" element={<BillListPage />} />
+          {/* <Route path="/billing/bills" element={<BillListPage />} /> */}
           <Route path="/billing/rates" element={<RateMasterPage />} />
           <Route path="/billing/:id" element={<BillDetailsPage />} />
           <Route path="/ledger" element={<LedgerOverviewPage />} />

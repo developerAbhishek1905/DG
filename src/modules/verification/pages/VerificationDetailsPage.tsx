@@ -405,12 +405,18 @@ export default function VerificationDetailsPage() {
           </div>
         )}
 
+        {verification.billingMethod && (
+          <div className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+            {verification.billingMethod === "PROFIT_SHARING" ? "Profit percentage" : "Customer amount percentage"}: {verification.billingPercentage}% · Dealer ledger charge: ₹{verification.billingCharge}
+            <p className="mt-1">Posted only after DG approval.</p>
+          </div>
+        )}
         {verification.closure
           .amount !==
           undefined && (
           <div className="mt-5">
             <p className="text-xs text-gray-500">
-              Service Amount
+              {verification.billingMethod === "PROFIT_SHARING" ? "Dealer profit" : "Customer amount"}
             </p>
 
             <p className="mt-1 text-lg font-bold text-gray-900">
