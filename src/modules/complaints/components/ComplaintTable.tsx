@@ -39,6 +39,10 @@ export default function ComplaintTable({
               </th>
 
               <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
+                Address
+              </th>
+
+              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
                 Category
               </th>
 
@@ -85,13 +89,18 @@ export default function ComplaintTable({
 
                 <td className="px-5 py-4">
                   <p className="text-sm font-medium text-gray-900">
-                    {complaint.customer.name}
+                    {complaint?.customerName}
                   </p>
 
                   <p className="text-xs text-gray-500">
-                    {complaint.customer.phone}
+                    {complaint?.phone} / {complaint?.alternatePhone}
                   </p>
                 </td>
+
+                <td className="px-5 py-4 text-sm text-gray-600">
+                  {complaint?.address?.addressLine}, {complaint?.address?.city}, {complaint?.address?.pinCode}
+                </td>
+
 
                 <td className="px-5 py-4 text-sm text-gray-600">
                   {complaint.category}
