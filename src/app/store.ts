@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 
 // import uiReducer from "./uiSlice";
 import authReducer from "../modules/auth/store/authSlice";
-import complaintReducer from "../modules/complaints/store/complaintSlice";
 import dealerReducer from "../modules/dealers/store/dealerSlice";
 
 import userReducer from "../modules/users/store/userSlice";
@@ -32,7 +31,6 @@ export const store = configureStore({
   reducer: {
     // ui: uiReducer,
     auth: authReducer,
-    complaints: complaintReducer,
     dealers: dealerReducer,
 
     users: userReducer,

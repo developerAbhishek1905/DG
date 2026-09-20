@@ -7,30 +7,54 @@ import type {
   ComplaintListResponse,
   CreateComplaintPayload,
   Customer,
+  Address,
   CustomerLookupResponse,
   UpdateComplaintPayload,
 } from "../types/complaint.types";
 
 const COMPLAINT_API = "/complaints";
-
 const CUSTOMER_API = "/customers";
 
-/*
-|--------------------------------------------------------------------------
-| Backend Types
-|--------------------------------------------------------------------------
-|
-| MongoDB returns _id.
-| Frontend currently expects id.
-|
-|--------------------------------------------------------------------------
-*/
-
-interface BackendCustomer extends Omit<Customer, "id"> {
+interface BackendCustomer {
   _id: string;
+  customerName: string;
+  phone: any;
 }
 
-interface BackendComplaint extends Omit<Complaint, "id" | "customer"> {
+// interface BackendComplaint extends Omit<Complaint, "id" | "customer"> {
+//   _id: string;
+//   customerId?: string | BackendCustomer;
+//   parentComplaintId?:
+//     | string
+//     | {
+//         _id: string;
+//         complaintNumber: string;
+//         complaintType?: string;
+//         status?: string;
+//       }
+//     | null;
+// }
+
+interface BackendParentComplaint {
+  _id: string;
+  complaintNumber: string;
+  complaintType?: string;
+  status?: string;
+}
+
+// interface BackendComplaint extends Omit<
+//   Complaint,
+//   "id" | "customer" | "customerId" | "parentComplaintId"
+// > {
+//   _id: string;
+//   customerId?: string | BackendCustomer;
+//   parentComplaintId?: string | BackendParentComplaint | null;
+// }
+
+interface BackendComplaint extends Omit<
+  Complaint,
+  "id" | "customer" | "customerId" | "parentComplaintId" | "allocatedDealerId"
+> {
   _id: string;
 
   customerId?: string | BackendCustomer;
@@ -44,48 +68,40 @@ interface BackendComplaint extends Omit<Complaint, "id" | "customer"> {
         status?: string;
       }
     | null;
+
+  allocatedDealerId?: string | any | null;
 }
 
 export interface UpdateCustomerPayload {
   name: string;
-
   phone: string;
-
   alternatePhone?: string;
-
   email?: string;
-
   address: Address;
-
   contactInfo?: string;
-
   status?: "ACTIVE" | "INACTIVE";
 }
 
 export interface CategoryDropdownOption {
+  _id: string;
   id?: string;
   product_id: number;
+  product_name?: string;
   category: string;
-  description?: string;
+  description: string;
   categoryDescription?: string;
+  status?: string;
 }
-/*
-|--------------------------------------------------------------------------
-| Normalize Customer
-|--------------------------------------------------------------------------
-*/
-
-const normalizeCustomer = (
-  customer?: BackendCustomer | null,
-): Customer | null => {
+const normalizeCustomer = (customer?: BackendCustomer | null): any | null => {
   if (!customer) {
     return null;
   }
 
   return {
     ...customer,
-
     id: customer._id,
+    customerName: customer.customerName,
+    phone: customer.phone,
   };
 };
 
@@ -95,14 +111,12 @@ const normalizeCustomer = (
 |--------------------------------------------------------------------------
 */
 
-const normalizeComplaint = (complaint: BackendComplaint): Complaint => {
+const normalizeComplaint = (complaint: any): Complaint => {
   let customer: Customer | undefined;
-
   let customerId: string | undefined;
 
   if (complaint.customerId && typeof complaint.customerId === "object") {
     customer = normalizeCustomer(complaint.customerId) || undefined;
-
     customerId = complaint.customerId._id;
   } else {
     customerId = complaint.customerId;
@@ -121,15 +135,10 @@ const normalizeComplaint = (complaint: BackendComplaint): Complaint => {
 
   return {
     ...complaint,
-
     id: complaint._id,
-
     customerId,
-
     customer,
-
     parentComplaintId,
-
     timeline: complaint.timeline || [],
   };
 };
@@ -140,36 +149,30 @@ const normalizeComplaint = (complaint: BackendComplaint): Complaint => {
 |--------------------------------------------------------------------------
 */
 
-const normalizeHistoryItem = (
-  complaint: BackendComplaint,
-): ComplaintHistoryItem => {
+const normalizeHistoryItem = (complaint: BackendComplaint): any => {
+  const allocatedDealer =
+    complaint.allocatedDealerId &&
+    typeof complaint.allocatedDealerId === "object"
+      ? complaint.allocatedDealerId
+      : null;
+
   return {
     id: complaint._id,
-
     complaintNumber: complaint.complaintNumber,
-
     createdAt: complaint.createdAt,
-
     category: complaint.category,
-
     complaintType: complaint.complaintType,
-
     productName: complaint.productName,
 
-    technicianName: complaint?.allocatedDealerId?.technicianName,
+    technicianName:
+      allocatedDealer?.technicianName ?? complaint.technicianName ?? "-",
 
-    technicianNumber: complaint?.allocatedDealerId?.mobileNumber,
+    technicianNumber: allocatedDealer?.mobileNumber ?? "-",
 
     faultReported: complaint.faultReported,
-
     status: complaint.status,
-
     priority: complaint.priority,
-
     isWarranty: complaint.isWarranty,
-
-    technicianName: complaint.technicianName,
-
     dealerName: complaint.dealerName,
   };
 };
@@ -182,7 +185,7 @@ const normalizeHistoryItem = (
 
 export const getComplaints = async (
   filters: ComplaintFilters = {},
-): Promise<ComplaintListResponse> => {
+): Promise<any> => {
   const params: Record<string, string | number> = {};
 
   if (filters.search?.trim()) {
@@ -222,7 +225,6 @@ export const getComplaints = async (
   }
 
   params.page = filters.page || 1;
-
   params.limit = filters.limit || 10;
 
   const response = await api.get(COMPLAINT_API, {
@@ -235,14 +237,10 @@ export const getComplaints = async (
 
   return {
     data: complaints,
-
     pagination: response.data?.pagination || {
       total: complaints.length,
-
       page: filters.page || 1,
-
       limit: filters.limit || 10,
-
       totalPages: 1,
     },
   };
@@ -256,7 +254,6 @@ export const getComplaints = async (
 
 export const getComplaintById = async (id: string): Promise<Complaint> => {
   const response = await api.get(`${COMPLAINT_API}/${id}`);
-
   return normalizeComplaint(response.data.data);
 };
 
@@ -270,7 +267,6 @@ export const createComplaint = async (
   data: CreateComplaintPayload,
 ): Promise<Complaint> => {
   const response = await api.post(COMPLAINT_API, data);
-
   return normalizeComplaint(response.data.data);
 };
 
@@ -285,7 +281,6 @@ export const updateComplaint = async (
   data: UpdateComplaintPayload,
 ): Promise<Complaint> => {
   const response = await api.put(`${COMPLAINT_API}/${id}`, data);
-
   return normalizeComplaint(response.data.data);
 };
 
@@ -297,7 +292,6 @@ export const updateComplaint = async (
 
 export const deleteComplaint = async (id: string): Promise<string> => {
   const response = await api.delete(`${COMPLAINT_API}/${id}`);
-
   return response.data?.message || "Complaint deleted successfully";
 };
 
@@ -311,18 +305,14 @@ export const lookupCustomerByPhone = async (
   phone: string,
 ): Promise<CustomerLookupResponse> => {
   const cleanedPhone = phone.trim();
-
   const response = await api.get(`${CUSTOMER_API}/lookup/${cleanedPhone}`);
-
   const customer = normalizeCustomer(response.data?.customer);
-
   const complaintHistory = (response.data?.complaintHistory || []).map(
     (complaint: BackendComplaint) => normalizeHistoryItem(complaint),
   );
 
   return {
     customer,
-
     complaintHistory,
   };
 };
@@ -332,7 +322,6 @@ export const updateCustomer = async (
   data: UpdateCustomerPayload,
 ): Promise<Customer> => {
   const response = await api.put(`/customers/${customerId}`, data);
-
   const customer = response.data.data;
 
   return {
@@ -367,8 +356,11 @@ export const searchBrands = async (
 ================================ */
 
 export interface ProductDropdownOption {
+  _id: string;
+  id?: string;
   product_id: number;
   product_name: string;
+  status?: string;
 }
 
 export const searchProducts = async (
@@ -389,11 +381,8 @@ export const searchProducts = async (
 
 export interface ProductTypeDropdownOption {
   id?: string;
-
   product_id: number;
-
   product_code?: string;
-
   product_type: string;
 }
 
@@ -416,7 +405,6 @@ export const searchProductTypes = async ({
   return response.data?.data || [];
 };
 
-
 export const searchCategories = async ({
   productId,
   search = "",
@@ -431,6 +419,95 @@ export const searchCategories = async ({
     },
   });
 
-  // adjust this depending on your exact API response
   return response.data?.data || [];
+};
+
+export const suspendComplaint = async (
+  id: string,
+  reason?: string,
+): Promise<string> => {
+  const response = await api.patch(`${COMPLAINT_API}/${id}/suspend`, {
+    reason: reason || "",
+  });
+  return response.data?.message || "Complaint suspended successfully";
+};
+
+export interface EligibleDealer {
+  _id: string;
+
+  dealerCode: string;
+  technicianCode: string;
+
+  technicianFirmName: string;
+  technicianName: string;
+
+  mobileNumber: string;
+  alternativeNumber?: string;
+
+  email?: string;
+
+  rating: number;
+  status: string;
+
+  cityId?: number;
+  city?: string;
+
+  matchedService?: {
+    productId: number;
+    productName: string;
+
+    categoryId?: string;
+    categoryName?: string;
+
+    description?: string;
+    rate?: number;
+  };
+}
+
+export interface EligibleDealerResponse {
+  success: boolean;
+
+  filters: {
+    cityId: number;
+    city: string;
+
+    productId: number;
+    productName: string;
+
+    categoryId?: string;
+    category: string;
+  };
+
+  total: number;
+
+  data: EligibleDealer[];
+}
+
+export const getEligibleDealers = async (
+  complaintId: string,
+) => {
+  const response =
+    await api.get<EligibleDealerResponse>(
+      `/complaints/${complaintId}/eligible-dealers`,
+    );
+
+  return response.data;
+};
+
+export interface AssignDealerPayload {
+  dealerId: string;
+}
+
+export const assignDealerToComplaint = async (
+  complaintId: string,
+  dealerId: string,
+) => {
+  const response = await api.patch(
+    `/complaints/${complaintId}/assign-dealer`,
+    {
+      dealerId,
+    },
+  );
+
+  return response.data;
 };

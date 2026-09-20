@@ -1,20 +1,12 @@
 import Badge from "../../../components/ui/Badge";
-
-import {
-  COMPLAINT_STATUS_LABELS,
-} from "../constants/complaint.constants";
-
-import type {
-  ComplaintStatus,
-} from "../types/complaint.types";
+import { COMPLAINT_STATUS_LABELS } from "../constants/complaint.constants";
+import type { ComplaintStatus } from "../types/complaint.types";
 
 interface Props {
   status: ComplaintStatus;
 }
 
-export default function ComplaintStatusBadge({
-  status,
-}: Props) {
+export default function ComplaintStatusBadge({ status }: Props) {
   const variant = {
     REGISTERED: "info",
     ALLOCATED: "info",
@@ -25,11 +17,10 @@ export default function ComplaintStatusBadge({
     DG_VERIFICATION: "warning",
     CLOSED: "success",
     CANCELLED: "danger",
+    SUSPENDED: "suspend",
   } as const;
 
   return (
-    <Badge variant={variant[status]}>
-      {COMPLAINT_STATUS_LABELS[status]}
-    </Badge>
+    <Badge variant={variant[status]}>{COMPLAINT_STATUS_LABELS[status]}</Badge>
   );
 }

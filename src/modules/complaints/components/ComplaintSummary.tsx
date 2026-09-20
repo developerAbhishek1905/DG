@@ -1,6 +1,5 @@
 import Card from "../../../components/ui/Card";
 import ComplaintStatusBadge from "./ComplaintStatusBadge";
-
 import type { Complaint } from "../types/complaint.types";
 
 interface Props {

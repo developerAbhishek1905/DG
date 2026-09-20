@@ -20,8 +20,9 @@ import {
   type StateOption,
 } from "../../dealers/services/addressApi";
 
+import type { ComplaintFormData } from "../types/complaint.types.js";
+
 import { useDebounce } from "../../../hooks/useDebounce";
-// import {ComplaintFormData} from "../types/complaint.types.js"
 
 interface Props {
   register: UseFormRegister<ComplaintFormData>;
@@ -399,7 +400,7 @@ export default function ComplaintAddressFields({
             {/* <span className="ml-1 text-red-500">*</span> */}
           </label>
 
-          <input    
+          <input
             // placeholder="Enter complete customer address"
             autoComplete="new-password"
             data-lpignore="true"

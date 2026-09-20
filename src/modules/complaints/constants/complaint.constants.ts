@@ -17,6 +17,7 @@ export const COMPLAINT_STATUS_LABELS: Record<
   DG_VERIFICATION: "DG Verification",
   CLOSED: "Closed",
   CANCELLED: "Cancelled",
+  SUSPENDED: "suspended"
 };
 
 export const COMPLAINT_PRIORITY_LABELS: Record<
@@ -27,6 +28,7 @@ export const COMPLAINT_PRIORITY_LABELS: Record<
   MEDIUM: "Medium",
   HIGH: "High",
   CRITICAL: "Critical",
+  URGENT: "URGENT"
 };
 
 export const COMPLAINT_CATEGORY_LABELS: Record<

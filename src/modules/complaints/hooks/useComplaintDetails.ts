@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
-
 import type { Complaint } from "../types/complaint.types";
-
 import { getComplaintById } from "../services/complaintApi";
-
 export function useComplaintDetails(id?: string) {
-  const [complaint, setComplaint] =
-    useState<Complaint | null>(null);
-
+  const [complaint, setComplaint] = useState<Complaint | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
