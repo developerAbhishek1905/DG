@@ -38,34 +38,74 @@
 //   );
 // }
 
-import Badge from "../../../components/ui/Badge";
+// import Badge from "../../../components/ui/Badge";
 
-import type {
-  DealerStatus,
-} from "../types/dealer.types";
+// import type {
+//   DealerStatus,
+// } from "../types/dealer.types";
 
-interface Props {
-  status: DealerStatus;
-}
+// interface Props {
+//   status: DealerStatus;
+// }
+
+// export default function DealerStatusBadge({
+//   status,
+// }: Props) {
+//   const variants = {
+//     ACTIVE: "success",
+//     INACTIVE: "neutral",
+//     SUSPENDED: "danger",
+//     LEAVE: "warning"
+//   } as const;
+
+//   const labels = {
+//     ACTIVE: "Active",
+//     INACTIVE: "Inactive",
+//     SUSPENDED: "Suspended",
+//     LEAVE: "Leave"
+//   };
+
+//   return (
+//     <Badge variant={variants[status]}>
+//       {labels[status]}
+//     </Badge>
+//   );
+// }
 
 export default function DealerStatusBadge({
   status,
-}: Props) {
+}: {
+  status?:
+    | "ACTIVE"
+    | "INACTIVE"
+    | "SUSPENDED"
+    | "LEAVE";
+}) {
+
+  console.log(status)
   const variants = {
-    ACTIVE: "success",
-    INACTIVE: "neutral",
-    SUSPENDED: "danger",
-  } as const;
+    ACTIVE: "bg-green-50 text-green-700",
+    INACTIVE: "bg-gray-100 text-gray-600",
+    SUSPENDED: "bg-red-50 text-red-700",
+    LEAVE: "bg-amber-50 text-amber-700",
+  };
 
   const labels = {
     ACTIVE: "Active",
     INACTIVE: "Inactive",
     SUSPENDED: "Suspended",
+    LEAVE: "On Leave",
   };
 
+  const currentStatus = status ?? "INACTIVE";
+
   return (
-    <Badge variant={variants[status]}>
-      {labels[status]}
-    </Badge>
+    <span
+      className={`inline-flex shrink-0 rounded-full px-2 py-1 text-[11px] font-medium ${
+        variants[currentStatus]
+      }`}
+    >
+      {labels[currentStatus]}
+    </span>
   );
 }

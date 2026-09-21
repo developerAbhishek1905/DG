@@ -199,6 +199,9 @@ export interface DealerFormData {
   individualCapacities: DealerCapacityItem[];
 
   productServices: DealerProductService[];
+    dateOfJoining?: string;
+  dateOfLeaving?: string;
+
 
   // combinedCapacity: DealerCombinedCapacity;
 
@@ -210,7 +213,45 @@ export interface Dealer extends DealerFormData {
   documents: any;
   _id: string;
 
+  rejoiningDates?: string[];
+
+  rating?: number;
+
+  status?: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "LEAVE";
+
+  suspendedAt?: string | null;
+  suspensionReason?: string;
+    isOnLeave?: boolean;
+
+
+  leaves?: {
+    _id: string;
+    from: string;
+    to: string;
+    reason?: string;
+    status: "SCHEDULED" | "ACTIVE" | "COMPLETED" | "CANCELLED";
+  }[];
+
   createdAt: string;
 
   updatedAt: string;
+}
+export interface DealerLeave {
+  _id: string;
+
+  from: string;
+
+  to: string;
+
+  reason?: string;
+
+  status:
+    | "SCHEDULED"
+    | "ACTIVE"
+    | "COMPLETED"
+    | "CANCELLED";
+
+  createdAt?: string;
+
+  updatedAt?: string;
 }

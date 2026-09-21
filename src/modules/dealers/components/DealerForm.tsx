@@ -24,10 +24,6 @@ export default function DealerForm({
   onSubmit,
   submitLabel = "Save",
 }: Props) {
-  // const { categories } = useAppSelector((state) => state.category);
-  // const [categories, setCategories] = useState<CategoryDropdown[]>([]);
-  // const [categoriesLoading, setCategoriesLoading] = useState(false);
-  // const [categoriesError, setCategoriesError] = useState("");
   const [aadhaarFrontPreview, setAadhaarFrontPreview] = useState("");
   const [aadhaarBackPreview, setAadhaarBackPreview] = useState("");
   const [panFrontPreview, setPanFrontPreview] = useState("");
@@ -124,8 +120,6 @@ export default function DealerForm({
       cancellationBillingEnabled: dealer?.cancellationBillingEnabled ?? false,
       cancellationCharge: dealer?.cancellationCharge ?? 0,
       drivingLicenceNumber: dealer?.drivingLicenceNumber ?? "",
-      // productId: dealer?.productId ?? "",
-      // productServiceType: dealer?.productServiceType ?? "",
       productServices: dealer?.productServices?.length
         ? dealer.productServices
         : [
@@ -140,40 +134,6 @@ export default function DealerForm({
       groupHead: dealer?.groupHead ?? "",
       headName: dealer?.headName ?? "SUNDRY DEBTORS",
       grade: dealer?.grade ?? "",
-      // address: dealer?.address?.length
-      //   ? dealer.address
-      //   : [
-      //       {
-      //         addressLine: "",
-      //       },
-      //     ],
-
-      // city: dealer?.city ?? "",
-
-      // district: dealer?.district ?? "",
-
-      // state: dealer?.state ?? "",
-
-      // stateCode: dealer?.stateCode ?? "",
-
-      // pinCode: dealer?.pinCode ?? "",
-      // businessAddress: {
-      //   addressLine: dealer?.businessAddress?.addressLine ?? "",
-      //   city: dealer?.businessAddress?.city ?? "",
-      //   district: dealer?.businessAddress?.district ?? "",
-      //   state: dealer?.businessAddress?.state ?? "",
-      //   stateCode: dealer?.businessAddress?.stateCode ?? "",
-      //   pinCode: dealer?.businessAddress?.pinCode ?? "",
-      // },
-
-      // residentialAddress: {
-      //   addressLine: dealer?.residentialAddress?.addressLine ?? "",
-      //   city: dealer?.residentialAddress?.city ?? "",
-      //   district: dealer?.residentialAddress?.district ?? "",
-      //   state: dealer?.residentialAddress?.state ?? "",
-      //   stateCode: dealer?.residentialAddress?.stateCode ?? "",
-      //   pinCode: dealer?.residentialAddress?.pinCode ?? "",
-      // },
       businessAddress: {
         addressLine: dealer?.businessAddress?.addressLine ?? "",
         stateId: dealer?.businessAddress?.stateId ?? undefined,
@@ -223,24 +183,17 @@ export default function DealerForm({
       rating: dealer?.rating ?? 0,
       openingBalance: dealer?.openingBalance ?? 0,
       openingBalanceType: dealer?.openingBalanceType ?? "DR",
-
-      // capacityMaster: dealer?.capacityMaster?.length
-      //   ? dealer.capacityMaster
-      //   : [
-      //       {
-      //         categoryId: "",
-      //         rate: 0,
-      //         capacity: 0,
-      //         serviceType: "",
-      //       },
-      //     ],
-
-      // capacityType: dealer?.capacityType ?? "INDIVIDUAL",
-
       combinedCapacity: dealer?.combinedCapacity ?? {
         products: [],
         capacity: 0,
       },
+      dateOfJoining: dealer?.dateOfJoining
+        ? new Date(dealer.dateOfJoining).toISOString().split("T")[0]
+        : "",
+
+      dateOfLeaving: dealer?.dateOfLeaving
+        ? new Date(dealer.dateOfLeaving).toISOString().split("T")[0]
+        : "",
       individualCapacities: dealer?.individualCapacities?.length
         ? dealer.individualCapacities.map((item) => ({
             productId: Number(item.productId),
@@ -254,16 +207,6 @@ export default function DealerForm({
               capacity: 0,
             },
           ],
-
-      // capacityMaster: dealer?.capacityMaster?.length
-      //   ? dealer.capacityMaster
-      //   : [
-      //       {
-      //         productId: undefined,
-      //         productName: "",
-      //         capacity: 0,
-      //       },
-      //     ],
     },
   });
 
@@ -284,27 +227,6 @@ export default function DealerForm({
     control,
     name: "productServices",
   });
-
-  // useEffect(() => {
-  //   const loadCategories = async () => {
-  //     try {
-  //       setCategoriesLoading(true);
-  //       setCategoriesError("");
-
-  //       const data = await getCategoryDropdown();
-
-  //       setCategories(data);
-  //     } catch (error) {
-  //       console.error("Failed to fetch categories:", error);
-
-  //       setCategoriesError("Unable to load categories");
-  //     } finally {
-  //       setCategoriesLoading(false);
-  //     }
-  //   };
-
-  //   loadCategories();
-  // }, []);
 
   console.log(dealer);
   useEffect(() => {
@@ -331,37 +253,6 @@ export default function DealerForm({
       groupHead: dealer.groupHead,
       headName: dealer.headName,
       grade: dealer.grade ?? "",
-
-      // address: dealer.address ?? "",
-
-      // city: dealer.city ?? "",
-
-      // district: dealer.district ?? "",
-
-      // state: dealer.state ?? "",
-
-      // stateCode: dealer.stateCode ?? "",
-
-      // pinCode: dealer.pinCode ?? "",
-
-      // businessAddress: {
-      //   addressLine: dealer.businessAddress?.addressLine ?? "",
-      //   city: dealer.businessAddress?.city ?? "",
-      //   district: dealer.businessAddress?.district ?? "",
-      //   state: dealer.businessAddress?.state ?? "",
-      //   stateCode: dealer.businessAddress?.stateCode ?? "",
-      //   pinCode: dealer.businessAddress?.pinCode ?? "",
-      // },
-
-      // residentialAddress: {
-      //   addressLine: dealer.residentialAddress?.addressLine ?? "",
-      //   city: dealer.residentialAddress?.city ?? "",
-      //   district: dealer.residentialAddress?.district ?? "",
-      //   state: dealer.residentialAddress?.state ?? "",
-      //   stateCode: dealer.residentialAddress?.stateCode ?? "",
-      //   pinCode: dealer.residentialAddress?.pinCode ?? "",
-      // },
-
       businessAddress: {
         addressLine: dealer.businessAddress?.addressLine ?? "",
         stateId:
@@ -429,16 +320,6 @@ export default function DealerForm({
       otherInfo: dealer.otherInfo ?? "",
       rating: dealer.rating ?? 0,
       openingBalance: dealer.openingBalance ?? 0,
-
-      // productServices: dealer?.productServices?.length
-      //   ? dealer.productServices
-      //   : [
-      //       {
-      //         productId: undefined,
-      //         productName: "",
-      //         categories: [],
-      //       },
-      //     ],
       productServices:
         dealer.productServices?.map((product: any) => ({
           productId: product.productId,
@@ -456,22 +337,17 @@ export default function DealerForm({
         })) ?? [],
 
       openingBalanceType: dealer.openingBalanceType,
-      // capacityType: dealer?.capacityType ?? "INDIVIDUAL",
       combinedCapacity: dealer?.combinedCapacity ?? {
         products: [],
         capacity: 0,
       },
+      dateOfJoining: dealer.dateOfJoining
+        ? new Date(dealer.dateOfJoining).toISOString().split("T")[0]
+        : "",
 
-      // capacityMaster: dealer.capacityMaster?.length
-      //   ? dealer.capacityMaster
-      //   : [
-      //       {
-      //         categoryId: "",
-      //         rate: 0,
-      //         capacity: 0,
-      //         serviceType: "",
-      //       },
-      //     ],
+      dateOfLeaving: dealer.dateOfLeaving
+        ? new Date(dealer.dateOfLeaving).toISOString().split("T")[0]
+        : "",
       capacityMaster: dealer?.capacityMaster?.length
         ? dealer.capacityMaster
         : [
@@ -497,36 +373,8 @@ export default function DealerForm({
     });
   }, [dealer, reset]);
 
-  // const capacityType = watch("capacityType");
-
   const combinedCapacityProducts = watch("combinedCapacity.products") || [];
   const individualCapacities = watch("individualCapacities") || [];
-
-  // const handleCapacityTypeChange = (type: "COMBINED" | "INDIVIDUAL") => {
-  //   setValue("capacityType", type);
-
-  //   if (type === "COMBINED") {
-  //     setValue("combinedCapacity", {
-  //       products: [],
-  //       capacity: 0,
-  //     });
-
-  //     setValue("capacityMaster", []);
-  //   } else {
-  //     setValue("combinedCapacity", {
-  //       products: [],
-  //       capacity: 0,
-  //     });
-
-  //     setValue("capacityMaster", [
-  //       {
-  //         productId: undefined,
-  //         productName: "",
-  //         capacity: 0,
-  //       },
-  //     ]);
-  //   }
-  // };
 
   const createSingleFilePreview = (
     files: FileList | null,
@@ -578,8 +426,11 @@ export default function DealerForm({
   const submitForm = async (data: DealerFormData) => {
     const payload: DealerFormData = {
       ...data,
-      billingPercentage: data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
-      cancellationCharge: data.cancellationBillingEnabled ? Number(data.cancellationCharge) : 0,
+      billingPercentage:
+        data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
+      cancellationCharge: data.cancellationBillingEnabled
+        ? Number(data.cancellationCharge)
+        : 0,
       gstRate: Number(data.gstRate || 0),
       reverseChargeLimit: Number(data.reverseChargeLimit || 0),
       creditDays: Number(data.creditDays || 0),
@@ -609,8 +460,13 @@ export default function DealerForm({
   return (
     <form
       onSubmit={handleSubmit(submitForm, (errors) => {
-        if (errors.billingType || errors.billingPercentage || errors.cancellationCharge) setActiveTab("account");
-        console.error(errors)
+        if (
+          errors.billingType ||
+          errors.billingPercentage ||
+          errors.cancellationCharge
+        )
+          setActiveTab("account");
+        console.error(errors);
         // console.log("FORM VALIDATION ERRORS:", errors);
         toast.error("Please fix the required fields before submitting.");
       })}
@@ -668,13 +524,6 @@ export default function DealerForm({
         <div className="space-y-3">
           <Section title="Technician Information">
             <div className="grid grid-cols-1 gap-x-2 gap-y-1.5 md:grid-cols-3 xl:grid-cols-5">
-              {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> */}
-              {/* <Input
-            label="Technician Code"
-            placeholder="Auto Generated"
-            readOnly
-            {...register("technicianCode")}
-          /> */}
               <Input
                 label="Head Code"
                 readOnly
@@ -750,6 +599,35 @@ export default function DealerForm({
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                     message: "Enter valid email address",
+                  },
+                })}
+              />
+
+              <Input
+                label="Date of Joining"
+                type="date"
+                error={errors.dateOfJoining?.message}
+                {...register("dateOfJoining", {
+                  required: "Date of joining is required",
+                })}
+              />
+
+              <Input
+                label="Date of Leaving"
+                type="date"
+                error={errors.dateOfLeaving?.message}
+                {...register("dateOfLeaving", {
+                  validate: (value) => {
+                    const joiningDate = watch("dateOfJoining");
+
+                    if (!value || !joiningDate) {
+                      return true;
+                    }
+
+                    return (
+                      new Date(value) >= new Date(joiningDate) ||
+                      "Leaving date cannot be before joining date"
+                    );
                   },
                 })}
               />
@@ -1275,22 +1153,6 @@ export default function DealerForm({
         </Section>
       )}
 
-      {/* <Section title="Contact Information">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Input label="Contact Person" {...register("contactPerson")} />
-
-          <Input label="Phone Nos." {...register("phoneNumbers")} />
-
-          <Input
-            label="Mobile No."
-            maxLength={10}
-            inputMode="numeric"
-            {...register("mobileNumber")}
-          />
-
-          <Input label="Email" type="email" {...register("email")} />
-        </div>
-      </Section> */}
       {activeTab === "account" && (
         <div className="space-y-3">
           {/* ================================================= */}
@@ -1298,46 +1160,116 @@ export default function DealerForm({
           {/* ================================================= */}
 
           <Section title="Dealer Billing">
-            <p className="mb-3 text-xs text-gray-500">
-              Choose one billing method. Normal billing applies after the dealer closes a complaint.
-              Change agreed rates or the billing method only with dealer consent.
-            </p>
+            <p className="mb-3 text-xs text-gray-500"></p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {[
-                { value: "FIXED", label: "Service-wise fixed charge", description: "Use the agreed rate for the service selected at closure." },
-                { value: "PARTIAL_PAYMENT", label: "Customer amount percentage", description: "Charge a percentage of the customer amount entered after closure." },
-                { value: "PROFIT_SHARING", label: "Profit percentage", description: "Charge a percentage of the profit on the closed complaint." },
+                {
+                  value: "FIXED",
+                  label: "Service-wise fixed charge",
+                },
+                {
+                  value: "PARTIAL_PAYMENT",
+                  label: "Customer amount percentage",
+                },
+                {
+                  value: "PROFIT_SHARING",
+                  label: "Profit percentage",
+                },
               ].map((option) => (
-                <label key={option.value} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-xs ${watch("billingType") === option.value ? "border-[#123B7A] bg-blue-50 text-[#123B7A]" : "border-gray-300 text-gray-600"}`}>
-                  <input type="radio" value={option.value} {...register("billingType", { required: "Choose a billing method" })} className="mt-0.5 accent-[#123B7A]" />
-                  <span><span className="block font-semibold">{option.label}</span><span className="mt-1 block leading-5">{option.description}</span></span>
+                <label
+                  key={option.value}
+                  className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-xs ${watch("billingType") === option.value ? "border-[#123B7A] bg-blue-50 text-[#123B7A]" : "border-gray-300 text-gray-600"}`}
+                >
+                  <input
+                    type="radio"
+                    value={option.value}
+                    {...register("billingType", {
+                      required: "Choose a billing method",
+                    })}
+                    className="mt-0.5 accent-[#123B7A]"
+                  />
+                  <span>
+                    <span className="block font-semibold">{option.label}</span>
+                    <span className="mt-1 block leading-5">
+                      {option.description}
+                    </span>
+                  </span>
                 </label>
               ))}
             </div>
-            {errors.billingType && <ErrorText>{errors.billingType.message}</ErrorText>}
+            {errors.billingType && (
+              <ErrorText>{errors.billingType.message}</ErrorText>
+            )}
             {watch("billingType") === "FIXED" ? (
               <div className="mt-3 rounded-md bg-gray-50 p-3 text-xs text-gray-600">
-                <p>Service rates are configured under Product &amp; Capacity. For example, an agreed AC service rate of ₹300 means a ₹300 charge when closed as AC service.</p>
-                <button type="button" onClick={() => setActiveTab("service")} className="mt-2 font-medium text-[#123B7A] underline">Configure service rates</button>
+                <p>
+                  Service rates are configured under Product &amp; Capacity. For
+                  example, an agreed AC service rate of ₹300 means a ₹300 charge
+                  when closed as AC service.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("service")}
+                  className="mt-2 font-medium text-[#123B7A] underline"
+                >
+                  Configure service rates
+                </button>
               </div>
             ) : (
               <div className="mt-3 max-w-sm">
-                <Input label={watch("billingType") === "PROFIT_SHARING" ? "Percentage of profit (%)" : "Percentage of customer amount (%)"} type="number" min="0.01" max="100" step="0.01"
-                  {...register("billingPercentage", { valueAsNumber: true, validate: (value, values) => values.billingType === "FIXED" || (Number.isFinite(value) && Number(value) > 0 && Number(value) <= 100) || "Enter a percentage greater than 0 and up to 100" })}
-                  error={errors.billingPercentage?.message} />
+                <Input
+                  label={
+                    watch("billingType") === "PROFIT_SHARING"
+                      ? "Percentage of profit (%)"
+                      : "Percentage of customer amount (%)"
+                  }
+                  type="number"
+                  min="0.01"
+                  max="100"
+                  step="0.01"
+                  {...register("billingPercentage", {
+                    valueAsNumber: true,
+                    validate: (value, values) =>
+                      values.billingType === "FIXED" ||
+                      (Number.isFinite(value) &&
+                        Number(value) > 0 &&
+                        Number(value) <= 100) ||
+                      "Enter a percentage greater than 0 and up to 100",
+                  })}
+                  error={errors.billingPercentage?.message}
+                />
               </div>
             )}
             <div className="mt-4 border-t border-gray-200 pt-3">
               <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-gray-700">
-                <input type="checkbox" {...register("cancellationBillingEnabled")} className="accent-[#123B7A]" />
+                <input
+                  type="checkbox"
+                  {...register("cancellationBillingEnabled")}
+                  className="accent-[#123B7A]"
+                />
                 Also charge for cancelled complaints
               </label>
-              <p className="mt-2 text-xs leading-5 text-gray-500">Cancellation at any stage is billable only after DG team approval. Each complaint can have either a closure charge or a cancellation charge, never both.</p>
+              <p className="mt-2 text-xs leading-5 text-gray-500">
+                Cancellation at any stage is billable only after DG team
+                approval. Each complaint can have either a closure charge or a
+                cancellation charge, never both.
+              </p>
               {watch("cancellationBillingEnabled") && (
                 <div className="mt-3 max-w-sm">
-                  <Input label="Cancellation charge (₹)" type="number" min="0.01" step="0.01"
-                    {...register("cancellationCharge", { valueAsNumber: true, validate: (value, values) => !values.cancellationBillingEnabled || (Number.isFinite(value) && Number(value) > 0) || "Enter a cancellation charge greater than 0" })}
-                    error={errors.cancellationCharge?.message} />
+                  <Input
+                    label="Cancellation charge (₹)"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    {...register("cancellationCharge", {
+                      valueAsNumber: true,
+                      validate: (value, values) =>
+                        !values.cancellationBillingEnabled ||
+                        (Number.isFinite(value) && Number(value) > 0) ||
+                        "Enter a cancellation charge greater than 0",
+                    })}
+                    error={errors.cancellationCharge?.message}
+                  />
                 </div>
               )}
             </div>
@@ -1496,10 +1428,6 @@ export default function DealerForm({
                     <h4 className="text-sm font-semibold text-gray-900">
                       Combined Capacity
                     </h4>
-
-                    <p className="mt-1 text-xs text-gray-500">
-                      Select multiple products and assign one shared capacity.
-                    </p>
                   </div>
 
                   {/* SELECT PRODUCT + CAPACITY */}
@@ -1644,11 +1572,6 @@ export default function DealerForm({
                     <h4 className="text-sm font-semibold text-gray-900">
                       Individual Capacity
                     </h4>
-
-                    <p className="mt-1 text-xs text-gray-500">
-                      Select individual products and assign separate capacity
-                      for each product.
-                    </p>
                   </div>
 
                   {/* HEADER */}
@@ -1843,14 +1766,6 @@ function Section({
   title: string;
   children: React.ReactNode;
 }) {
-  // return (
-  //   <section className="border-t border-gray-100 pt-6 first:border-t-0 first:pt-0">
-  //     <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-
-  //     <div className="mt-4">{children}</div>
-  //   </section>
-  // );
-
   return (
     <section className="rounded-md border border-gray-200 bg-white">
       <div className="border-b border-gray-100 bg-gray-50 px-3 py-1.5">
@@ -1881,45 +1796,9 @@ function Input({ label, error, ...props }: InputProps) {
   );
 }
 
-// interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
-//   label: string;
-// }
-
-// function Checkbox({ label, ...props }: CheckboxProps) {
-//   return (
-//     <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-//       <input {...props} type="checkbox" />
-
-//       <span className="text-sm text-gray-700">{label}</span>
-//     </label>
-//   );
-// }
-
-// interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
-//   label: string;
-// }
-
-// function Radio({ label, ...props }: RadioProps) {
-//   return (
-//     <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-//       <input {...props} type="radio" />
-
-//       <span className="text-sm text-gray-700">{label}</span>
-//     </label>
-//   );
-// }
-
 function ErrorText({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-red-600">{children}</p>;
 }
-
-// const labelClass = "mb-1 block text-sm font-medium text-gray-700";
-
-// const inputClass =
-//   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
-// const textareaClass =
-//   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
 const labelClass = "mb-0.5 block text-[11px] font-medium text-gray-600";
 
@@ -1927,37 +1806,6 @@ const inputClass =
   "h-8 w-full rounded-md border border-gray-300 bg-white px-2 " +
   "text-xs outline-none transition " +
   "focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
-
-// const textareaClass =
-//   "w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 " +
-//   "text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100";
-
-// interface ImagePreviewProps {
-//   src: string;
-//   label: string;
-//   onRemove: () => void;
-// }
-
-// function ImagePreview({ src, label, onRemove }: ImagePreviewProps) {
-//   return (
-//     <div className="mt-3">
-//       <p className="mb-2 text-xs font-medium text-gray-600">{label}</p>
-
-//       <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-//         <img src={src} alt={label} className="h-40 w-full object-contain" />
-
-//         <button
-//           type="button"
-//           onClick={onRemove}
-//           className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
-//           title="Remove image"
-//         >
-//           <X size={16} />
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 

@@ -1,24 +1,37 @@
 import {
   ArrowLeft,
   BriefcaseBusiness,
+  CalendarOff,
   Edit,
+  LogIn,
   Mail,
   MapPin,
+  PauseCircle,
   Phone,
+  Star,
   User,
+  CalendarDays
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Card from "../../../components/ui/Card";
 import DealerStatusBadge from "../components/DealerStatusBadge";
 import { useDealerDetails } from "../hooks/useDealers";
 import { usePermission } from "../../../hooks/usePermission";
+import { useState } from "react";
+import DealerLeaveModal from "../components/DealerLeaveModal";
+import DealerRatingModal from "../components/DealerRatingModal";
+import DealerSuspendModal from "../components/DealerSuspendModal";
+import DealerRejoinModal from "../components/DealerRejoinModal";
+import DealerLeaveHistoryModal from "../components/DealerLeaveHistoryModal";
+// import LeaveHistoryCard from "../components/LeaveHistoryCard";
+  
 
 export default function DealerDetailsPage() {
   const navigate = useNavigate();
   const { hasPermission } = usePermission();
   const { id } = useParams();
   const IMAGE_UPLOAD_URL = "http://localhost:5004";
-  const { dealer, loading } = useDealerDetails(id);
+  const { dealer, loading,  refetch, } = useDealerDetails(id);
   type DealerDocuments = {
     aadhaarFront?: string | null;
     aadhaarBack?: string | null;
@@ -28,6 +41,14 @@ export default function DealerDetailsPage() {
     drivingLicenceBack?: string | null;
     otherDocuments?: string[];
   };
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
+const [rejoinModalOpen, setRejoinModalOpen] =
+  useState(false);
+
+  const [leaveHistoryOpen, setLeaveHistoryOpen] =
+  useState(false);
 
   const dealerDocuments = (dealer as { documents?: DealerDocuments } | null)
     ?.documents;
@@ -39,6 +60,8 @@ export default function DealerDetailsPage() {
       </div>
     );
   }
+
+  console.log(dealer)
 
   if (!dealer) {
     return (
@@ -82,7 +105,7 @@ export default function DealerDetailsPage() {
           Back to Dealers
         </button>
 
-        {hasPermission("dealers.update") && (
+        {/* {hasPermission("dealers.update") && (
           <button
             type="button"
             onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
@@ -91,7 +114,71 @@ export default function DealerDetailsPage() {
             <Edit size={17} />
             Edit Dealer
           </button>
-        )}
+        )} */}
+        <div className="flex flex-wrap items-center gap-2">
+          {dealer.status === "ACTIVE" && (
+            <button
+              type="button"
+              onClick={() => setLeaveModalOpen(true)}
+              className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100"
+            >
+              Leave
+            </button>
+          )}
+
+          {(dealer.status === "INACTIVE" || dealer.status === "SUSPENDED") && (
+            <button
+              type="button"
+              onClick={() => setRejoinModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700"
+            >
+              <LogIn size={16} />
+              Rejoin
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setRatingModalOpen(true)}
+            className="rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+          >
+            Rating
+          </button>
+
+          {dealer.status !== "SUSPENDED" && (
+            <button
+              type="button"
+              onClick={() => setSuspendModalOpen(true)}
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
+            >
+              Suspend
+            </button>
+          )}
+          <button
+  type="button"
+  onClick={() => setLeaveHistoryOpen(true)}
+  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+>
+  <CalendarDays size={16} />
+  Leave History
+
+  {!!dealer.leaves?.length && (
+    <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
+      {dealer.leaves.length}
+    </span>
+  )}
+</button>
+
+          {hasPermission("dealers.update") && (
+            <button
+              type="button"
+              onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white"
+            >
+              <Edit size={16} />
+              Edit Dealer
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ======================================
@@ -106,7 +193,16 @@ export default function DealerDetailsPage() {
                 {dealer.technicianFirmName || dealer.headName || "-"}
               </h1>
 
-              <DealerStatusBadge status={dealer.technicianStatus} />
+              {/* <DealerStatusBadge status={dealer.technicianStatus} /> */}
+
+              <DealerStatusBadge
+  status={
+    dealer.effectiveStatus ??
+    dealer.status ??
+    dealer.technicianStatus ??
+    "INACTIVE"
+  }
+/>
             </div>
 
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-500">
@@ -166,6 +262,9 @@ export default function DealerDetailsPage() {
           />
         </div>
       </Card>
+        {/* <LeaveHistoryCard
+    leaves={dealer.leaves}
+  /> */}
 
       {/* ======================================
           BASIC INFORMATION
@@ -201,6 +300,31 @@ export default function DealerDetailsPage() {
             {/* <DetailItem label="Landline / Phone" value={dealer.phoneNumbers} /> */}
 
             <DetailItem label="Email" value={dealer.email} />
+
+            <DetailItem
+              label="Date of Joining"
+              value={
+                dealer.dateOfJoining
+                  ? new Date(dealer.dateOfJoining).toLocaleDateString("en-IN")
+                  : "-"
+              }
+            />
+
+            <DetailItem
+              label="Date of Leaving"
+              value={
+                dealer.dateOfLeaving
+                  ? new Date(dealer.dateOfLeaving).toLocaleDateString("en-IN")
+                  : "-"
+              }
+            />
+
+            <DetailItem
+              label="Rating"
+              value={dealer.rating !== undefined ? `${dealer.rating} / 5` : "-"}
+            />
+
+            <DetailItem label="Status" value={dealer.status} />
 
             {/* <DetailItem
               label="Zone"
@@ -627,6 +751,53 @@ export default function DealerDetailsPage() {
           />
         </div>
       </Card>
+
+<DealerLeaveModal
+  open={leaveModalOpen}
+  dealerId={dealer._id}
+  onClose={() => setLeaveModalOpen(false)}
+  onSuccess={() => {
+    setLeaveModalOpen(false);
+    refetch();
+  }}
+/>
+
+<DealerRatingModal
+  open={ratingModalOpen}
+  dealerId={dealer._id}
+  currentRating={dealer.rating ?? 0}
+  onClose={() => setRatingModalOpen(false)}
+  onSuccess={() => {
+    setRatingModalOpen(false);
+    refetch();
+  }}
+/>
+
+<DealerSuspendModal
+  open={suspendModalOpen}
+  dealerId={dealer._id}
+  onClose={() => setSuspendModalOpen(false)}
+  onSuccess={() => {
+    setSuspendModalOpen(false);
+    refetch();
+  }}
+/>
+
+<DealerRejoinModal
+  open={rejoinModalOpen}
+  dealerId={dealer._id}
+  onClose={() => setRejoinModalOpen(false)}
+  onSuccess={() => {
+    setRejoinModalOpen(false);
+    refetch();
+  }}
+/>
+
+<DealerLeaveHistoryModal
+  open={leaveHistoryOpen}
+  leaves={dealer.leaves}
+  onClose={() => setLeaveHistoryOpen(false)}
+/>
     </div>
   );
 }

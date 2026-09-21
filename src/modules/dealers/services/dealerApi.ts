@@ -22,7 +22,7 @@ export interface CategoryDropdownOption {
   category?: string;
   categoryDescription?: string;
   groupCategoryCode?: string;
-  description:string
+  description: string;
 }
 
 export interface DealerFilters {
@@ -223,4 +223,56 @@ export const searchProductCategories = async ({
   });
 
   return response.data?.data?.categories ?? response.data?.data ?? [];
+};
+
+export interface DealerLeavePayload {
+  from: string;
+  to: string;
+  reason?: string;
+}
+
+export interface DealerRatingPayload {
+  rating: number;
+}
+
+export interface DealerSuspendPayload {
+  reason: string;
+}
+
+export const leaveDealer = async (
+  dealerId: string,
+  payload: DealerLeavePayload,
+) => {
+  const response = await api.post(`/dealers/${dealerId}/leave`, payload);
+
+  return response.data;
+};
+
+export const updateDealerRating = async (
+  dealerId: string,
+  payload: DealerRatingPayload,
+) => {
+  const response = await api.patch(`/dealers/${dealerId}/rating`, payload);
+
+  return response.data;
+};
+
+export const suspendDealer = async (
+  dealerId: string,
+  payload: DealerSuspendPayload,
+) => {
+  const response = await api.patch(`/dealers/${dealerId}/suspend`, payload);
+  return response.data;
+};
+
+export interface DealerRejoinPayload {
+  rejoiningDate: string;
+}
+
+export const rejoinDealer = async (
+  dealerId: string,
+  payload: DealerRejoinPayload,
+) => {
+  const response = await api.post(`/dealers/${dealerId}/rejoin`, payload);
+  return response.data;
 };
