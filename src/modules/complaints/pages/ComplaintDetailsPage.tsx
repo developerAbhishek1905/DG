@@ -16,7 +16,6 @@ import DealerInfoCard from "../components/DealerInfoCard";
 import ComplaintActivityModal from "../../appointments/components/ComplaintActivityModal";
 import { getComplaintActivities } from "../../appointments/services/appointmentApi";
 
-
 /* =========================================================
    TYPES - EXACTLY BASED ON YOUR API RESPONSE
 ========================================================= */
@@ -78,84 +77,58 @@ interface AllocatedDealer {
 
 interface Complaint {
   _id: string;
-
   complaintNumber: string;
   complaintDateTime: string;
-
   customerId: Customer;
-
   customerName: string;
   phone: string;
   alternatePhone: string;
   email: string;
-
   address: Address;
-
   contactInfo: string;
-
   brandId: Brand | null;
   brand: string;
-
-  // Your current response contains 19 here
   productId: number | null;
   productName: string;
-
   productTypeId: ProductType | null;
   productType: string;
   productCode: string;
   productDescription: string;
-
   units: number;
   quoteAmount: number;
   faultReported: string;
-
   categoryId: Category | null;
   category: string;
-
   priority: string;
   complaintType: string;
-
   parentComplaintId: string | null;
   repeatComplaintNumber: string;
-
   adName: string;
   subject: string;
   description: string;
-
   status: string;
-
-  technicianName: string;
-
+  technicianName: strng;
   dealerId: string | null;
   dealerName: string;
-
   allocatedDealerId: AllocatedDealer | null;
-
   allocationId: string | null;
   allocationRuleId: string | null;
   allocatedAt: string | null;
-
   appointmentDate: string | null;
   appointmentTime: string;
-
   pendingReason: string;
-
   suspendedAt: string | null;
   suspendedBy: string | null;
   suspensionReason: string;
-
   closedAt: string | null;
-
   warrantyStartDate: string | null;
   warrantyEndDate: string | null;
-
   cancelledAt: string | null;
   cancellationReason: string;
-
   createdAt: string;
   updatedAt: string;
-
   isWarranty: boolean;
+    additionalInfo?: string[];  
 }
 
 interface ComplaintApiResponse {
@@ -172,19 +145,12 @@ export default function ComplaintDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
   const [complaint, setComplaint] = useState<Complaint | null>(null);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
-  const [activityOpen, setActivityOpen] =
-  useState(false);
-
-const [activityLoading, setActivityLoading] =
-  useState(false);
-
-const [activities, setActivities] = useState<
-  ComplaintActivity[]
->([]);
+  const [activityOpen, setActivityOpen] = useState(false);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [activities, setActivities] = useState<ComplaintActivity[]>([]);
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
 
   /* =========================================================
      FETCH COMPLAINT
@@ -200,26 +166,12 @@ const [activities, setActivities] = useState<
     try {
       setLoading(true);
       setError("");
-
       const response = (await getComplaintById(id)) as ComplaintApiResponse;
-
       console.log("Complaint API Response:", response);
-
-      /*
-       * Your service returns:
-       *
-       * {
-       *   success: true,
-       *   data: {...}
-       * }
-       */
-
       setComplaint(response);
     } catch (error: any) {
       console.error("Complaint fetch error:", error);
-
       setComplaint(null);
-
       setError(error?.response?.data?.message || "Failed to fetch complaint");
     } finally {
       setLoading(false);
@@ -231,28 +183,20 @@ const [activities, setActivities] = useState<
   }, [id]);
 
   const handleOpenActivity = async () => {
-  if (!id) return;
+    if (!id) return;
 
-  try {
-    setActivityOpen(true);
-
-    setActivityLoading(true);
-
-    const response =
-      await getComplaintActivities(id);
-
-    setActivities(response?.activities);
-  } catch (error) {
-    console.error(
-      "Failed to fetch complaint activities:",
-      error,
-    );
-
-    setActivities([]);
-  } finally {
-    setActivityLoading(false);
-  }
-};
+    try {
+      setActivityOpen(true);
+      setActivityLoading(true);
+      const response = await getComplaintActivities(id);
+      setActivities(response?.activities);
+    } catch (error) {
+      console.error("Failed to fetch complaint activities:", error);
+      setActivities([]);
+    } finally {
+      setActivityLoading(false);
+    }
+  };
 
   /* =========================================================
      LOADING
@@ -286,21 +230,17 @@ const [activities, setActivities] = useState<
     );
   }
 
-  const customer = complaint.customerId;
-
-  const dealer = complaint.allocatedDealerId;
-
+  // const customer = complaint.customerId;
+  // const dealer = complaint.allocatedDealerId;
   const brand = complaint.brandId;
-
   const productType = complaint.productTypeId;
-
   const category = complaint.categoryId;
 
   return (
     <div className="space-y-3">
       {/* =====================================================
-        HEADER
-    ====================================================== */}
+          HEADER
+      ====================================================== */}
 
       <div className="flex items-center justify-between">
         <button
@@ -312,99 +252,39 @@ const [activities, setActivities] = useState<
           Back to Complaints
         </button>
 
-        {/* {["IN_PROGRESS", "APPOINTMENT_COMPLETED", "SERVICE_COMPLETED"].includes(
-          complaint.status,
-        ) && (
+        {/* Right Actions */}
+        <div className="flex items-center gap-2">
+          {/* Activity */}
           <button
             type="button"
-            onClick={() => navigate(`/closures/${complaint._id}`)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white"
+            onClick={handleOpenActivity}
+            className=" inline-flex items-center gap-1.5 rounded-lg border border-[#123B7A] bg-white  px-3 py-2  text-xs font-semibold text-[#123B7A] transition hover:bg-blue-50"
           >
-            <CheckCircle2 size={15} />
-            Close Complaint
+            <History size={15} />
+            Activity
           </button>
-        )} */}
 
-        {/* Right Actions */}
-  <div className="flex items-center gap-2">
-    {/* Activity */}
-    <button
-      type="button"
-      onClick={handleOpenActivity}
-      className="
-        inline-flex
-        items-center
-        gap-1.5
-        rounded-lg
-        border
-        border-[#123B7A]
-        bg-white
-        px-3
-        py-2
-        text-xs
-        font-semibold
-        text-[#123B7A]
-        transition
-        hover:bg-blue-50
-      "
-    >
-      <History size={15} />
-
-      Activity
-    </button>
-
-    {/* Close Complaint */}
-    {[
-      "IN_PROGRESS",
-      "APPOINTMENT_COMPLETED",
-      "SERVICE_COMPLETED",
-    ].includes(complaint.status) && (
-      <button
-        type="button"
-        onClick={() =>
-          navigate(`/closures/${complaint._id}`)
-        }
-        className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white hover:bg-green-700"
-      >
-        <CheckCircle2 size={15} />
-
-        Close Complaint
-      </button>
-    )}
-  </div>
+          {/* Close Complaint */}
+          {[
+            "IN_PROGRESS",
+            "APPOINTMENT_COMPLETED",
+            "SERVICE_COMPLETED",
+          ].includes(complaint.status) && (
+            <button
+              type="button"
+              onClick={() => navigate(`/closures/${complaint._id}`)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white hover:bg-green-700"
+            >
+              <CheckCircle2 size={15} />
+              Close Complaint
+            </button>
+          )}
+        </div>
       </div>
 
       {/* =====================================================
-        SUMMARY
-    ====================================================== */}
-
-      {/* <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-5">
-            <div>
-              <p className="text-[11px] font-medium text-gray-500">Complaint</p>
-
-              <h1 className="text-base font-semibold text-[#123B7A]">
-                {complaint.complaintNumber}
-              </h1>
-            </div>
-
-            <div className="hidden h-8 w-px bg-gray-200 md:block" />
-
-            <div className="hidden md:block">
-              <p className="text-[11px] text-gray-500">Created</p>
-
-              <p className="text-xs font-medium text-gray-700">
-                {formatDate(complaint.complaintDateTime)}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-5">
-            <StatusBadge status={complaint.status} />
-          </div>
-        </div>
-      </div> */}
+          SUMMARY
+      ====================================================== */}
 
       <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -474,87 +354,119 @@ const [activities, setActivities] = useState<
 
       <div className="grid gap-3 xl:grid-cols-2">
         {/* CUSTOMER */}
+        <div>
+          <CompactSection
+            title="Customer Information"
+            action={
+              <button
+                type="button"
+                onClick={() => setShowCustomerDetails((prev) => !prev)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#123B7A] px-2.5 py-1 text-[11px] font-semibold text-[#123B7A] transition hover:bg-blue-50"
+              >
+                <UserRound size={13} />
 
-        <CompactSection title="Customer Information">
-          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-            <InfoItem
-              label="Customer Code"
-              value={complaint?.customer?.customerCode}
-            />
-
-            <InfoItem label="Customer Name" value={complaint?.customer?.name} />
-
-            <InfoItem label="Mobile" value={complaint?.customer?.phone} />
-
-            <InfoItem
-              label="Alternate Mobile"
-              value={complaint?.customer?.alternatePhone}
-            />
-          </div>
-
-          <SubSectionTitle title="Registered Address" className="mt-4" />
-
-          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-            <div className="col-span-2">
-              <InfoItem
-                label="Address"
-                value={complaint?.customer?.address?.addressLine}
-              />
-            </div>
-
-            <InfoItem
-              label="State"
-              value={complaint?.customer?.address?.state}
-            />
-
-            <InfoItem
-              label="District"
-              value={complaint?.customer?.address?.district}
-            />
-
-            <InfoItem label="City" value={complaint?.customer?.address?.city} />
-
-            <InfoItem
-              label="Pincode"
-              value={complaint?.customer?.address?.pinCode}
-            />
-          </div>
-
-          <DealerInfoCard
-            complaintId={complaint._id}
-            dealer={
-              complaint.allocatedDealerId
-                ? {
-                    id: complaint.allocatedDealerId._id,
-
-                    name: complaint.allocatedDealerId.technicianName || "",
-
-                    firmName:
-                      complaint.allocatedDealerId.technicianFirmName || "",
-
-                    phone: complaint.allocatedDealerId.mobileNumber || "",
-
-                    headCode: complaint.allocatedDealerId.headCode || "",
-
-                    rating: complaint.allocatedDealerId.rating ?? 0,
-
-                    status: complaint.allocatedDealerId.status || "ACTIVE",
-                  }
-                : null
+                {showCustomerDetails ? "Hide Customer" : "View Customer"}
+              </button>
             }
-            allocationStatus={
-              complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
-            }
-          />
-        </CompactSection>
+          >
+            {showCustomerDetails && (
+              <div className="space-y-4">
+                {/* BASIC INFORMATION */}
+                <div>
+                  <SubSectionTitle title="Customer Details" />
+
+                  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+                    <InfoItem
+                      label="Customer Code"
+                      value={complaint?.customer?.customerCode}
+                    />
+
+                    <InfoItem
+                      label="Customer Name"
+                      value={complaint?.customerName}
+                    />
+
+                    <InfoItem label="Mobile" value={complaint?.phone} />
+
+                    <InfoItem
+                      label="Alternate Mobile"
+                      value={complaint?.alternatePhone}
+                    />
+                  </div>
+                </div>
+
+                {/* REGISTERED ADDRESS */}
+                <div>
+                  <SubSectionTitle title="Registered Address" />
+
+                  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+                    <div className="col-span-2 lg:col-span-4">
+                      <InfoItem
+                        label="Address"
+                        value={complaint.customer?.address?.addressLine}
+                        multiline
+                      />
+                    </div>
+
+                    <InfoItem
+                      label="State"
+                      value={complaint.customer?.address?.state}
+                    />
+
+                    <InfoItem
+                      label="District"
+                      value={complaint.customer?.address?.district}
+                    />
+
+                    <InfoItem
+                      label="City"
+                      value={complaint.customer?.address?.city}
+                    />
+
+                    <InfoItem
+                      label="Pincode"
+                      value={complaint.customer?.address?.pinCode}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </CompactSection>
+
+          {(complaint.status === "REGISTERED" ||
+            complaint.status === "CANCEL_ON_CALL" ||
+            complaint.status === "CANCEL_ON_VISIT" ||
+            complaint.status === "CANCELLED") && (
+            <DealerInfoCard
+              complaintId={complaint._id}
+              dealer={
+                complaint.allocatedDealerId
+                  ? {
+                      id: complaint.allocatedDealerId._id,
+                      name: complaint.allocatedDealerId.technicianName || "",
+                      firmName:
+                        complaint.allocatedDealerId.technicianFirmName || "",
+                      phone: complaint.allocatedDealerId.mobileNumber || "",
+                      headCode: complaint.allocatedDealerId.headCode || "",
+                      rating: complaint.allocatedDealerId.rating ?? 0,
+                      status: complaint.allocatedDealerId.status || "ACTIVE",
+                    }
+                  : null
+              }
+              allocationStatus={
+                complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
+              }
+            />
+          )}
+        </div>
 
         <CompactSection
           title="Complaint Information"
           icon={<Package size={15} />}
         >
           {/* =========================================
-      CUSTOMER SNAPSHOT
-  ========================================= */}
+              CUSTOMER SNAPSHOT
+          ========================================= */}
 
           <SubSectionTitle title="Customer Details" />
 
@@ -575,8 +487,8 @@ const [activities, setActivities] = useState<
           </div>
 
           {/* =========================================
-      COMPLAINT ADDRESS
-  ========================================= */}
+              COMPLAINT ADDRESS
+          ========================================= */}
 
           <SubSectionTitle title="Complaint Address" className="mt-4" />
 
@@ -707,50 +619,51 @@ const [activities, setActivities] = useState<
               </div>
             </>
           )}
+
+          
         </CompactSection>
-      </div>
+        {(complaint.adName ||
+  complaint.subject ||
+  complaint.description ||
+  (complaint.additionalInfo &&
+    complaint.additionalInfo.length > 0)) && (
+  <CompactSection title="Other Information">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {complaint.adName && (
+        <InfoItem
+          label="Ad. Name"
+          value={complaint.adName}
+        />
+      )}
 
-      {/* =====================================================
-        ROW 2
-        DEALER + COMPLAINT/APPOINTMENT
-    ====================================================== */}
+      {complaint.subject && (
+        <InfoItem
+          label="Subject"
+          value={complaint.subject}
+        />
+      )}
 
-      <div className="grid items-start gap-3 xl:grid-cols-[1.25fr_0.75fr]">
-        {/* =================================================
-          DEALER / ASSIGN DEALER
+      {complaint.description && (
+        <div className="sm:col-span-2 lg:col-span-4">
+          <InfoItem
+            label="Description"
+            value={complaint.description}
+            multiline
+          />
+        </div>
+      )}
 
-          KEEP YOUR EXISTING COMPONENT.
-          This keeps Assign Dealer functionality.
-      ================================================== */}
-
-        {/* <DealerInfoCard
-          complaintId={complaint._id}
-          dealer={
-            complaint.allocatedDealerId
-              ? {
-                  id: complaint.allocatedDealerId._id,
-
-                  name: complaint.allocatedDealerId.technicianName || "",
-
-                  firmName:
-                    complaint.allocatedDealerId.technicianFirmName || "",
-
-                  phone: complaint.allocatedDealerId.mobileNumber || "",
-
-                  technicianCode:
-                    complaint.allocatedDealerId.technicianCode || "",
-
-                  rating: complaint.allocatedDealerId.rating || 0,
-
-                  status: complaint.allocatedDealerId.status || "ACTIVE",
-                }
-              : null
-          }
-          allocationStatus={
-            complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
-          }
-          onAllocationChange={fetchComplaint}
-        /> */}
+      {complaint.additionalInfo?.map((info, index) => (
+        <InfoItem
+          key={`${index}-${info}`}
+          label={`Additional Info ${index + 1}`}
+          value={info}
+          multiline
+        />
+      ))}
+    </div>
+  </CompactSection>
+)}
       </div>
 
       {/* =====================================================
@@ -818,90 +731,15 @@ const [activities, setActivities] = useState<
         </CompactSection>
       )}
       <ComplaintActivityModal
-  open={activityOpen}
-  loading={activityLoading}
-  activities={activities}
-  complaintNumber={
-    complaint.complaintNumber
-  }
-  onClose={() =>
-    setActivityOpen(false)
-  }
-/>
+        open={activityOpen}
+        loading={activityLoading}
+        activities={activities}
+        complaintNumber={complaint.complaintNumber}
+        onClose={() => setActivityOpen(false)}
+      />
     </div>
   );
 }
-
-/* =========================================================
-   SECTION
-========================================================= */
-
-interface SectionProps {
-  title: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}
-
-function Section({ title, icon, children }: SectionProps) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <div className="mb-5 flex items-center gap-2 border-b border-gray-100 pb-4">
-        {icon && <span className="text-[#123B7A]">{icon}</span>}
-
-        <h3 className="text-base font-semibold text-[#123B7A]">{title}</h3>
-      </div>
-
-      {children}
-    </div>
-  );
-}
-
-/* =========================================================
-   INFO ITEM
-========================================================= */
-
-// interface InfoItemProps {
-//   label: string;
-//   value?:
-//     | string
-//     | number
-//     | null
-//     | undefined;
-//   icon?: React.ReactNode;
-// }
-
-// function InfoItem({
-//   label,
-//   value,
-//   icon,
-// }: InfoItemProps) {
-//   const displayValue =
-//     value === null ||
-//     value === undefined ||
-//     value === ""
-//       ? "-"
-//       : String(value);
-
-//   return (
-//     <div>
-//       <p className="text-xs font-medium text-[#123B7A]">
-//         {label}
-//       </p>
-
-//       <div className="mt-1.5 flex items-center gap-2">
-//         {icon && (
-//           <span className="shrink-0 text-gray-400">
-//             {icon}
-//           </span>
-//         )}
-
-//         <p className="break-all text-sm font-medium text-gray-700">
-//           {displayValue}
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
 
 /* =========================================================
    STATUS BADGE
@@ -910,23 +748,14 @@ function Section({ title, icon, children }: SectionProps) {
 function StatusBadge({ status }: { status: string }) {
   const variants: Record<string, string> = {
     REGISTERED: "border-blue-200 bg-blue-50 text-blue-700",
-
     ALLOCATED: "border-green-200 bg-green-50 text-green-700",
-
     APPOINTMENT_SCHEDULED: "border-purple-200 bg-purple-50 text-purple-700",
-
     PENDING_ON_CALL: "border-amber-200 bg-amber-50 text-amber-700",
-
     PENDING_ON_VISIT: "border-amber-200 bg-amber-50 text-amber-700",
-
     CANCEL_ON_CALL: "border-red-200 bg-red-50 text-red-700",
-
     CANCEL_ON_VISIT: "border-red-200 bg-red-50 text-red-700",
-
     CLOSED: "border-green-200 bg-green-50 text-green-700",
-
     CANCELLED: "border-red-200 bg-red-50 text-red-700",
-
     SUSPENDED: "border-gray-300 bg-gray-100 text-gray-700",
   };
 
@@ -970,25 +799,35 @@ function formatDate(date?: string | null) {
 interface CompactSectionProps {
   title: string;
   icon?: React.ReactNode;
-  children: React.ReactNode;
+  action?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-function CompactSection({ title, icon, children }: CompactSectionProps) {
+function CompactSection({
+  title,
+  icon,
+  action,
+  children,
+}: CompactSectionProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* HEADER */}
-      <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-50/80 px-4 py-2.5">
-        {icon && (
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50 text-[#123B7A]">
-            {icon}
-          </div>
-        )}
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50/80 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          {icon && (
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50 text-[#123B7A]">
+              {icon}
+            </div>
+          )}
 
-        <h3 className="text-sm font-bold text-[#123B7A]">{title}</h3>
+          <h3 className="text-sm font-bold text-[#123B7A]">{title}</h3>
+        </div>
+
+        {action && <div>{action}</div>}
       </div>
 
-      {/* CONTENT */}
-      <div className="p-3">{children}</div>
+      {/* Only render body when there is content */}
+      {children && <div className="p-3">{children}</div>}
     </div>
   );
 }
@@ -1037,22 +876,6 @@ function InfoItem({
       >
         {displayValue}
       </p>
-    </div>
-  );
-}
-
-function CompactInfo({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | number | null;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] text-gray-400">{label}</p>
-
-      <p className="text-xs font-semibold text-gray-700">{value || "-"}</p>
     </div>
   );
 }

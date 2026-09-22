@@ -282,6 +282,9 @@ export interface ComplaintFormData {
   repeatComplaintNumber?: string;
   subject?: string;
   description?: string;
+  additionalInfo: {
+  value: string;
+}[];
 }
 
 export interface ComplaintDealer {
