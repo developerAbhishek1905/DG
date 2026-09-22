@@ -17,7 +17,23 @@ export const COMPLAINT_STATUS_LABELS: Record<
   DG_VERIFICATION: "DG Verification",
   CLOSED: "Closed",
   CANCELLED: "Cancelled",
-  SUSPENDED: "suspended"
+  SUSPENDED: "suspended",
+
+   
+    
+    RESCHEDULED: "Rescheduled",
+    REOPEN: "Reopen",
+    VISITED: "Visited",
+    
+    PENDING_ON_CALL: "Pending on Call",
+    PENDING_ON_VISIT: "Pending on Visit",
+  
+
+    
+    CLOSE_ON_BILLING: "Close on Billing",
+    CANCEL_ON_VISIT: "Cancel on Visit",
+    CLOSE_ON_VERIFICATION: "Close on Verification",
+    CANCEL_ON_CALL: "Cancel on Call",
 };
 
 export const COMPLAINT_PRIORITY_LABELS: Record<

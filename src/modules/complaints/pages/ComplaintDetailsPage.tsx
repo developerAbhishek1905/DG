@@ -1,115 +1,3 @@
-// import { ArrowLeft, Edit, CheckCircle2 } from "lucide-react";
-// import { useNavigate, useParams } from "react-router-dom";
-
-// import ComplaintSummary from "../components/ComplaintSummary";
-// import ComplaintLifecycle from "../components/ComplaintLifecycle";
-// import ComplaintTimeline from "../components/ComplaintTimeline";
-// import CustomerInfoCard from "../components/CustomerInfoCard";
-// import ProductInfoCard from "../components/ProductInfoCard";
-// import DealerInfoCard from "../components/DealerInfoCard";
-
-// import { useComplaintDetails } from "../hooks/useComplaintDetails";
-
-// export default function ComplaintDetailsPage() {
-//   const navigate = useNavigate();
-//   const { id } = useParams();
-//   const { complaint, loading } = useComplaintDetails(id);
-
-//   if (loading) {
-//     return (
-//       <div className="rounded-xl border bg-white p-10 text-center">
-//         Loading complaint...
-//       </div>
-//     );
-//   }
-
-//   if (!complaint) {
-//     return (
-//       <div className="rounded-xl border bg-white p-10 text-center">
-//         <p className="text-gray-500">Complaint not found.</p>
-
-//         <button
-//           onClick={() => navigate("/complaints")}
-//           className="mt-4 text-sm font-medium text-blue-600"
-//         >
-//           Back to complaints
-//         </button>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="space-y-5">
-//       {/* Header */}
-//       <div className="flex items-center justify-between">
-//         <button
-//           onClick={() => navigate("/complaints")}
-//           className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
-//         >
-//           <ArrowLeft size={17} />
-//           Back to Complaints
-//         </button>
-
-//         {/* <button
-//           onClick={() => navigate(`/complaints/${id}/edit`)}
-//           className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-//         >
-//           <Edit size={16} />
-//           Edit
-//         </button> */}
-//         {["IN_PROGRESS", "APPOINTMENT_COMPLETED", "SERVICE_COMPLETED"].includes(
-//           complaint.status,
-//         ) && (
-//           <button
-//             onClick={() => navigate(`/closures/${complaint.id}`)}
-//             className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white"
-//           >
-//             <CheckCircle2 size={17} />
-//             Close Complaint
-//           </button>
-//         )}
-//       </div>
-
-//       {/* Summary */}
-//       <ComplaintSummary complaint={complaint} />
-
-//       {/* Lifecycle */}
-//       {/* <ComplaintLifecycle currentStatus={complaint.status} /> */}
-
-//       {/* Information */}
-//       <div className="grid gap-5 lg:grid-cols-3">
-//         <CustomerInfoCard customer={complaint.customer} />
-
-//         <ProductInfoCard product={complaint.product} />
-
-//         {/* <DealerInfoCard
-//           dealer={complaint.dealer}
-//         /> */}
-
-//         <DealerInfoCard
-//           complaintId={complaint.id}
-//           dealer={complaint.dealer}
-//           allocationStatus={complaint.dealer ? "ASSIGNED" : "UNASSIGNED"}
-//         />
-//       </div>
-
-//       {/* Description */}
-//       <div className="rounded-xl border border-gray-200 bg-white p-5">
-//         <h3 className="text-base font-semibold text-gray-900">
-//           Complaint Description
-//         </h3>
-
-//         <p className="mt-3 text-sm leading-6 text-gray-600">
-//           {complaint.description}
-//         </p>
-//       </div>
-
-//       {/* Timeline */}
-//       <ComplaintTimeline timeline={complaint.timeline} />
-//     </div>
-//   );
-// }
-
 import {
   ArrowLeft,
   Building2,
@@ -119,11 +7,15 @@ import {
   Phone,
   UserRound,
   Wrench,
+  History,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getComplaintById } from "../services/complaintApi";
 import DealerInfoCard from "../components/DealerInfoCard";
+import ComplaintActivityModal from "../../appointments/components/ComplaintActivityModal";
+import { getComplaintActivities } from "../../appointments/services/appointmentApi";
+
 
 /* =========================================================
    TYPES - EXACTLY BASED ON YOUR API RESPONSE
@@ -284,6 +176,15 @@ export default function ComplaintDetailsPage() {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+  const [activityOpen, setActivityOpen] =
+  useState(false);
+
+const [activityLoading, setActivityLoading] =
+  useState(false);
+
+const [activities, setActivities] = useState<
+  ComplaintActivity[]
+>([]);
 
   /* =========================================================
      FETCH COMPLAINT
@@ -328,6 +229,30 @@ export default function ComplaintDetailsPage() {
   useEffect(() => {
     fetchComplaint();
   }, [id]);
+
+  const handleOpenActivity = async () => {
+  if (!id) return;
+
+  try {
+    setActivityOpen(true);
+
+    setActivityLoading(true);
+
+    const response =
+      await getComplaintActivities(id);
+
+    setActivities(response?.activities);
+  } catch (error) {
+    console.error(
+      "Failed to fetch complaint activities:",
+      error,
+    );
+
+    setActivities([]);
+  } finally {
+    setActivityLoading(false);
+  }
+};
 
   /* =========================================================
      LOADING
@@ -387,7 +312,7 @@ export default function ComplaintDetailsPage() {
           Back to Complaints
         </button>
 
-        {["IN_PROGRESS", "APPOINTMENT_COMPLETED", "SERVICE_COMPLETED"].includes(
+        {/* {["IN_PROGRESS", "APPOINTMENT_COMPLETED", "SERVICE_COMPLETED"].includes(
           complaint.status,
         ) && (
           <button
@@ -398,14 +323,62 @@ export default function ComplaintDetailsPage() {
             <CheckCircle2 size={15} />
             Close Complaint
           </button>
-        )}
+        )} */}
+
+        {/* Right Actions */}
+  <div className="flex items-center gap-2">
+    {/* Activity */}
+    <button
+      type="button"
+      onClick={handleOpenActivity}
+      className="
+        inline-flex
+        items-center
+        gap-1.5
+        rounded-lg
+        border
+        border-[#123B7A]
+        bg-white
+        px-3
+        py-2
+        text-xs
+        font-semibold
+        text-[#123B7A]
+        transition
+        hover:bg-blue-50
+      "
+    >
+      <History size={15} />
+
+      Activity
+    </button>
+
+    {/* Close Complaint */}
+    {[
+      "IN_PROGRESS",
+      "APPOINTMENT_COMPLETED",
+      "SERVICE_COMPLETED",
+    ].includes(complaint.status) && (
+      <button
+        type="button"
+        onClick={() =>
+          navigate(`/closures/${complaint._id}`)
+        }
+        className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white hover:bg-green-700"
+      >
+        <CheckCircle2 size={15} />
+
+        Close Complaint
+      </button>
+    )}
+  </div>
       </div>
 
       {/* =====================================================
         SUMMARY
     ====================================================== */}
 
-      <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+      {/* <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-5">
             <div>
@@ -431,6 +404,67 @@ export default function ComplaintDetailsPage() {
             <StatusBadge status={complaint.status} />
           </div>
         </div>
+      </div> */}
+
+      <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-5">
+            {/* Complaint */}
+            <div>
+              <p className="text-[11px] font-medium text-gray-500">Complaint</p>
+
+              <h1 className="text-base font-semibold text-[#123B7A]">
+                {complaint.complaintNumber}
+              </h1>
+            </div>
+
+            <div className="hidden h-8 w-px bg-gray-200 md:block" />
+
+            {/* Created Date */}
+            <div>
+              <p className="text-[11px] text-gray-500">Created</p>
+
+              <p className="text-xs font-medium text-gray-700">
+                {formatDate(complaint.createdAt)}
+              </p>
+            </div>
+
+            <div className="hidden h-8 w-px bg-gray-200 md:block" />
+
+            {/* Created By */}
+            <div>
+              <p className="text-[11px] text-gray-500">Created By</p>
+
+              <p className="text-xs font-semibold text-gray-700">
+                {complaint.createdBy?.name || "-"}
+              </p>
+
+              {complaint.createdBy?.email && (
+                <p className="text-[10px] text-gray-400">
+                  {complaint.createdBy.email}
+                </p>
+              )}
+            </div>
+
+            {/* Closed Date - only show when available */}
+            {complaint.closedAt && (
+              <>
+                <div className="hidden h-8 w-px bg-gray-200 md:block" />
+
+                <div>
+                  <p className="text-[11px] text-gray-500">Closed Date</p>
+
+                  <p className="text-xs font-semibold text-green-700">
+                    {formatDate(complaint.closedAt)}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Status */}
+          <StatusBadge status={complaint.status} />
+        </div>
       </div>
 
       {/* =====================================================
@@ -442,328 +476,238 @@ export default function ComplaintDetailsPage() {
         {/* CUSTOMER */}
 
         <CompactSection title="Customer Information">
-  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-    <InfoItem
-      label="Customer Code"
-      value={
-        complaint?.customer?.customerCode
-      }
-    />
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+            <InfoItem
+              label="Customer Code"
+              value={complaint?.customer?.customerCode}
+            />
 
-    <InfoItem
-      label="Customer Name"
-      value={complaint?.customer?.name}
-    />
+            <InfoItem label="Customer Name" value={complaint?.customer?.name} />
 
-    <InfoItem
-      label="Mobile"
-      value={complaint?.customer?.phone}
-    />
+            <InfoItem label="Mobile" value={complaint?.customer?.phone} />
 
-    <InfoItem
-      label="Alternate Mobile"
-      value={
-        complaint?.customer
-          ?.alternatePhone
-      }
-    />
-  </div>
+            <InfoItem
+              label="Alternate Mobile"
+              value={complaint?.customer?.alternatePhone}
+            />
+          </div>
 
-  <SubSectionTitle
-    title="Registered Address"
-    className="mt-4"
-  />
+          <SubSectionTitle title="Registered Address" className="mt-4" />
 
-  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-    <div className="col-span-2">
-      <InfoItem
-        label="Address"
-        value={
-          complaint?.customer?.address
-            ?.addressLine
-        }
-      />
-    </div>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+            <div className="col-span-2">
+              <InfoItem
+                label="Address"
+                value={complaint?.customer?.address?.addressLine}
+              />
+            </div>
 
-    <InfoItem
-      label="State"
-      value={
-        complaint?.customer?.address?.state
-      }
-    />
+            <InfoItem
+              label="State"
+              value={complaint?.customer?.address?.state}
+            />
 
-    <InfoItem
-      label="District"
-      value={
-        complaint?.customer?.address
-          ?.district
-      }
-    />
+            <InfoItem
+              label="District"
+              value={complaint?.customer?.address?.district}
+            />
 
-    <InfoItem
-      label="City"
-      value={
-        complaint?.customer?.address?.city
-      }
-    />
+            <InfoItem label="City" value={complaint?.customer?.address?.city} />
 
-    <InfoItem
-      label="Pincode"
-      value={
-        complaint?.customer?.address
-          ?.pinCode
-      }
-    />
-  </div>
+            <InfoItem
+              label="Pincode"
+              value={complaint?.customer?.address?.pinCode}
+            />
+          </div>
 
           <DealerInfoCard
-          complaintId={complaint._id}
-          dealer={
-            complaint.allocatedDealerId
-              ? {
-                  id: complaint.allocatedDealerId._id,
+            complaintId={complaint._id}
+            dealer={
+              complaint.allocatedDealerId
+                ? {
+                    id: complaint.allocatedDealerId._id,
 
-                  name: complaint.allocatedDealerId.technicianName || "",
+                    name: complaint.allocatedDealerId.technicianName || "",
 
-                  firmName:
-                    complaint.allocatedDealerId.technicianFirmName || "",
+                    firmName:
+                      complaint.allocatedDealerId.technicianFirmName || "",
 
-                  phone: complaint.allocatedDealerId.mobileNumber || "",
+                    phone: complaint.allocatedDealerId.mobileNumber || "",
 
-                  headCode: complaint.allocatedDealerId.headCode || "",
+                    headCode: complaint.allocatedDealerId.headCode || "",
 
-                  rating: complaint.allocatedDealerId.rating ?? 0,
+                    rating: complaint.allocatedDealerId.rating ?? 0,
 
-                  status: complaint.allocatedDealerId.status || "ACTIVE",
-                }
-              : null
-          }
-          allocationStatus={
-            complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
-          }
-        />
-</CompactSection>
+                    status: complaint.allocatedDealerId.status || "ACTIVE",
+                  }
+                : null
+            }
+            allocationStatus={
+              complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
+            }
+          />
+        </CompactSection>
 
-<CompactSection
-  title="Complaint Information"
-  icon={<Package size={15} />}
->
-  {/* =========================================
+        <CompactSection
+          title="Complaint Information"
+          icon={<Package size={15} />}
+        >
+          {/* =========================================
       CUSTOMER SNAPSHOT
   ========================================= */}
 
-  <SubSectionTitle title="Customer Details" />
+          <SubSectionTitle title="Customer Details" />
 
-  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-    <InfoItem
-      label="Customer Code"
-      value={complaint?.customer?.customerCode}
-    />
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+            <InfoItem
+              label="Customer Code"
+              value={complaint?.customer?.customerCode}
+            />
 
-    <InfoItem
-      label="Customer Name"
-      value={complaint?.customerName}
-    />
+            <InfoItem label="Customer Name" value={complaint?.customerName} />
 
-    <InfoItem
-      label="Mobile"
-      value={complaint?.phone}
-    />
+            <InfoItem label="Mobile" value={complaint?.phone} />
 
-    <InfoItem
-      label="Alternate Mobile"
-      value={complaint?.alternatePhone}
-    />
-  </div>
+            <InfoItem
+              label="Alternate Mobile"
+              value={complaint?.alternatePhone}
+            />
+          </div>
 
-  {/* =========================================
+          {/* =========================================
       COMPLAINT ADDRESS
   ========================================= */}
 
-  <SubSectionTitle
-    title="Complaint Address"
-    className="mt-4"
-  />
+          <SubSectionTitle title="Complaint Address" className="mt-4" />
 
-  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-    <div className="col-span-2">
-      <InfoItem
-        label="Address"
-        value={complaint.address?.addressLine}
-      />
-    </div>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+            <div className="col-span-2">
+              <InfoItem
+                label="Address"
+                value={complaint.address?.addressLine}
+              />
+            </div>
 
-    <InfoItem
-      label="State"
-      value={complaint.address?.state}
-    />
+            <InfoItem label="State" value={complaint.address?.state} />
 
-    <InfoItem
-      label="District"
-      value={complaint.address?.district}
-    />
+            <InfoItem label="District" value={complaint.address?.district} />
 
-    <InfoItem
-      label="City"
-      value={complaint.address?.city}
-    />
+            <InfoItem label="City" value={complaint.address?.city} />
 
-    <InfoItem
-      label="Pincode"
-      value={complaint.address?.pinCode}
-    />
-  </div>
+            <InfoItem label="Pincode" value={complaint.address?.pinCode} />
+          </div>
 
-  {/* =========================================
+          {/* =========================================
       PRODUCT / SERVICE
   ========================================= */}
 
-  <SubSectionTitle
-    title="Product & Service"
-    className="mt-4"
-  />
+          <SubSectionTitle title="Product & Service" className="mt-4" />
 
-  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-    <InfoItem
-      label="Brand"
-      value={
-        brand?.brandName ||
-        complaint.brand
-      }
-    />
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+            <InfoItem
+              label="Brand"
+              value={brand?.brandName || complaint.brand}
+            />
 
-    <InfoItem
-      label="Product"
-      value={complaint.productName}
-    />
+            <InfoItem label="Product" value={complaint.productName} />
 
-    <InfoItem
-      label="Product Type"
-      value={
-        productType?.product_type ||
-        complaint.productType
-      }
-    />
+            <InfoItem
+              label="Product Type"
+              value={productType?.product_type || complaint.productType}
+            />
 
-    <InfoItem
-      label="Category"
-      value={
-        category?.category ||
-        complaint.category
-      }
-    />
+            <InfoItem
+              label="Category"
+              value={category?.category || complaint.category}
+            />
 
-    <div className="col-span-2">
-      <InfoItem
-        label="Category Description"
-        value={category?.description}
-      />
-    </div>
+            <div className="col-span-2">
+              <InfoItem
+                label="Category Description"
+                value={category?.description}
+              />
+            </div>
 
-    <InfoItem
-      label="Units"
-      value={complaint.units}
-    />
+            <InfoItem label="Units" value={complaint.units} />
 
-    <InfoItem
-      label="Quote Amount"
-      value={`₹${complaint.quoteAmount ?? 0}`}
-    />
+            <InfoItem
+              label="Quote Amount"
+              value={`₹${complaint.quoteAmount ?? 0}`}
+            />
 
-    <div className="col-span-2">
-      <InfoItem
-        label="Fault Reported"
-        value={complaint.faultReported}
-      />
-    </div>
+            <div className="col-span-2">
+              <InfoItem
+                label="Fault Reported"
+                value={complaint.faultReported}
+              />
+            </div>
 
-    <InfoItem
-      label="Complaint Type"
-      value={complaint.complaintType}
-    />
+            <InfoItem label="Complaint Type" value={complaint.complaintType} />
 
-    <InfoItem
-      label="Warranty"
-      value={
-        complaint.isWarranty
-          ? "Yes"
-          : "No"
-      }
-    />
-  </div>
+            <InfoItem
+              label="Warranty"
+              value={complaint.isWarranty ? "Yes" : "No"}
+            />
+          </div>
 
-  {/* =========================================
+          {/* =========================================
       APPOINTMENT
   ========================================= */}
 
-  <SubSectionTitle
-    title="Appointment"
-    className="mt-4"
-  />
+          <SubSectionTitle title="Appointment" className="mt-4" />
 
-  <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-    <InfoItem
-      label="Appointment Date"
-      value={
-        complaint.appointmentDate
-          ? formatDate(
-              complaint.appointmentDate,
-            )
-          : "-"
-      }
-    />
+          <div className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+            <InfoItem
+              label="Appointment Date"
+              value={
+                complaint.appointmentDate
+                  ? formatDate(complaint.appointmentDate)
+                  : "-"
+              }
+            />
 
-    <InfoItem
-      label="Appointment Time"
-      value={complaint.appointmentTime}
-    />
+            <InfoItem
+              label="Appointment Time"
+              value={complaint.appointmentTime}
+            />
 
-    {complaint.pendingReason && (
-      <div className="col-span-2">
-        <InfoItem
-          label="Pending Reason"
-          value={complaint.pendingReason}
-        />
-      </div>
-    )}
-  </div>
+            {complaint.pendingReason && (
+              <div className="col-span-2">
+                <InfoItem
+                  label="Pending Reason"
+                  value={complaint.pendingReason}
+                />
+              </div>
+            )}
+          </div>
 
-  {/* =========================================
+          {/* =========================================
       ADDITIONAL DETAILS
   ========================================= */}
 
-  {(complaint.repeatComplaintNumber ||
-    complaint.description) && (
-    <>
-      <SubSectionTitle
-        title="Additional Details"
-        className="mt-4"
-      />
+          {(complaint.repeatComplaintNumber || complaint.description) && (
+            <>
+              <SubSectionTitle title="Additional Details" className="mt-4" />
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
-        {complaint.repeatComplaintNumber && (
-          <InfoItem
-            label="Repeat Complaint"
-            value={
-              complaint.repeatComplaintNumber
-            }
-          />
-        )}
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+                {complaint.repeatComplaintNumber && (
+                  <InfoItem
+                    label="Repeat Complaint"
+                    value={complaint.repeatComplaintNumber}
+                  />
+                )}
 
-        <div className="lg:col-span-3">
-          <InfoItem
-            label="Description"
-            value={
-              complaint.description ||
-              "No description provided."
-            }
-            multiline
-          />
-        </div>
-      </div>
-    </>
-  )}
-</CompactSection>
+                <div className="lg:col-span-3">
+                  <InfoItem
+                    label="Description"
+                    value={complaint.description || "No description provided."}
+                    multiline
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </CompactSection>
       </div>
 
       {/* =====================================================
@@ -807,10 +751,6 @@ export default function ComplaintDetailsPage() {
           }
           onAllocationChange={fetchComplaint}
         /> */}
-
-
-
-
       </div>
 
       {/* =====================================================
@@ -877,6 +817,17 @@ export default function ComplaintDetailsPage() {
           </div>
         </CompactSection>
       )}
+      <ComplaintActivityModal
+  open={activityOpen}
+  loading={activityLoading}
+  activities={activities}
+  complaintNumber={
+    complaint.complaintNumber
+  }
+  onClose={() =>
+    setActivityOpen(false)
+  }
+/>
     </div>
   );
 }
@@ -956,51 +907,33 @@ function Section({ title, icon, children }: SectionProps) {
    STATUS BADGE
 ========================================================= */
 
-function StatusBadge({
-  status,
-}: {
-  status: string;
-}) {
-  const variants: Record<
-    string,
-    string
-  > = {
-    REGISTERED:
-      "border-blue-200 bg-blue-50 text-blue-700",
+function StatusBadge({ status }: { status: string }) {
+  const variants: Record<string, string> = {
+    REGISTERED: "border-blue-200 bg-blue-50 text-blue-700",
 
-    ALLOCATED:
-      "border-green-200 bg-green-50 text-green-700",
+    ALLOCATED: "border-green-200 bg-green-50 text-green-700",
 
-    APPOINTMENT_SCHEDULED:
-      "border-purple-200 bg-purple-50 text-purple-700",
+    APPOINTMENT_SCHEDULED: "border-purple-200 bg-purple-50 text-purple-700",
 
-    PENDING_ON_CALL:
-      "border-amber-200 bg-amber-50 text-amber-700",
+    PENDING_ON_CALL: "border-amber-200 bg-amber-50 text-amber-700",
 
-    PENDING_ON_VISIT:
-      "border-amber-200 bg-amber-50 text-amber-700",
+    PENDING_ON_VISIT: "border-amber-200 bg-amber-50 text-amber-700",
 
-    CANCEL_ON_CALL:
-      "border-red-200 bg-red-50 text-red-700",
+    CANCEL_ON_CALL: "border-red-200 bg-red-50 text-red-700",
 
-    CANCEL_ON_VISIT:
-      "border-red-200 bg-red-50 text-red-700",
+    CANCEL_ON_VISIT: "border-red-200 bg-red-50 text-red-700",
 
-    CLOSED:
-      "border-green-200 bg-green-50 text-green-700",
+    CLOSED: "border-green-200 bg-green-50 text-green-700",
 
-    CANCELLED:
-      "border-red-200 bg-red-50 text-red-700",
+    CANCELLED: "border-red-200 bg-red-50 text-red-700",
 
-    SUSPENDED:
-      "border-gray-300 bg-gray-100 text-gray-700",
+    SUSPENDED: "border-gray-300 bg-gray-100 text-gray-700",
   };
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold ${
-        variants[status] ||
-        "border-gray-200 bg-gray-50 text-gray-700"
+        variants[status] || "border-gray-200 bg-gray-50 text-gray-700"
       }`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -1040,11 +973,7 @@ interface CompactSectionProps {
   children: React.ReactNode;
 }
 
-function CompactSection({
-  title,
-  icon,
-  children,
-}: CompactSectionProps) {
+function CompactSection({ title, icon, children }: CompactSectionProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* HEADER */}
@@ -1055,26 +984,18 @@ function CompactSection({
           </div>
         )}
 
-        <h3 className="text-sm font-bold text-[#123B7A]">
-          {title}
-        </h3>
+        <h3 className="text-sm font-bold text-[#123B7A]">{title}</h3>
       </div>
 
       {/* CONTENT */}
-      <div className="p-3">
-        {children}
-      </div>
+      <div className="p-3">{children}</div>
     </div>
   );
 }
 
 interface InfoItemProps {
   label: string;
-  value?:
-    | string
-    | number
-    | null
-    | undefined;
+  value?: string | number | null | undefined;
   icon?: React.ReactNode;
   multiline?: boolean;
   highlight?: boolean;
@@ -1088,11 +1009,7 @@ function InfoItem({
   highlight = false,
 }: InfoItemProps) {
   const displayValue =
-    value === null ||
-    value === undefined ||
-    value === ""
-      ? "-"
-      : String(value);
+    value === null || value === undefined || value === "" ? "-" : String(value);
 
   return (
     <div
@@ -1104,11 +1021,7 @@ function InfoItem({
     >
       {/* LABEL */}
       <div className="flex items-center gap-1.5">
-        {icon && (
-          <span className="shrink-0 text-[#123B7A]">
-            {icon}
-          </span>
-        )}
+        {icon && <span className="shrink-0 text-[#123B7A]">{icon}</span>}
 
         <p className="text-[10px] font-semibold uppercase tracking-[0.05em] text-gray-500">
           {label}
@@ -1119,9 +1032,7 @@ function InfoItem({
       <p
         title={displayValue}
         className={`mt-1 text-[13px] font-semibold text-gray-900 ${
-          multiline
-            ? "whitespace-normal break-words leading-5"
-            : "truncate"
+          multiline ? "whitespace-normal break-words leading-5" : "truncate"
         }`}
       >
         {displayValue}

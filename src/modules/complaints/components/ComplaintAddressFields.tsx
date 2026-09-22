@@ -12,11 +12,11 @@ import SearchSelect from "../../../components/ui/SearchSelect";
 import {
   searchCities,
   searchDistricts,
-  searchPincodes,
+//   searchPincodes,
   searchStates,
   type CityOption,
   type DistrictOption,
-  type PincodeOption,
+//   type PincodeOption,
   type StateOption,
 } from "../../dealers/services/addressApi";
 
@@ -44,7 +44,7 @@ export default function ComplaintAddressFields({
   const [states, setStates] = useState<StateOption[]>([]);
   const [districts, setDistricts] = useState<DistrictOption[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
-  const [pincodes, setPincodes] = useState<PincodeOption[]>([]);
+//   const [pincodes, setPincodes] = useState<PincodeOption[]>([]);
 
   /* =========================
      SEARCH
@@ -53,11 +53,11 @@ export default function ComplaintAddressFields({
   const [stateSearch, setStateSearch] = useState("");
   const [districtSearch, setDistrictSearch] = useState("");
   const [citySearch, setCitySearch] = useState("");
-  const [pincodeSearch, setPincodeSearch] = useState("");
+//   const [pincodeSearch, setPincodeSearch] = useState("");
   const debouncedStateSearch = useDebounce(stateSearch, 500);
   const debouncedDistrictSearch = useDebounce(districtSearch, 500);
   const debouncedCitySearch = useDebounce(citySearch, 500);
-  const debouncedPincodeSearch = useDebounce(pincodeSearch, 500);
+//   const debouncedPincodeSearch = useDebounce(pincodeSearch, 500);
 
   /* =========================
      LOADING
@@ -66,7 +66,7 @@ export default function ComplaintAddressFields({
   const [stateLoading, setStateLoading] = useState(false);
   const [districtLoading, setDistrictLoading] = useState(false);
   const [cityLoading, setCityLoading] = useState(false);
-  const [pincodeLoading, setPincodeLoading] = useState(false);
+//   const [pincodeLoading, setPincodeLoading] = useState(false);
 
   /* =========================
      FORM VALUES
@@ -78,7 +78,7 @@ export default function ComplaintAddressFields({
   const stateName = watch("address.state");
   const districtName = watch("address.district");
   const cityName = watch("address.city");
-  const pinCode = watch("address.pinCode");
+//   const pinCode = watch("address.pinCode");
   const addressErrors = errors.address;
 
   /* =========================
@@ -97,9 +97,9 @@ export default function ComplaintAddressFields({
     loadCities(debouncedCitySearch);
   }, [debouncedCitySearch, stateId, districtId]);
 
-  useEffect(() => {
-    loadPincodes(debouncedPincodeSearch);
-  }, [debouncedPincodeSearch, cityId]);
+//   useEffect(() => {
+//     loadPincodes(debouncedPincodeSearch);
+//   }, [debouncedPincodeSearch, cityId]);
 
   /* =========================
      STATE API
@@ -168,34 +168,39 @@ export default function ComplaintAddressFields({
      PINCODE API
   ========================= */
 
-  const loadPincodes = async (search: string) => {
-    try {
-      setPincodeLoading(true);
+//   const loadPincodes = async (search: string) => {
+//     try {
+//       setPincodeLoading(true);
 
-      const data = await searchPincodes({
-        cityId: cityId ? Number(cityId) : undefined,
-        search,
-      });
+//       const data = await searchPincodes({
+//         cityId: cityId ? Number(cityId) : undefined,
+//         search,
+//       });
 
-      setPincodes(data);
-    } catch (error) {
-      console.error("Failed to load pincodes:", error);
+//       setPincodes(data);
+//     } catch (error) {
+//       console.error("Failed to load pincodes:", error);
 
-      setPincodes([]);
-    } finally {
-      setPincodeLoading(false);
-    }
-  };
+//       setPincodes([]);
+//     } finally {
+//       setPincodeLoading(false);
+//     }
+//   };
 
   /* =========================
      RESET HELPERS
   ========================= */
 
-  const resetPincode = () => {
-    setValue("address.pincodeId", undefined);
-    setValue("address.pinCode", "");
-    setPincodeSearch("");
-  };
+//   const resetPincode = () => {
+//     setValue("address.pincodeId", undefined);
+//     setValue("address.pinCode", "");
+//     setPincodeSearch("");
+//   };
+
+const resetPincode = () => {
+  setValue("address.pincodeId", undefined);
+  setValue("address.pinCode", "");
+};
 
   const resetCity = () => {
     setValue("address.cityId", undefined);
@@ -282,77 +287,77 @@ export default function ComplaintAddressFields({
 
     resetPincode();
 
-    try {
-      setPincodeLoading(true);
+    // try {
+    //   setPincodeLoading(true);
 
-      const data = await searchPincodes({
-        cityId: city.city_id,
-        search: "",
-      });
+    //   const data = await searchPincodes({
+    //     cityId: city.city_id,
+    //     search: "",
+    //   });
 
-      setPincodes(data);
-    } catch (error) {
-      console.error("Failed to load pincodes:", error);
+    //   setPincodes(data);
+    // } catch (error) {
+    //   console.error("Failed to load pincodes:", error);
 
-      setPincodes([]);
-    } finally {
-      setPincodeLoading(false);
-    }
+    //   setPincodes([]);
+    // } finally {
+    //   setPincodeLoading(false);
+    // }
   };
 
   /* =========================
      PINCODE SELECT
   ========================= */
 
-  const handlePincodeSelect = (pincode: PincodeOption) => {
-    const selectedPinCode = pincode.pincode_name || pincode.pincode || "";
+//   const handlePincodeSelect = (pincode: PincodeOption) => {
+//     const selectedPinCode = pincode.pincode_name || pincode.pincode || "";
 
-    if (pincode.state_id) {
-      setValue("address.stateId", pincode.state_id, {
-        shouldValidate: true,
-      });
-    }
+//     if (pincode.state_id) {
+//       setValue("address.stateId", pincode.state_id, {
+//         shouldValidate: true,
+//       });
+//     }
 
-    if (pincode.state_name) {
-      setValue("address.state", pincode.state_name, {
-        shouldValidate: true,
-      });
-    }
+//     if (pincode.state_name) {
+//       setValue("address.state", pincode.state_name, {
+//         shouldValidate: true,
+//       });
+//     }
 
-    if (pincode.district_id) {
-      setValue("address.districtId", pincode.district_id, {
-        shouldValidate: true,
-      });
-    }
+//     if (pincode.district_id) {
+//       setValue("address.districtId", pincode.district_id, {
+//         shouldValidate: true,
+//       });
+//     }
 
-    if (pincode.district_name) {
-      setValue("address.district", pincode.district_name, {
-        shouldValidate: true,
-      });
-    }
+//     if (pincode.district_name) {
+//       setValue("address.district", pincode.district_name, {
+//         shouldValidate: true,
+//       });
+//     }
 
-    if (pincode.city_id) {
-      setValue("address.cityId", pincode.city_id, {
-        shouldValidate: true,
-      });
-    }
+//     if (pincode.city_id) {
+//       setValue("address.cityId", pincode.city_id, {
+//         shouldValidate: true,
+//       });
+//     }
 
-    if (pincode.city_name) {
-      setValue("address.city", pincode.city_name, {
-        shouldValidate: true,
-      });
-    }
+//     if (pincode.city_name) {
+//       setValue("address.city", pincode.city_name, {
+//         shouldValidate: true,
+//       });
+//     }
 
-    if (pincode.pincode_id) {
-      setValue("address.pincodeId", pincode.pincode_id);
-    }
+//     if (pincode.pincode_id) {
+//       setValue("address.pincodeId", pincode.pincode_id);
+//     }
 
-    setValue("address.pinCode", String(selectedPinCode), {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  };
+//     setValue("address.pinCode", String(selectedPinCode), {
+//       shouldValidate: true,
+//       shouldDirty: true,
+//       shouldTouch: true,
+//     });
+//   };
 
   return (
     <div className="space-y-3">
@@ -381,14 +386,14 @@ export default function ComplaintAddressFields({
           //   required: "City is required",
         })}
       />
-
+{/* 
       <input
         type="hidden"
         autoComplete="off"
         {...register("address.pinCode", {
           //   required: "PIN code is required",
         })}
-      />
+      /> */}
 
       {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -495,7 +500,7 @@ export default function ComplaintAddressFields({
 
         {/* PINCODE */}
 
-        <SearchSelect
+        {/* <SearchSelect
           label="PIN Code"
           value={pinCode || ""}
           placeholder="Search pincode..."
@@ -527,7 +532,40 @@ export default function ComplaintAddressFields({
           }
           onClear={resetPincode}
           error={addressErrors?.pinCode?.message}
-        />
+        /> */}
+
+        <div>
+  <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+    PIN Code
+  </label>
+
+  <input
+    type="text"
+    inputMode="numeric"
+    maxLength={6}
+    placeholder="Enter PIN code"
+    autoComplete="off"
+    {...register("address.pinCode", {
+    //   required: "PIN code is required",
+      pattern: {
+        value: /^[0-9]{6}$/,
+        message: "Enter a valid 6 digit PIN code",
+      },
+    })}
+    onInput={(e) => {
+      e.currentTarget.value = e.currentTarget.value
+        .replace(/\D/g, "")
+        .slice(0, 6);
+    }}
+    className={inputClass}
+  />
+
+  {addressErrors?.pinCode && (
+    <p className="mt-1 text-xs text-red-600">
+      {addressErrors.pinCode.message}
+    </p>
+  )}
+</div>
       </div>
     </div>
   );

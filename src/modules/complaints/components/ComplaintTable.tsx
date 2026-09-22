@@ -1,4 +1,4 @@
-import { Eye, Ban, MoreVertical } from "lucide-react";
+import { Eye, Ban, MoreVertical, Copy, Trash2, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,13 +9,13 @@ import type { Complaint } from "../types/complaint.types";
 
 interface Props {
   complaints: Complaint[];
-  onDelete?: (id: string) => void;
+  // onDelete?: (id: string) => void;
   onReload: () => void;
 }
 
 export default function ComplaintTable({
   complaints,
-  onDelete,
+  // onDelete,
   onReload,
 }: Props) {
   const navigate = useNavigate();
@@ -42,6 +42,20 @@ export default function ComplaintTable({
       );
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleCopyMobile = async (mobile: string) => {
+    if (!mobile) return;
+
+    try {
+      await navigator.clipboard.writeText(mobile);
+
+      toast.success("Mobile number copied");
+    } catch (error) {
+      console.error("Copy failed:", error);
+
+      toast.error("Failed to copy mobile number");
     }
   };
 
@@ -78,159 +92,341 @@ export default function ComplaintTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="border-b border-gray-200 bg-gray-50">
-            <tr>
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Complaint
-              </th>
+    // <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    //   <div className="overflow-x-auto">
+<div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+  <div className="w-full overflow-x-auto lg:overflow-x-hidden">
+<table className="        w-full
+        min-w-[1200px]
+        text-left
+        lg:min-w-0
+        lg:table-fixed">
+  <thead className="border-b border-gray-200 bg-gray-50">
+    <tr>
+      <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Complaint
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Customer
-              </th>
+      <th className="w-[13%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Customer
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Address
-              </th>
+      <th className="w-[7%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        City
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Product
-              </th>
+      <th className="w-[10%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Product
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Category
-              </th>
+      <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Service
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Delaer
-              </th>
+      <th className="w-[4%] px-1 py-2.5 text-center text-[10px] font-semibold uppercase text-gray-500">
+        Unit
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Status
-              </th>
+      <th className="w-[9%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Type
+      </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase text-gray-500">
-                Created
-              </th>
+      <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Dealer
+      </th>
 
-              <th className="px-5 py-3 text-right text-xs font-semibold uppercase text-gray-500">
-                Action
-              </th>
-            </tr>
-          </thead>
+      <th className="w-[10%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Status
+      </th>
 
-          <tbody className="divide-y divide-gray-100">
-            {complaints.map((complaint) => (
-              <tr key={complaint.id} className="transition hover:bg-gray-50">
-                {/* Complaint */}
-                <td className="px-5 py-4">
-                  <button
-                    onClick={() => navigate(`/complaints/${complaint.id}`)}
-                    className="font-medium text-[#123B7A] hover:underline"
-                  >
-                    {complaint.complaintNumber}
-                  </button>
+      <th className="w-[7%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+        Created
+      </th>
 
-                  <p className="mt-1 max-w-xs truncate text-xs text-gray-500">
-                    {complaint.subject}
-                  </p>
-                </td>
+      <th className="w-[7%] px-1 py-2.5 text-right text-[10px] font-semibold uppercase text-gray-500">
+        Action
+      </th>
+    </tr>
+  </thead>
 
-                {/* Customer */}
-                <td className="px-5 py-4">
-                  <p className="text-sm font-medium text-gray-900">
-                    {complaint.customerName}
-                  </p>
+  <tbody className="divide-y divide-gray-100">
+    {complaints.map((complaint) => (
+      <tr
+        key={complaint.id}
+        className="transition hover:bg-gray-50"
+      >
+        {/* Complaint */}
+        <td className="px-2 py-3">
+          <button
+            type="button"
+            title={complaint.complaintNumber}
+            onClick={() =>
+              navigate(`/complaints/${complaint.id}`)
+            }
+            className="block max-w-full truncate text-xs font-semibold text-[#123B7A] hover:underline"
+          >
+            {complaint.complaintNumber}
+          </button>
 
-                  <p className="text-xs text-gray-500">
-                    {complaint.phone}
+          {complaint.subject && (
+            <p
+              title={complaint.subject}
+              className="mt-0.5 truncate text-[10px] text-gray-400"
+            >
+              {complaint.subject}
+            </p>
+          )}
+        </td>
 
-                    {complaint.alternatePhone &&
-                      ` / ${complaint.alternatePhone}`}
-                  </p>
-                </td>
+        {/* Customer */}
+        <td className="px-2 py-3">
+          <p
+            title={complaint.customerName}
+            className="truncate text-xs font-medium text-gray-900"
+          >
+            {complaint.customerName}
+          </p>
 
-                {/* Address */}
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {complaint.address?.addressLine}, {complaint.address?.city},{" "}
-                  {complaint.address?.pinCode}
-                </td>
-                {/* Category */}
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {complaint.productName}
-                </td>
+          {complaint.phone && (
+            <div className="mt-0.5 flex min-w-0 items-center gap-1">
+              <span
+                title={complaint.phone}
+                className="truncate text-[10px] text-gray-500"
+              >
+                {complaint.phone}
+              </span>
 
-                {/* Category */}
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {complaint.category}
-                </td>
+              <button
+                type="button"
+                title="Copy mobile"
+                onClick={() =>
+                  handleCopyMobile(complaint.phone)
+                }
+                className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-blue-50 hover:text-[#123B7A]"
+              >
+                <Copy size={10} />
+              </button>
+            </div>
+          )}
 
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {complaint?.allocatedDealerId?.technicianFirmName || complaint?.allocatedDealerId?.technicianFirmName || '-'}
-                </td>
+          {complaint.alternatePhone && (
+            <div className="mt-0.5 flex min-w-0 items-center gap-1">
+              <span
+                title={complaint.alternatePhone}
+                className="truncate text-[10px] text-gray-400"
+              >
+                {complaint.alternatePhone}
+              </span>
 
-                {/* Status */}
-                <td className="px-5 py-4">
-                  <ComplaintStatusBadge status={complaint.status} />
-                </td>
+              <button
+                type="button"
+                title="Copy alternate mobile"
+                onClick={() =>
+                  handleCopyMobile(
+                    complaint.alternatePhone!,
+                  )
+                }
+                className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-blue-50 hover:text-[#123B7A]"
+              >
+                <Copy size={10} />
+              </button>
+            </div>
+          )}
+        </td>
 
-                {/* Created */}
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {new Date(complaint.createdAt).toLocaleDateString()}
-                </td>
+        {/* City */}
+        <td className="px-2 py-3">
+          <p
+            title={complaint.address?.city || ""}
+            className="truncate text-xs text-gray-600"
+          >
+            {complaint.address?.city || "-"}
+          </p>
+        </td>
 
-                {/* Actions */}
-                <td className="px-5 py-4">
-                  <div className="flex justify-end gap-2">
-                    {/* View */}
-                    <button
-                      type="button"
-                      title="View complaint"
-                      onClick={() => navigate(`/complaints/${complaint.id}`)}
-                      className="rounded-lg p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-600"
-                    >
-                      <Eye size={17} />
-                    </button>
+        {/* Product */}
+        <td className="px-2 py-3">
+          <p
+            title={complaint.productName || ""}
+            className="truncate text-xs text-gray-600"
+          >
+            {complaint.productName || "-"}
+          </p>
+        </td>
 
-                    {/* Delete */}
-                    {/* <button
-                      type="button"
-                      title="Delete complaint"
-                      disabled={deletingId === complaint.id}
-                      onClick={() => handleDelete(complaint.id)}
-                      className="rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {deletingId === complaint.id ? (
-                        <span className="block h-[17px] w-[17px] animate-spin rounded-full border-2 border-red-200 border-t-red-600" />
-                      ) : (
-                        <Trash2 size={17} />
-                      )}
-                    </button> */}
+        {/* Product Service */}
+        <td className="px-2 py-3">
+          <p
+            title={complaint.categoryId?.description || ""}
+            className="truncate text-xs text-gray-600"
+          >
+            {complaint.category} - {complaint.categoryId?.description || "-"}
+          </p>
+        </td>
 
-                    <button
-                      type="button"
-                      title="Suspend complaint"
-                      disabled={
-                        suspendingId === complaint.id ||
-                        complaint.status === "SUSPENDED"
-                      }
-                      onClick={() => handleSuspend(complaint.id)}
-                      className="rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      {suspendingId === complaint.id ? (
-                        <span className="block h-4.5 w-4.5 animate-spin rounded-full border-2 border-red-200 border-t-red-600" />
-                      ) : (
-                        <Ban size={17} />
-                      )}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Units */}
+        <td className="px-1 py-3 text-center text-xs text-gray-600">
+          {complaint.units ?? "-"}
+        </td>
+
+        {/* Complaint Type */}
+        <td className="px-2 py-3">
+          <p
+            title={complaint.complaintType || ""}
+            className="truncate text-[11px] text-gray-600"
+          >
+            {complaint.complaintType
+              ?.replaceAll("_", " ") || "-"}
+          </p>
+        </td>
+
+        {/* Dealer */}
+        <td className="px-2 py-3">
+          <p
+            title={
+              complaint.allocatedDealerId
+                ?.technicianFirmName || ""
+            }
+            className="truncate text-xs text-gray-600"
+          >
+            {complaint.allocatedDealerId
+              ?.technicianFirmName || "-"}
+          </p>
+
+          {complaint.allocatedDealerId
+            ?.technicianName && (
+            <p
+              title={
+                complaint.allocatedDealerId
+                  .technicianName
+              }
+              className="mt-0.5 truncate text-[10px] text-gray-400"
+            >
+              {
+                complaint.allocatedDealerId
+                  .technicianName
+              }
+            </p>
+          )}
+        </td>
+
+        {/* Status */}
+        <td className="px-2 py-3">
+          <ComplaintStatusBadge
+            status={complaint.status}
+          />
+        </td>
+
+        {/* Created */}
+        <td className="px-2 py-3 text-[11px] text-gray-600">
+          {new Date(
+            complaint.createdAt,
+          ).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          })}
+        </td>
+
+{/* Actions */}
+<td className="px-1 py-3">
+  <div className="flex items-center justify-end gap-1">
+    {/* View */}
+    <button
+      type="button"
+      title="View complaint"
+      onClick={() =>
+        navigate(`/complaints/${complaint.id}`)
+      }
+      className="
+        flex h-7 w-7 items-center justify-center
+        rounded-md
+        bg-blue-50 text-blue-600
+        transition
+        hover:bg-blue-100 hover:text-blue-700
+      "
+    >
+      <Eye size={14} strokeWidth={2} />
+    </button>
+
+    {/* Edit */}
+    <button
+      type="button"
+      title="Edit complaint"
+      onClick={() =>
+        navigate(`/complaints/${complaint.id}/edit`)
+      }
+      className="
+        flex h-7 w-7 items-center justify-center
+        rounded-md
+        bg-amber-50 text-amber-600
+        transition
+        hover:bg-amber-100 hover:text-amber-700
+      "
+    >
+      <Pencil size={14} strokeWidth={2} />
+    </button>
+
+    {/* Delete */}
+    <button
+      type="button"
+      title="Delete complaint"
+      disabled={deletingId === complaint.id}
+      onClick={() => handleDelete(complaint.id)}
+      className="
+        flex h-7 w-7 items-center justify-center
+        rounded-md
+        bg-red-50 text-red-600
+        transition
+        hover:bg-red-100 hover:text-red-700
+        disabled:cursor-not-allowed
+        disabled:opacity-40
+      "
+    >
+      {deletingId === complaint.id ? (
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-200 border-t-red-600" />
+      ) : (
+        <Trash2 size={14} strokeWidth={2} />
+      )}
+    </button>
+
+    {/* Suspend */}
+    <button
+      type="button"
+      title={
+        complaint.status === "SUSPENDED"
+          ? "Already suspended"
+          : "Suspend complaint"
+      }
+      disabled={
+        suspendingId === complaint.id ||
+        complaint.status === "SUSPENDED"
+      }
+      onClick={() => handleSuspend(complaint.id)}
+      className="
+        flex h-7 w-7 items-center justify-center
+        rounded-md
+        bg-orange-50 text-orange-600
+        transition
+        hover:bg-orange-100 hover:text-orange-700
+        disabled:cursor-not-allowed
+        disabled:bg-gray-50
+        disabled:text-gray-300
+        disabled:opacity-60
+      "
+    >
+      {suspendingId === complaint.id ? (
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-orange-200 border-t-orange-600" />
+      ) : (
+        <Ban size={14} strokeWidth={2} />
+      )}
+    </button>
+  </div>
+</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
       </div>
     </div>
   );

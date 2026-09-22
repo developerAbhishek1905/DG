@@ -276,3 +276,28 @@ export const rejoinDealer = async (
   const response = await api.post(`/dealers/${dealerId}/rejoin`, payload);
   return response.data;
 };
+
+export interface DealerDropdownOption {
+  value: string;
+  label: string;
+  dealerCode: string;
+  technicianCode: string;
+  technicianName: string;
+  technicianFirmName: string;
+  mobileNumber: string;
+  cityId: number | null;
+  city: string;
+}
+
+export const searchDealerDropdown = async (
+  search = "",
+): Promise<DealerDropdownOption[]> => {
+  const response = await api.get("/dealers/dropdown", {
+    params: {
+      search,
+    },
+  });
+
+  return response.data?.data ?? [];
+};
+

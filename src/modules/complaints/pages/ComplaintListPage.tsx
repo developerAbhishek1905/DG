@@ -28,37 +28,85 @@ export default function ComplaintListPage() {
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [selectedDealerId, setSelectedDealerId] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   // =========================
   // FETCH COMPLAINTS
   // =========================
 
+  // const fetchComplaints = useCallback(async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+
+  //     const response = await getComplaints({
+  //       search: debouncedSearch,
+  //       status: selectedStatus === "ALL" ? undefined : selectedStatus,
+  //       fromDate: fromDate || undefined,
+  //       toDate: toDate || undefined,
+  //       page,
+  //       limit,
+  //     });
+
+  //     setComplaints(response.data);
+  //     setTotal(response.pagination.total);
+  //     setTotalPages(response.pagination.totalPages);
+  //   } catch (error: any) {
+  //     console.error("Fetch complaints error:", error);
+  //     setComplaints([]);
+  //     setError(error.response?.data?.message || "Failed to fetch complaints");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [debouncedSearch, selectedStatus, fromDate, toDate, page, limit]);
   const fetchComplaints = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  try {
+    setLoading(true);
+    setError(null);
 
-      const response = await getComplaints({
-        search: debouncedSearch,
-        status: selectedStatus === "ALL" ? undefined : selectedStatus,
-        fromDate: fromDate || undefined,
-        toDate: toDate || undefined,
-        page,
-        limit,
-      });
+    const response = await getComplaints({
+      search: debouncedSearch,
 
-      setComplaints(response.data);
-      setTotal(response.pagination.total);
-      setTotalPages(response.pagination.totalPages);
-    } catch (error: any) {
-      console.error("Fetch complaints error:", error);
-      setComplaints([]);
-      setError(error.response?.data?.message || "Failed to fetch complaints");
-    } finally {
-      setLoading(false);
-    }
-  }, [debouncedSearch, selectedStatus, fromDate, toDate, page, limit]);
+      status:
+        selectedStatus === "ALL"
+          ? undefined
+          : selectedStatus,
+
+      fromDate: fromDate || undefined,
+
+      toDate: toDate || undefined,
+
+      dealerId: selectedDealerId || undefined,
+
+      page,
+      limit,
+    });
+
+    setComplaints(response.data);
+    setTotal(response.pagination.total);
+    setTotalPages(response.pagination.totalPages);
+  } catch (error: any) {
+    console.error("Fetch complaints error:", error);
+
+    setComplaints([]);
+
+    setError(
+      error.response?.data?.message ||
+        "Failed to fetch complaints",
+    );
+  } finally {
+    setLoading(false);
+  }
+}, [
+  debouncedSearch,
+  selectedStatus,
+  fromDate,
+  toDate,
+  selectedDealerId,
+  page,
+  limit,
+]);
 
   // =========================
   // FETCH
@@ -72,9 +120,19 @@ export default function ComplaintListPage() {
   // RESET PAGE ON FILTER
   // =========================
 
+  // useEffect(() => {
+  //   setPage(1);
+  // }, [debouncedSearch, selectedStatus, fromDate, toDate]);
+
   useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, selectedStatus, fromDate, toDate]);
+  setPage(1);
+}, [
+  debouncedSearch,
+  selectedStatus,
+  fromDate,
+  toDate,
+  selectedDealerId,
+]);
 
   // =========================
   // PAGINATION HANDLERS
@@ -123,7 +181,7 @@ export default function ComplaintListPage() {
           FILTERS
       ========================== */}
 
-      <ComplaintFilters
+      {/* <ComplaintFilters
         search={search}
         onSearchChange={setSearch}
         selectedStatus={selectedStatus}
@@ -132,7 +190,24 @@ export default function ComplaintListPage() {
         toDate={toDate}
         onFromDateChange={setFromDate}
         onToDateChange={setToDate}
-      />
+      /> */}
+
+      <ComplaintFilters
+  search={search}
+  onSearchChange={setSearch}
+
+  selectedStatus={selectedStatus}
+  onStatusChange={setSelectedStatus}
+
+  fromDate={fromDate}
+  toDate={toDate}
+
+  onFromDateChange={setFromDate}
+  onToDateChange={setToDate}
+
+  selectedDealerId={selectedDealerId}
+  onDealerChange={setSelectedDealerId}
+/>
 
       {/* =========================
           ERROR

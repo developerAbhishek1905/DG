@@ -46,8 +46,20 @@ interface ComplaintHistoryTableProps {
   selectedType?: ComplaintType;
 }
 
+// interface ComplaintFormProps {
+//   onComplaintCreated?: (complaint: Complaint) => void;
+// }
+
 interface ComplaintFormProps {
   onComplaintCreated?: (complaint: Complaint) => void;
+
+  mode?: "create" | "edit";
+
+  initialData?: Complaint | null;
+
+  complaintId?: string;
+
+  onSuccess?: () => void;
 }
 
 const formatComplaintDate = (date: Date) => {
@@ -66,6 +78,10 @@ const generateComplaintNumber = () => {
 
 export default function ComplaintForm({
   onComplaintCreated,
+  mode = "create",
+  initialData,
+  complaintId,
+  onSuccess,
 }: ComplaintFormProps) {
   const {
     register,
@@ -74,6 +90,7 @@ export default function ComplaintForm({
     setValue,
     getValues,
     control,
+    reset,
     formState: { errors },
   } = useForm<ComplaintFormData>({
     defaultValues: {
@@ -163,6 +180,115 @@ export default function ComplaintForm({
   const selectedCategory = watch("category");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (mode !== "edit" || !initialData) {
+      return;
+    }
+
+    const customer =
+      typeof initialData.customerId === "object"
+        ? initialData.customerId
+        : null;
+
+    const brand =
+      typeof initialData.brandId === "object" ? initialData.brandId : null;
+
+    const productType =
+      typeof initialData.productTypeId === "object"
+        ? initialData.productTypeId
+        : null;
+
+    const category =
+      typeof initialData.categoryId === "object"
+        ? initialData.categoryId
+        : null;
+
+    reset({
+      complaintNumber: initialData.complaintNumber || "",
+
+      customerId: customer?._id || customer?.id || "",
+
+      customerCode: customer?.customerCode || "",
+
+      customerPhone: initialData.phone || "",
+
+      customerName: initialData.customerName || "",
+
+      alternatePhone: initialData.alternatePhone || "",
+
+      customerEmail: initialData.email || "",
+
+      address: {
+        addressLine: initialData.address?.addressLine || "",
+
+        stateId: initialData.address?.stateId ?? undefined,
+
+        state: initialData.address?.state || "",
+
+        districtId: initialData.address?.districtId ?? undefined,
+
+        district: initialData.address?.district || "",
+
+        cityId: initialData.address?.cityId ?? undefined,
+
+        city: initialData.address?.city || "",
+
+        pincodeId: initialData.address?.pincodeId ?? undefined,
+
+        pinCode: initialData.address?.pinCode || "",
+      },
+
+      contactInfo: initialData.contactInfo || "",
+
+      brandId: brand?._id || "",
+
+      brand: initialData.brand || brand?.brandName || "",
+
+      productId: initialData.productId ?? undefined,
+
+      productName: initialData.productName || "",
+
+      productTypeId: productType?._id || "",
+
+      productType: initialData.productType || productType?.product_type || "",
+
+      categoryId: category?._id || "",
+
+      category: initialData.category || category?.category || "",
+
+      productDescription: initialData.productDescription || "",
+
+      units: initialData.units ?? 1,
+
+      quoteAmount: initialData.quoteAmount ?? undefined,
+
+      faultReported: initialData.faultReported || "",
+
+      priority: initialData.priority || "MEDIUM",
+
+      complaintType: initialData.complaintType || "REGULAR",
+
+      adName: initialData.adName || "",
+
+      repeatComplaintNumber: initialData.repeatComplaintNumber || "",
+
+      subject: initialData.subject || "",
+
+      description: initialData.description || "",
+
+      status: initialData.status || "REGISTERED",
+    });
+
+    // Important for your Category SearchSelect
+    if (category) {
+      setSelectedCategoryLabel(
+        `${category.category} - ${category.description}`,
+      );
+    } else {
+      setSelectedCategoryLabel(initialData.category || "");
+    }
+  }, [mode, initialData, reset]);
 
   const handleUpdateCustomer = async () => {
     if (!existingCustomer) {
@@ -273,20 +399,46 @@ export default function ComplaintForm({
   //   return `${day}${month}${year}`;
   // };
 
+  // const loadCategories = async (search: string) => {
+  //   if (!selectedProductId) {
+  //     setCategories([]);
+  //     return;
+  //   }
+  //   try {
+  //     setCategoryLoading(true);
+  //     const data = await searchCategories({
+  //       productId: Number(selectedProductId),
+  //       search,
+  //     });
+  //     setCategories(data);
+  //   } catch (error) {
+  //     console.error("Failed to load categories:", error);
+  //     setCategories([]);
+  //   } finally {
+  //     setCategoryLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (!selectedProductId) {
+  //     setCategories([]);
+  //     return;
+  //   }
+  //   loadCategories(debouncedCategorySearch);
+  // }, [debouncedCategorySearch, selectedProductId]);
+
   const loadCategories = async (search: string) => {
-    if (!selectedProductId) {
-      setCategories([]);
-      return;
-    }
     try {
       setCategoryLoading(true);
+
       const data = await searchCategories({
-        productId: Number(selectedProductId),
         search,
       });
+
       setCategories(data);
     } catch (error) {
       console.error("Failed to load categories:", error);
+
       setCategories([]);
     } finally {
       setCategoryLoading(false);
@@ -294,12 +446,8 @@ export default function ComplaintForm({
   };
 
   useEffect(() => {
-    if (!selectedProductId) {
-      setCategories([]);
-      return;
-    }
     loadCategories(debouncedCategorySearch);
-  }, [debouncedCategorySearch, selectedProductId]);
+  }, [debouncedCategorySearch]);
 
   // const handleCategorySelect = (category: CategoryDropdownOption) => {
   //   // Actual value submitted to backend
@@ -313,8 +461,25 @@ export default function ComplaintForm({
   //   setCategorySearch("");
   // };
 
+  // const handleCategorySelect = (category: CategoryDropdownOption) => {
+  //   // MongoDB _id
+  //   setValue("categoryId", category._id, {
+  //     shouldValidate: true,
+  //     shouldDirty: true,
+  //   });
+
+  //   setValue("category", category.category, {
+  //     shouldValidate: true,
+  //     shouldDirty: true,
+  //   });
+
+  //   setSelectedCategoryLabel(`${category.category} - ${category.description}`);
+
+  //   setCategorySearch("");
+  // };
+
   const handleCategorySelect = (category: CategoryDropdownOption) => {
-    // MongoDB _id
+    // Category
     setValue("categoryId", category._id, {
       shouldValidate: true,
       shouldDirty: true,
@@ -326,6 +491,17 @@ export default function ComplaintForm({
     });
 
     setSelectedCategoryLabel(`${category.category} - ${category.description}`);
+
+    // Product automatically
+    setValue("productId", category.product_id, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    setValue("productName", category.product_name, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
 
     setCategorySearch("");
   };
@@ -815,7 +991,80 @@ export default function ComplaintForm({
                       }}
                     />
 
+
+
+                    {/* <SearchSelect
+                      label="Category"
+                      value={selectedCategoryLabel}
+                      placeholder={
+                        selectedProductId
+                          ? "Search category..."
+                          : "Select product first"
+                      }
+                      loading={categoryLoading}
+                      // options={categories.map((category) => ({
+                      //   value:
+                      //     category.id ??
+                      //     `${category.product_id}-${category.category}`,
+                      //   label: `${category.category} - ${category.description}`,
+                      //   data: category,
+                      // }))}
+                      options={categories.map((category) => ({
+                        value: category._id,
+                        label: `${category.category} - ${category.description}`,
+                        data: category,
+                      }))}
+                      onSearch={setCategorySearch}
+                      onSelect={(option) =>
+                        handleCategorySelect(
+                          option.data as CategoryDropdownOption,
+                        )
+                      }
+                      onClear={() => {
+                        setValue("category", "");
+                        setCategorySearch("");
+                        setSelectedCategoryLabel("");
+                        setCategorySearch("");
+                        setCategories([]);
+                      }}
+                      error={errors.category?.message}
+                    /> */}
+
                     <SearchSelect
+                      label="Category"
+                      value={selectedCategoryLabel}
+                      placeholder="Search category..."
+                      loading={categoryLoading}
+                      options={categories.map((category) => ({
+                        value: category._id,
+
+                        label: `${category.category} - ${category.description}`,
+
+                        data: category,
+                      }))}
+                      onSearch={setCategorySearch}
+                      onSelect={(option) =>
+                        handleCategorySelect(
+                          option.data as CategoryDropdownOption,
+                        )
+                      }
+                      onClear={() => {
+                        setValue("categoryId", "");
+                        setValue("category", "");
+
+                        setValue("productId", undefined);
+                        setValue("productName", "");
+
+                        setSelectedCategoryLabel("");
+                        setCategorySearch("");
+
+                        setValue("productTypeId", "");
+                        setValue("productType", "");
+                      }}
+                      error={errors.category?.message}
+                    />
+
+                                        {/* <SearchSelect
                       label="Product"
                       value={selectedProductName || ""}
                       placeholder="Search product..."
@@ -870,43 +1119,13 @@ export default function ComplaintForm({
                         setCategories([]);
                       }}
                       error={errors.productName?.message}
-                    />
+                    /> */}
 
-                    <SearchSelect
-                      label="Category"
-                      value={selectedCategoryLabel}
-                      placeholder={
-                        selectedProductId
-                          ? "Search category..."
-                          : "Select product first"
-                      }
-                      loading={categoryLoading}
-                      // options={categories.map((category) => ({
-                      //   value:
-                      //     category.id ??
-                      //     `${category.product_id}-${category.category}`,
-                      //   label: `${category.category} - ${category.description}`,
-                      //   data: category,
-                      // }))}
-                      options={categories.map((category) => ({
-                        value: category._id,
-                        label: `${category.category} - ${category.description}`,
-                        data: category,
-                      }))}
-                      onSearch={setCategorySearch}
-                      onSelect={(option) =>
-                        handleCategorySelect(
-                          option.data as CategoryDropdownOption,
-                        )
-                      }
-                      onClear={() => {
-                        setValue("category", "");
-                        setCategorySearch("");
-                        setSelectedCategoryLabel("");
-                        setCategorySearch("");
-                        setCategories([]);
-                      }}
-                      error={errors.category?.message}
+                    <Input
+                      label="Product"
+                      value={selectedProductName || ""}
+                      readOnly
+                      className="cursor-not-allowed bg-gray-50 font-medium text-gray-700"
                     />
 
                     <SearchSelect
