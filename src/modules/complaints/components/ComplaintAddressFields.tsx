@@ -410,9 +410,9 @@ export default function ComplaintAddressFields({
             autoComplete="new-password"
             data-lpignore="true"
             data-form-type="other"
-            // {...register("address.addressLine", {
+            {...register("address.addressLine", {
             //   required: "Customer address is required",
-            // })}
+            })}
             className={inputClass}
           />
 
