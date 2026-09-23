@@ -7,14 +7,30 @@ import DealerForm from "../components/DealerForm";
 import { createDealer } from "../services/dealerApi";
 
 import type { DealerFormData } from "../types/dealer.types";
+import { toast } from "react-toastify";
 
 export default function CreateDealerPage() {
   const navigate = useNavigate();
 
   const handleCreate = async (data: DealerFormData) => {
+
+      try {
+    // const response = await createDealer(data);
     const dealer = await createDealer(data);
 
-    navigate(`/dealers/${dealer._id}`);
+    toast.success("Dealer created successfully");
+
+    // navigate("/dealers");
+        navigate(`/dealers/${dealer._id}`);
+  } catch (error) {
+    console.error("CREATE DEALER ERROR:", error);
+
+    // IMPORTANT
+    throw error;
+  }
+    
+
+
   };
 
   return (

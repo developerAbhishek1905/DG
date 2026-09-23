@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import ProductServiceFields from "../components/ProductServiceFields";
 import SearchSelect from "../../../components/ui/SearchSelect";
 type DealerFormTab = "basic" | "documents" | "account" | "service";
-
+import type { FieldErrors } from "react-hook-form";
 interface Props {
   dealer?: Dealer;
   onSubmit: (data: DealerFormData) => Promise<void> | void;
@@ -488,12 +488,84 @@ export default function DealerForm({
   //   await onSubmit(payload);
   // };
 
+  // const submitForm = async (data: DealerFormData) => {
+  //   const payload: DealerFormData = {
+  //     ...data,
+
+  //     billingPercentage:
+  //       data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
+
+  //     cancellationCharge: data.cancellationBillingEnabled
+  //       ? Number(data.cancellationCharge)
+  //       : 0,
+
+  //     gstRate: Number(data.gstRate || 0),
+  //     reverseChargeLimit: Number(data.reverseChargeLimit || 0),
+  //     creditDays: Number(data.creditDays || 0),
+  //     creditLimit: Number(data.creditLimit || 0),
+  //     rating: Number(data.rating || 0),
+  //     openingBalance: Number(data.openingBalance || 0),
+
+      
+
+  //     // ==========================================
+  //     // PRODUCT & SERVICES - OPTIONAL
+  //     // ==========================================
+  //     productServices:
+  //       data.productServices
+  //         ?.filter((item) => item.productId)
+  //         .map((item) => ({
+  //           ...item,
+  //           categories:
+  //             item.categories?.filter((category) => category.categoryId) ?? [],
+  //         })) ?? [],
+
+  //     // ==========================================
+  //     // COMBINED CAPACITY - OPTIONAL
+  //     // ==========================================
+  //     combinedCapacity: {
+  //       products: data.combinedCapacity?.products ?? [],
+  //       capacity: data.combinedCapacity?.products?.length
+  //         ? Number(data.combinedCapacity?.capacity || 0)
+  //         : 0,
+  //     },
+
+  //     // ==========================================
+  //     // INDIVIDUAL CAPACITY - OPTIONAL
+  //     // ==========================================
+  //     individualCapacities:
+  //       data.individualCapacities
+  //         ?.filter((item) => item.productId)
+  //         .map((item) => ({
+  //           productId: item.productId,
+  //           productName: item.productName,
+  //           capacity: Number(item.capacity || 0),
+  //         })) ?? [],
+
+  //     securityAmount: Number(data.securityAmount || 0),
+
+  //     additionalInfo:
+  //       data.additionalInfo
+  //         ?.filter((item) => item.value?.trim())
+  //         .map((item) => ({
+  //           value: item.value.trim(),
+  //         })) ?? [],
+  //   };
+
+  //   console.log("DEALER PAYLOAD:", payload);
+
+  //   await onSubmit(payload);
+  // };
+
   const submitForm = async (data: DealerFormData) => {
+  try {
     const payload: DealerFormData = {
       ...data,
 
       billingPercentage:
-        data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
+        data.billingType === "FIXED"
+          ? 0
+          : Number(data.billingPercentage),
 
       cancellationCharge: data.cancellationBillingEnabled
         ? Number(data.cancellationCharge)
@@ -506,23 +578,17 @@ export default function DealerForm({
       rating: Number(data.rating || 0),
       openingBalance: Number(data.openingBalance || 0),
 
-      
-
-      // ==========================================
-      // PRODUCT & SERVICES - OPTIONAL
-      // ==========================================
       productServices:
         data.productServices
           ?.filter((item) => item.productId)
           .map((item) => ({
             ...item,
             categories:
-              item.categories?.filter((category) => category.categoryId) ?? [],
+              item.categories?.filter(
+                (category) => category.categoryId,
+              ) ?? [],
           })) ?? [],
 
-      // ==========================================
-      // COMBINED CAPACITY - OPTIONAL
-      // ==========================================
       combinedCapacity: {
         products: data.combinedCapacity?.products ?? [],
         capacity: data.combinedCapacity?.products?.length
@@ -530,9 +596,6 @@ export default function DealerForm({
           : 0,
       },
 
-      // ==========================================
-      // INDIVIDUAL CAPACITY - OPTIONAL
-      // ==========================================
       individualCapacities:
         data.individualCapacities
           ?.filter((item) => item.productId)
@@ -555,20 +618,105 @@ export default function DealerForm({
     console.log("DEALER PAYLOAD:", payload);
 
     await onSubmit(payload);
-  };
+
+  } catch (error: any) {
+    console.error("DEALER SUBMIT ERROR:", error);
+
+    const message =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Failed to save dealer. Please try again.";
+
+    toast.error(
+      typeof message === "string"
+        ? message
+        : "Failed to save dealer. Please try again.",
+    );
+  }
+};
+
+
+
+const handleFormError = (errors: FieldErrors<DealerFormData>) => {
+  console.error("FORM VALIDATION ERRORS:", errors);
+
+  // Basic tab
+  if (
+    errors.headName ||
+    errors.technicianFirmName ||
+    errors.technicianName ||
+    errors.mobileNumber ||
+    errors.email ||
+    errors.dateOfJoining ||
+    errors.technicianStatus ||
+    errors.businessAddress ||
+    errors.residentialAddress
+  ) {
+    setActiveTab("basic");
+    toast.error("Please check the required fields in Basic & Address.");
+    return;
+  }
+
+  // Documents tab
+  if (
+    errors.aadhaarNumber ||
+    errors.aadhaarFrontFile ||
+    errors.aadhaarBackFile ||
+    errors.panNumber ||
+    errors.panFrontFile ||
+    errors.panBackFile ||
+    errors.drivingLicenceFrontFile ||
+    errors.drivingLicenceBackFile ||
+    errors.documentUpload
+  ) {
+    setActiveTab("documents");
+    toast.error("Please check the fields in Identity & Documents.");
+    return;
+  }
+
+  // Account tab
+  if (
+    errors.billingType ||
+    errors.billingPercentage ||
+    errors.cancellationCharge ||
+    errors.gstRate ||
+    errors.creditLimit ||
+    errors.securityAmount ||
+    errors.openingBalance
+  ) {
+    setActiveTab("account");
+    toast.error("Please check the fields in Tax & Account.");
+    return;
+  }
+
+  // Product / capacity
+  if (
+    errors.productServices ||
+    errors.combinedCapacity ||
+    errors.individualCapacities
+  ) {
+    setActiveTab("service");
+    toast.error("Please check Product & Capacity fields.");
+    return;
+  }
+
+  toast.error("Please fix the invalid fields before submitting.");
+};
   return (
     <form
-      onSubmit={handleSubmit(submitForm, (errors) => {
-        if (
-          errors.billingType ||
-          errors.billingPercentage ||
-          errors.cancellationCharge
-        )
-          setActiveTab("account");
-        console.error(errors);
-        // console.log("FORM VALIDATION ERRORS:", errors);
-        toast.error("Please fix the required fields before submitting.");
-      })}
+    onSubmit={handleSubmit(submitForm, handleFormError)}
+      // onSubmit={handleSubmit(submitForm, (errors) => {
+      //   if (
+      //     errors.billingType ||
+      //     errors.billingPercentage ||
+      //     errors.cancellationCharge
+      //   )
+      //     setActiveTab("account");
+      //   console.error(errors);
+      //   // console.log("FORM VALIDATION ERRORS:", errors);
+      //   toast.error("Please fix the required fields before submitting.");
+      // })}
       // className="space-y-7"
       className="space-y-2"
     >

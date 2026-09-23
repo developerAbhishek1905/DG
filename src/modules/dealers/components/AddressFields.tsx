@@ -462,6 +462,10 @@ export default function AddressFields({
         type="hidden"
         {...register(`${type}.cityId`, {
           // required: "City is required",
+                        required:
+                type === "businessAddress"
+                  ? "City is required"
+                  : false,
         })}
       />
 
@@ -492,10 +496,10 @@ export default function AddressFields({
             type="text"
             placeholder="Enter address"
             {...register(`${type}.addressLine`, {
-              required:
-                type === "businessAddress"
-                  ? "Business Address is required"
-                  : false,
+              // required:
+              //   type === "businessAddress"
+              //     ? "Business Address is required"
+              //     : false,
             })}
             className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
           />
@@ -529,7 +533,7 @@ export default function AddressFields({
             setCitySearch("");
             resetPincode();
           }}
-          error={addressErrors?.city?.message}
+          error={addressErrors?.cityId?.message}
         />
 
         {/* ================= DISTRICT ================= */}

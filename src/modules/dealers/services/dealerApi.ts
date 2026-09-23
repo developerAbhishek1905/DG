@@ -144,11 +144,15 @@ const buildDealerFormData = (data: DealerFormData) => {
 };
 
 export const createDealer = async (data: DealerFormData): Promise<Dealer> => {
-  const formData = buildDealerFormData(data);
+try{  const formData = buildDealerFormData(data);
 
   const response = await api.post(DEALER_API, formData);
 
-  return response.data.data;
+  return response.data.data;}
+  catch (error) {
+  console.error(error);
+  throw error;
+}
 };
 
 export const updateDealer = async (
