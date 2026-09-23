@@ -149,7 +149,7 @@ export default function ProductServicesModal({
         categoryId: String(categoryId),
         categoryName,
         description: category.description || "",
-        rate: 0,
+        rate: category.rate,
       },
     ]);
   };
@@ -251,11 +251,11 @@ export default function ProductServicesModal({
                               {category.groupCategoryCode}
                             </p>
                           )} */}
-                           {category.description && (
-    <p className="mt-1 text-xs text-gray-500">
-      {category.description}
-    </p>
-  )}
+                          {category.description && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              {category.description}
+                            </p>
+                          )}
                         </div>
 
                         {checked && (

@@ -120,15 +120,18 @@ export default function DealerForm({
       cancellationBillingEnabled: dealer?.cancellationBillingEnabled ?? false,
       cancellationCharge: dealer?.cancellationCharge ?? 0,
       drivingLicenceNumber: dealer?.drivingLicenceNumber ?? "",
+      // productServices: dealer?.productServices?.length
+      //   ? dealer.productServices
+      //   : [
+      //       {
+      //         productId: undefined,
+      //         productName: "",
+      //         categories: [],
+      //       },
+      //     ],
       productServices: dealer?.productServices?.length
         ? dealer.productServices
-        : [
-            {
-              productId: undefined,
-              productName: "",
-              categories: [],
-            },
-          ],
+        : [],
       technicianStatus: dealer?.technicianStatus ?? "ACTIVE",
       headCode: dealer?.headCode ?? "",
       groupHead: dealer?.groupHead ?? "",
@@ -194,20 +197,43 @@ export default function DealerForm({
       dateOfLeaving: dealer?.dateOfLeaving
         ? new Date(dealer.dateOfLeaving).toISOString().split("T")[0]
         : "",
+      // individualCapacities: dealer?.individualCapacities?.length
+      //   ? dealer.individualCapacities.map((item) => ({
+      //       productId: Number(item.productId),
+      //       productName: item.productName ?? "",
+      //       capacity: Number(item.capacity ?? 0),
+      //     }))
+      //   : [
+      //       {
+      //         productId: undefined,
+      //         productName: "",
+      //         capacity: 0,
+      //       },
+      //     ],
+
       individualCapacities: dealer?.individualCapacities?.length
         ? dealer.individualCapacities.map((item) => ({
             productId: Number(item.productId),
             productName: item.productName ?? "",
             capacity: Number(item.capacity ?? 0),
           }))
-        : [
-            {
-              productId: undefined,
-              productName: "",
-              capacity: 0,
-            },
-          ],
+        : [],
+
+      securityAmount: dealer?.securityAmount ?? 0,
+
+      additionalInfo: dealer?.additionalInfo?.length
+        ? dealer.additionalInfo
+        : [],
     },
+  });
+
+  const {
+    fields: additionalInfoFields,
+    append: addAdditionalInfo,
+    remove: removeAdditionalInfo,
+  } = useFieldArray({
+    control,
+    name: "additionalInfo",
   });
 
   const {
@@ -370,6 +396,11 @@ export default function DealerForm({
               capacity: 0,
             },
           ],
+      securityAmount: dealer.securityAmount ?? 0,
+
+      additionalInfo: dealer.additionalInfo?.length
+        ? dealer.additionalInfo
+        : [],
     });
   }, [dealer, reset]);
 
@@ -423,40 +454,108 @@ export default function DealerForm({
     setOtherDocuments((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // const submitForm = async (data: DealerFormData) => {
+  //   const payload: DealerFormData = {
+  //     ...data,
+  //     billingPercentage:
+  //       data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
+  //     cancellationCharge: data.cancellationBillingEnabled
+  //       ? Number(data.cancellationCharge)
+  //       : 0,
+  //     gstRate: Number(data.gstRate || 0),
+  //     reverseChargeLimit: Number(data.reverseChargeLimit || 0),
+  //     creditDays: Number(data.creditDays || 0),
+  //     creditLimit: Number(data.creditLimit || 0),
+  //     rating: Number(data.rating || 0),
+  //     openingBalance: Number(data.openingBalance || 0),
+  //     // COMBINED CAPACITY
+  //     combinedCapacity: {
+  //       products: data.combinedCapacity?.products ?? [],
+  //       capacity: Number(data.combinedCapacity?.capacity || 0),
+  //     },
+
+  //     // INDIVIDUAL CAPACITY
+  //     individualCapacities:
+  //       data.individualCapacities
+  //         ?.filter((item) => item.productId)
+  //         .map((item) => ({
+  //           productId: item.productId,
+  //           productName: item.productName,
+  //           capacity: Number(item.capacity),
+  //         })) ?? [],
+  //   };
+  //   console.log(payload);
+  //   await onSubmit(payload);
+  // };
+
   const submitForm = async (data: DealerFormData) => {
     const payload: DealerFormData = {
       ...data,
+
       billingPercentage:
         data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
+
       cancellationCharge: data.cancellationBillingEnabled
         ? Number(data.cancellationCharge)
         : 0,
+
       gstRate: Number(data.gstRate || 0),
       reverseChargeLimit: Number(data.reverseChargeLimit || 0),
       creditDays: Number(data.creditDays || 0),
       creditLimit: Number(data.creditLimit || 0),
       rating: Number(data.rating || 0),
       openingBalance: Number(data.openingBalance || 0),
-      // COMBINED CAPACITY
+
+      
+
+      // ==========================================
+      // PRODUCT & SERVICES - OPTIONAL
+      // ==========================================
+      productServices:
+        data.productServices
+          ?.filter((item) => item.productId)
+          .map((item) => ({
+            ...item,
+            categories:
+              item.categories?.filter((category) => category.categoryId) ?? [],
+          })) ?? [],
+
+      // ==========================================
+      // COMBINED CAPACITY - OPTIONAL
+      // ==========================================
       combinedCapacity: {
         products: data.combinedCapacity?.products ?? [],
-        capacity: Number(data.combinedCapacity?.capacity || 0),
+        capacity: data.combinedCapacity?.products?.length
+          ? Number(data.combinedCapacity?.capacity || 0)
+          : 0,
       },
 
-      // INDIVIDUAL CAPACITY
+      // ==========================================
+      // INDIVIDUAL CAPACITY - OPTIONAL
+      // ==========================================
       individualCapacities:
         data.individualCapacities
           ?.filter((item) => item.productId)
           .map((item) => ({
             productId: item.productId,
             productName: item.productName,
-            capacity: Number(item.capacity),
+            capacity: Number(item.capacity || 0),
+          })) ?? [],
+
+      securityAmount: Number(data.securityAmount || 0),
+
+      additionalInfo:
+        data.additionalInfo
+          ?.filter((item) => item.value?.trim())
+          .map((item) => ({
+            value: item.value.trim(),
           })) ?? [],
     };
-    console.log(payload);
+
+    console.log("DEALER PAYLOAD:", payload);
+
     await onSubmit(payload);
   };
-
   return (
     <form
       onSubmit={handleSubmit(submitForm, (errors) => {
@@ -676,6 +775,46 @@ export default function DealerForm({
                   watch={watch}
                   errors={errors}
                 />
+              </div>
+            </div>
+          </Section>
+
+          <Section title="Additionl Info">
+            {/* ADDITIONAL INFO */}
+            <div className="col-span-full">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {/* ADDITIONAL FIELDS */}
+                {additionalInfoFields.map((field, index) => (
+                  <div key={field.id} className="relative">
+                    <Input
+                      label={`Additional Info ${index + 1}`}
+                      {...register(`additionalInfo.${index}.value`)}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => removeAdditionalInfo(index)}
+                      className="absolute right-1 top-0 text-[10px] font-medium text-red-500 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                {/* ADD FIELD BUTTON */}
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addAdditionalInfo({
+                        value: "",
+                      })
+                    }
+                    className="h-8 w-full rounded-md border border-dashed border-[#123B7A] px-3 text-xs font-medium text-[#123B7A] transition hover:bg-blue-50"
+                  >
+                    + Add Field
+                  </button>
+                </div>
               </div>
             </div>
           </Section>
@@ -1226,7 +1365,7 @@ export default function DealerForm({
                   type="number"
                   min="0.01"
                   max="100"
-                  step="0.01"
+                  // step="0.01"
                   {...register("billingPercentage", {
                     valueAsNumber: true,
                     validate: (value, values) =>
@@ -1260,7 +1399,7 @@ export default function DealerForm({
                     label="Cancellation charge (₹)"
                     type="number"
                     min="0.01"
-                    step="0.01"
+                    // step="0.01"
                     {...register("cancellationCharge", {
                       valueAsNumber: true,
                       validate: (value, values) =>
@@ -1307,7 +1446,7 @@ export default function DealerForm({
                 label="GST Rate"
                 type="number"
                 min={0}
-                step="0.01"
+                // step="0.01"
                 {...register("gstRate", {
                   valueAsNumber: true,
                 })}
@@ -1359,12 +1498,23 @@ export default function DealerForm({
                 })}
               />
 
+              {/* Security Amount */}
+              <Input
+                label="Security Amount"
+                type="number"
+                min={0}
+                // step="0.01"
+                {...register("securityAmount", {
+                  valueAsNumber: true,
+                })}
+              />
+
               {/* Opening Balance */}
 
               <Input
                 label="Opening Balance"
                 type="number"
-                step="0.01"
+                // step="0.01"
                 {...register("openingBalance", {
                   valueAsNumber: true,
                 })}
@@ -1686,17 +1836,17 @@ export default function DealerForm({
 
                             <input
                               type="number"
-                              min={1}
+                              min={0}
                               placeholder="Enter capacity"
                               {...register(
                                 `individualCapacities.${index}.capacity`,
                                 {
-                                  required: "Capacity is required",
+                                  // required: "Capacity is required",
 
                                   valueAsNumber: true,
 
                                   min: {
-                                    value: 1,
+                                    value: 0,
                                     message: "Capacity must be greater than 0",
                                   },
                                 },

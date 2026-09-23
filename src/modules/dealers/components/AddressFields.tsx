@@ -84,7 +84,6 @@ export default function AddressFields({
   /* INITIAL LOAD */
   /* ===================================================== */
 
-
   useEffect(() => {
     loadStates(debouncedStateSearch);
   }, [debouncedStateSearch]);
@@ -443,158 +442,150 @@ export default function AddressFields({
   /* ===================================================== */
 
   return (
-  <div className="h-full">
-    {/* Hidden fields */}
-    <input
-      type="hidden"
-      {...register(`${type}.stateId`, {
-        // required: "State is required",
-      })}
-    />
+    <div className="h-full">
+      {/* Hidden fields */}
+      <input
+        type="hidden"
+        {...register(`${type}.stateId`, {
+          // required: "State is required",
+        })}
+      />
 
-    <input
-      type="hidden"
-      {...register(`${type}.districtId`, {
-        // required: "District is required",
-      })}
-    />
+      <input
+        type="hidden"
+        {...register(`${type}.districtId`, {
+          // required: "District is required",
+        })}
+      />
 
-    <input
-      type="hidden"
-      {...register(`${type}.cityId`, {
-        // required: "City is required",
-      })}
-    />
+      <input
+        type="hidden"
+        {...register(`${type}.cityId`, {
+          // required: "City is required",
+        })}
+      />
 
-    {/* <input
+      {/* <input
       type="hidden"
       {...register(`${type}.pinCode`, {
         required: "PIN code is required",
       })}
     /> */}
 
-    {/* Address title */}
-    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
-      {title}
-    </h4>
+      {/* Address title */}
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-700">
+        {title}
+      </h4>
 
-    <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-      {/* ================= ADDRESS LINE ================= */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+        {/* ================= ADDRESS LINE ================= */}
 
-      <div className="col-span-2">
-        <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
-          Address Line
-          {type === "businessAddress" && (
-            <span className="ml-0.5 text-red-500">*</span>
+        <div className="col-span-2">
+          <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+            Address Line
+            {/* {type === "businessAddress" && (
+              <span className="ml-0.5 text-red-500">*</span>
+            )} */}
+          </label>
+
+          <input
+            type="text"
+            placeholder="Enter address"
+            {...register(`${type}.addressLine`, {
+              required:
+                type === "businessAddress"
+                  ? "Business Address is required"
+                  : false,
+            })}
+            className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+          />
+
+          {addressErrors?.addressLine && (
+            <p className="mt-0.5 text-[10px] text-red-600">
+              {addressErrors.addressLine.message}
+            </p>
           )}
-        </label>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Enter address"
-          {...register(`${type}.addressLine`, {
-            required:
-              type === "businessAddress"
-                ? "Business Address is required"
-                : false,
-          })}
-          className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+        {/* ================= CITY ================= */}
+
+        <SearchSelect
+          label="City"
+          value={cityName}
+          placeholder="Search city..."
+          loading={cityLoading}
+          options={cities.map((city) => ({
+            value: city.city_id,
+            label: [city.city_name, city.district_name, city.state_name]
+              .filter(Boolean)
+              .join(" - "),
+            data: city,
+          }))}
+          onSearch={setCitySearch}
+          onSelect={(option) => handleCitySelect(option.data as CityOption)}
+          onClear={() => {
+            setValue(`${type}.cityId`, undefined);
+            setValue(`${type}.city`, "");
+            setCitySearch("");
+            resetPincode();
+          }}
+          error={addressErrors?.city?.message}
         />
 
-        {addressErrors?.addressLine && (
-          <p className="mt-0.5 text-[10px] text-red-600">
-            {addressErrors.addressLine.message}
-          </p>
-        )}
-      </div>
+        {/* ================= DISTRICT ================= */}
 
-      {/* ================= STATE ================= */}
+        <SearchSelect
+          label="District"
+          value={districtName}
+          placeholder="Search district..."
+          loading={districtLoading}
+          options={districts.map((district) => ({
+            value: district.district_id,
+            label: district.state_name
+              ? `${district.district_name} - ${district.state_name}`
+              : district.district_name,
+            data: district,
+          }))}
+          onSearch={setDistrictSearch}
+          onSelect={(option) =>
+            handleDistrictSelect(option.data as DistrictOption)
+          }
+          onClear={() => {
+            setValue(`${type}.districtId`, undefined);
+            setValue(`${type}.district`, "");
+            setDistrictSearch("");
+            resetCity();
+          }}
+          error={addressErrors?.district?.message}
+        />
 
-      <SearchSelect
-        label="State"
-        value={stateName}
-        placeholder="Search state..."
-        loading={stateLoading}
-        options={states.map((state) => ({
-          value: state.state_id,
-          label: state.state_name,
-          data: state,
-        }))}
-        onSearch={setStateSearch}
-        onSelect={(option) =>
-          handleStateSelect(option.data as StateOption)
-        }
-        onClear={() => {
-          setValue(`${type}.stateId`, undefined);
-          setValue(`${type}.state`, "");
-          setValue(`${type}.stateCode`, "");
-          setStateSearch("");
-          resetDistrict();
-        }}
-        error={addressErrors?.state?.message}
-      />
+        {/* ================= STATE ================= */}
 
-      {/* ================= DISTRICT ================= */}
+        <SearchSelect
+          label="State"
+          value={stateName}
+          placeholder="Search state..."
+          loading={stateLoading}
+          options={states.map((state) => ({
+            value: state.state_id,
+            label: state.state_name,
+            data: state,
+          }))}
+          onSearch={setStateSearch}
+          onSelect={(option) => handleStateSelect(option.data as StateOption)}
+          onClear={() => {
+            setValue(`${type}.stateId`, undefined);
+            setValue(`${type}.state`, "");
+            setValue(`${type}.stateCode`, "");
+            setStateSearch("");
+            resetDistrict();
+          }}
+          error={addressErrors?.state?.message}
+        />
 
-      <SearchSelect
-        label="District"
-        value={districtName}
-        placeholder="Search district..."
-        loading={districtLoading}
-        options={districts.map((district) => ({
-          value: district.district_id,
-          label: district.state_name
-            ? `${district.district_name} - ${district.state_name}`
-            : district.district_name,
-          data: district,
-        }))}
-        onSearch={setDistrictSearch}
-        onSelect={(option) =>
-          handleDistrictSelect(option.data as DistrictOption)
-        }
-        onClear={() => {
-          setValue(`${type}.districtId`, undefined);
-          setValue(`${type}.district`, "");
-          setDistrictSearch("");
-          resetCity();
-        }}
-        error={addressErrors?.district?.message}
-      />
+        {/* ================= PINCODE ================= */}
 
-      {/* ================= CITY ================= */}
-
-      <SearchSelect
-        label="City"
-        value={cityName}
-        placeholder="Search city..."
-        loading={cityLoading}
-        options={cities.map((city) => ({
-          value: city.city_id,
-          label: [
-            city.city_name,
-            city.district_name,
-            city.state_name,
-          ]
-            .filter(Boolean)
-            .join(" - "),
-          data: city,
-        }))}
-        onSearch={setCitySearch}
-        onSelect={(option) =>
-          handleCitySelect(option.data as CityOption)
-        }
-        onClear={() => {
-          setValue(`${type}.cityId`, undefined);
-          setValue(`${type}.city`, "");
-          setCitySearch("");
-          resetPincode();
-        }}
-        error={addressErrors?.city?.message}
-      />
-
-      {/* ================= PINCODE ================= */}
-
-      {/* <SearchSelect
+        {/* <SearchSelect
         label="Pincode"
         value={pinCode ?? ""}
         placeholder="Search pincode..."
@@ -626,60 +617,59 @@ export default function AddressFields({
         error={addressErrors?.pinCode?.message}
       /> */}
 
+        <div>
+          <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+            Pincode
+            {/* {type === "businessAddress" && (
+              <span className="ml-0.5 text-red-500">*</span>
+            )} */}
+          </label>
 
-<div>
-  <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
-    Pincode
-    {type === "businessAddress" && (
-      <span className="ml-0.5 text-red-500">*</span>
-    )}
-  </label>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="Enter pincode"
+            autoComplete="off"
+            {...register(`${type}.pinCode`, {
+              // required:
+              //   type === "businessAddress"
+              //     ? "PIN code is required"
+              //     : false,
+              pattern: {
+                value: /^[0-9]{6}$/,
+                message: "Enter a valid 6 digit PIN code",
+              },
+            })}
+            onInput={(e) => {
+              e.currentTarget.value = e.currentTarget.value
+                .replace(/\D/g, "")
+                .slice(0, 6);
+            }}
+            className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+          />
 
-  <input
-    type="text"
-    inputMode="numeric"
-    maxLength={6}
-    placeholder="Enter pincode"
-    autoComplete="off"
-    {...register(`${type}.pinCode`, {
-      // required:
-      //   type === "businessAddress"
-      //     ? "PIN code is required"
-      //     : false,
-      pattern: {
-        value: /^[0-9]{6}$/,
-        message: "Enter a valid 6 digit PIN code",
-      },
-    })}
-    onInput={(e) => {
-      e.currentTarget.value = e.currentTarget.value
-        .replace(/\D/g, "")
-        .slice(0, 6);
-    }}
-    className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-xs outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
-  />
+          {addressErrors?.pinCode && (
+            <p className="mt-0.5 text-[10px] text-red-600">
+              {addressErrors.pinCode.message}
+            </p>
+          )}
+        </div>
 
-  {addressErrors?.pinCode && (
-    <p className="mt-0.5 text-[10px] text-red-600">
-      {addressErrors.pinCode.message}
-    </p>
-  )}
-</div>
+        {/* ================= STATE CODE ================= */}
 
-      {/* ================= STATE CODE ================= */}
+        {/* <div className="col-span-2">
+          <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
+            State Code
+          </label>
 
-      <div className="col-span-2">
-        <label className="mb-0.5 block text-[11px] font-medium text-gray-600">
-          State Code
-        </label>
-
-        <input
-          {...register(`${type}.stateCode`)}
-          placeholder="State code"
-          className="h-8 w-full rounded-md border border-gray-300  px-2 text-xs text-gray-600 outline-none"
-        />
+          <input
+            {...register(`${type}.stateCode`)}
+            placeholder="State code"
+            className="h-8 w-full rounded-md border border-gray-300  px-2 text-xs text-gray-600 outline-none"
+          />
+        </div> */}
       </div>
     </div>
-  </div>
-);
+  );
 }

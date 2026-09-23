@@ -54,7 +54,7 @@ const buildDealerFormData = (data: DealerFormData) => {
         "productServices",
         "combinedCapacity",
         "individualCapacities",
-
+"additionalInfo",
         "aadhaarFrontFile",
         "aadhaarBackFile",
         "panFrontFile",
@@ -134,6 +134,11 @@ const buildDealerFormData = (data: DealerFormData) => {
       formData.append("documentUpload", file);
     });
   }
+
+  formData.append(
+  "additionalInfo",
+  JSON.stringify(data.additionalInfo ?? []),
+);
 
   return formData;
 };

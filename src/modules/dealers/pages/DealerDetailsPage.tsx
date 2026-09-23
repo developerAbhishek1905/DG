@@ -10,7 +10,7 @@ import {
   Phone,
   Star,
   User,
-  CalendarDays
+  CalendarDays,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Card from "../../../components/ui/Card";
@@ -24,14 +24,13 @@ import DealerSuspendModal from "../components/DealerSuspendModal";
 import DealerRejoinModal from "../components/DealerRejoinModal";
 import DealerLeaveHistoryModal from "../components/DealerLeaveHistoryModal";
 // import LeaveHistoryCard from "../components/LeaveHistoryCard";
-  
 
 export default function DealerDetailsPage() {
   const navigate = useNavigate();
   const { hasPermission } = usePermission();
   const { id } = useParams();
   const IMAGE_UPLOAD_URL = "http://localhost:5004";
-  const { dealer, loading,  refetch, } = useDealerDetails(id);
+  const { dealer, loading, refetch } = useDealerDetails(id);
   type DealerDocuments = {
     aadhaarFront?: string | null;
     aadhaarBack?: string | null;
@@ -44,11 +43,9 @@ export default function DealerDetailsPage() {
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
-const [rejoinModalOpen, setRejoinModalOpen] =
-  useState(false);
+  const [rejoinModalOpen, setRejoinModalOpen] = useState(false);
 
-  const [leaveHistoryOpen, setLeaveHistoryOpen] =
-  useState(false);
+  const [leaveHistoryOpen, setLeaveHistoryOpen] = useState(false);
 
   const dealerDocuments = (dealer as { documents?: DealerDocuments } | null)
     ?.documents;
@@ -61,7 +58,7 @@ const [rejoinModalOpen, setRejoinModalOpen] =
     );
   }
 
-  console.log(dealer)
+  console.log(dealer);
 
   if (!dealer) {
     return (
@@ -154,19 +151,18 @@ const [rejoinModalOpen, setRejoinModalOpen] =
             </button>
           )}
           <button
-  type="button"
-  onClick={() => setLeaveHistoryOpen(true)}
-  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
->
-  <CalendarDays size={16} />
-  Leave History
-
-  {!!dealer.leaves?.length && (
-    <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
-      {dealer.leaves.length}
-    </span>
-  )}
-</button>
+            type="button"
+            onClick={() => setLeaveHistoryOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+          >
+            <CalendarDays size={16} />
+            Leave History
+            {!!dealer.leaves?.length && (
+              <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
+                {dealer.leaves.length}
+              </span>
+            )}
+          </button>
 
           {hasPermission("dealers.update") && (
             <button
@@ -196,13 +192,13 @@ const [rejoinModalOpen, setRejoinModalOpen] =
               {/* <DealerStatusBadge status={dealer.technicianStatus} /> */}
 
               <DealerStatusBadge
-  status={
-    dealer.effectiveStatus ??
-    dealer.status ??
-    dealer.technicianStatus ??
-    "INACTIVE"
-  }
-/>
+                status={
+                  dealer.effectiveStatus ??
+                  dealer.status ??
+                  dealer.technicianStatus ??
+                  "INACTIVE"
+                }
+              />
             </div>
 
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-500">
@@ -262,7 +258,7 @@ const [rejoinModalOpen, setRejoinModalOpen] =
           />
         </div>
       </Card>
-        {/* <LeaveHistoryCard
+      {/* <LeaveHistoryCard
     leaves={dealer.leaves}
   /> */}
 
@@ -424,6 +420,14 @@ const [rejoinModalOpen, setRejoinModalOpen] =
               label="Account Status"
               value={dealer.accountDeactivated ? "Deactivated" : "Active"}
             />
+
+            {dealer.additionalInfo?.map((item, index) => (
+              <DetailItem
+                key={index}
+                label={`Additional Info ${index + 1}`}
+                value={item.value}
+              />
+            ))}
           </div>
         </Card>
       </div>
@@ -752,52 +756,52 @@ const [rejoinModalOpen, setRejoinModalOpen] =
         </div>
       </Card>
 
-<DealerLeaveModal
-  open={leaveModalOpen}
-  dealerId={dealer._id}
-  onClose={() => setLeaveModalOpen(false)}
-  onSuccess={() => {
-    setLeaveModalOpen(false);
-    refetch();
-  }}
-/>
+      <DealerLeaveModal
+        open={leaveModalOpen}
+        dealerId={dealer._id}
+        onClose={() => setLeaveModalOpen(false)}
+        onSuccess={() => {
+          setLeaveModalOpen(false);
+          refetch();
+        }}
+      />
 
-<DealerRatingModal
-  open={ratingModalOpen}
-  dealerId={dealer._id}
-  currentRating={dealer.rating ?? 0}
-  onClose={() => setRatingModalOpen(false)}
-  onSuccess={() => {
-    setRatingModalOpen(false);
-    refetch();
-  }}
-/>
+      <DealerRatingModal
+        open={ratingModalOpen}
+        dealerId={dealer._id}
+        currentRating={dealer.rating ?? 0}
+        onClose={() => setRatingModalOpen(false)}
+        onSuccess={() => {
+          setRatingModalOpen(false);
+          refetch();
+        }}
+      />
 
-<DealerSuspendModal
-  open={suspendModalOpen}
-  dealerId={dealer._id}
-  onClose={() => setSuspendModalOpen(false)}
-  onSuccess={() => {
-    setSuspendModalOpen(false);
-    refetch();
-  }}
-/>
+      <DealerSuspendModal
+        open={suspendModalOpen}
+        dealerId={dealer._id}
+        onClose={() => setSuspendModalOpen(false)}
+        onSuccess={() => {
+          setSuspendModalOpen(false);
+          refetch();
+        }}
+      />
 
-<DealerRejoinModal
-  open={rejoinModalOpen}
-  dealerId={dealer._id}
-  onClose={() => setRejoinModalOpen(false)}
-  onSuccess={() => {
-    setRejoinModalOpen(false);
-    refetch();
-  }}
-/>
+      <DealerRejoinModal
+        open={rejoinModalOpen}
+        dealerId={dealer._id}
+        onClose={() => setRejoinModalOpen(false)}
+        onSuccess={() => {
+          setRejoinModalOpen(false);
+          refetch();
+        }}
+      />
 
-<DealerLeaveHistoryModal
-  open={leaveHistoryOpen}
-  leaves={dealer.leaves}
-  onClose={() => setLeaveHistoryOpen(false)}
-/>
+      <DealerLeaveHistoryModal
+        open={leaveHistoryOpen}
+        leaves={dealer.leaves}
+        onClose={() => setLeaveHistoryOpen(false)}
+      />
     </div>
   );
 }

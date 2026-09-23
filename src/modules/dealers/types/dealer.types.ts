@@ -206,6 +206,12 @@ export interface DealerFormData {
   // combinedCapacity: DealerCombinedCapacity;
 
   capacityMaster: DealerCapacityItem[];
+  securityAmount?: number;
+
+additionalField?: {
+  fieldName: string;
+  fieldValue: string;
+}[];
    
 }
 
