@@ -9,6 +9,7 @@ import {
 } from "../services/categoryApi";
 import type { Category, CategoryFormData } from "../types/category.types";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 export default function CreateEditCategoryPage() {
   const { id } = useParams();
@@ -43,31 +44,73 @@ export default function CreateEditCategoryPage() {
   }, [id, navigate]);
 
   // CREATE / UPDATE
-  const handleSubmit = async (data: CategoryFormData) => {
-    try {
-      setActionLoading(true);
+  // const handleSubmit = async (data: CategoryFormData) => {
+  //   try {
+  //     setActionLoading(true);
 
-      if (isEdit && id) {
-        await updateCategory(id, data);
+  //     if (isEdit && id) {
+  //       const response = await updateCategory(id, data);
 
-        toast.success("Category updated successfully");
-      } else {
-        await createCategory(data);
+  //       toast.success("Category updated successfully");
+  //     } else {
+  //       const response = await createCategory(data);
 
-        toast.success("Category created successfully");
-      }
+  //       toast.success("Category created successfully");
+  //     }
 
-      navigate("/category-master");
-    } catch (error) {
-      console.error("Save category error:", error);
+  //     navigate("/category-master");
+  //   } catch (error) {
+  //     console.error("Save category error:", error);
+  //       // toast.error(
+  //     //   isEdit ? "Failed to update category" : "Failed to create category",
+  //     // );
+  //     // toast.error(
+  //     //   isEdit ? "Failed to update category" : "Failed to create category",
+  //     // );
+  //   } finally {
+  //     setActionLoading(false);
+  //   }
+  // };
 
-      toast.error(
-        isEdit ? "Failed to update category" : "Failed to create category",
-      );
-    } finally {
-      setActionLoading(false);
+
+
+const handleSubmit = async (data: CategoryFormData) => {
+  try {
+    setActionLoading(true);
+
+    if (isEdit && id) {
+      await updateCategory(id, data);
+
+      toast.success("Category updated successfully");
+    } else {
+      await createCategory(data);
+
+      toast.success("Category created successfully");
     }
-  };
+
+    navigate("/category-master");
+  } catch (error) {
+    console.error("Save category error:", error);
+
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ||
+        (isEdit
+          ? "Failed to update category"
+          : "Failed to create category");
+
+      toast.error(message);
+    } else {
+      toast.error(
+        isEdit
+          ? "Failed to update category"
+          : "Failed to create category",
+      );
+    }
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   if (isEdit && pageLoading) {
     return (

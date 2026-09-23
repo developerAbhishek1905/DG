@@ -57,7 +57,7 @@ export default function ProductTypeTable({
           <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
             <tr>
               <th className="px-5 py-3">Product</th>
-              <th className="px-5 py-3">Product ID</th>
+              {/* <th className="px-5 py-3">Product ID</th> */}
               <th className="px-5 py-3">Product Type</th>
               <th className="px-5 py-3 text-right">Actions</th>
             </tr>
@@ -70,7 +70,7 @@ export default function ProductTypeTable({
                   {item.product_name ?? "-"}
                 </td>
 
-                <td className="px-5 py-4 text-[#123B7A]">{item.product_id}</td>
+                {/* <td className="px-5 py-4 text-[#123B7A]">{item.product_id}</td> */}
                 <td className="px-5 py-4">{item.product_type}</td>
 
                 <td className="px-5 py-4">
