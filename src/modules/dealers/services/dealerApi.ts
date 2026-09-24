@@ -310,3 +310,10 @@ export const searchDealerDropdown = async (
   return response.data?.data ?? [];
 };
 
+export const endDealerLeave = async (dealerId: string) => {
+  const response = await api.patch(
+    `/dealers/${dealerId}/leave/end`,
+  );
+
+  return response.data;
+};

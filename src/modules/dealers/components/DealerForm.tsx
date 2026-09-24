@@ -506,8 +506,6 @@ export default function DealerForm({
   //     rating: Number(data.rating || 0),
   //     openingBalance: Number(data.openingBalance || 0),
 
-      
-
   //     // ==========================================
   //     // PRODUCT & SERVICES - OPTIONAL
   //     // ==========================================
@@ -558,154 +556,148 @@ export default function DealerForm({
   // };
 
   const submitForm = async (data: DealerFormData) => {
-  try {
-    const payload: DealerFormData = {
-      ...data,
+    try {
+      const payload: DealerFormData = {
+        ...data,
 
-      billingPercentage:
-        data.billingType === "FIXED"
-          ? 0
-          : Number(data.billingPercentage),
+        billingPercentage:
+          data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
 
-      cancellationCharge: data.cancellationBillingEnabled
-        ? Number(data.cancellationCharge)
-        : 0,
-
-      gstRate: Number(data.gstRate || 0),
-      reverseChargeLimit: Number(data.reverseChargeLimit || 0),
-      creditDays: Number(data.creditDays || 0),
-      creditLimit: Number(data.creditLimit || 0),
-      rating: Number(data.rating || 0),
-      openingBalance: Number(data.openingBalance || 0),
-
-      productServices:
-        data.productServices
-          ?.filter((item) => item.productId)
-          .map((item) => ({
-            ...item,
-            categories:
-              item.categories?.filter(
-                (category) => category.categoryId,
-              ) ?? [],
-          })) ?? [],
-
-      combinedCapacity: {
-        products: data.combinedCapacity?.products ?? [],
-        capacity: data.combinedCapacity?.products?.length
-          ? Number(data.combinedCapacity?.capacity || 0)
+        cancellationCharge: data.cancellationBillingEnabled
+          ? Number(data.cancellationCharge)
           : 0,
-      },
 
-      individualCapacities:
-        data.individualCapacities
-          ?.filter((item) => item.productId)
-          .map((item) => ({
-            productId: item.productId,
-            productName: item.productName,
-            capacity: Number(item.capacity || 0),
-          })) ?? [],
+        gstRate: Number(data.gstRate || 0),
+        reverseChargeLimit: Number(data.reverseChargeLimit || 0),
+        creditDays: Number(data.creditDays || 0),
+        creditLimit: Number(data.creditLimit || 0),
+        rating: Number(data.rating || 0),
+        openingBalance: Number(data.openingBalance || 0),
 
-      securityAmount: Number(data.securityAmount || 0),
+        productServices:
+          data.productServices
+            ?.filter((item) => item.productId)
+            .map((item) => ({
+              ...item,
+              categories:
+                item.categories?.filter((category) => category.categoryId) ??
+                [],
+            })) ?? [],
 
-      additionalInfo:
-        data.additionalInfo
-          ?.filter((item) => item.value?.trim())
-          .map((item) => ({
-            value: item.value.trim(),
-          })) ?? [],
-    };
+        combinedCapacity: {
+          products: data.combinedCapacity?.products ?? [],
+          capacity: data.combinedCapacity?.products?.length
+            ? Number(data.combinedCapacity?.capacity || 0)
+            : 0,
+        },
 
-    console.log("DEALER PAYLOAD:", payload);
+        individualCapacities:
+          data.individualCapacities
+            ?.filter((item) => item.productId)
+            .map((item) => ({
+              productId: item.productId,
+              productName: item.productName,
+              capacity: Number(item.capacity || 0),
+            })) ?? [],
 
-    await onSubmit(payload);
+        securityAmount: Number(data.securityAmount || 0),
 
-  } catch (error: any) {
-    console.error("DEALER SUBMIT ERROR:", error);
+        additionalInfo:
+          data.additionalInfo
+            ?.filter((item) => item.value?.trim())
+            .map((item) => ({
+              value: item.value.trim(),
+            })) ?? [],
+      };
 
-    const message =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      error?.message ||
-      "Failed to save dealer. Please try again.";
+      console.log("DEALER PAYLOAD:", payload);
 
-    toast.error(
-      typeof message === "string"
-        ? message
-        : "Failed to save dealer. Please try again.",
-    );
-  }
-};
+      await onSubmit(payload);
+    } catch (error: any) {
+      console.error("DEALER SUBMIT ERROR:", error);
 
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to save dealer. Please try again.";
 
+      toast.error(
+        typeof message === "string"
+          ? message
+          : "Failed to save dealer. Please try again.",
+      );
+    }
+  };
 
-const handleFormError = (errors: FieldErrors<DealerFormData>) => {
-  console.error("FORM VALIDATION ERRORS:", errors);
+  const handleFormError = (errors: FieldErrors<DealerFormData>) => {
+    console.error("FORM VALIDATION ERRORS:", errors);
 
-  // Basic tab
-  if (
-    errors.headName ||
-    errors.technicianFirmName ||
-    errors.technicianName ||
-    errors.mobileNumber ||
-    errors.email ||
-    errors.dateOfJoining ||
-    errors.technicianStatus ||
-    errors.businessAddress ||
-    errors.residentialAddress
-  ) {
-    setActiveTab("basic");
-    toast.error("Please check the required fields in Basic & Address.");
-    return;
-  }
+    // Basic tab
+    if (
+      errors.headName ||
+      errors.technicianFirmName ||
+      errors.technicianName ||
+      errors.mobileNumber ||
+      errors.email ||
+      errors.dateOfJoining ||
+      errors.technicianStatus ||
+      errors.businessAddress ||
+      errors.residentialAddress
+    ) {
+      setActiveTab("basic");
+      toast.error("Please check the required fields in Basic & Address.");
+      return;
+    }
 
-  // Documents tab
-  if (
-    errors.aadhaarNumber ||
-    errors.aadhaarFrontFile ||
-    errors.aadhaarBackFile ||
-    errors.panNumber ||
-    errors.panFrontFile ||
-    errors.panBackFile ||
-    errors.drivingLicenceFrontFile ||
-    errors.drivingLicenceBackFile ||
-    errors.documentUpload
-  ) {
-    setActiveTab("documents");
-    toast.error("Please check the fields in Identity & Documents.");
-    return;
-  }
+    // Documents tab
+    if (
+      errors.aadhaarNumber ||
+      errors.aadhaarFrontFile ||
+      errors.aadhaarBackFile ||
+      errors.panNumber ||
+      errors.panFrontFile ||
+      errors.panBackFile ||
+      errors.drivingLicenceFrontFile ||
+      errors.drivingLicenceBackFile ||
+      errors.documentUpload
+    ) {
+      setActiveTab("documents");
+      toast.error("Please check the fields in Identity & Documents.");
+      return;
+    }
 
-  // Account tab
-  if (
-    errors.billingType ||
-    errors.billingPercentage ||
-    errors.cancellationCharge ||
-    errors.gstRate ||
-    errors.creditLimit ||
-    errors.securityAmount ||
-    errors.openingBalance
-  ) {
-    setActiveTab("account");
-    toast.error("Please check the fields in Tax & Account.");
-    return;
-  }
+    // Account tab
+    if (
+      errors.billingType ||
+      errors.billingPercentage ||
+      errors.cancellationCharge ||
+      errors.gstRate ||
+      errors.creditLimit ||
+      errors.securityAmount ||
+      errors.openingBalance
+    ) {
+      setActiveTab("account");
+      toast.error("Please check the fields in Tax & Account.");
+      return;
+    }
 
-  // Product / capacity
-  if (
-    errors.productServices ||
-    errors.combinedCapacity ||
-    errors.individualCapacities
-  ) {
-    setActiveTab("service");
-    toast.error("Please check Product & Capacity fields.");
-    return;
-  }
+    // Product / capacity
+    if (
+      errors.productServices ||
+      errors.combinedCapacity ||
+      errors.individualCapacities
+    ) {
+      setActiveTab("service");
+      toast.error("Please check Product & Capacity fields.");
+      return;
+    }
 
-  toast.error("Please fix the invalid fields before submitting.");
-};
+    toast.error("Please fix the invalid fields before submitting.");
+  };
   return (
     <form
-    onSubmit={handleSubmit(submitForm, handleFormError)}
+      onSubmit={handleSubmit(submitForm, handleFormError)}
       // onSubmit={handleSubmit(submitForm, (errors) => {
       //   if (
       //     errors.billingType ||
@@ -791,6 +783,7 @@ const handleFormError = (errors: FieldErrors<DealerFormData>) => {
 
               <Input
                 label="Technician Firm Name"
+                required
                 // placeholder="Enter technician firm name"
                 error={errors.technicianFirmName?.message}
                 {...register("technicianFirmName", {
@@ -800,6 +793,7 @@ const handleFormError = (errors: FieldErrors<DealerFormData>) => {
 
               <Input
                 label="Technician Name"
+                required
                 // placeholder="Enter technician name"
                 error={errors.technicianName?.message}
                 {...register("technicianName", {
@@ -809,6 +803,7 @@ const handleFormError = (errors: FieldErrors<DealerFormData>) => {
 
               <Input
                 label="Phone Number"
+                required
                 maxLength={10}
                 inputMode="numeric"
                 // placeholder="Enter phone number"
@@ -838,6 +833,7 @@ const handleFormError = (errors: FieldErrors<DealerFormData>) => {
 
               <Input
                 label="Email ID"
+                required
                 type="email"
                 // placeholder="Enter email address"
                 error={errors.email?.message}
@@ -852,6 +848,7 @@ const handleFormError = (errors: FieldErrors<DealerFormData>) => {
 
               <Input
                 label="Date of Joining"
+                required
                 type="date"
                 error={errors.dateOfJoining?.message}
                 {...register("dateOfJoining", {
@@ -2082,12 +2079,19 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-function Input({ label, error, ...props }: InputProps) {
+function Input({ label, error, required, ...props }: InputProps) {
   return (
     <div>
-      <label className={labelClass}>{label}</label>
-
-      <input {...props} className={inputClass} />
+      <label className={labelClass}>{label}
+         {required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
+     
+      <input
+        {...props}
+        required={required}
+        aria-required={required}
+        className={inputClass}
+      />
 
       {error && <ErrorText>{error}</ErrorText>}
     </div>

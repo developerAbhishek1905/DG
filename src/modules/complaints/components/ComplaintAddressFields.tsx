@@ -429,6 +429,7 @@ export default function ComplaintAddressFields({
           label="City"
           value={cityName || ""}
           placeholder="Search city..."
+          required
           loading={cityLoading}
           options={cities.map((city) => ({
             value: city.city_id,

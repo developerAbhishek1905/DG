@@ -517,6 +517,8 @@ export default function AddressFields({
           label="City"
           value={cityName}
           placeholder="Search city..."
+          // required
+          required={type === "businessAddress"}
           loading={cityLoading}
           options={cities.map((city) => ({
             value: city.city_id,

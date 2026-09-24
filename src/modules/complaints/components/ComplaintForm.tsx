@@ -7,11 +7,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  Controller,
-  useForm,
-  useFieldArray,
-} from "react-hook-form";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
 import {
   createComplaint,
   lookupCustomerByPhone,
@@ -142,13 +138,13 @@ export default function ComplaintForm({
   });
 
   const {
-  fields: additionalInfoFields,
-  append: addAdditionalInfo,
-  remove: removeAdditionalInfo,
-} = useFieldArray({
-  control,
-  name: "additionalInfo",
-});
+    fields: additionalInfoFields,
+    append: addAdditionalInfo,
+    remove: removeAdditionalInfo,
+  } = useFieldArray({
+    control,
+    name: "additionalInfo",
+  });
 
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
@@ -291,10 +287,10 @@ export default function ComplaintForm({
 
       description: initialData.description || "",
 
-        additionalInfo:
-    initialData.additionalInfo?.map((item) => ({
-      value: item,
-    })) || [],
+      additionalInfo:
+        initialData.additionalInfo?.map((item) => ({
+          value: item,
+        })) || [],
 
       status: initialData.status || "REGISTERED",
     });
@@ -817,9 +813,9 @@ export default function ComplaintForm({
         subject: data.subject,
         description: data.description,
         additionalInfo:
-  data.additionalInfo
-    ?.map((item) => item.value?.trim())
-    .filter(Boolean) || [],
+          data.additionalInfo
+            ?.map((item) => item.value?.trim())
+            .filter(Boolean) || [],
       });
       navigate("/complaints");
       toast.success("Complaint created successfully");
@@ -1014,8 +1010,6 @@ export default function ComplaintForm({
                       }}
                     />
 
-
-
                     {/* <SearchSelect
                       label="Category"
                       value={selectedCategoryLabel}
@@ -1057,6 +1051,7 @@ export default function ComplaintForm({
                       label="Category"
                       value={selectedCategoryLabel}
                       placeholder="Search category..."
+                      required
                       loading={categoryLoading}
                       options={categories.map((category) => ({
                         value: category._id,
@@ -1087,7 +1082,7 @@ export default function ComplaintForm({
                       error={errors.category?.message}
                     />
 
-                                        {/* <SearchSelect
+                    {/* <SearchSelect
                       label="Product"
                       value={selectedProductName || ""}
                       placeholder="Search product..."
@@ -1244,66 +1239,63 @@ export default function ComplaintForm({
                     OTHER INFORMATION
                 ============================== */}
 
-<CompactSection title="Other Information">
-  <div className="grid grid-cols-3 gap-x-2.5 gap-y-2">
-    <Input
-      label="Ad. Name"
-      {...register("adName")}
-    />
+                <CompactSection title="Other Information">
+                  <div className="grid grid-cols-3 gap-x-2.5 gap-y-2">
+                    <Input label="Ad. Name" {...register("adName")} />
 
-    {selectedComplaintType === "WARRANTY" && (
-      <>
-        <Input
-          label="Old Complaint No."
-          readOnly
-          placeholder="Select from history"
-          className="cursor-not-allowed bg-gray-50"
-          {...register("repeatComplaintNumber")}
-        />
+                    {selectedComplaintType === "WARRANTY" && (
+                      <>
+                        <Input
+                          label="Old Complaint No."
+                          readOnly
+                          placeholder="Select from history"
+                          className="cursor-not-allowed bg-gray-50"
+                          {...register("repeatComplaintNumber")}
+                        />
 
-        <Input
-          label="New Complaint No."
-          readOnly
-          className="cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]"
-          {...register("complaintNumber")}
-        />
-      </>
-    )}
+                        <Input
+                          label="New Complaint No."
+                          readOnly
+                          className="cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]"
+                          {...register("complaintNumber")}
+                        />
+                      </>
+                    )}
 
-    {/* ADDITIONAL FIELDS */}
-    {additionalInfoFields.map((field, index) => (
-      <div key={field.id} className="relative">
-        <Input
-          label={`Additional Info ${index + 1}`}
-          {...register(`additionalInfo.${index}.value`)}
-        />
+                    {/* ADDITIONAL FIELDS */}
+                    {additionalInfoFields.map((field, index) => (
+                      <div key={field.id} className="relative">
+                        <Input
+                          label={`Additional Info ${index + 1}`}
+                          {...register(`additionalInfo.${index}.value`)}
+                        />
 
-        <button
-          type="button"
-          onClick={() => removeAdditionalInfo(index)}
-          className="absolute right-1 top-0 text-[10px] font-medium text-red-500 hover:text-red-700"
-        >
-          Remove
-        </button>
-      </div>
-    ))}
+                        <button
+                          type="button"
+                          onClick={() => removeAdditionalInfo(index)}
+                          className="absolute right-1 top-0 text-[10px] font-medium text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
 
-    {/* ADD FIELD BUTTON */}
-    <div className="flex items-end">
-      <button
-        type="button"
-        onClick={() =>
-          addAdditionalInfo({
-            value: "",
-          })
-        }
-        className="h-8 rounded-md border border-dashed border-[#123B7A] px-3 text-xs font-medium text-[#123B7A] transition hover:bg-blue-50"
-      >
-        + Add Field
-      </button>
-    </div>
-  </div>
-</CompactSection>
+                    {/* ADD FIELD BUTTON */}
+                    <div className="flex items-end">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addAdditionalInfo({
+                            value: "",
+                          })
+                        }
+                        className="h-8 rounded-md border border-dashed border-[#123B7A] px-3 text-xs font-medium text-[#123B7A] transition hover:bg-blue-50"
+                      >
+                        + Add Field
+                      </button>
+                    </div>
+                  </div>
+                </CompactSection>
               </div>
             </div>
 
@@ -1361,8 +1353,7 @@ function ComplaintHistoryTable({
   onWarrantySelect,
   selectedComplaintNumber,
 }: ComplaintHistoryTableProps) {
-
-  console.log(history)
+  console.log(history);
   return (
     // <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
     <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
@@ -1532,7 +1523,7 @@ function ComplaintHistoryTable({
                         complaint?.allocatedDealerId?.mobileNumber || "-"}
                     </td> */}
 
-                       <td className="px-3 py-2">
+                    <td className="px-3 py-2">
                       {complaint?.technicianName +
                         " - " +
                         complaint?.technicianNumber || "-"}

@@ -798,6 +798,7 @@ export default function DealerDetailsPage() {
       />
 
       <DealerLeaveHistoryModal
+      dealerId={dealer._id}
         open={leaveHistoryOpen}
         leaves={dealer.leaves}
         onClose={() => setLeaveHistoryOpen(false)}

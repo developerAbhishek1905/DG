@@ -15,6 +15,7 @@ interface SearchSelectProps {
   loading?: boolean;
   disabled?: boolean;
   error?: string;
+  required?: boolean; 
   onSearch?: (search: string) => void;
   onSelect: (option: SearchSelectOption) => void;
   onClear?: () => void;
@@ -28,6 +29,7 @@ export default function SearchSelect({
   loading = false,
   disabled = false,
   error,
+  required = false,
   onSearch,
   onSelect,
   onClear,
@@ -97,6 +99,7 @@ export default function SearchSelect({
         className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]"
       >
         {label}
+         {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
 
       {/* Input */}
@@ -119,6 +122,7 @@ export default function SearchSelect({
           name={browserSafeInputName}
           // Important for Chrome autofill
           type="search"
+          required={required}
           autoComplete="new-password"
           autoCorrect="off"
           autoCapitalize="off"
