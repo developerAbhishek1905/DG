@@ -1641,7 +1641,7 @@ function ComplaintHistoryTable({
                 |--------------------------------------------------------------------------
                 */
 
-                const isUnderWarranty = complaint.isWarranty === true;
+                const isUnderWarranty = complaint.isWarranty === true && complaint.complaintType !== "WARRANTY";
                 const isSelected =
                   selectedComplaintNumber === complaint.complaintNumber;
 
@@ -1732,7 +1732,7 @@ function ComplaintHistoryTable({
                     {/* Warranty */}
 
                     <td className="whitespace-nowrap px-3 py-2">
-                      {complaint.isWarranty ? (
+                      {(complaint.isWarranty && complaint.complaintType !== "WARRANTY") ? (
                         <div className="flex flex-col items-start gap-1">
                           <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
                             Under Warranty
