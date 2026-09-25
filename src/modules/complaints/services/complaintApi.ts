@@ -301,21 +301,192 @@ export const deleteComplaint = async (id: string): Promise<string> => {
 |--------------------------------------------------------------------------
 */
 
-export const lookupCustomerByPhone = async (
-  phone: string,
-): Promise<CustomerLookupResponse> => {
-  const cleanedPhone = phone.trim();
-  const response = await api.get(`${CUSTOMER_API}/lookup/${cleanedPhone}`);
-  const customer = normalizeCustomer(response.data?.customer);
-  const complaintHistory = (response.data?.complaintHistory || []).map(
-    (complaint: BackendComplaint) => normalizeHistoryItem(complaint),
+export const lookupCustomerByPhone = async (cleanedPhone: string) => {
+  const response = await api.get(
+    // `/complaints/customer/${phone}`,
+    `${CUSTOMER_API}/lookup/${cleanedPhone}`
   );
 
+  const data = response.data;
+
   return {
-    customer,
-    complaintHistory,
+    ...data,
+
+    customer: data.customer
+      ? {
+          ...data.customer,
+
+          id: data.customer._id || data.customer.id,
+        }
+      : null,
+
+    complaintHistory: (data.complaintHistory || []).map(
+      (item: any) => ({
+        /*
+        |--------------------------------------------------------------------------
+        | IDs
+        |--------------------------------------------------------------------------
+        */
+
+        id: item._id || item.id,
+        _id: item._id || item.id,
+
+        complaintNumber: item.complaintNumber,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dates
+        |--------------------------------------------------------------------------
+        */
+
+        createdAt:
+          item.createdAt ||
+          item.complaintDateTime,
+
+        complaintDateTime:
+          item.complaintDateTime,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Brand
+        |--------------------------------------------------------------------------
+        */
+
+        brandId: item.brandId,
+        brand: item.brand || "",
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product
+        |--------------------------------------------------------------------------
+        */
+
+        productId: item.productId,
+
+        productName: item.productName || "",
+
+        productCode: item.productCode || "",
+
+        productDescription:
+          item.productDescription || "",
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product Type
+        |--------------------------------------------------------------------------
+        */
+
+        productTypeId: item.productTypeId,
+
+        productType: item.productType || "",
+
+        /*
+        |--------------------------------------------------------------------------
+        | Category
+        |--------------------------------------------------------------------------
+        */
+
+        categoryId: item.categoryId,
+
+        category: item.category || "",
+
+        /*
+        |--------------------------------------------------------------------------
+        | Complaint Details
+        |--------------------------------------------------------------------------
+        */
+
+        units: item.units ?? 1,
+
+        quoteAmount: item.quoteAmount ?? 0,
+
+        faultReported:
+          item.faultReported || "",
+
+        priority:
+          item.priority || "MEDIUM",
+
+        complaintType:
+          item.complaintType || "REGULAR",
+
+        repeatComplaintNumber:
+          item.repeatComplaintNumber || "",
+
+        adName:
+          item.adName || "",
+
+        subject:
+          item.subject || "",
+
+        description:
+          item.description || "",
+
+        additionalInfo:
+          item.additionalInfo || [],
+
+        status: item.status,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dealer
+        |--------------------------------------------------------------------------
+        */
+
+        allocatedDealerId:
+          item.allocatedDealerId || null,
+
+        dealerName:
+          item.allocatedDealerId
+            ?.technicianFirmName || "",
+
+        technicianName:
+          item.allocatedDealerId
+            ?.technicianName || "",
+
+        technicianNumber:
+          item.allocatedDealerId
+            ?.mobileNumber || "",
+
+        /*
+        |--------------------------------------------------------------------------
+        | Warranty
+        |--------------------------------------------------------------------------
+        */
+
+        isWarranty:
+          item.isWarranty === true,
+
+        warrantyEndDate:
+          item.warrantyEndDate || null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Parent
+        |--------------------------------------------------------------------------
+        */
+
+        parentComplaintId:
+          item.parentComplaintId || null,
+      }),
+    ),
   };
 };
+
+// export const lookupCustomerByPhone = async (
+//   phone: string,
+// ): Promise<CustomerLookupResponse> => {
+//   const cleanedPhone = phone.trim();
+//   const response = await api.get(`${CUSTOMER_API}/lookup/${cleanedPhone}`);
+//   const customer = normalizeCustomer(response.data?.customer);
+//   const complaintHistory = (response.data?.complaintHistory || []).map(
+//     (complaint: BackendComplaint) => normalizeHistoryItem(complaint),
+//   );
+
+//   return {
+//     customer,
+//     complaintHistory,
+//   };
+// };
 
 export const updateCustomer = async (
   customerId: string,

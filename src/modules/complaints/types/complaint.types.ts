@@ -214,24 +214,86 @@ interface AllocatedDealer {
   mobileNumber: string;
 }
 
+// export interface ComplaintHistoryItem {
+//   id?: string;
+//   _id?: string;
+//   allocatedDealerId: AllocatedDealer;
+//   complaintNumber: string;
+//   createdAt: string;
+//   productName: string;
+//   category: string;
+//   priority:string;
+//   faultReported: string;
+//   complaintType: string;
+//   technicianName: string;
+//   technicianNumber?: string;
+//   status: ComplaintStatus;
+//   warrantyStartDate?: string | null;
+//   warrantyEndDate?: string | null;
+//   isWarranty: boolean;
+//   dealerName: any
+// }
+
 export interface ComplaintHistoryItem {
+  _id: string;
   id?: string;
-  _id?: string;
-  allocatedDealerId: AllocatedDealer;
+
   complaintNumber: string;
-  createdAt: string;
+
+  brandId:
+    | string
+    | {
+        _id: string;
+        brandName: string;
+      }
+    | null;
+
+  brand: string;
+
+  productId?: number | null;
   productName: string;
+
+  productTypeId:
+    | string
+    | {
+        _id: string;
+        product_id: number;
+        product_code?: string;
+        product_type: string;
+      }
+    | null;
+
+  productType: string;
+
+  categoryId:
+    | string
+    | {
+        _id: string;
+        category: string;
+        description?: string;
+        categoryDescription?: string;
+      }
+    | null;
+
   category: string;
-  priority:string;
-  faultReported: string;
-  complaintType: string;
-  technicianName: string;
-  technicianNumber?: string;
+
+  productDescription?: string;
+  units?: number;
+  quoteAmount?: number;
+  faultReported?: string;
+  priority?: ComplaintPriority;
+  complaintType?: ComplaintType;
+
+  adName?: string;
+  subject?: string;
+  description?: string;
+
+  additionalInfo?: string[];
+
+  isWarranty?: boolean;
+
+  createdAt: string;
   status: ComplaintStatus;
-  warrantyStartDate?: string | null;
-  warrantyEndDate?: string | null;
-  isWarranty: boolean;
-  dealerName: any
 }
 
 export interface CustomerLookupResponse {

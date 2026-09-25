@@ -299,7 +299,6 @@ import { toast } from "react-toastify";
 import { useAppSelector } from "../../../app/hooks";
 import PercentageClosureModal from "../components/PercentageClosureForm";
 
-
 export default function AppointmentDetailsPage() {
   const [percentageBilling, setPercentageBilling] = useState(false);
   const navigate = useNavigate();
@@ -344,7 +343,7 @@ export default function AppointmentDetailsPage() {
   const [billingLoading, setBillingLoading] = useState(false);
 
   const { user } = useAppSelector((state) => state.auth);
-  const billingType = user?.dealerId?.billingType
+  const billingType = user?.dealerId?.billingType;
 
   // const [percentageBilling, setPercentageBilling] =
   // useState(false);
@@ -634,7 +633,7 @@ export default function AppointmentDetailsPage() {
 
   //   toast.error("Dealer billing type is not configured");
   // };
-console.log(user)
+  console.log(user);
   const handleCloseOnBilling = async () => {
     /*
   |--------------------------------------------------------------------------
@@ -704,51 +703,44 @@ console.log(user)
   };
 
   const handleBillingSubmit = async ({
-  customerAmount,
-  profitAmount,
-}: {
-  customerAmount: number;
-  profitAmount?: number;
-}) => {
-  try {
-    setBillingLoading(true);
+    customerAmount,
+    profitAmount,
+  }: {
+    customerAmount: number;
+    profitAmount?: number;
+  }) => {
+    try {
+      setBillingLoading(true);
 
-    const payload =
-      billingType ===
-      "PROFIT_SHARING"
-        ? {
-            customerAmount,
-            profitAmount,
-          }
-        : {
-            customerAmount,
-          };
+      const payload =
+        billingType === "PROFIT_SHARING"
+          ? {
+              customerAmount,
+              profitAmount,
+            }
+          : {
+              customerAmount,
+            };
 
-    const updated =
-      await updateAppointmentStatus(
+      const updated = await updateAppointmentStatus(
         appointment._id,
         "CLOSE_ON_BILLING",
         payload,
       );
 
-    if (updated) {
-      setAppointment(updated);
+      if (updated) {
+        setAppointment(updated);
 
-      setBillingModalOpen(false);
+        setBillingModalOpen(false);
 
-      toast.success(
-        "Billing submitted for verification",
-      );
+        toast.success("Billing submitted for verification");
+      }
+    } catch (error) {
+      console.error("Billing submission failed:", error);
+    } finally {
+      setBillingLoading(false);
     }
-  } catch (error) {
-    console.error(
-      "Billing submission failed:",
-      error,
-    );
-  } finally {
-    setBillingLoading(false);
-  }
-};
+  };
 
   const handlePercentageBillingSubmit = async ({
     customerAmount,

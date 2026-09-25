@@ -521,22 +521,222 @@ export default function ComplaintForm({
     setCategorySearch("");
   };
 
+  // const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
+  //   if (!complaint.isWarranty) {
+  //     toast.error("This complaint is not under warranty");
+  //     return;
+  //   }
+
+  //   // Automatically make this a warranty complaint
+  //   setValue("complaintType", "WARRANTY", {
+  //     shouldDirty: true,
+  //     shouldValidate: true,
+  //   });
+
+  //   setValue("repeatComplaintNumber", complaint.complaintNumber, {
+  //     shouldDirty: true,
+  //     shouldValidate: true,
+  //   });
+
+  //   toast.success(
+  //     `${complaint.complaintNumber} selected for warranty complaint`,
+  //   );
+  // };
+
   const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
     if (!complaint.isWarranty) {
       toast.error("This complaint is not under warranty");
       return;
     }
 
-    // Automatically make this a warranty complaint
-    setValue("complaintType", "WARRANTY", {
-      shouldDirty: true,
-      shouldValidate: true,
+    console.log("========== WARRANTY SELECT ==========");
+    console.log("Selected complaint:", complaint);
+
+    /*
+  |--------------------------------------------------------------------------
+  | Extract IDs
+  |--------------------------------------------------------------------------
+  */
+
+    const brandId =
+      complaint.brandId && typeof complaint.brandId === "object"
+        ? complaint.brandId._id
+        : complaint.brandId || "";
+
+    const brandName =
+      complaint.brandId && typeof complaint.brandId === "object"
+        ? complaint.brandId.brandName
+        : complaint.brand || "";
+
+    const categoryId =
+      complaint.categoryId && typeof complaint.categoryId === "object"
+        ? complaint.categoryId._id
+        : complaint.categoryId || "";
+
+    const productId =
+      complaint.productId !== null &&
+      complaint.productId !== undefined &&
+      complaint.productId !== ""
+        ? Number(complaint.productId)
+        : undefined;
+
+    const productTypeId =
+      complaint.productTypeId && typeof complaint.productTypeId === "object"
+        ? complaint.productTypeId._id
+        : complaint.productTypeId || "";
+
+    const productTypeName =
+      complaint.productTypeId && typeof complaint.productTypeId === "object"
+        ? complaint.productTypeId.product_type
+        : complaint.productType || "";
+
+    /*
+  |--------------------------------------------------------------------------
+  | Keep current customer information
+  |--------------------------------------------------------------------------
+  */
+
+    const currentData = getValues();
+
+    /*
+  |--------------------------------------------------------------------------
+  | Reset form with customer + selected complaint
+  |--------------------------------------------------------------------------
+  */
+
+    reset({
+      ...currentData,
+
+      /*
+    |--------------------------------------------------------------------------
+    | Warranty
+    |--------------------------------------------------------------------------
+    */
+
+      complaintType: "WARRANTY",
+
+      repeatComplaintNumber: complaint.complaintNumber,
+
+      /*
+    |--------------------------------------------------------------------------
+    | Brand
+    |--------------------------------------------------------------------------
+    */
+
+      brandId,
+      brand: brandName,
+
+      /*
+    |--------------------------------------------------------------------------
+    | Category
+    |--------------------------------------------------------------------------
+    */
+
+      categoryId,
+      category: complaint.category || "",
+
+      /*
+    |--------------------------------------------------------------------------
+    | Product
+    |--------------------------------------------------------------------------
+    */
+
+      productId,
+      productName: complaint.productName || "",
+
+      productDescription: complaint.productDescription || "",
+
+      /*
+    |--------------------------------------------------------------------------
+    | Product Type
+    |--------------------------------------------------------------------------
+    */
+
+      productTypeId,
+      productType: productTypeName,
+
+      /*
+    |--------------------------------------------------------------------------
+    | Complaint Details
+    |--------------------------------------------------------------------------
+    */
+
+      units: complaint.units ?? 1,
+
+      quoteAmount:
+        complaint.quoteAmount !== null && complaint.quoteAmount !== undefined
+          ? Number(complaint.quoteAmount)
+          : undefined,
+
+      faultReported: complaint.faultReported || "",
+
+      priority: complaint.priority || "MEDIUM",
+
+      adName: complaint.adName || "",
+
+      subject: complaint.subject || "",
+
+      description: complaint.description || "",
+
+      additionalInfo:
+        complaint.additionalInfo?.map((item: any) => ({
+          value: typeof item === "string" ? item : item?.value || "",
+        })) || [],
     });
 
-    setValue("repeatComplaintNumber", complaint.complaintNumber, {
-      shouldDirty: true,
-      shouldValidate: true,
+    /*
+  |--------------------------------------------------------------------------
+  | Category SearchSelect Display
+  |--------------------------------------------------------------------------
+  */
+
+    let categoryLabel = complaint.category || "";
+
+    if (complaint.categoryId && typeof complaint.categoryId === "object") {
+      const description =
+        complaint.categoryId.description ||
+        complaint.categoryId.categoryDescription ||
+        "";
+
+      categoryLabel = description
+        ? `${complaint.category} - ${description}`
+        : complaint.category || "";
+    }
+
+    setSelectedCategoryLabel(categoryLabel);
+
+    /*
+  |--------------------------------------------------------------------------
+  | Clear search text only
+  |--------------------------------------------------------------------------
+  */
+
+    setBrandSearch("");
+    setCategorySearch("");
+    setProductSearch("");
+    setProductTypeSearch("");
+
+    /*
+  |--------------------------------------------------------------------------
+  | Debug
+  |--------------------------------------------------------------------------
+  */
+
+    console.log("Extracted warranty values:", {
+      brandId,
+      brandName,
+      categoryId,
+      category: complaint.category,
+      productId,
+      productName: complaint.productName,
+      productTypeId,
+      productTypeName,
     });
+
+    // Check AFTER React Hook Form updates
+    setTimeout(() => {
+      console.log("FORM VALUES AFTER WARRANTY:", getValues());
+    }, 0);
 
     toast.success(
       `${complaint.complaintNumber} selected for warranty complaint`,
@@ -1253,12 +1453,12 @@ export default function ComplaintForm({
                           {...register("repeatComplaintNumber")}
                         />
 
-                        <Input
+                        {/* <Input
                           label="New Complaint No."
                           readOnly
                           className="cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]"
                           {...register("complaintNumber")}
-                        />
+                        /> */}
                       </>
                     )}
 
