@@ -502,12 +502,12 @@ export default function PercentageClosureModal({
 
           {/* INFO */}
 
-          <div className="rounded-xl bg-blue-50 p-4">
+          {/* <div className="rounded-xl bg-blue-50 p-4">
             <p className="text-xs leading-5 text-gray-600">
               Billing percentage and final billing amount will be calculated
               automatically from the dealer's registered billing configuration.
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* FOOTER */}

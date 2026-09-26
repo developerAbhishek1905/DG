@@ -124,3 +124,32 @@ export const getDistrictsByState = async (
 
   return response.data.data ?? [];
 };
+
+// import type { DistrictMaster } from "../types/district.types";
+
+interface DistrictDropdownResponse {
+  success: boolean;
+  data: DistrictMaster[];
+}
+
+interface DistrictDropdownParams {
+  state_id: number | string;
+  search?: string;
+}
+
+export const getDistrictDropdown = async ({
+  state_id,
+  search = "",
+}: DistrictDropdownParams): Promise<DistrictMaster[]> => {
+  const response = await api.get<DistrictDropdownResponse>(
+    "/districts/dropdown",
+    {
+      params: {
+        state_id,
+        search,
+      },
+    },
+  );
+
+  return response.data.data ?? [];
+};

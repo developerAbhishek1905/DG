@@ -17,6 +17,8 @@ import type { Area, AreaStatus } from "../types/area.types";
 import type { StateMaster } from "../../stateMaster/types/state.types";
 import type { CityMaster } from "../../cityMaster/types/city.types";
 import { usePermission } from "../../../hooks/usePermission";
+import { importLocationExcel,exportLocationExcel } from "../services/areaExcelService";
+
 
 export default function AreaMasterPage() {
   const navigate = useNavigate();
@@ -34,6 +36,8 @@ export default function AreaMasterPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const debouncedSearch = useDebounce(search, 500);
+  const [excelLoading, setExcelLoading] =
+  useState(false);
   const { hasPermission } = usePermission();
 
   /* =====================================
@@ -164,31 +168,105 @@ export default function AreaMasterPage() {
     }
   };
 
-  const handleImport = async (file: File) => {
-    try {
-      setActionLoading(true);
-      const response = await importAreas(file);
-      toast.success(response.message || "Areas imported successfully");
-      setPage(1);
-      await fetchAreas();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to import areas");
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  // const handleImport = async (file: File) => {
+  //   try {
+  //     setActionLoading(true);
+  //     const response = await importAreas(file);
+  //     toast.success(response.message || "Areas imported successfully");
+  //     setPage(1);
+  //     await fetchAreas();
+  //   } catch (error: any) {
+  //     toast.error(error.response?.data?.message || "Failed to import areas");
+  //   } finally {
+  //     setActionLoading(false);
+  //   }
+  // };
+
+
+  const handleImport = async (
+  file: File,
+) => {
+  try {
+    setExcelLoading(true);
+
+    const response =
+      await importLocationExcel(file);
+
+    console.log(
+      "Import response:",
+      response,
+    );
+
+    const {
+      summary,
+    } = response;
+
+    toast.success(
+      `Import completed. ${summary.processedRows} rows processed, ${summary.failedRows} failed.`,
+    );
+
+    /*
+     * Reload your list/table here
+     * after successful import.
+     */
+
+    // await fetchAreas();
+    // await loadLocations();
+  } catch (error: any) {
+    console.error(
+      "Location import error:",
+      error,
+    );
+
+    toast.error(
+      error?.response?.data
+        ?.message ||
+        error?.message ||
+        "Failed to import Excel",
+    );
+  } finally {
+    setExcelLoading(false);
+  }
+};
+
+  // const handleExport = async () => {
+  //   try {
+  //     setActionLoading(true);
+  //     await exportAreas();
+  //     toast.success("Areas exported successfully");
+  //   } catch (error: any) {
+  //     toast.error(error.response?.data?.message || "Failed to export areas");
+  //   } finally {
+  //     setActionLoading(false);
+  //   }
+  // };
 
   const handleExport = async () => {
-    try {
-      setActionLoading(true);
-      await exportAreas();
-      toast.success("Areas exported successfully");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to export areas");
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  try {
+    setExcelLoading(true);
+
+    await exportLocationExcel();
+
+    toast.success(
+      "Location Excel exported successfully",
+    );
+  } catch (error: any) {
+    console.error(
+      "Location export error:",
+      error,
+    );
+
+    toast.error(
+      error?.response?.data
+        ?.message ||
+        error?.message ||
+        "Failed to export Excel",
+    );
+  } finally {
+    setExcelLoading(false);
+  }
+};
+
 
   return (
     <div>

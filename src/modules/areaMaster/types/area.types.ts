@@ -21,17 +21,39 @@ export interface Area {
   __v?: number;
 }
 
+// export interface AreaFormData {
+//   areaCode: string;
+//   areaName: string;
+//   state_id: number;
+//   district_id: number;
+//   city_id: number;
+//   pincode_id: number;
+//   zone?: string;
+//   latitude?: number;
+//   longitude?: number;
+//   status: AreaStatus;
+// }
+
 export interface AreaFormData {
   areaCode: string;
   areaName: string;
-  state_id: number;
-  district_id: number;
-  city_id: number;
-  pincode_id: number;
+
+  state_id?: number;
+  state_name?: string;
+
+  district_id?: number;
+  district_name?: string;
+
+  city_id?: number;
+  city_name?: string;
+
+  pincode_id?: number;
+
   zone?: string;
   latitude?: number;
   longitude?: number;
-  status: AreaStatus;
+
+  status: "ACTIVE" | "INACTIVE";
 }
 
 export interface AreaQueryParams {

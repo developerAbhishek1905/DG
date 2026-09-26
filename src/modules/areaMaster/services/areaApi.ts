@@ -111,3 +111,58 @@ export const exportAreas = async (): Promise<void> => {
   link.remove();
   window.URL.revokeObjectURL(url);
 };
+
+export interface RegisterLocationPayload {
+  state_id?: number;
+  state_name?: string;
+
+  district_id?: number;
+  district_name?: string;
+
+  city_name: string;
+}
+
+export interface RegisterLocationResponse {
+  success: boolean;
+  message: string;
+
+  created: {
+    state: boolean;
+    district: boolean;
+    city: boolean;
+  };
+
+  data: {
+    state: {
+      _id: string;
+      state_id: number;
+      state_name: string;
+    };
+
+    district: {
+      _id: string;
+      district_id: number;
+      district_name: string;
+      state_id: number;
+    };
+
+    city: {
+      _id: string;
+      city_id: number;
+      city_name: string;
+      district_id: number;
+      state_id: number;
+    };
+  };
+}
+
+export const registerLocation = async (
+  payload: RegisterLocationPayload,
+) => {
+  const response = await api.post<RegisterLocationResponse>(
+    "/areas/register-location",
+    payload,
+  );
+
+  return response.data;
+};
