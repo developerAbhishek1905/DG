@@ -342,6 +342,10 @@ export default function AppointmentDetailsPage() {
 
   const [billingLoading, setBillingLoading] = useState(false);
 
+  const [closeBillingReasonOpen, setCloseBillingReasonOpen] = useState(false);
+const [selectedClosingReason, setSelectedClosingReason] = useState("");
+const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
+
   const { user } = useAppSelector((state) => state.auth);
   const billingType = user?.dealerId?.billingType;
 
@@ -453,6 +457,28 @@ export default function AppointmentDetailsPage() {
       console.error("Failed to reschedule appointment:", error);
     }
   };
+
+  const openCloseBillingReasonModal = async () => {
+  try {
+    setReasonLoading(true);
+
+    setSelectedClosingReason("");
+    setClosingReasons([]);
+
+    const response = await getReasonDropdown("close");
+
+    setClosingReasons(response?.data || []);
+
+    setCloseBillingReasonOpen(true);
+  } catch (error) {
+    console.error("Failed to load closing reasons:", error);
+
+    toast.error("Failed to load closing reasons");
+    setClosingReasons([]);
+  } finally {
+    setReasonLoading(false);
+  }
+};
 
   const openPendingModal = async () => {
     try {
@@ -634,73 +660,123 @@ export default function AppointmentDetailsPage() {
   //   toast.error("Dealer billing type is not configured");
   // };
   console.log(user);
-  const handleCloseOnBilling = async () => {
-    /*
-  |--------------------------------------------------------------------------
-  | Dealer billing configuration from logged-in user
-  |--------------------------------------------------------------------------
-  */
+  // const handleCloseOnBilling = async () => {
+  //   /*
+  // |--------------------------------------------------------------------------
+  // | Dealer billing configuration from logged-in user
+  // |--------------------------------------------------------------------------
+  // */
 
-    const dealer = user?.dealerId;
+  //   const dealer = user?.dealerId;
 
-    if (!dealer) {
-      toast.error("Dealer billing information not found");
-      return;
-    }
+  //   if (!dealer) {
+  //     toast.error("Dealer billing information not found");
+  //     return;
+  //   }
 
-    const billingType = dealer.billingType;
+  //   const billingType = dealer.billingType;
 
-    /*
-  |--------------------------------------------------------------------------
-  | FIXED
-  |--------------------------------------------------------------------------
-  */
+  //   /*
+  // |--------------------------------------------------------------------------
+  // | FIXED
+  // |--------------------------------------------------------------------------
+  // */
 
-    if (billingType === "FIXED") {
-      try {
-        setActionLoading(true);
+  //   if (billingType === "FIXED") {
+  //     try {
+  //       setActionLoading(true);
 
-        const updated = await updateAppointmentStatus(
-          appointment._id,
-          "CLOSE_ON_BILLING",
-        );
+  //       const updated = await updateAppointmentStatus(
+  //         appointment._id,
+  //         "CLOSE_ON_BILLING",
+  //       );
 
-        if (updated) {
-          setAppointment(updated);
-        }
-      } catch (error) {
-        console.error("Close billing failed:", error);
-      } finally {
-        setActionLoading(false);
+  //       if (updated) {
+  //         setAppointment(updated);
+  //       }
+  //     } catch (error) {
+  //       console.error("Close billing failed:", error);
+  //     } finally {
+  //       setActionLoading(false);
+  //     }
+
+  //     return;
+  //   }
+
+  //   /*
+  // |--------------------------------------------------------------------------
+  // | PARTIAL PAYMENT
+  // |--------------------------------------------------------------------------
+  // */
+
+  //   if (billingType === "PARTIAL_PAYMENT") {
+  //     setBillingModalOpen(true);
+  //     return;
+  //   }
+
+  //   /*
+  // |--------------------------------------------------------------------------
+  // | PROFIT SHARING
+  // |--------------------------------------------------------------------------
+  // */
+
+  //   if (billingType === "PROFIT_SHARING") {
+  //     setBillingModalOpen(true);
+  //     return;
+  //   }
+
+  //   toast.error("Dealer billing type is not configured");
+  // };
+
+  const handleCloseOnBilling = async (closingReason: string) => {
+  const dealer = user?.dealerId;
+
+  if (!dealer) {
+    toast.error("Dealer billing information not found");
+    return;
+  }
+
+  const billingType = dealer.billingType;
+
+  if (billingType === "FIXED") {
+    try {
+      setActionLoading(true);
+
+      const updated = await updateAppointmentStatus(
+        appointment._id,
+        "CLOSE_ON_BILLING",
+        {
+          closingReason,
+        },
+      );
+
+      if (updated) {
+        setAppointment(updated);
+        toast.success("Complaint closed successfully");
       }
-
-      return;
+    } catch (error) {
+      console.error("Close billing failed:", error);
+      toast.error("Failed to close complaint");
+    } finally {
+      setActionLoading(false);
     }
 
-    /*
-  |--------------------------------------------------------------------------
-  | PARTIAL PAYMENT
-  |--------------------------------------------------------------------------
-  */
+    return;
+  }
 
-    if (billingType === "PARTIAL_PAYMENT") {
-      setBillingModalOpen(true);
-      return;
-    }
+  if (
+    billingType === "PARTIAL_PAYMENT" ||
+    billingType === "PROFIT_SHARING"
+  ) {
+    // Keep reason for billing modal submission
+    setSelectedClosingReason(closingReason);
 
-    /*
-  |--------------------------------------------------------------------------
-  | PROFIT SHARING
-  |--------------------------------------------------------------------------
-  */
+    setBillingModalOpen(true);
+    return;
+  }
 
-    if (billingType === "PROFIT_SHARING") {
-      setBillingModalOpen(true);
-      return;
-    }
-
-    toast.error("Dealer billing type is not configured");
-  };
+  toast.error("Dealer billing type is not configured");
+};
 
   const handleBillingSubmit = async ({
     customerAmount,
@@ -717,9 +793,11 @@ export default function AppointmentDetailsPage() {
           ? {
               customerAmount,
               profitAmount,
+              closingReason: selectedClosingReason,
             }
           : {
               customerAmount,
+              closingReason: selectedClosingReason,
             };
 
       const updated = await updateAppointmentStatus(
@@ -1052,14 +1130,23 @@ export default function AppointmentDetailsPage() {
               Close on Billing
             </button> */}
 
-            <button
+            {/* <button
               type="button"
               disabled={actionLoading}
               onClick={handleCloseOnBilling}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               {actionLoading ? "Processing..." : "Close on Billing"}
-            </button>
+            </button> */}
+
+            <button
+  type="button"
+  disabled={actionLoading}
+  onClick={openCloseBillingReasonModal}
+  className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+>
+  {actionLoading ? "Processing..." : "Close on Billing"}
+</button>
 
             {/* PENDING ON VISIT */}
 
@@ -1116,14 +1203,23 @@ export default function AppointmentDetailsPage() {
               close on billing
             </button> */}
 
-            <button
+            {/* <button
               type="button"
               onClick={handleCloseOnBilling}
               disabled={actionLoading}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               {actionLoading ? "Processing..." : "Close on Billing"}
-            </button>
+            </button> */}
+
+            <button
+  type="button"
+  disabled={actionLoading}
+  onClick={openCloseBillingReasonModal}
+  className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+>
+  {actionLoading ? "Processing..." : "Close on Billing"}
+</button>
           </div>
         )}
 
@@ -1918,6 +2014,46 @@ export default function AppointmentDetailsPage() {
           }}
         />
       )}
+
+      {closeBillingReasonOpen && (
+  <ReasonModal
+    title="Close Complaint"
+    description="Select the reason before closing this complaint."
+    loading={reasonLoading}
+    reasons={closingReasons}
+    selectedReason={selectedClosingReason}
+    onReasonChange={setSelectedClosingReason}
+    actionLoading={actionLoading}
+    actionLabel="Continue"
+    type="pending"
+    onClose={() => {
+      setCloseBillingReasonOpen(false);
+      setSelectedClosingReason("");
+      setClosingReasons([]);
+    }}
+    onSubmit={async () => {
+      if (!selectedClosingReason) {
+        toast.error("Please select a closing reason");
+        return;
+      }
+
+      const selected = closingReasons.find(
+        (item) => item.id === selectedClosingReason,
+      );
+
+      if (!selected) {
+        toast.error("Please select a valid closing reason");
+        return;
+      }
+
+      // Close reason modal first
+      setCloseBillingReasonOpen(false);
+
+      // Now continue your existing billing flow
+      await handleCloseOnBilling(selected.reasonName);
+    }}
+  />
+)}
       {/* 
       {billingModalOpen &&
         (appointment.allocatedDealerId?.billingType === "PARTIAL_PAYMENT" ||
