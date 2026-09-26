@@ -1,77 +1,4 @@
-// import { useCallback, useEffect, useState } from "react";
-
-// import { getDealerById, getDealers, deleteDealer } from "../services/dealerApi";
-
-// import {
-//   setDealerSearch,
-//   setDealerStatus,
-//   setDealerCity,
-//   clearDealerFilters,
-// } from "../store/dealerSlice";
-
-// import type { Dealer } from "../types/dealer.types";
-
-// export function useDealers() {
-//   const [dealers, setDealers] = useState<Dealer[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   const loadDealers = useCallback(async () => {
-//     try {
-//       setLoading(true);
-
-//       const data = await getDealers();
-
-//       setDealers(data);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, []);
-
-//   useEffect(() => {
-//     loadDealers();
-//   }, [loadDealers]);
-
-//   return {
-//     dealers,
-//     loading,
-//     refetch: loadDealers,
-//   };
-// }
-
-// export function useDealerDetails(id?: string) {
-//   const [dealer, setDealer] = useState<Dealer | null>(null);
-
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     if (!id) {
-//       setDealer(null);
-//       setLoading(false);
-//       return;
-//     }
-
-//     const loadDealer = async () => {
-//       try {
-//         setLoading(true);
-
-//         const data = await getDealerById(id);
-
-//         setDealer(data ?? null);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     loadDealer();
-//   }, [id]);
-
-//   return {
-//     dealer,
-//     loading,
-//   };
-// }
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 import {
@@ -104,36 +31,86 @@ export function useDealers(filters: DealerFilters) {
     totalPages: 0,
   });
 
+  /*
+  |--------------------------------------------------------------------------
+  | Request ID
+  |--------------------------------------------------------------------------
+  |
+  | Har API call ko unique ID milegi.
+  | Sirf latest request response UI update karega.
+  |
+  */
+
+  const requestRef = useRef(0);
+
   const fetchDealers = useCallback(async () => {
+    const requestId = ++requestRef.current;
+
     try {
       setLoading(true);
 
       const response = await getDealers(filters);
 
+      /*
+      |--------------------------------------------------------------------------
+      | Ignore stale response
+      |--------------------------------------------------------------------------
+      */
+
+      if (requestId !== requestRef.current) {
+        return;
+      }
+
       setDealers(response.data ?? []);
 
       setPagination(
         response.pagination ?? {
-          page: 1,
-          limit: 10,
+          page: filters.page ?? 1,
+          limit: filters.limit ?? 10,
           total: 0,
           totalPages: 0,
         },
       );
     } catch (error) {
+      /*
+      |--------------------------------------------------------------------------
+      | Ignore error from old request
+      |--------------------------------------------------------------------------
+      */
+
+      if (requestId !== requestRef.current) {
+        return;
+      }
+
       console.error("Failed to fetch dealers:", error);
 
-      toast.error("Failed to load dealers");
-
       setDealers([]);
+
+      setPagination({
+        page: filters.page ?? 1,
+        limit: filters.limit ?? 10,
+        total: 0,
+        totalPages: 0,
+      });
     } finally {
-      setLoading(false);
+      /*
+      |--------------------------------------------------------------------------
+      | Only latest request can stop loading
+      |--------------------------------------------------------------------------
+      */
+
+      if (requestId === requestRef.current) {
+        setLoading(false);
+      }
     }
   }, [
     filters.page,
     filters.limit,
     filters.search,
     filters.status,
+    filters.cityId,
+    filters.categoryId,
+    filters.productId,
   ]);
 
   useEffect(() => {
@@ -156,8 +133,7 @@ export function useDealerDetails(id?: string) {
   const [dealer, setDealer] = useState<Dealer | null>(null);
   const [loading, setLoading] = useState(false);
 
-
-  console.log(id)
+  console.log(id);
   const fetchDealer = useCallback(async () => {
     if (!id) {
       setDealer(null);

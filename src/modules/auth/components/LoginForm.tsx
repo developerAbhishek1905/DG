@@ -10,6 +10,8 @@ export default function LoginForm() {
   const location = useLocation();
   const { login, loading, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("")
+ 
   const {
     register,
     handleSubmit,
@@ -22,10 +24,13 @@ export default function LoginForm() {
     },
   });
 
+  console.log(errors)
+
   const onSubmit = async (data: LoginCredentials) => {
     const result = await login(data);
 
     if (!result.success) {
+      console.log(result)
       return;
     }
 
@@ -51,7 +56,7 @@ export default function LoginForm() {
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-gray-700">
-          Email Address
+          Email Address/ HEAD CODE
         </label>
 
         <div className="relative">
@@ -61,16 +66,16 @@ export default function LoginForm() {
           />
 
           <input
-            type="email"
+            // type="email"
             placeholder="admin@dg.com"
             {...register("email", {
               required: "Email is required",
 
-              pattern: {
-                value: /^\S+@\S+\.\S+$/,
+              // pattern: {
+              //   value: /^\S+@\S+\.\S+$/,
 
-                message: "Enter a valid email",
-              },
+              //   message: "Enter a valid email",
+              // },
             })}
             className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />

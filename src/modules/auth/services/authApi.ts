@@ -1,25 +1,18 @@
 import type {
-//   ForgotPasswordPayload,
+  //   ForgotPasswordPayload,
   LoginCredentials,
   LoginResponse,
-//   ResetPasswordPayload,
+  //   ResetPasswordPayload,
 } from "../types/auth.types";
 
 import api from "../../../services/api/axios";
 
-const delay = (ms: number) =>
-  new Promise((resolve) =>
-    setTimeout(resolve, ms)
-  );
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  export const loginApi = async (
-  credentials: LoginCredentials
+export const loginApi = async (
+  credentials: LoginCredentials,
 ): Promise<LoginResponse> => {
-  const response = await api.post<LoginResponse>(
-    "/auth/login",
-    credentials
-  );
-
+  const response = await api.post<LoginResponse>("/auth/login", credentials);
   return response.data;
 };
 

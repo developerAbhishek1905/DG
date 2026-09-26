@@ -15,7 +15,10 @@ interface SearchSelectProps {
   loading?: boolean;
   disabled?: boolean;
   error?: string;
-  required?: boolean; 
+  required?: boolean;
+
+  filterMode?: "local" | "server";
+
   onSearch?: (search: string) => void;
   onSelect: (option: SearchSelectOption) => void;
   onClear?: () => void;
@@ -30,13 +33,16 @@ export default function SearchSelect({
   disabled = false,
   error,
   required = false,
+
+  filterMode = "local",
+
   onSearch,
   onSelect,
   onClear,
 }: SearchSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(value);
-
+const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Prevent browser from recognizing this as city/address/state etc.
@@ -45,9 +51,10 @@ export default function SearchSelect({
     `search_lookup_${crypto.randomUUID()}`,
   ).current;
 
-  useEffect(() => {
-    setSearch(value || "");
-  }, [value]);
+useEffect(() => {
+  setSearch(value || "");
+  setQuery("");
+}, [value]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -66,31 +73,72 @@ export default function SearchSelect({
     };
   }, []);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value;
+//   const filteredOptions = options.filter((option) =>
+//   option.label.toLowerCase().includes(search.trim().toLowerCase()),
+// );
 
-    setSearch(newValue);
-    setOpen(true);
+//   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     const newValue = event.target.value;
 
-    onSearch?.(newValue);
-  };
+//     setSearch(newValue);
+//     setOpen(true);
 
-  const handleSelect = (option: SearchSelectOption) => {
-    setSearch(option.label);
-    setOpen(false);
+//     onSearch?.(newValue);
+//   };
+const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const newValue = event.target.value;
 
-    onSelect(option);
-  };
+  setSearch(newValue);
+  setQuery(newValue);
+  setOpen(true);
 
-  const handleClear = () => {
-    setSearch("");
+  onSearch?.(newValue);
+};
 
-    onSearch?.("");
-    onClear?.();
+//   const handleSelect = (option: SearchSelectOption) => {
+//     setSearch(option.label);
+//     setOpen(false);
 
-    setOpen(true);
-  };
+//     onSelect(option);
+//   };
 
+const handleSelect = (option: SearchSelectOption) => {
+  setSearch(option.label);
+  setQuery("");
+  setOpen(false);
+
+  onSelect(option);
+};
+
+//   const handleClear = () => {
+//     setSearch("");
+
+//     onSearch?.("");
+//     onClear?.();
+
+//     setOpen(true);
+//   };
+
+const handleClear = () => {
+  setSearch("");
+  setQuery("");
+
+  onSearch?.("");
+  onClear?.();
+
+  setOpen(true);
+};
+
+const filteredOptions =
+  filterMode === "server"
+    ? options
+    : query.trim()
+      ? options.filter((option) =>
+          option.label
+            .toLowerCase()
+            .includes(query.trim().toLowerCase()),
+        )
+      : options;
   return (
     <div ref={containerRef} className="relative">
       {/* Label */}
@@ -246,8 +294,8 @@ export default function SearchSelect({
               <Loader2 size={13} className="animate-spin" />
               Loading...
             </div>
-          ) : options.length > 0 ? (
-            options.map((option) => (
+) : filteredOptions.length > 0 ? (
+  filteredOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"

@@ -102,12 +102,24 @@ export const deleteCategory = async (
    CATEGORY DROPDOWN
 ========================================================= */
 
-export const getCategoryDropdown =
-  async (): Promise<CategoryDropdown[]> => {
-    const response = await api.get("/categories/dropdown");
+// export const getCategoryDropdown =
+//   async (): Promise<CategoryDropdown[]> => {
+//     const response = await api.get("/categories/dropdown");
 
-    return response.data.data ?? [];
-  };
+//     return response.data.data ?? [];
+//   };
+
+export const getCategoryDropdown = async (
+  search = "",
+): Promise<CategoryDropdown[]> => {
+  const response = await api.get("/categories/dropdown", {
+    params: {
+      ...(search ? { search } : {}),
+    },
+  });
+
+  return response.data.data ?? [];
+};
 
 /* =========================================================
    IMPORT CATEGORY EXCEL

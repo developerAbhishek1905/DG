@@ -261,3 +261,29 @@ export interface DealerLeave {
 
   updatedAt?: string;
 }
+
+export type DealerLifecycleType =
+  | "JOINED"
+  | "LEFT"
+  | "SUSPENDED"
+  | "REJOINED";
+
+export interface DealerLifecycleLog {
+  _id: string;
+  dealerId: string;
+
+  type: DealerLifecycleType;
+
+  date: string;
+
+  reason?: string;
+
+  createdBy?: {
+    _id: string;
+    name?: string;
+    email?: string;
+  } | null;
+
+  createdAt: string;
+  updatedAt: string;
+}

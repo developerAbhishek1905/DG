@@ -1,5 +1,6 @@
 import api from "../../../services/api/axios";
 import type { Dealer, DealerFormData } from "../types/dealer.types";
+import type { DealerLifecycleLog } from "../types/dealer.types";
 
 const DEALER_API = "/dealers";
 
@@ -25,11 +26,22 @@ export interface CategoryDropdownOption {
   description: string;
 }
 
+// export interface DealerFilters {
+//   page?: number;
+//   limit?: number;
+//   search?: string;
+//   status?: string;
+// }
+
 export interface DealerFilters {
   page?: number;
   limit?: number;
   search?: string;
   status?: string;
+
+  cityId?: string | number;
+  categoryId?: string;
+  productId?: string | number;
 }
 
 const buildDealerFormData = (data: DealerFormData) => {
@@ -54,7 +66,7 @@ const buildDealerFormData = (data: DealerFormData) => {
         "productServices",
         "combinedCapacity",
         "individualCapacities",
-"additionalInfo",
+        "additionalInfo",
         "aadhaarFrontFile",
         "aadhaarBackFile",
         "panFrontFile",
@@ -135,24 +147,22 @@ const buildDealerFormData = (data: DealerFormData) => {
     });
   }
 
-  formData.append(
-  "additionalInfo",
-  JSON.stringify(data.additionalInfo ?? []),
-);
+  formData.append("additionalInfo", JSON.stringify(data.additionalInfo ?? []));
 
   return formData;
 };
 
 export const createDealer = async (data: DealerFormData): Promise<Dealer> => {
-try{  const formData = buildDealerFormData(data);
+  try {
+    const formData = buildDealerFormData(data);
 
-  const response = await api.post(DEALER_API, formData);
+    const response = await api.post(DEALER_API, formData);
 
-  return response.data.data;}
-  catch (error) {
-  console.error(error);
-  throw error;
-}
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const updateDealer = async (
@@ -166,9 +176,21 @@ export const updateDealer = async (
   return response.data.data;
 };
 
-export const getDealers = async (filters: DealerFilters = {}) => {
+// export const getDealers = async (filters: DealerFilters = {}) => {
+//   const response = await api.get(DEALER_API, {
+//     params: filters,
+//   });
+
+//   return response.data;
+// };
+
+export const getDealers = async (
+  filters: DealerFilters = {},
+  signal?: AbortSignal,
+) => {
   const response = await api.get(DEALER_API, {
     params: filters,
+    signal,
   });
 
   return response.data;
@@ -311,8 +333,19 @@ export const searchDealerDropdown = async (
 };
 
 export const endDealerLeave = async (dealerId: string) => {
-  const response = await api.patch(
-    `/dealers/${dealerId}/leave/end`,
+  const response = await api.patch(`/dealers/${dealerId}/leave/end`);
+
+  return response.data;
+};
+
+interface DealerLifecycleResponse {
+  success: boolean;
+  data: DealerLifecycleLog[];
+}
+
+export const getDealerLifecycleLogs = async (dealerId: string) => {
+  const response = await api.get<DealerLifecycleResponse>(
+    `/dealers/${dealerId}/lifecycle-logs`,
   );
 
   return response.data;

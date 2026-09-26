@@ -407,6 +407,17 @@ export default function DealerForm({
   const combinedCapacityProducts = watch("combinedCapacity.products") || [];
   const individualCapacities = watch("individualCapacities") || [];
 
+  // Product IDs already selected in Combined Capacity
+const combinedProductIds = combinedCapacityProducts.map((item) =>
+  Number(item.productId),
+);
+
+// Don't show Combined Capacity products in Individual Capacity
+const availableIndividualProducts = capacityProducts.filter(
+  (product) =>
+    !combinedProductIds.includes(Number(product.product_id)),
+);
+
   const createSingleFilePreview = (
     files: FileList | null,
     setter: React.Dispatch<React.SetStateAction<string>>,
@@ -833,12 +844,12 @@ export default function DealerForm({
 
               <Input
                 label="Email ID"
-                required
+                // required
                 type="email"
                 // placeholder="Enter email address"
                 error={errors.email?.message}
                 {...register("email", {
-                  required: "Email is required",
+                  // required: "Email is required",
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                     message: "Enter valid email address",
@@ -1510,7 +1521,7 @@ export default function DealerForm({
                   type="number"
                   min="0.01"
                   max="100"
-                  // step="0.01"
+                  step="0.01"
                   {...register("billingPercentage", {
                     valueAsNumber: true,
                     validate: (value, values) =>
@@ -1544,7 +1555,7 @@ export default function DealerForm({
                     label="Cancellation charge (₹)"
                     type="number"
                     min="0.01"
-                    // step="0.01"
+                    step="0.01"
                     {...register("cancellationCharge", {
                       valueAsNumber: true,
                       validate: (value, values) =>
@@ -1591,7 +1602,7 @@ export default function DealerForm({
                 label="GST Rate"
                 type="number"
                 min={0}
-                // step="0.01"
+                step="0.01"
                 {...register("gstRate", {
                   valueAsNumber: true,
                 })}
@@ -1648,7 +1659,7 @@ export default function DealerForm({
                 label="Security Amount"
                 type="number"
                 min={0}
-                // step="0.01"
+                step="0.01"
                 {...register("securityAmount", {
                   valueAsNumber: true,
                 })}
@@ -1659,7 +1670,7 @@ export default function DealerForm({
               <Input
                 label="Opening Balance"
                 type="number"
-                // step="0.01"
+                step="0.01"
                 {...register("openingBalance", {
                   valueAsNumber: true,
                 })}
@@ -1898,7 +1909,8 @@ export default function DealerForm({
                               value={item?.productName ?? ""}
                               placeholder="Search product..."
                               loading={capacityProductsLoading}
-                              options={capacityProducts.map((product) => ({
+                              // options={capacityProducts.map((product) => ({
+                              options={availableIndividualProducts.map((product) => ({
                                 value: product.product_id,
                                 label: product.product_name,
                                 data: product,

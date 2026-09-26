@@ -1,15 +1,95 @@
-import {
-  useCallback,
-} from "react";
+// import { useCallback } from "react";
 
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "../../../app/hooks";
+// import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
-import {
-  loginApi,
-} from "../services/authApi";
+// import { loginApi } from "../services/authApi";
+
+// import {
+//   clearAuthError,
+//   loginFailure,
+//   loginStart,
+//   loginSuccess,
+//   logoutSuccess,
+// } from "../store/authSlice";
+
+// import type { LoginCredentials } from "../types/auth.types";
+
+// export function useAuth() {
+//   const dispatch = useAppDispatch();
+
+//   const { user, token, isAuthenticated, loading, error } = useAppSelector(
+//     (state) => state.auth,
+//   );
+
+//   const login = useCallback(
+//     async (credentials: LoginCredentials) => {
+//       try {
+//         dispatch(loginStart());
+//         const response = await loginApi(credentials);
+//         console.log(response);
+//         const { user, token } = response.data;
+//         localStorage.setItem("token", token);
+//         localStorage.setItem("user", JSON.stringify(user));
+//         dispatch(
+//           loginSuccess({
+//             user,
+//             token,
+//           }),
+//         );
+//         return {
+//           success: true,
+//         };
+//       } catch (error) {
+//         const message = error instanceof Error ? error.message : "Login failed";
+
+//         dispatch(loginFailure(message));
+
+//         return {
+//           success: false,
+//           message,
+//         };
+//       }
+//     },
+//     [dispatch],
+//   );
+
+//   const logout = useCallback(() => {
+//     localStorage.removeItem("token");
+
+//     localStorage.removeItem("user");
+
+//     dispatch(logoutSuccess());
+//   }, [dispatch]);
+
+//   const clearError = useCallback(() => {
+//     dispatch(clearAuthError());
+//   }, [dispatch]);
+
+//   return {
+//     user,
+
+//     token,
+
+//     isAuthenticated,
+
+//     loading,
+
+//     error,
+
+//     login,
+
+//     logout,
+
+//     clearError,
+//   };
+// }
+
+
+import { useCallback } from "react";
+import axios from "axios";
+
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { loginApi } from "../services/authApi";
 
 import {
   clearAuthError,
@@ -19,72 +99,52 @@ import {
   logoutSuccess,
 } from "../store/authSlice";
 
-import type {
-  LoginCredentials,
-} from "../types/auth.types";
+import type { LoginCredentials } from "../types/auth.types";
 
 export function useAuth() {
-  const dispatch =
-    useAppDispatch();
+  const dispatch = useAppDispatch();
 
-  const {
-    user,
-    token,
-    isAuthenticated,
-    loading,
-    error,
-  } = useAppSelector(
-    (state) => state.auth
+  const { user, token, isAuthenticated, loading, error } = useAppSelector(
+    (state) => state.auth,
   );
 
   const login = useCallback(
-    async (
-      credentials: LoginCredentials
-    ) => {
+    async (credentials: LoginCredentials) => {
       try {
         dispatch(loginStart());
 
-        const response =
-          await loginApi(
-            credentials
-          );
+        const response = await loginApi(credentials);
 
-          console.log(response)
+        const { user, token } = response.data;
 
-        const {
-          user,
-          token,
-        } = response.data;
-
-        localStorage.setItem(
-          "token",
-          token
-        );
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(user)
-        );
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
 
         dispatch(
           loginSuccess({
             user,
             token,
-          })
+          }),
         );
 
         return {
           success: true,
         };
       } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Login failed";
+        console.error("Login error:", error);
 
-        dispatch(
-          loginFailure(message)
-        );
+        let message = "Login failed";
+
+        if (axios.isAxiosError(error)) {
+          message =
+            error.response?.data?.message ||
+            error.message ||
+            "Login failed";
+        } else if (error instanceof Error) {
+          message = error.message;
+        }
+
+        dispatch(loginFailure(message));
 
         return {
           success: false,
@@ -92,48 +152,28 @@ export function useAuth() {
         };
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
-  const logout = useCallback(
-    () => {
-      localStorage.removeItem(
-        "token"
-      );
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-      localStorage.removeItem(
-        "user"
-      );
+    dispatch(logoutSuccess());
+  }, [dispatch]);
 
-      dispatch(
-        logoutSuccess()
-      );
-    },
-    [dispatch]
-  );
-
-  const clearError =
-    useCallback(() => {
-      dispatch(
-        clearAuthError()
-      );
-    }, [dispatch]);
+  const clearError = useCallback(() => {
+    dispatch(clearAuthError());
+  }, [dispatch]);
 
   return {
     user,
-
     token,
-
     isAuthenticated,
-
     loading,
-
     error,
-
     login,
-
     logout,
-
     clearError,
   };
 }

@@ -10,21 +10,30 @@ import {
   Phone,
   Star,
   User,
+
+    Activity,
   CalendarDays,
+  LogOut,
+  RefreshCcw,
+  ShieldBan,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Card from "../../../components/ui/Card";
 import DealerStatusBadge from "../components/DealerStatusBadge";
 import { useDealerDetails } from "../hooks/useDealers";
 import { usePermission } from "../../../hooks/usePermission";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DealerLeaveModal from "../components/DealerLeaveModal";
 import DealerRatingModal from "../components/DealerRatingModal";
 import DealerSuspendModal from "../components/DealerSuspendModal";
 import DealerRejoinModal from "../components/DealerRejoinModal";
 import DealerLeaveHistoryModal from "../components/DealerLeaveHistoryModal";
+import { getDealerLifecycleLogs } from "../services/dealerApi";
 // import LeaveHistoryCard from "../components/LeaveHistoryCard";
-
+import type {
+  DealerLifecycleLog,
+  DealerLifecycleType,
+} from "../types/dealer.types";
 export default function DealerDetailsPage() {
   const navigate = useNavigate();
   const { hasPermission } = usePermission();
@@ -46,7 +55,40 @@ export default function DealerDetailsPage() {
   const [rejoinModalOpen, setRejoinModalOpen] = useState(false);
 
   const [leaveHistoryOpen, setLeaveHistoryOpen] = useState(false);
+const [activityLogs, setActivityLogs] = useState<
+  DealerLifecycleLog[]
+>([]);
 
+const fetchDealerActivity = useCallback(async () => {
+  if (!id) return;
+
+  try {
+    setActivityLoading(true);
+
+    const response =
+      await getDealerLifecycleLogs(id);
+
+    setActivityLogs(response.data ?? []);
+  } catch (error) {
+    console.error(
+      "Failed to fetch dealer activity:",
+      error,
+    );
+
+    setActivityLogs([]);
+  } finally {
+    setActivityLoading(false);
+  }
+}, [id]);
+
+useEffect(() => {
+  fetchDealerActivity();
+}, [fetchDealerActivity]);
+
+
+
+const [activityLoading, setActivityLoading] =
+  useState(false);
   const dealerDocuments = (dealer as { documents?: DealerDocuments } | null)
     ?.documents;
 
@@ -802,7 +844,88 @@ export default function DealerDetailsPage() {
         open={leaveHistoryOpen}
         leaves={dealer.leaves}
         onClose={() => setLeaveHistoryOpen(false)}
+          onLeaveEnded={refetch}
       />
+
+      <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white">
+  {/* HEADER */}
+
+  <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+    <div className="flex items-center gap-2">
+      <Activity
+        size={18}
+        className="text-[#123B7A]"
+      />
+
+      <div>
+        <h2 className="text-sm font-semibold text-gray-900">
+          Dealer Activity
+        </h2>
+
+        <p className="mt-0.5 text-xs text-gray-500">
+          Joining, leaving, suspension and
+          rejoining history
+        </p>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      onClick={fetchDealerActivity}
+      disabled={activityLoading}
+      className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50"
+    >
+      <RefreshCcw
+        size={13}
+        className={
+          activityLoading ? "animate-spin" : ""
+        }
+      />
+
+      Refresh
+    </button>
+  </div>
+
+  {/* BODY */}
+
+  <div className="p-5">
+    {activityLoading ? (
+      <div className="py-8 text-center text-sm text-gray-500">
+        Loading activity...
+      </div>
+    ) : activityLogs.length === 0 ? (
+      <div className="py-10 text-center">
+        <Activity
+          size={30}
+          className="mx-auto mb-2 text-gray-300"
+        />
+
+        <p className="text-sm font-medium text-gray-600">
+          No activity found
+        </p>
+
+        <p className="mt-1 text-xs text-gray-400">
+          Dealer lifecycle activity will appear here.
+        </p>
+      </div>
+    ) : (
+      <div className="relative">
+        {/* Timeline vertical line */}
+
+        <div className="absolute bottom-3 left-[17px] top-3 w-px bg-gray-200" />
+
+        <div className="space-y-5">
+          {activityLogs.map((log) => (
+            <DealerActivityItem
+              key={log._id}
+              log={log}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
     </div>
   );
 }
@@ -1090,3 +1213,168 @@ function DocumentPreview({
 //     </div>
 //   );
 // }
+function DealerActivityItem({
+  log,
+}: {
+  log: DealerLifecycleLog;
+}) {
+  const config = getActivityConfig(log.type);
+
+  const Icon = config.icon;
+
+  return (
+    <div className="relative flex gap-4">
+      {/* ICON */}
+
+      <div
+        className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${config.iconStyle}`}
+      >
+        <Icon size={15} />
+      </div>
+
+      {/* CONTENT */}
+
+      <div className="min-w-0 flex-1 pb-1">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-sm font-semibold text-gray-800">
+              {config.title}
+            </p>
+
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+              <CalendarDays size={12} />
+
+              {formatActivityDate(log.date)}
+            </div>
+          </div>
+
+          <span
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${config.badgeStyle}`}
+          >
+            {config.label}
+          </span>
+        </div>
+
+        {/* REASON */}
+
+        {log.reason && (
+          <div className="mt-2 rounded-md bg-gray-50 px-3 py-2">
+            <p className="text-xs text-gray-500">
+              Reason
+            </p>
+
+            <p className="mt-0.5 text-sm text-gray-700">
+              {log.reason}
+            </p>
+          </div>
+        )}
+
+        {/* CREATED BY */}
+
+        {log.createdBy?.name && (
+          <p className="mt-2 text-xs text-gray-400">
+            Updated by{" "}
+            <span className="font-medium text-gray-500">
+              {log.createdBy.name}
+            </span>
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+function getActivityConfig(
+  type: DealerLifecycleType,
+) {
+  switch (type) {
+    case "JOINED":
+      return {
+        title: "Dealer Joined",
+        label: "Joined",
+        icon: LogIn,
+
+        iconStyle:
+          "border-green-200 bg-green-50 text-green-700",
+
+        badgeStyle:
+          "border-green-200 bg-green-50 text-green-700",
+      };
+
+    case "LEFT":
+      return {
+        title: "Dealer Left",
+        label: "Left",
+        icon: LogOut,
+
+        iconStyle:
+          "border-gray-200 bg-gray-50 text-gray-600",
+
+        badgeStyle:
+          "border-gray-200 bg-gray-50 text-gray-600",
+      };
+
+    case "SUSPENDED":
+      return {
+        title: "Dealer Suspended",
+        label: "Suspended",
+        icon: ShieldBan,
+
+        iconStyle:
+          "border-red-200 bg-red-50 text-red-700",
+
+        badgeStyle:
+          "border-red-200 bg-red-50 text-red-700",
+      };
+
+    case "REJOINED":
+      return {
+        title: "Dealer Rejoined",
+        label: "Rejoined",
+        icon: RefreshCcw,
+
+        iconStyle:
+          "border-blue-200 bg-blue-50 text-blue-700",
+
+        badgeStyle:
+          "border-blue-200 bg-blue-50 text-blue-700",
+      };
+
+    default:
+      return {
+        title: "Dealer Activity",
+        label: type,
+        icon: Activity,
+
+        iconStyle:
+          "border-gray-200 bg-gray-50 text-gray-600",
+
+        badgeStyle:
+          "border-gray-200 bg-gray-50 text-gray-600",
+      };
+  }
+}
+
+function formatActivityDate(date: string) {
+  if (!date) return "-";
+
+  const value = new Date(date);
+
+  if (Number.isNaN(value.getTime())) {
+    return "-";
+  }
+
+  return value.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+const refreshDealerData = async () => {
+  await Promise.all([
+    refetch(),
+    fetchDealerActivity(),
+  ]);
+};
