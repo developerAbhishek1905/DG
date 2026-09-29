@@ -133,6 +133,10 @@ export default function ComplaintTable({
                 Type
               </th>
 
+                            <th className="w-[9%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+                Allocation
+              </th>
+
               <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
                 Dealer
               </th>
@@ -274,8 +278,12 @@ export default function ComplaintTable({
                     title={complaint.complaintType || ""}
                     className="truncate text-[11px] text-gray-600"
                   >
-                    {complaint.complaintType?.replaceAll("_", " ") || "-"}
+                    {complaint.complaintType === "WARRANTY"?"REPEAT":complaint.complaintType?.replaceAll("_", " ") || "-"}
                   </p>
+                </td>
+
+                               <td className="px-1 py-3 text-center text-xs text-gray-600">
+                  {complaint?.allocationType ?? "-"}
                 </td>
 
                 {/* Dealer */}

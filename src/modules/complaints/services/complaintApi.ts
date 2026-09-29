@@ -196,6 +196,10 @@ export const getComplaints = async (
     params.status = filters.status;
   }
 
+  if (filters.productId) {
+  params.productId = filters.productId;
+}
+
   if (filters.complaintType) {
     params.complaintType = filters.complaintType;
   }

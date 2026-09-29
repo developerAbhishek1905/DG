@@ -1427,8 +1427,8 @@ export default function ComplaintForm({
                         autoComplete="off"
                       >
                         <option value="REGULAR">Regular</option>
-                        <option value="REPEAT">Repeat</option>
-                        <option value="WARRANTY">Warranty</option>
+                        {/* <option value="REPEAT">Repeat</option> */}
+                        <option value="WARRANTY">Repeat</option>
                         <option value="INQUIRY">Inquiry</option>
                       </select>
                     </div>

@@ -5,11 +5,21 @@ import type {
   CategoryImportResponse,
 } from "../types/category.types";
 
+// export interface CategoryDropdown {
+//   id: string;
+//   groupCategoryCode: string;
+//   category: string;
+//   categoryDescription: string;
+// }
+
 export interface CategoryDropdown {
-  id: string;
-  groupCategoryCode: string;
+  _id: string;
+  product_id: number;
+  product_name: string;
   category: string;
+  description: string;
   categoryDescription: string;
+  status: "ACTIVE" | "INACTIVE";
 }
 
 /* =========================================================
@@ -102,12 +112,18 @@ export const deleteCategory = async (
    CATEGORY DROPDOWN
 ========================================================= */
 
-// export const getCategoryDropdown =
-//   async (): Promise<CategoryDropdown[]> => {
-//     const response = await api.get("/categories/dropdown");
+// export const getCategoryDropdown = async (
+//   search = "",
+// ): Promise<CategoryDropdown[]> => {
+//   const response = await api.get("/categories/dropdown", {
+//     params: {
+//       ...(search ? { search } : {}),
+//     },
+//   });
 
-//     return response.data.data ?? [];
-//   };
+//   return response.data.data ?? [];
+// };
+
 
 export const getCategoryDropdown = async (
   search = "",

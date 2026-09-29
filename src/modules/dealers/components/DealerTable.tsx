@@ -106,8 +106,11 @@ export default function DealerTable({
                 Capacity
               </th>
 
-              <th className="w-[11%] px-3 py-3 text-xs font-semibold uppercase text-gray-500">
+              {/* <th className="w-[11%] px-3 py-3 text-xs font-semibold uppercase text-gray-500">
                 Documents
+              </th> */}
+              <th className="w-[11%] px-3 py-3 text-xs font-semibold uppercase text-gray-500">
+                Security Amount
               </th>
 
               <th className="w-[9%] px-3 py-3 text-xs font-semibold uppercase text-gray-500">
@@ -191,7 +194,11 @@ export default function DealerTable({
 
                   {/* DOCUMENTS */}
 
-                  <td className="px-3 py-4">
+                  <td className="px-3 py-4 text-sm text-gray-700">
+                    {dealer.securityAmount || "-"}
+                  </td>
+
+                  {/* <td className="px-3 py-4">
                     <DocumentStatus
                       uploaded={documents.uploaded}
                       total={3}
@@ -199,7 +206,7 @@ export default function DealerTable({
                       pan={documents.pan}
                       licence={documents.licence}
                     />
-                  </td>
+                  </td> */}
 
                   {/* STATUS */}
 
@@ -621,7 +628,7 @@ function DealerActions({
         </button>
       )}
 
-      {hasPermission("dealers.delete") && (
+      {/* {hasPermission("dealers.delete") && (
         <button
           type="button"
           title="Delete"
@@ -630,7 +637,7 @@ function DealerActions({
         >
           <Trash2 size={16} />
         </button>
-      )}
+      )} */}
     </div>
   );
 }

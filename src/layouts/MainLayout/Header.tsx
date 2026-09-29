@@ -27,13 +27,13 @@ export default function Header() {
 
       {/* Right */}
       <div className="flex items-center gap-5">
-        {/* <button className="relative text-gray-500 hover:text-gray-800">
+        <button className="relative text-gray-500 hover:text-gray-800">
           <Bell size={20} />
 
           <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
             7
           </span>
-        </button> */}
+        </button>
         <div className="flex items-center gap-3">
 
   <NotificationDropdown />

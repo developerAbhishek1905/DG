@@ -201,6 +201,7 @@ export interface ComplaintFilters {
   priority?: ComplaintPriority | "";
   customerId?: string;
   technicianId?: string;
+    productId?: number;
   dealerId?: string;
   fromDate?: string;
   toDate?: string;

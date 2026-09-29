@@ -12,7 +12,7 @@ export default function MainLayout() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-
+{/* <Header></Header> */}
       {/* Main Section */}
       <div className="flex h-screen flex-col lg:ml-64">
         {/* Mobile Header */}
