@@ -166,3 +166,62 @@ export interface PendingComplaint {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface FollowUpStatusOption {
+  value: string;
+  label: string;
+}
+
+export interface FollowUpRemark {
+  _id: string;
+
+  followUpStatus: string;
+  followUpDate: string;
+
+  remark: string;
+
+  sentToDealer: boolean;
+
+  createdAt: string;
+  updatedAt: string;
+
+  createdBy?: {
+    _id: string;
+    name: string;
+    email?: string;
+  };
+}
+
+export interface PendingComplaint {
+  _id: string;
+
+  complaintNumber: string;
+
+  customerName: string;
+  phone: string;
+
+  productName: string;
+
+  status: string;
+
+  pendingReason?: string;
+
+  updatedAt: string;
+
+  customerFollowUpStatus?: string;
+  customerFollowUpDate?: string;
+
+  latestRemark?: string;
+
+  allocatedDealerId?: {
+    _id: string;
+
+    technicianCode?: string;
+    technicianFirmName?: string;
+    technicianName?: string;
+
+    mobileNumber?: string;
+
+    status?: string;
+  };
+}

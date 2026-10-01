@@ -106,6 +106,9 @@ import {
 import { ItemMasterPage, CreateEditItemPage } from "../modules/itemMaster";
 import { ProductTypeMasterPage } from "../modules/productTypeMaster";
 import ReasonMasterPage from "../modules/reasonMaster/pages/ReasonMasterPage";
+import UserProfilePage from "../modules/profile/pages/UserProfilePage";
+
+
 function Dashboard() {
   return (
     <div>
@@ -273,6 +276,7 @@ export default function AppRoutes() {
             path="/settings/permissions"
             element={<PermissionSettingsPage />}
           />
+          <Route path="/profile" element={<UserProfilePage />} />
           <Route path="/category-master" element={<CategoryMasterPage />} />
           <Route path="/brand-master" element={<BrandMasterPage />} />
           <Route

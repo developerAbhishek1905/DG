@@ -6,7 +6,6 @@ import {
   Clock3,
   XCircle,
   Receipt,
-  Bell,
   ShieldCheck,
   FileCheck2,
   BadgeCheck,
@@ -17,6 +16,7 @@ import {
   PackageSearch,
   LogOut,
   ChevronDown,
+  ChevronRight,
   Boxes,
   Building2,
   Map,
@@ -24,6 +24,7 @@ import {
   LocateFixed,
   Package,
   Shapes,
+  UserCircle,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -569,7 +570,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             LOGOUT
         ====================================================== */}
 
-        <div className="shrink-0 border-t border-gray-200 p-3">
+        {/* <div className="shrink-0 border-t border-gray-200 p-3">
           <button
             type="button"
             onClick={handleLogout}
@@ -585,6 +586,85 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
             <span>Logout</span>
           </button>
+        </div> */}
+
+        {/* =====================================================
+    USER PROFILE + LOGOUT - SINGLE ROW
+====================================================== */}
+
+        <div className="shrink-0 border-t border-gray-200 p-3">
+          <div
+            className="
+      flex items-center gap-2
+      rounded-lg px-2 py-2
+      transition
+      hover:bg-gray-50
+    "
+          >
+            {/* Profile Click Area */}
+
+            <button
+              type="button"
+              onClick={() => {
+                navigate("/profile");
+                onClose?.();
+              }}
+              className="
+        flex min-w-0 flex-1
+        items-center gap-3
+        text-left
+      "
+            >
+              {/* Avatar */}
+
+              <div
+                className="
+          flex h-9 w-9 shrink-0
+          items-center justify-center
+          rounded-full bg-[#123B7A]
+          text-sm font-semibold text-white
+        "
+              >
+                {auth.user?.name
+                  ?.split(" ")
+                  .map((word) => word[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase() || "U"}
+              </div>
+
+              {/* User Details */}
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-gray-800">
+                  {auth.user?.name || "User"}
+                </p>
+
+                <p className="truncate text-xs text-gray-500">
+                  {auth.user?.role?.name || "User"}
+                </p>
+              </div>
+            </button>
+
+            {/* Logout */}
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Logout"
+              className="
+        flex h-9 w-9 shrink-0
+        items-center justify-center
+        rounded-lg
+        text-red-500
+        transition
+        hover:bg-red-50
+        hover:text-red-600
+      "
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </aside>
     </>
