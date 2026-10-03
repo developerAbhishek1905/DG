@@ -429,12 +429,12 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
       await onRefresh();
       setForms((previous) => {
-  const updated = { ...previous };
+        const updated = { ...previous };
 
-  delete updated[complaint._id];
+        delete updated[complaint._id];
 
-  return updated;
-});
+        return updated;
+      });
     } catch (error) {
       console.error(error);
 
@@ -475,34 +475,23 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
   |--------------------------------------------------------------------------
   */
 
-  const formatDateTimeLocal = (
-  value?: string,
-) => {
-  if (!value) return "";
+  const formatDateTimeLocal = (value?: string) => {
+    if (!value) return "";
 
-  const date = new Date(value);
+    const date = new Date(value);
 
-  const year = date.getFullYear();
+    const year = date.getFullYear();
 
-  const month = String(
-    date.getMonth() + 1,
-  ).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
 
-  const day = String(
-    date.getDate(),
-  ).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-  const hours = String(
-    date.getHours(),
-  ).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
 
-  const minutes = String(
-    date.getMinutes(),
-  ).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
-
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
 
   const formatDate = (value?: string) => {
     if (!value) return "-";
@@ -539,21 +528,23 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
       <div className="w-full rounded-xl border border-gray-200 bg-white">
         <table className="w-full table-fixed text-sm">
           <colgroup>
-            <col className="w-[11%]" /> {/* Complaint */}
-            <col className="w-[10%]" /> {/* Customer */}
-            <col className="w-[8%]" /> {/* Product */}
-            <col className="w-[9%]" /> {/* Technician */}
+            <col className="w-[10%]" /> {/* Complaint */}
+            <col className="w-[9%]" /> {/* Customer */}
+            <col className="w-[7%]" /> {/* City */}
+            <col className="w-[7%]" /> {/* Product */}
+            <col className="w-[8%]" /> {/* Technician */}
             <col className="w-[8%]" /> {/* Reason */}
             <col className="w-[7%]" /> {/* Updated */}
             <col className="w-[10%]" /> {/* Follow-up */}
-            <col className="w-[14%]" /> {/* Follow-up Date */}
-            <col className="w-[12%]" /> {/* Remark */}
-            <col className="w-[11%]" /> {/* Action */}
+            <col className="w-[13%]" /> {/* Follow-up Date */}
+            <col className="w-[11%]" /> {/* Remark */}
+            <col className="w-[10%]" /> {/* Action */}
           </colgroup>
           <thead className="bg-gray-50">
             <tr className="border-b text-left text-[11px] font-semibold uppercase text-gray-500">
               <th className="px-2 py-3">Complaint</th>
               <th className="px-2 py-3">Customer</th>
+              <th className="px-2 py-3">City</th>
               <th className="px-2 py-3">Product</th>
               <th className="px-2 py-3">Technician</th>
               <th className="px-2 py-3">Reason</th>
@@ -586,7 +577,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                   {/* Complaint */}
 
                   <td className="px-2 py-3 align-top">
-                    <div className="whitespace-nowrap text-xs font-semibold text-blue-600">
+                    <div className="whitespace-nowrap text-[11px] font-semibold text-blue-600">
                       {complaint.complaintNumber}
                     </div>
                   </td>
@@ -603,6 +594,17 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                     <p className="mt-0.5 truncate text-[10px] text-gray-500">
                       {complaint.phone}
+                    </p>
+                  </td>
+
+                  {/* City */}
+
+                  <td className="min-w-0 overflow-hidden px-2 py-3 align-top">
+                    <p
+                      className="truncate text-xs font-medium text-gray-700"
+                      title={complaint.address?.city || ""}
+                    >
+                      {complaint.address?.city || "-"}
                     </p>
                   </td>
 
@@ -667,82 +669,73 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                   {/* Follow-up status */}
 
                   <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
-<select
-  value={form.followUpReasonId}
-  onChange={(event) =>
-    updateForm(
-      complaint._id,
-      "followUpReasonId",
-      event.target.value,
-    )
-  }
-  className="
+                    <select
+                      value={form.followUpReasonId}
+                      onChange={(event) =>
+                        updateForm(
+                          complaint._id,
+                          "followUpReasonId",
+                          event.target.value,
+                        )
+                      }
+                      className="
     block w-full min-w-0 max-w-full
     rounded-md border border-gray-300
     bg-white px-1 py-2 text-[10px]
     outline-none focus:border-blue-500
   "
->
-  <option value="">
-    Select Reason
-  </option>
+                    >
+                      <option value="">Select Reason</option>
 
-  {pendingReasons.map((reason) => (
-    <option
-      key={reason.id}
-      value={reason.id}
-    >
-      {reason.reasonName}
-    </option>
-  ))}
-</select>
+                      {pendingReasons.map((reason) => (
+                        <option key={reason.id} value={reason.id}>
+                          {reason.reasonName}
+                        </option>
+                      ))}
+                    </select>
                   </td>
 
                   {/* Follow-up Date */}
 
                   <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
                     <div className="min-w-0 max-w-full overflow-hidden">
-<input
-  type="datetime-local"
-  value={form.followUpDate}
-  onChange={(event) =>
-    updateForm(
-      complaint._id,
-      "followUpDate",
-      event.target.value,
-    )
-  }
-  className="
+                      <input
+                        type="datetime-local"
+                        value={form.followUpDate}
+                        onChange={(event) =>
+                          updateForm(
+                            complaint._id,
+                            "followUpDate",
+                            event.target.value,
+                          )
+                        }
+                        className="
     block w-full min-w-0 max-w-full
     rounded-md border border-gray-300
     px-1 py-2 text-[10px]
     outline-none focus:border-blue-500
   "
-/>
+                      />
                     </div>
                   </td>
 
                   {/* Remark */}
 
                   <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
-<input
-  type="text"
-  value={form.remark}
-  onChange={(event) =>
-    updateForm(
-      complaint._id,
-      "remark",
-      event.target.value,
-    )
-  }
-  placeholder="Remark..."
-  className="
+                    <input
+                      type="text"
+                      value={form.remark}
+                      onChange={(event) =>
+                        updateForm(complaint._id, "remark", event.target.value)
+                      }
+                      placeholder="Remark..."
+                      className="
     block w-full min-w-0 max-w-full
     rounded-md border border-gray-300
     px-2 py-2 text-[10px]
     outline-none focus:border-blue-500
   "
-/>
+                    />
                   </td>
 
                   {/* Actions */}
