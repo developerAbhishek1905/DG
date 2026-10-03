@@ -15,22 +15,23 @@ import { getComplaintById } from "../services/complaintApi";
 import DealerInfoCard from "../components/DealerInfoCard";
 import ComplaintActivityModal from "../../appointments/components/ComplaintActivityModal";
 import { getComplaintActivities } from "../../appointments/services/appointmentApi";
-
+import { type Address } from "../types/complaint.types.js";
+import { toast } from "react-toastify";
 /* =========================================================
    TYPES - EXACTLY BASED ON YOUR API RESPONSE
 ========================================================= */
 
-interface Address {
-  addressLine: string;
-  stateId: number | null;
-  state: string;
-  districtId: number | null;
-  district: string;
-  cityId: number | null;
-  city: string;
-  pincodeId: number | null;
-  pinCode: string;
-}
+// interface Address {
+//   addressLine: string;
+//   stateId: number | null;
+//   state: string;
+//   districtId: number | null;
+//   district: string;
+//   cityId: number | null;
+//   city: string;
+//   pincodeId: number | null;
+//   pinCode: string;
+// }
 
 interface Customer {
   _id: string;
@@ -128,7 +129,7 @@ interface Complaint {
   createdAt: string;
   updatedAt: string;
   isWarranty: boolean;
-    additionalInfo?: string[];  
+  additionalInfo?: string[];
 }
 
 interface ComplaintApiResponse {
@@ -456,7 +457,31 @@ export default function ComplaintDetailsPage() {
               allocationStatus={
                 complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
               }
+              onDealerAssigned={async () => {
+                await fetchComplaint();
+                toast.success("Dealer assigned successfully");
+              }}
             />
+            // <DealerInfoCard
+            //   complaintId={complaint._id}
+            //   dealer={
+            //     complaint.allocatedDealerId
+            //       ? {
+            //           id: complaint.allocatedDealerId._id,
+            //           name: complaint.allocatedDealerId.technicianName || "",
+            //           firmName:
+            //             complaint.allocatedDealerId.technicianFirmName || "",
+            //           phone: complaint.allocatedDealerId.mobileNumber || "",
+            //           headCode: complaint.allocatedDealerId.headCode || "",
+            //           rating: complaint.allocatedDealerId.rating ?? 0,
+            //           status: complaint.allocatedDealerId.status || "ACTIVE",
+            //         }
+            //       : null
+            //   }
+            //   allocationStatus={
+            //     complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
+            //   }
+            // />
           )}
         </div>
 
@@ -563,8 +588,8 @@ export default function ComplaintDetailsPage() {
           </div>
 
           {/* =========================================
-      APPOINTMENT
-  ========================================= */}
+              APPOINTMENT
+          ========================================= */}
 
           <SubSectionTitle title="Appointment" className="mt-4" />
 
@@ -594,8 +619,8 @@ export default function ComplaintDetailsPage() {
           </div>
 
           {/* =========================================
-      ADDITIONAL DETAILS
-  ========================================= */}
+              ADDITIONAL DETAILS
+          ========================================= */}
 
           {(complaint.repeatComplaintNumber || complaint.description) && (
             <>
@@ -619,51 +644,43 @@ export default function ComplaintDetailsPage() {
               </div>
             </>
           )}
-
-          
         </CompactSection>
         {(complaint.adName ||
-  complaint.subject ||
-  complaint.description ||
-  (complaint.additionalInfo &&
-    complaint.additionalInfo.length > 0)) && (
-  <CompactSection title="Other Information">
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {complaint.adName && (
-        <InfoItem
-          label="Ad. Name"
-          value={complaint.adName}
-        />
-      )}
+          complaint.subject ||
+          complaint.description ||
+          (complaint.additionalInfo &&
+            complaint.additionalInfo.length > 0)) && (
+          <CompactSection title="Other Information">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {complaint.adName && (
+                <InfoItem label="Ad. Name" value={complaint.adName} />
+              )}
 
-      {complaint.subject && (
-        <InfoItem
-          label="Subject"
-          value={complaint.subject}
-        />
-      )}
+              {complaint.subject && (
+                <InfoItem label="Subject" value={complaint.subject} />
+              )}
 
-      {complaint.description && (
-        <div className="sm:col-span-2 lg:col-span-4">
-          <InfoItem
-            label="Description"
-            value={complaint.description}
-            multiline
-          />
-        </div>
-      )}
+              {complaint.description && (
+                <div className="sm:col-span-2 lg:col-span-4">
+                  <InfoItem
+                    label="Description"
+                    value={complaint.description}
+                    multiline
+                  />
+                </div>
+              )}
 
-      {complaint.additionalInfo?.map((info, index) => (
-        <InfoItem
-          key={`${index}-${info}`}
-          label={`Additional Info ${index + 1}`}
-          value={info}
-          multiline
-        />
-      ))}
-    </div>
-  </CompactSection>
-)}
+              {complaint.additionalInfo?.map((info, index) => (
+                <InfoItem
+                  key={`${index}-${info}`}
+                  label={`Additional Info ${index + 1}`}
+                  value={info}
+                  multiline
+                />
+              ))}
+            </div>
+          </CompactSection>
+        )}
       </div>
 
       {/* =====================================================

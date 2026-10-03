@@ -109,6 +109,10 @@ export default function ComplaintTable({
                 COMP ID
               </th>
 
+              <th className="w-[7%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+                Created
+              </th>
+
               <th className="w-[13%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
                 Customer
               </th>
@@ -133,7 +137,7 @@ export default function ComplaintTable({
                 Type
               </th>
 
-                            <th className="w-[9%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+              <th className="w-[9%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
                 Allocation
               </th>
 
@@ -141,12 +145,12 @@ export default function ComplaintTable({
                 Dealer
               </th>
 
-              <th className="w-[10%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
-                Status
+              <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+                Agent
               </th>
 
-              <th className="w-[7%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
-                Created
+              <th className="w-[10%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+                Status
               </th>
 
               <th className="w-[7%] px-1 py-2.5 text-right text-[10px] font-semibold uppercase text-gray-500">
@@ -177,6 +181,17 @@ export default function ComplaintTable({
                       {complaint.subject}
                     </p>
                   )}
+                </td>
+
+                {/* Created */}
+                <td className="px-2 py-3 text-[11px] text-gray-600">
+                  {new Date(complaint.createdAt).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </td>
 
                 {/* Customer */}
@@ -278,11 +293,13 @@ export default function ComplaintTable({
                     title={complaint.complaintType || ""}
                     className="truncate text-[11px] text-gray-600"
                   >
-                    {complaint.complaintType === "WARRANTY"?"REPEAT":complaint.complaintType?.replaceAll("_", " ") || "-"}
+                    {complaint.complaintType === "WARRANTY"
+                      ? "REPEAT"
+                      : complaint.complaintType?.replaceAll("_", " ") || "-"}
                   </p>
                 </td>
 
-                               <td className="px-1 py-3 text-center text-xs text-gray-600">
+                <td className="px-1 py-3 text-center text-xs text-gray-600">
                   {complaint?.allocationType ?? "-"}
                 </td>
 
@@ -307,20 +324,13 @@ export default function ComplaintTable({
                   )}
                 </td>
 
+                                <td className="px-1 py-3 text-center text-xs text-gray-600">
+                  {complaint?.createdBy?.name ?? "-"}
+                </td>
+
                 {/* Status */}
                 <td className="px-2 py-3">
                   <ComplaintStatusBadge status={complaint.status} />
-                </td>
-
-                {/* Created */}
-                <td className="px-2 py-3 text-[11px] text-gray-600">
-                  {new Date(complaint.createdAt).toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
                 </td>
 
                 {/* Actions */}

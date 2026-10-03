@@ -230,8 +230,9 @@ interface RowForm {
 
 export default function PendingTable({ complaints, onRefresh }: Props) {
   const [statuses, setStatuses] = useState<FollowUpStatusOption[]>([]);
-const [pendingReasons, setPendingReasons] =
-  useState<FollowUpReasonOption[]>([]);
+  const [pendingReasons, setPendingReasons] = useState<FollowUpReasonOption[]>(
+    [],
+  );
   const [forms, setForms] = useState<Record<string, RowForm>>({});
 
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -250,34 +251,25 @@ const [pendingReasons, setPendingReasons] =
   */
 
   useEffect(() => {
-  const loadPendingReasons = async () => {
-    try {
-      const response =
-        await getPendingFollowUpReasons();
+    const loadPendingReasons = async () => {
+      try {
+        const response = await getPendingFollowUpReasons();
 
-      const pendingOnly =
-        (response.data || []).filter(
+        const pendingOnly = (response.data || []).filter(
           (reason: FollowUpReasonOption) =>
-            reason.reasonType
-              ?.toLowerCase()
-              .includes("pending"),
+            reason.reasonType?.toLowerCase().includes("pending"),
         );
 
-      setPendingReasons(pendingOnly);
-    } catch (error) {
-      console.error(
-        "Failed to load pending reasons:",
-        error,
-      );
+        setPendingReasons(pendingOnly);
+      } catch (error) {
+        console.error("Failed to load pending reasons:", error);
 
-      toast.error(
-        "Failed to load pending reasons",
-      );
-    }
-  };
+        toast.error("Failed to load pending reasons");
+      }
+    };
 
-  loadPendingReasons();
-}, []);
+    loadPendingReasons();
+  }, []);
 
   useEffect(() => {
     const loadStatuses = async () => {
@@ -306,7 +298,7 @@ const [pendingReasons, setPendingReasons] =
       ...previous,
 
       [id]: {
-        followUpStatus: previous[id]?.followUpStatus || "",
+        followUpReasonId: previous[id]?.followUpReasonId || "",
 
         followUpDate: previous[id]?.followUpDate || "",
 
@@ -323,14 +315,76 @@ const [pendingReasons, setPendingReasons] =
   |--------------------------------------------------------------------------
   */
 
+  // const handleSave = async (
+  //   complaint: PendingComplaint,
+  //   sendToDealer: boolean,
+  // ) => {
+  //   const form = forms[complaint._id];
+
+  //   if (!form?.followUpStatus) {
+  //     toast.error("Select follow-up status");
+  //     return;
+  //   }
+
+  //   if (!form?.followUpDate) {
+  //     toast.error("Select follow-up date");
+  //     return;
+  //   }
+
+  //   if (!form?.remark?.trim()) {
+  //     toast.error("Enter remark");
+  //     return;
+  //   }
+
+  //   console.log(form?.followUpStatus);
+
+  //   try {
+  //     setSavingId(complaint._id);
+
+  //     await saveComplaintFollowUp(complaint._id, {
+  //       followUpStatus: form.followUpStatus,
+
+  //       followUpDate: form.followUpDate,
+
+  //       remark: form.remark.trim(),
+
+  //       sendToDealer,
+  //     });
+
+  //     toast.success(
+  //       sendToDealer
+  //         ? "Remark saved and sent to dealer"
+  //         : "Remark saved successfully",
+  //     );
+
+  //     setForms((previous) => ({
+  //       ...previous,
+
+  //       [complaint._id]: {
+  //         followUpStatus: "",
+  //         followUpDate: "",
+  //         remark: "",
+  //       },
+  //     }));
+
+  //     await onRefresh();
+  //   } catch (error) {
+  //     console.error(error);
+
+  //     toast.error("Failed to save remark");
+  //   } finally {
+  //     setSavingId(null);
+  //   }
+  // };
+
   const handleSave = async (
     complaint: PendingComplaint,
     sendToDealer: boolean,
   ) => {
     const form = forms[complaint._id];
 
-    if (!form?.followUpStatus) {
-      toast.error("Select follow-up status");
+    if (!form?.followUpReasonId) {
+      toast.error("Select follow-up reason");
       return;
     }
 
@@ -348,7 +402,7 @@ const [pendingReasons, setPendingReasons] =
       setSavingId(complaint._id);
 
       await saveComplaintFollowUp(complaint._id, {
-        followUpStatus: form.followUpStatus,
+        followUpReasonId: form.followUpReasonId,
 
         followUpDate: form.followUpDate,
 
@@ -363,17 +417,24 @@ const [pendingReasons, setPendingReasons] =
           : "Remark saved successfully",
       );
 
-      setForms((previous) => ({
-        ...previous,
+      // setForms((previous) => ({
+      //   ...previous,
 
-        [complaint._id]: {
-          followUpStatus: "",
-          followUpDate: "",
-          remark: "",
-        },
-      }));
+      //   [complaint._id]: {
+      //     followUpReasonId: "",
+      //     followUpDate: "",
+      //     remark: "",
+      //   },
+      // }));
 
       await onRefresh();
+      setForms((previous) => {
+  const updated = { ...previous };
+
+  delete updated[complaint._id];
+
+  return updated;
+});
     } catch (error) {
       console.error(error);
 
@@ -382,7 +443,6 @@ const [pendingReasons, setPendingReasons] =
       setSavingId(null);
     }
   };
-
   /*
   |--------------------------------------------------------------------------
   | View Remarks
@@ -414,6 +474,35 @@ const [pendingReasons, setPendingReasons] =
   | Date formatter
   |--------------------------------------------------------------------------
   */
+
+  const formatDateTimeLocal = (
+  value?: string,
+) => {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1,
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate(),
+  ).padStart(2, "0");
+
+  const hours = String(
+    date.getHours(),
+  ).padStart(2, "0");
+
+  const minutes = String(
+    date.getMinutes(),
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 
   const formatDate = (value?: string) => {
     if (!value) return "-";
@@ -479,11 +568,14 @@ const [pendingReasons, setPendingReasons] =
           <tbody>
             {complaints.map((complaint) => {
               const form = forms[complaint._id] || {
-                followUpStatus: "",
-                followUpDate: "",
-                remark: "",
-              };
+                followUpReasonId: complaint.customerFollowUpReasonId || "",
 
+                followUpDate: complaint.customerFollowUpDate
+                  ? formatDateTimeLocal(complaint.customerFollowUpDate)
+                  : "",
+
+                remark: complaint.latestRemark || "",
+              };
               const isSaving = savingId === complaint._id;
 
               return (
@@ -576,11 +668,11 @@ const [pendingReasons, setPendingReasons] =
 
                   <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
 <select
-  value={form.followUpStatus}
+  value={form.followUpReasonId}
   onChange={(event) =>
     updateForm(
       complaint._id,
-      "followUpStatus",
+      "followUpReasonId",
       event.target.value,
     )
   }
@@ -610,43 +702,47 @@ const [pendingReasons, setPendingReasons] =
 
                   <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
                     <div className="min-w-0 max-w-full overflow-hidden">
-                      <input
-                        type="datetime-local"
-                        value={form.followUpDate}
-                        onChange={(event) =>
-                          updateForm(
-                            complaint._id,
-                            "followUpDate",
-                            event.target.value,
-                          )
-                        }
-                        className="
-        block w-full min-w-0 max-w-full
-        rounded-md border border-gray-300
-        px-1 py-2 text-[10px]
-        outline-none focus:border-blue-500
-      "
-                      />
+<input
+  type="datetime-local"
+  value={form.followUpDate}
+  onChange={(event) =>
+    updateForm(
+      complaint._id,
+      "followUpDate",
+      event.target.value,
+    )
+  }
+  className="
+    block w-full min-w-0 max-w-full
+    rounded-md border border-gray-300
+    px-1 py-2 text-[10px]
+    outline-none focus:border-blue-500
+  "
+/>
                     </div>
                   </td>
 
                   {/* Remark */}
 
                   <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
-                    <input
-                      type="text"
-                      value={form.remark}
-                      onChange={(event) =>
-                        updateForm(complaint._id, "remark", event.target.value)
-                      }
-                      placeholder="Remark..."
-                      className="
-      block w-full min-w-0 max-w-full
-      rounded-md border border-gray-300
-      px-2 py-2 text-[10px]
-      outline-none focus:border-blue-500
-    "
-                    />
+<input
+  type="text"
+  value={form.remark}
+  onChange={(event) =>
+    updateForm(
+      complaint._id,
+      "remark",
+      event.target.value,
+    )
+  }
+  placeholder="Remark..."
+  className="
+    block w-full min-w-0 max-w-full
+    rounded-md border border-gray-300
+    px-2 py-2 text-[10px]
+    outline-none focus:border-blue-500
+  "
+/>
                   </td>
 
                   {/* Actions */}

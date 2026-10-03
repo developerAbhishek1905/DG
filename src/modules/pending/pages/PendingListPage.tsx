@@ -1,10 +1,15 @@
-import { BarChart3, RotateCcw, Search,  Clock,
+import {
+  BarChart3,
+  RotateCcw,
+  Search,
+  Clock,
   Phone,
   MapPin,
   UserRound,
   SearchCheck,
   PackageX,
-  UserX, } from "lucide-react";
+  UserX,
+} from "lucide-react";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -285,20 +290,20 @@ export default function PendingListPage() {
   };
 
   const reasonColors = [
-  "green",
-  "red",
-  "yellow",
-  "pink",
-  "cyan",
-  "indigo",
-  "orange",
-  "purple",
-] as const;
+    "green",
+    "red",
+    "yellow",
+    "pink",
+    "cyan",
+    "indigo",
+    "orange",
+    "purple",
+  ] as const;
 
   return (
     <div className="space-y-6">
       {/* Header */}
- <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pending & SLA</h1>
 
@@ -314,54 +319,42 @@ export default function PendingListPage() {
           <BarChart3 size={17} />
           SLA Overview
         </button> */}
-      </div> 
+      </div>
       {/* Summary Cards */}
 
-<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-  {/* Total */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {/* Total */}
 
-  <SummaryCard
-    label="Total Pending"
-    count={summary.total}
-    color="blue"
-  />
+        <SummaryCard label="Total Pending" count={summary.total} color="blue" />
 
-  {/* Status Counts */}
+        {/* Status Counts */}
 
-  <SummaryCard
-    label="Pending On Call"
-    count={summary.statusCounts.PENDING_ON_CALL}
-    color="orange"
-  />
+        <SummaryCard
+          label="Pending On Call"
+          count={summary.statusCounts.PENDING_ON_CALL}
+          color="orange"
+        />
 
-  <SummaryCard
-    label="Pending On Visit"
-    count={summary.statusCounts.PENDING_ON_VISIT}
-    color="purple"
-  />
+        <SummaryCard
+          label="Pending On Visit"
+          count={summary.statusCounts.PENDING_ON_VISIT}
+          color="purple"
+        />
 
-  {/* Reason Counts */}
+        {/* Reason Counts */}
 
-  {Object.entries(summary.reasonCounts).map(
-    ([reason, count], index) => (
-      <SummaryCard
-        key={reason}
-        label={reason
-          .replaceAll("_", " ")
-          .toLowerCase()
-          .replace(/\b\w/g, (char) =>
-            char.toUpperCase(),
-          )}
-        count={count}
-        color={
-          reasonColors[
-            index % reasonColors.length
-          ]
-        }
-      />
-    ),
-  )}
-</div>
+        {Object.entries(summary.reasonCounts).map(([reason, count], index) => (
+          <SummaryCard
+            key={reason}
+            label={reason
+              .replaceAll("_", " ")
+              .toLowerCase()
+              .replace(/\b\w/g, (char) => char.toUpperCase())}
+            count={count}
+            color={reasonColors[index % reasonColors.length]}
+          />
+        ))}
+      </div>
       {/* 
      
 
@@ -520,9 +513,9 @@ export default function PendingListPage() {
           /> */}
 
           <PendingTable
-  complaints={pendingComplaints}
-  onRefresh={fetchPendingComplaints}
-/>
+            complaints={pendingComplaints}
+            onRefresh={fetchPendingComplaints}
+          />
 
           {/* Pagination */}
 

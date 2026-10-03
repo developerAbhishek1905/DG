@@ -91,7 +91,7 @@ export type ComplaintCategory = string;
 
 export interface Complaint {
   id: string;
-   _id?: string;
+  _id?: string;
   complaintNumber: string;
   complaintDateTime?: string;
   customerId?: string;
@@ -102,13 +102,13 @@ export interface Complaint {
   email?: string;
   address: Address;
   brand?: string;
-    brandId?: {
+  brandId?: {
     _id: string;
     brandName: string;
   };
-    productId?: number;
+  productId?: number;
   productName?: string;
- 
+
   productDescription?: string;
   units: number;
   quoteAmount?: number;
@@ -137,9 +137,8 @@ export interface Complaint {
   appointmentDate?: string;
   slaDueAt?: string;
   timeline?: ComplaintTimelineItem[];
-  allocatedDealerId:any
+  allocatedDealerId: any;
 }
-
 
 export interface CreateComplaintPayload {
   customerId?: string;
@@ -201,7 +200,7 @@ export interface ComplaintFilters {
   priority?: ComplaintPriority | "";
   customerId?: string;
   technicianId?: string;
-    productId?: number;
+  productId?: number;
   dealerId?: string;
   fromDate?: string;
   toDate?: string;
@@ -346,8 +345,8 @@ export interface ComplaintFormData {
   subject?: string;
   description?: string;
   additionalInfo: {
-  value: string;
-}[];
+    value: string;
+  }[];
 }
 
 export interface ComplaintDealer {

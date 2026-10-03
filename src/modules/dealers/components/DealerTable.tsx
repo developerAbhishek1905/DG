@@ -73,7 +73,8 @@ export default function DealerTable({
   console.log(dealers[0]?.effectiveStatus);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    // <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <div className="overflow-visible rounded-xl border border-gray-200 bg-white">
       {/* =========================================
           DESKTOP TABLE
       ========================================= */}
@@ -182,7 +183,7 @@ export default function DealerTable({
 
                   {/* CAPACITY */}
 
-                  <td className="px-3 py-4">
+                  {/* <td className="px-3 py-4">
                     <p className="text-sm font-semibold text-gray-900">
                       {capacity.total}
                     </p>
@@ -190,7 +191,68 @@ export default function DealerTable({
                     <p className="mt-0.5 whitespace-nowrap text-[11px] text-gray-500">
                       C: {capacity.combined} / I: {capacity.individual}
                     </p>
-                  </td>
+                  </td> */}
+                  {/* CAPACITY */}
+
+{/* <td className="px-3 py-4">
+  <div className="space-y-1">
+    
+    {Number(dealer.combinedCapacity?.capacity ?? 0) > 0 && (
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] text-gray-500">
+          Combined
+        </span>
+
+        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] font-semibold text-blue-700">
+          {dealer.combinedCapacity?.capacity}
+        </span>
+      </div>
+    )}
+
+    {dealer.individualCapacities?.map((item) => (
+      <div
+        key={item.productId}
+        className="flex items-center justify-between gap-2"
+      >
+        <span
+          className="max-w-[90px] truncate text-[11px] text-gray-600"
+          title={item.productName}
+        >
+          {item.productName}
+        </span>
+
+        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-700">
+          {item.capacity}
+        </span>
+      </div>
+    ))}
+
+
+    {capacity.total > 0 && (
+      <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-1">
+        <span className="text-[11px] font-medium text-gray-500">
+          Total
+        </span>
+
+        <span className="text-xs font-bold text-[#123B7A]">
+          {capacity.total}
+        </span>
+      </div>
+
+    {capacity.total === 0 && (
+      <span className="text-xs text-gray-400">-</span>
+    )}
+  </div>
+</td> */}
+
+{/* CAPACITY */}
+
+<td className="px-3 py-4">
+  <CapacityPopover
+    dealer={dealer}
+    capacity={capacity}
+  />
+</td>
 
                   {/* DOCUMENTS */}
 
@@ -641,3 +703,410 @@ function DealerActions({
     </div>
   );
 }
+
+import { useRef, useState } from "react";
+
+function CapacityPopover({
+  dealer,
+  capacity,
+}: {
+  dealer: Dealer;
+  capacity: {
+    combined: number;
+    individual: number;
+    total: number;
+  };
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  const [openUpward, setOpenUpward] = useState(false);
+
+  const combinedProducts =
+    dealer.combinedCapacity?.products ?? [];
+
+  const individualCapacities =
+    dealer.individualCapacities ?? [];
+
+  const handleMouseEnter = () => {
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    const triggerRect = container.getBoundingClientRect();
+
+    // Estimated popover height.
+    // Actual height is used if popover is already rendered.
+    const popoverHeight =
+      popoverRef.current?.offsetHeight ?? 350;
+
+    const viewportHeight = window.innerHeight;
+
+    const spaceBelow =
+      viewportHeight - triggerRect.bottom;
+
+    const spaceAbove = triggerRect.top;
+
+    // Open upward only when:
+    // 1. There isn't enough room below
+    // 2. There is more room above
+    setOpenUpward(
+      spaceBelow < popoverHeight + 16 &&
+        spaceAbove > spaceBelow,
+    );
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      className="group relative inline-block"
+    >
+      {/* ==============================
+          TRIGGER
+      ============================== */}
+
+      <button
+        type="button"
+        className="
+          inline-flex min-w-[65px] flex-col items-start
+          rounded-lg border border-gray-200
+          bg-gray-50 px-2.5 py-1.5
+          text-left transition
+          hover:border-blue-200 hover:bg-blue-50
+        "
+      >
+        <span className="text-sm font-bold text-[#123B7A]">
+          {capacity.total}
+        </span>
+
+        <span className="text-[10px] text-gray-500">
+          View capacity
+        </span>
+      </button>
+
+      {/* ==============================
+          POPOVER
+      ============================== */}
+
+      <div
+        ref={popoverRef}
+        className={`
+          invisible absolute left-0 z-[9999]
+          w-[320px]
+          rounded-xl border border-gray-200
+          bg-white p-4
+          opacity-0 shadow-xl
+          transition-all duration-150
+
+          group-hover:visible
+          group-hover:translate-y-0
+          group-hover:opacity-100
+
+          ${
+            openUpward
+              ? "bottom-full mb-2 translate-y-1"
+              : "top-full mt-2 -translate-y-1"
+          }
+        `}
+      >
+        {/* HEADER */}
+
+        <div className="flex items-center justify-between border-b border-gray-300 pb-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900">
+              Capacity Information
+            </p>
+
+            <p className="mt-0.5 truncate text-[11px] text-gray-500">
+              {dealer.technicianFirmName ||
+                dealer.headCode ||
+                "-"}
+            </p>
+          </div>
+
+          <span className="ml-3 rounded-lg bg-blue-50 px-2.5 py-1 text-sm font-bold text-[#123B7A]">
+            {capacity.total}
+          </span>
+        </div>
+
+        {/* ==============================
+            COMBINED CAPACITY
+        ============================== */}
+
+        <div className="mt-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-gray-700">
+              Combined Capacity
+            </p>
+
+            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700">
+              {capacity.combined}
+            </span>
+          </div>
+
+          {combinedProducts.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {combinedProducts.map((product) => (
+                <span
+                  key={product.productId}
+                  className="
+                    rounded-md border border-blue-100
+                    bg-blue-50 px-2 py-1
+                    text-[10px] font-medium text-blue-700
+                  "
+                >
+                  {product.productName}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-[11px] text-gray-400">
+              No combined products
+            </p>
+          )}
+        </div>
+
+        {/* ==============================
+            INDIVIDUAL CAPACITY
+        ============================== */}
+
+        <div className="mt-4 border-t border-gray-100 pt-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-gray-700">
+              Individual Capacity
+            </p>
+
+            <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-bold text-gray-700">
+              {capacity.individual}
+            </span>
+          </div>
+
+          {individualCapacities.length > 0 ? (
+            <div className="mt-2 space-y-2">
+              {individualCapacities.map((item) => (
+                <div
+                  key={item.productId}
+                  className="
+                    flex items-center justify-between
+                    rounded-lg bg-gray-50
+                    px-3 py-2
+                  "
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-medium text-gray-700">
+                      {item.productName}
+                    </p>
+
+                    <p className="text-[10px] text-gray-400">
+                      Product ID: {item.productId}
+                    </p>
+                  </div>
+
+                  <span className="ml-3 rounded-md bg-white px-2 py-1 text-xs font-bold text-gray-800 shadow-sm">
+                    {item.capacity}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-[11px] text-gray-400">
+              No individual capacity
+            </p>
+          )}
+        </div>
+
+        {/* ==============================
+            TOTAL
+        ============================== */}
+
+        {/* <div className="mt-4 flex items-center justify-between rounded-lg bg-[#123B7A]/5 px-3 py-2.5">
+          <div>
+            <p className="text-xs font-semibold text-gray-800">
+              Total Capacity
+            </p>
+
+            <p className="text-[10px] text-gray-500">
+              Combined + Individual
+            </p>
+          </div>
+
+          <span className="text-lg font-bold text-[#123B7A]">
+            {capacity.total}
+          </span>
+        </div> */}
+      </div>
+    </div>
+  );
+}
+
+
+// function CapacityPopover({
+//   dealer,
+//   capacity,
+// }: {
+//   dealer: Dealer;
+//   capacity: {
+//     combined: number;
+//     individual: number;
+//     total: number;
+//   };
+// }) {
+//   const combinedProducts =
+//     dealer.combinedCapacity?.products ?? [];
+
+//   const individualCapacities =
+//     dealer.individualCapacities ?? [];
+
+//   return (
+//     <div className="group relative inline-block">
+//       {/* TRIGGER */}
+//       <button
+//         type="button"
+//         className="
+//           inline-flex min-w-[65px] flex-col items-start
+//           rounded-lg border border-gray-200
+//           bg-gray-50 px-2.5 py-1.5
+//           text-left transition
+//           hover:border-blue-200 hover:bg-blue-50
+//         "
+//       >
+//         <span className="text-sm font-bold text-[#123B7A]">
+//           {capacity.total}
+//         </span>
+
+//         <span className="text-[10px] text-gray-500">
+//           View capacity
+//         </span>
+//       </button>
+
+//       {/* POPOVER */}
+//       <div
+//         className="
+//           invisible absolute left-0 top-full z-50 mt-2
+//           w-[320px]
+//           translate-y-1 rounded-xl border border-gray-200
+//           bg-white p-4 opacity-0 shadow-xl
+//           transition-all duration-150
+//           group-hover:visible
+//           group-hover:translate-y-0
+//           group-hover:opacity-100
+//         "
+//       >
+//         {/* HEADER */}
+//         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+//           <div>
+//             <p className="text-sm font-semibold text-gray-900">
+//               Capacity Information
+//             </p>
+
+//             <p className="mt-0.5 text-[11px] text-gray-500">
+//               {dealer.technicianFirmName || dealer.headCode}
+//             </p>
+//           </div>
+
+//           <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-sm font-bold text-[#123B7A]">
+//             {capacity.total}
+//           </span>
+//         </div>
+
+//         {/* COMBINED CAPACITY */}
+//         <div className="mt-4">
+//           <div className="flex items-center justify-between">
+//             <p className="text-xs font-semibold text-gray-700">
+//               Combined Capacity
+//             </p>
+
+//             <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700">
+//               {capacity.combined}
+//             </span>
+//           </div>
+
+//           {combinedProducts.length > 0 ? (
+//             <div className="mt-2 flex flex-wrap gap-1.5">
+//               {combinedProducts.map((product) => (
+//                 <span
+//                   key={product.productId}
+//                   className="
+//                     rounded-md border border-blue-100
+//                     bg-blue-50 px-2 py-1
+//                     text-[10px] font-medium text-blue-700
+//                   "
+//                 >
+//                   {product.productName}
+//                 </span>
+//               ))}
+//             </div>
+//           ) : (
+//             <p className="mt-2 text-[11px] text-gray-400">
+//               No combined products
+//             </p>
+//           )}
+//         </div>
+
+//         {/* INDIVIDUAL CAPACITY */}
+//         <div className="mt-4 border-t border-gray-100 pt-3">
+//           <div className="flex items-center justify-between">
+//             <p className="text-xs font-semibold text-gray-700">
+//               Individual Capacity
+//             </p>
+
+//             <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-bold text-gray-700">
+//               {capacity.individual}
+//             </span>
+//           </div>
+
+//           {individualCapacities.length > 0 ? (
+//             <div className="mt-2 space-y-2">
+//               {individualCapacities.map((item) => (
+//                 <div
+//                   key={item.productId}
+//                   className="
+//                     flex items-center justify-between
+//                     rounded-lg bg-gray-50
+//                     px-3 py-2
+//                   "
+//                 >
+//                   <div className="min-w-0">
+//                     <p className="truncate text-xs font-medium text-gray-700">
+//                       {item.productName}
+//                     </p>
+
+//                     <p className="text-[10px] text-gray-400">
+//                       Product ID: {item.productId}
+//                     </p>
+//                   </div>
+
+//                   <span className="ml-3 rounded-md bg-white px-2 py-1 text-xs font-bold text-gray-800 shadow-sm">
+//                     {item.capacity}
+//                   </span>
+//                 </div>
+//               ))}
+//             </div>
+//           ) : (
+//             <p className="mt-2 text-[11px] text-gray-400">
+//               No individual capacity
+//             </p>
+//           )}
+//         </div>
+
+//         {/* TOTAL */}
+//         <div className="mt-4 flex items-center justify-between rounded-lg bg-[#123B7A]/5 px-3 py-2.5">
+//           <div>
+//             <p className="text-xs font-semibold text-gray-800">
+//               Total Capacity
+//             </p>
+
+//             <p className="text-[10px] text-gray-500">
+//               Combined + Individual
+//             </p>
+//           </div>
+
+//           <span className="text-lg font-bold text-[#123B7A]">
+//             {capacity.total}
+//           </span>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }

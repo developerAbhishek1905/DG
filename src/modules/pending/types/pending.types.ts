@@ -7,11 +7,7 @@ export type PendingReason =
   | "TECHNICAL_SUPPORT_REQUIRED"
   | "OTHER";
 
-export type SLAStatus =
-  | "SAFE"
-  | "WARNING"
-  | "BREACHED"
-  | "RESOLVED";
+export type SLAStatus = "SAFE" | "WARNING" | "BREACHED" | "RESOLVED";
 
 export type PendingStatus =
   | "PENDING"
@@ -167,6 +163,13 @@ export interface PendingComplaint {
   updatedAt: string;
 }
 
+export interface SaveFollowUpPayload {
+  followUpStatus: string;
+  followUpDate: string;
+  remark: string;
+  sendToDealer: boolean;
+}
+
 export interface FollowUpStatusOption {
   value: string;
   label: string;
@@ -212,6 +215,10 @@ export interface PendingComplaint {
   customerFollowUpDate?: string;
 
   latestRemark?: string;
+
+  customerFollowUpReasonId?: string;
+
+  updatedAt: string;
 
   allocatedDealerId?: {
     _id: string;

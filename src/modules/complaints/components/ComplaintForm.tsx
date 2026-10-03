@@ -83,6 +83,63 @@ export default function ComplaintForm({
   complaintId,
   onSuccess,
 }: ComplaintFormProps) {
+  const getDefaultComplaintValues = (): ComplaintFormData => ({
+    complaintNumber: generateComplaintNumber(),
+
+    customerId: "",
+    customerCode: "",
+    customerPhone: "",
+    customerName: "",
+    alternatePhone: "",
+    customerEmail: "",
+
+    address: {
+      addressLine: "",
+      stateId: undefined,
+      state: "",
+      districtId: undefined,
+      district: "",
+      cityId: undefined,
+      city: "",
+      pincodeId: undefined,
+      pinCode: "",
+    },
+
+    contactInfo: "",
+
+    brandId: "",
+    brand: "",
+
+    productNumericId: undefined,
+    productId: undefined,
+    productName: "",
+
+    productTypeId: "",
+    productType: "",
+
+    categoryId: "",
+    category: "",
+
+    productDescription: "",
+
+    units: 1,
+    quoteAmount: undefined,
+    faultReported: "",
+
+    priority: "MEDIUM",
+    complaintType: "REGULAR",
+
+    adName: "",
+    status: "REGISTERED",
+
+    repeatComplaintNumber: "",
+
+    subject: "",
+    description: "",
+
+    additionalInfo: [],
+  });
+
   const {
     register,
     handleSubmit,
@@ -93,49 +150,62 @@ export default function ComplaintForm({
     reset,
     formState: { errors },
   } = useForm<ComplaintFormData>({
-    defaultValues: {
-      complaintNumber: generateComplaintNumber(),
-      customerId: "",
-      customerPhone: "",
-      customerName: "",
-      alternatePhone: "",
-      customerEmail: "",
-      address: {
-        addressLine: "",
-        stateId: undefined,
-        state: "",
-        districtId: undefined,
-        district: "",
-        cityId: undefined,
-        city: "",
-        pincodeId: undefined,
-        pinCode: "",
-      },
-      brandId: "",
-      brand: "",
-      productNumericId: undefined,
-      productName: "",
-      productTypeId: "",
-      productType: "",
-      categoryId: "",
-      category: "",
-      contactInfo: "",
-      productId: undefined,
-      productDescription: "",
-      units: 1,
-      quoteAmount: undefined,
-      faultReported: "",
-      category: "",
-      priority: "MEDIUM",
-      complaintType: "REGULAR",
-      adName: "",
-      status: "REGISTERED",
-      repeatComplaintNumber: "",
-      subject: "",
-      description: "",
-      additionalInfo: [],
-    },
+    defaultValues: getDefaultComplaintValues(),
   });
+
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   watch,
+  //   setValue,
+  //   getValues,
+  //   control,
+  //   reset,
+  //   formState: { errors },
+  // } = useForm<ComplaintFormData>({
+  //   defaultValues: {
+  //     complaintNumber: generateComplaintNumber(),
+  //     customerId: "",
+  //     customerPhone: "",
+  //     customerName: "",
+  //     alternatePhone: "",
+  //     customerEmail: "",
+  //     address: {
+  //       addressLine: "",
+  //       stateId: undefined,
+  //       state: "",
+  //       districtId: undefined,
+  //       district: "",
+  //       cityId: undefined,
+  //       city: "",
+  //       pincodeId: undefined,
+  //       pinCode: "",
+  //     },
+  //     brandId: "",
+  //     brand: "",
+  //     productNumericId: undefined,
+  //     productName: "",
+  //     productTypeId: "",
+  //     productType: "",
+  //     categoryId: "",
+  //     category: "",
+  //     contactInfo: "",
+  //     productId: undefined,
+  //     productDescription: "",
+  //     units: 1,
+  //     quoteAmount: undefined,
+  //     faultReported: "",
+  //     category: "",
+  //     priority: "MEDIUM",
+  //     complaintType: "REGULAR",
+  //     adName: "",
+  //     status: "REGISTERED",
+  //     repeatComplaintNumber: "",
+  //     subject: "",
+  //     description: "",
+  //     additionalInfo: [],
+  //   },
+  // });
 
   const {
     fields: additionalInfoFields,
@@ -407,41 +477,6 @@ export default function ComplaintForm({
     return () => clearTimeout(timer);
   }, [customerPhone]);
 
-  // const formatComplaintDate = (date: Date) => {
-  //   const day = String(date.getDate()).padStart(2, "0");
-  //   const month = String(date.getMonth() + 1).padStart(2, "0");
-  //   const year = String(date.getFullYear()).slice(-2);
-  //   return `${day}${month}${year}`;
-  // };
-
-  // const loadCategories = async (search: string) => {
-  //   if (!selectedProductId) {
-  //     setCategories([]);
-  //     return;
-  //   }
-  //   try {
-  //     setCategoryLoading(true);
-  //     const data = await searchCategories({
-  //       productId: Number(selectedProductId),
-  //       search,
-  //     });
-  //     setCategories(data);
-  //   } catch (error) {
-  //     console.error("Failed to load categories:", error);
-  //     setCategories([]);
-  //   } finally {
-  //     setCategoryLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (!selectedProductId) {
-  //     setCategories([]);
-  //     return;
-  //   }
-  //   loadCategories(debouncedCategorySearch);
-  // }, [debouncedCategorySearch, selectedProductId]);
-
   const loadCategories = async (search: string) => {
     try {
       setCategoryLoading(true);
@@ -463,35 +498,6 @@ export default function ComplaintForm({
   useEffect(() => {
     loadCategories(debouncedCategorySearch);
   }, [debouncedCategorySearch]);
-
-  // const handleCategorySelect = (category: CategoryDropdownOption) => {
-  //   // Actual value submitted to backend
-  //   setValue("category", category.category, {
-  //     shouldValidate: true,
-  //     shouldDirty: true,
-  //   });
-
-  //   // Value shown inside SearchSelect
-  //   setSelectedCategoryLabel(`${category.category} - ${category.description}`);
-  //   setCategorySearch("");
-  // };
-
-  // const handleCategorySelect = (category: CategoryDropdownOption) => {
-  //   // MongoDB _id
-  //   setValue("categoryId", category._id, {
-  //     shouldValidate: true,
-  //     shouldDirty: true,
-  //   });
-
-  //   setValue("category", category.category, {
-  //     shouldValidate: true,
-  //     shouldDirty: true,
-  //   });
-
-  //   setSelectedCategoryLabel(`${category.category} - ${category.description}`);
-
-  //   setCategorySearch("");
-  // };
 
   const handleCategorySelect = (category: CategoryDropdownOption) => {
     // Category
@@ -520,28 +526,6 @@ export default function ComplaintForm({
 
     setCategorySearch("");
   };
-
-  // const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
-  //   if (!complaint.isWarranty) {
-  //     toast.error("This complaint is not under warranty");
-  //     return;
-  //   }
-
-  //   // Automatically make this a warranty complaint
-  //   setValue("complaintType", "WARRANTY", {
-  //     shouldDirty: true,
-  //     shouldValidate: true,
-  //   });
-
-  //   setValue("repeatComplaintNumber", complaint.complaintNumber, {
-  //     shouldDirty: true,
-  //     shouldValidate: true,
-  //   });
-
-  //   toast.success(
-  //     `${complaint.complaintNumber} selected for warranty complaint`,
-  //   );
-  // };
 
   const handleWarrantySelect = (complaint: ComplaintHistoryItem) => {
     if (!complaint.isWarranty) {
@@ -818,58 +802,6 @@ export default function ComplaintForm({
     });
   };
 
-  const handleProductSelect = (product: ProductDropdownOption) => {
-    // setValue("productId", product.product_id, {
-    //   shouldValidate: true,
-    // });
-    setValue("productId", product.product_id, {
-      shouldValidate: true,
-    });
-    setValue("productName", product.product_name, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    // reset product type
-    setValue("productTypeId", "");
-    setValue("productType", "");
-    setProductTypeSearch("");
-    setProductTypes([]);
-    // reset category
-    setValue("category", "");
-    setCategorySearch("");
-    setCategories([]);
-  };
-
-  // const handleProductSelect = (product: ProductDropdownOption) => {
-  //   // MongoDB _id
-  //   setValue("productId", product._id, {
-  //     shouldValidate: true,
-  //     shouldDirty: true,
-  //   });
-
-  //   // Numeric product_id - used for dependent APIs
-  //   setValue("productNumericId", product.product_id, {
-  //     shouldDirty: true,
-  //   });
-
-  //   setValue("productName", product.product_name, {
-  //     shouldValidate: true,
-  //     shouldDirty: true,
-  //   });
-
-  //   // Reset product type
-  //   setValue("productTypeId", "");
-  //   setValue("productType", "");
-  //   setProductTypeSearch("");
-  //   setProductTypes([]);
-
-  //   // Reset category
-  //   setValue("categoryId", "");
-  //   setValue("category", "");
-  //   setSelectedCategoryLabel("");
-  //   setCategorySearch("");
-  //   setCategories([]);
-  // };
   const handleProductTypeSelect = (productType: ProductTypeDropdownOption) => {
     setValue("productTypeId", productType.id || "");
     setValue("productType", productType.product_type, {
@@ -877,23 +809,6 @@ export default function ComplaintForm({
       shouldDirty: true,
     });
   };
-  // Alternate Mobile Lookup
-
-  // useEffect(() => {
-  //   // const phone = alternatePhone?.trim();
-  //   if (!phone || phone.length !== 10) {
-  //     return;
-  //   }
-  //   if (phone === customerPhone) {
-  //     return;
-  //   }
-  //   const timer = setTimeout(() => {
-  //     lookupCustomer(phone);
-  //   }, 500);
-  //   return () => clearTimeout(timer);
-  // }, [
-  //   // alternatePhone,
-  //    customerPhone]);
 
   // Customer Lookup
   const lookupCustomer = async (phone: string) => {
@@ -988,10 +903,6 @@ export default function ComplaintForm({
             : null,
           pinCode: data.address.pinCode,
         },
-        // city: data.city,
-        // district: data.district,
-        // state: data.state,
-        // pincode: data.pincode,
         contactInfo: data.contactInfo,
         brandId: data.brandId,
         brand: data.brand,
@@ -1017,7 +928,23 @@ export default function ComplaintForm({
             ?.map((item) => item.value?.trim())
             .filter(Boolean) || [],
       });
-      navigate("/complaints");
+      // navigate("/complaints");
+      reset(getDefaultComplaintValues());
+      setExistingCustomer(null);
+      setComplaintHistory([]);
+
+      setLookupDone(false);
+      setLookupError(null);
+      setSelectedCategoryLabel("");
+
+      setBrandSearch("");
+      setCategorySearch("");
+      setProductSearch("");
+      setProductTypeSearch("");
+      setProductTypes([]);
+
+      onComplaintCreated?.(createdComplaint);
+      onSuccess?.();
       toast.success("Complaint created successfully");
     } catch (error: any) {
       console.error("Create complaint error:", error);
@@ -1026,19 +953,6 @@ export default function ComplaintForm({
       setSubmitting(false);
     }
   };
-
-  // const handleCustomerLookup = async (phone: string) => {
-  //   try {
-  //     const response = await lookupCustomerByPhone(phone);
-  //     setExistingCustomer(response.customer);
-  //     setComplaintHistory(response.complaintHistory || []);
-  //     if (response.customer) {
-  //       fillCustomerDetails(response.customer);
-  //     }
-  //   } catch (error) {
-  //     console.error("Customer lookup failed:", error);
-  //   }
-  // };
 
   return (
     <form
@@ -1210,43 +1124,6 @@ export default function ComplaintForm({
                       }}
                     />
 
-                    {/* <SearchSelect
-                      label="Category"
-                      value={selectedCategoryLabel}
-                      placeholder={
-                        selectedProductId
-                          ? "Search category..."
-                          : "Select product first"
-                      }
-                      loading={categoryLoading}
-                      // options={categories.map((category) => ({
-                      //   value:
-                      //     category.id ??
-                      //     `${category.product_id}-${category.category}`,
-                      //   label: `${category.category} - ${category.description}`,
-                      //   data: category,
-                      // }))}
-                      options={categories.map((category) => ({
-                        value: category._id,
-                        label: `${category.category} - ${category.description}`,
-                        data: category,
-                      }))}
-                      onSearch={setCategorySearch}
-                      onSelect={(option) =>
-                        handleCategorySelect(
-                          option.data as CategoryDropdownOption,
-                        )
-                      }
-                      onClear={() => {
-                        setValue("category", "");
-                        setCategorySearch("");
-                        setSelectedCategoryLabel("");
-                        setCategorySearch("");
-                        setCategories([]);
-                      }}
-                      error={errors.category?.message}
-                    /> */}
-
                     <SearchSelect
                       label="Category"
                       value={selectedCategoryLabel}
@@ -1281,63 +1158,6 @@ export default function ComplaintForm({
                       }}
                       error={errors.category?.message}
                     />
-
-                    {/* <SearchSelect
-                      label="Product"
-                      value={selectedProductName || ""}
-                      placeholder="Search product..."
-                      loading={productLoading}
-                      options={products.map((product) => ({
-                        value: product.product_id,
-                        label: product.product_name,
-                        data: product,
-                      }))}
-                      // options={products.map((product) => ({
-                      //   value: product._id,
-                      //   label: product.product_name,
-                      //   data: product,
-                      // }))}
-                      onSearch={setProductSearch}
-                      onSelect={(option) =>
-                        handleProductSelect(
-                          option.data as ProductDropdownOption,
-                        )
-                      }
-                      // onClear={() => {
-                      //   setValue("productId", undefined);
-                      //   setValue("productName", "");
-                      //   setValue("productTypeId", "");
-                      //   setValue("productType", "");
-                      //   setValue("category", "");
-                      //   setProductSearch("");
-                      //   setProductTypeSearch("");
-                      //   setCategorySearch("");
-                      //   setProductTypes([]);
-                      //   setCategories([]);
-                      // }}
-                      onClear={() => {
-                        setValue("productId", "");
-                        setValue("productId", undefined);
-                        // setValue("productNumericId", undefined);
-                        setValue("productName", "");
-
-                        setValue("productTypeId", "");
-                        setValue("productType", "");
-
-                        setValue("categoryId", "");
-                        setValue("category", "");
-
-                        setSelectedCategoryLabel("");
-
-                        setProductSearch("");
-                        setProductTypeSearch("");
-                        setCategorySearch("");
-
-                        setProductTypes([]);
-                        setCategories([]);
-                      }}
-                      error={errors.productName?.message}
-                    /> */}
 
                     <Input
                       label="Product"
@@ -1452,13 +1272,6 @@ export default function ComplaintForm({
                           className="cursor-not-allowed bg-gray-50"
                           {...register("repeatComplaintNumber")}
                         />
-
-                        {/* <Input
-                          label="New Complaint No."
-                          readOnly
-                          className="cursor-not-allowed bg-blue-50 font-semibold text-[#123B7A]"
-                          {...register("complaintNumber")}
-                        /> */}
                       </>
                     )}
 
@@ -1641,7 +1454,9 @@ function ComplaintHistoryTable({
                 |--------------------------------------------------------------------------
                 */
 
-                const isUnderWarranty = complaint.isWarranty === true && complaint.complaintType !== "WARRANTY";
+                const isUnderWarranty =
+                  complaint.isWarranty === true &&
+                  complaint.complaintType !== "WARRANTY";
                 const isSelected =
                   selectedComplaintNumber === complaint.complaintNumber;
 
@@ -1732,7 +1547,8 @@ function ComplaintHistoryTable({
                     {/* Warranty */}
 
                     <td className="whitespace-nowrap px-3 py-2">
-                      {(complaint.isWarranty && complaint.complaintType !== "WARRANTY") ? (
+                      {complaint.isWarranty &&
+                      complaint.complaintType !== "WARRANTY" ? (
                         <div className="flex flex-col items-start gap-1">
                           <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
                             Under Warranty
