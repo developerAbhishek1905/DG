@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import {
   createComplaint,
+  updateComplaint,
   lookupCustomerByPhone,
   updateCustomer,
   searchBrands,
@@ -878,81 +879,229 @@ export default function ComplaintForm({
   };
 
   // Submit
+  // const onSubmit = async (data: ComplaintFormData) => {
+  //   try {
+  //     setSubmitting(true);
+  //     const createdComplaint = await createComplaint({
+  //       customerId: data.customerId,
+  //       customerCode: data.customerCode,
+  //       customerName: data.customerName,
+  //       phone: data.customerPhone,
+  //       alternatePhone: data.alternatePhone,
+  //       email: data.customerEmail,
+  //       address: {
+  //         addressLine: data.address.addressLine,
+  //         stateId: data.address.stateId ? Number(data.address.stateId) : null,
+  //         state: data.address.state,
+  //         districtId: data.address.districtId
+  //           ? Number(data.address.districtId)
+  //           : null,
+  //         district: data.address.district,
+  //         cityId: data.address.cityId ? Number(data.address.cityId) : null,
+  //         city: data.address.city,
+  //         pincodeId: data.address.pincodeId
+  //           ? Number(data.address.pincodeId)
+  //           : null,
+  //         pinCode: data.address.pinCode,
+  //       },
+  //       contactInfo: data.contactInfo,
+  //       brandId: data.brandId,
+  //       brand: data.brand,
+
+  //       productName: data.productName,
+  //       units: Number(data.units),
+  //       quoteAmount: data.quoteAmount ? Number(data.quoteAmount) : undefined,
+  //       productDescription: data.productDescription,
+  //       productId: data.productId,
+  //       productTypeId: data.productTypeId,
+  //       productType: data.productType,
+  //       categoryId: data.categoryId,
+  //       faultReported: data.faultReported,
+  //       category: data.category,
+  //       priority: data.priority,
+  //       complaintType: data.complaintType,
+  //       adName: data.adName,
+  //       repeatComplaintNumber: data.repeatComplaintNumber,
+  //       subject: data.subject,
+  //       description: data.description,
+  //       additionalInfo:
+  //         data.additionalInfo
+  //           ?.map((item) => item.value?.trim())
+  //           .filter(Boolean) || [],
+  //     });
+  //     // navigate("/complaints");
+  //     reset(getDefaultComplaintValues());
+  //     setExistingCustomer(null);
+  //     setComplaintHistory([]);
+
+  //     setLookupDone(false);
+  //     setLookupError(null);
+  //     setSelectedCategoryLabel("");
+
+  //     setBrandSearch("");
+  //     setCategorySearch("");
+  //     setProductSearch("");
+  //     setProductTypeSearch("");
+  //     setProductTypes([]);
+
+  //     onComplaintCreated?.(createdComplaint);
+  //     onSuccess?.();
+  //     toast.success("Complaint created successfully");
+  //   } catch (error: any) {
+  //     console.error("Create complaint error:", error);
+  //     toast.error(error.response?.data?.message);
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
   const onSubmit = async (data: ComplaintFormData) => {
-    try {
-      setSubmitting(true);
-      const createdComplaint = await createComplaint({
-        customerId: data.customerId,
-        customerCode: data.customerCode,
-        customerName: data.customerName,
-        phone: data.customerPhone,
-        alternatePhone: data.alternatePhone,
-        email: data.customerEmail,
-        address: {
-          addressLine: data.address.addressLine,
-          stateId: data.address.stateId ? Number(data.address.stateId) : null,
-          state: data.address.state,
-          districtId: data.address.districtId
-            ? Number(data.address.districtId)
-            : null,
-          district: data.address.district,
-          cityId: data.address.cityId ? Number(data.address.cityId) : null,
-          city: data.address.city,
-          pincodeId: data.address.pincodeId
-            ? Number(data.address.pincodeId)
-            : null,
-          pinCode: data.address.pinCode,
-        },
-        contactInfo: data.contactInfo,
-        brandId: data.brandId,
-        brand: data.brand,
+  try {
+    setSubmitting(true);
 
-        productName: data.productName,
-        units: Number(data.units),
-        quoteAmount: data.quoteAmount ? Number(data.quoteAmount) : undefined,
-        productDescription: data.productDescription,
-        productId: data.productId,
-        productTypeId: data.productTypeId,
-        productType: data.productType,
-        categoryId: data.categoryId,
-        faultReported: data.faultReported,
-        category: data.category,
-        priority: data.priority,
-        complaintType: data.complaintType,
-        adName: data.adName,
-        repeatComplaintNumber: data.repeatComplaintNumber,
-        subject: data.subject,
-        description: data.description,
-        additionalInfo:
-          data.additionalInfo
-            ?.map((item) => item.value?.trim())
-            .filter(Boolean) || [],
-      });
-      // navigate("/complaints");
-      reset(getDefaultComplaintValues());
-      setExistingCustomer(null);
-      setComplaintHistory([]);
+    const payload = {
+      customerId: data.customerId,
+      customerCode: data.customerCode,
+      customerName: data.customerName,
+      phone: data.customerPhone,
+      alternatePhone: data.alternatePhone,
+      email: data.customerEmail,
 
-      setLookupDone(false);
-      setLookupError(null);
-      setSelectedCategoryLabel("");
+      address: {
+        addressLine: data.address.addressLine,
+        stateId: data.address.stateId
+          ? Number(data.address.stateId)
+          : null,
+        state: data.address.state,
 
-      setBrandSearch("");
-      setCategorySearch("");
-      setProductSearch("");
-      setProductTypeSearch("");
-      setProductTypes([]);
+        districtId: data.address.districtId
+          ? Number(data.address.districtId)
+          : null,
+        district: data.address.district,
 
-      onComplaintCreated?.(createdComplaint);
+        cityId: data.address.cityId
+          ? Number(data.address.cityId)
+          : null,
+        city: data.address.city,
+
+        pincodeId: data.address.pincodeId
+          ? Number(data.address.pincodeId)
+          : null,
+        pinCode: data.address.pinCode,
+      },
+
+      contactInfo: data.contactInfo,
+
+      brandId: data.brandId,
+      brand: data.brand,
+
+      productName: data.productName,
+      productId: data.productId,
+
+      productTypeId: data.productTypeId,
+      productType: data.productType,
+
+      categoryId: data.categoryId,
+      category: data.category,
+
+      productDescription: data.productDescription,
+
+      units: Number(data.units),
+
+      quoteAmount: data.quoteAmount
+        ? Number(data.quoteAmount)
+        : undefined,
+
+      faultReported: data.faultReported,
+
+      priority: data.priority,
+      complaintType: data.complaintType,
+
+      adName: data.adName,
+
+      repeatComplaintNumber: data.repeatComplaintNumber,
+
+      subject: data.subject,
+      description: data.description,
+
+      additionalInfo:
+        data.additionalInfo
+          ?.map((item) => item.value?.trim())
+          .filter(Boolean) || [],
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT COMPLAINT
+    |--------------------------------------------------------------------------
+    */
+
+    if (mode === "edit") {
+      if (!complaintId) {
+        toast.error("Complaint ID is missing");
+        return;
+      }
+
+      const updatedComplaint = await updateComplaint(
+        complaintId,
+        payload,
+      );
+
+      toast.success("Complaint updated successfully");
+
       onSuccess?.();
-      toast.success("Complaint created successfully");
-    } catch (error: any) {
-      console.error("Create complaint error:", error);
-      toast.error(error.response?.data?.message);
-    } finally {
-      setSubmitting(false);
+
+      return;
     }
-  };
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE COMPLAINT
+    |--------------------------------------------------------------------------
+    */
+
+    const createdComplaint = await createComplaint(payload);
+
+    reset(getDefaultComplaintValues());
+
+    setExistingCustomer(null);
+    setComplaintHistory([]);
+
+    setLookupDone(false);
+    setLookupError(null);
+
+    setSelectedCategoryLabel("");
+
+    setBrandSearch("");
+    setCategorySearch("");
+    setProductSearch("");
+    setProductTypeSearch("");
+
+    setProductTypes([]);
+
+    onComplaintCreated?.(createdComplaint);
+
+    onSuccess?.();
+
+    toast.success("Complaint created successfully");
+  } catch (error: any) {
+    console.error(
+      mode === "edit"
+        ? "Update complaint error:"
+        : "Create complaint error:",
+      error,
+    );
+
+    toast.error(
+      error.response?.data?.message ||
+        (mode === "edit"
+          ? "Failed to update complaint"
+          : "Failed to create complaint"),
+    );
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <form

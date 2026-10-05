@@ -137,6 +137,7 @@ export interface ClosureRecord extends BaseClosure {
   closureApprovedAt?: string | null;
 
   closureApprovedBy?: string | null;
+    rating?: number | null;
 }
 
 export interface SubmitClosurePayload {

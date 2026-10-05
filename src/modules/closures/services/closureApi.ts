@@ -97,3 +97,20 @@ export const approveClosure = async (
 
   return response.data;
 };
+
+interface CreateRatingReviewPayload {
+  complaintId: string;
+  rating: number;
+  review?: string;
+}
+
+export const createRatingReview = async (
+  payload: CreateRatingReviewPayload,
+) => {
+  const response = await api.post(
+    "/ratings",
+    payload,
+  );
+
+  return response.data;
+};

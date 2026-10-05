@@ -105,7 +105,7 @@ export default function ComplaintTable({
         >
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
-              <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+              <th className="w-[13%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
                 COMP ID
               </th>
 
@@ -145,7 +145,7 @@ export default function ComplaintTable({
                 Dealer
               </th>
 
-              <th className="w-[11%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
+              <th className="w-[9%] px-2 py-2.5 text-[10px] font-semibold uppercase text-gray-500">
                 Agent
               </th>
 
