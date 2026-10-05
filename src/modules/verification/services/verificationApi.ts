@@ -16,3 +16,42 @@ export const startVerification = (id: string) => decide(id, "start");
 export const verifyComplaint = (payload: VerifyComplaintPayload) => decide(payload.verificationId, "verify", { ...payload });
 export const rejectVerification = (payload: RejectVerificationPayload) => decide(payload.verificationId, "reject", { ...payload });
 export const requestCorrection = (payload: CorrectionRequestPayload) => decide(payload.verificationId, "correction", { ...payload, reason: [payload.reason, ...payload.requiredCorrections].join(" — ") });
+
+
+export interface ReasonDropdownItem {
+  id: string;
+  reasonName: string;
+  reasonType: string;
+}
+
+export const getReasonsDropdown = async () => {
+  const response = await api.get(
+    "/reasons/dropdown",
+  );
+
+  return response.data;
+};
+
+/*
+|--------------------------------------------------------------------------
+| Cancel Complaint
+|--------------------------------------------------------------------------
+*/
+
+export interface CancelComplaintPayload {
+  reasonId: string;
+  followUpDate: string;
+  remark: string;
+}
+
+export const cancelComplaint = async (
+  complaintId: string,
+  payload: CancelComplaintPayload,
+) => {
+  const response = await api.patch(
+    `/complaints/${complaintId}/cancel`,
+    payload,
+  );
+
+  return response.data;
+};

@@ -1,4 +1,6 @@
-import { ArrowLeft, Eye, RotateCcw, Search } from "lucide-react";
+// import { ArrowLeft, Eye, RotateCcw, Search } from "lucide-react";
+
+import { ArrowLeft, CircleCheck, Eye, RotateCcw, Search } from "lucide-react";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 
@@ -6,7 +8,9 @@ import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
-import { getClosures } from "../services/closureApi";
+import { getClosures, approveClosure } from "../services/closureApi";
+
+import { toast } from "react-toastify";
 
 import {
   clearClosureFilters,
@@ -56,6 +60,52 @@ export default function ClosureHistoryPage() {
   const [total, setTotal] = useState(0);
 
   const [totalPages, setTotalPages] = useState(1);
+
+  const [remarks, setRemarks] = useState<Record<string, string>>({});
+
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  const handleRemarkChange = (closureId: string, value: string) => {
+    setRemarks((previous) => ({
+      ...previous,
+      [closureId]: value,
+    }));
+  };
+
+  const handleApproveClosure = async (closure: ClosureRecord) => {
+    const remark = remarks[closure._id]?.trim() || "";
+
+    if (!remark) {
+      toast.error("Please enter remark before approving closure");
+      return;
+    }
+
+    try {
+      setApprovingId(closure._id);
+
+      await approveClosure(closure._id, {
+        remark,
+      });
+
+      toast.success("Closure approved successfully");
+
+      setRemarks((previous) => {
+        const updated = { ...previous };
+
+        delete updated[closure._id];
+
+        return updated;
+      });
+
+      await loadClosures();
+    } catch (error) {
+      console.error("Approve closure error:", error);
+
+      toast.error("Failed to approve closure");
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -116,6 +166,30 @@ export default function ClosureHistoryPage() {
 
     load();
   }, []);
+
+  const formatDateTime = (value?: string | null) => {
+    if (!value) {
+      return {
+        date: "-",
+        time: "",
+      };
+    }
+
+    const date = new Date(value);
+
+    return {
+      date: date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "2-digit",
+      }),
+
+      time: date.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+  };
 
   console.log(closures);
   // const filteredClosures = useMemo(
@@ -227,9 +301,29 @@ export default function ClosureHistoryPage() {
           Loading closure history...
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px] text-left">
+        <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <div className="overflow-x-auto xl:overflow-x-hidden">
+            <table
+              className="
+        w-full
+        min-w-[1100px]
+        table-auto
+        text-left
+        xl:min-w-0
+        xl:table-fixed
+      "
+            >
+              <colgroup>
+                <col className="xl:w-[11%]" /> {/* Complaint */}
+                <col className="xl:w-[11%]" /> {/* Customer */}
+                <col className="xl:w-[13%]" /> {/* Dealer */}
+                <col className="xl:w-[11%]" /> {/* Product */}
+                <col className="xl:w-[8%]" /> {/* Category */}
+                <col className="xl:w-13%]" /> {/* Status */}
+                <col className="xl:w-[7%]" /> {/* Closed At */}
+                <col className="xl:w-[18%]" /> {/* Remark */}
+                <col className="xl:w-[8%]" /> {/* Action */}
+              </colgroup>
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   {[
@@ -240,12 +334,19 @@ export default function ClosureHistoryPage() {
                     "Category",
                     "Status",
                     "Closed At",
-                    "Updated At",
+                    "Remark",
                     "Action",
                   ].map((heading) => (
                     <th
                       key={heading}
-                      className="whitespace-nowrap px-5 py-3 text-xs font-semibold uppercase text-gray-500"
+                      className="
+  whitespace-nowrap
+  px-3 py-3
+  text-[10px] font-semibold
+  uppercase tracking-wide
+  text-gray-500
+  xl:px-2
+"
                     >
                       {heading}
                     </th>
@@ -264,124 +365,247 @@ export default function ClosureHistoryPage() {
                     </td>
                   </tr>
                 ) : (
-                  closures.map((closure) => (
-                    <tr key={closure._id} className="hover:bg-gray-50">
-                      {/* Complaint */}
+                  closures.map((closure) => {
+                    const isApproved = closure.closureApproved === true;
 
-                      <td className="px-5 py-4">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/complaints/${closure._id}`)}
-                          className="text-sm font-medium text-[#123B7A] hover:underline"
-                        >
-                          {closure.complaintNumber || "-"}
-                        </button>
+                    const isApproving = approvingId === closure._id;
 
-                        <p className="mt-1 text-xs text-gray-400">
-                          {closure._id}
-                        </p>
-                      </td>
+                    const remark = remarks[closure._id] ?? "";
+                    return (
+                      <tr
+  key={closure._id}
+  className={`
+    transition-colors
+    ${
+      isApproved
+        ? "border-l-4 border-l-green-500 bg-green-50"
+        : "hover:bg-gray-50"
+    }
+  `}
+>
+                        {/* Complaint */}
 
-                      {/* Customer */}
+                        <td className="min-w-0 px-3 py-3 xl:px-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              navigate(`/complaints/${closure._id}`)
+                            }
+                            className="
+      whitespace-nowrap
+      text-[11px] font-semibold
+      text-[#123B7A]
+      hover:underline
+    "
+                          >
+                            {closure.complaintNumber || "-"}
+                          </button>
+                        </td>
 
-                      <td className="px-5 py-4">
-                        <p className="text-sm font-medium text-gray-900">
-                          {closure.customerName ||
-                            closure.customerId?.name ||
-                            "-"}
-                        </p>
+                        {/* Customer */}
 
-                        <p className="mt-1 text-xs text-gray-500">
-                          {closure.phone || closure.customerId?.phone || "-"}
-                        </p>
-                      </td>
-
-                      {/* Dealer */}
-
-                      <td className="px-5 py-4">
-                        <p className="text-sm font-medium text-gray-700">
-                          {closure.allocatedDealerId?.technicianFirmName ||
-                            closure.dealerName ||
-                            "-"}
-                        </p>
-
-                        <p className="mt-1 text-xs text-gray-500">
-                          {closure.allocatedDealerId?.technicianName || ""}
-                        </p>
-
-                        {closure.allocatedDealerId?.mobileNumber && (
-                          <p className="mt-1 text-xs text-gray-400">
-                            {closure.allocatedDealerId.mobileNumber}
+                        <td className="min-w-0 px-3 py-3 xl:px-2">
+                          <p
+                            className="truncate text-xs font-medium text-gray-900"
+                            title={
+                              closure.customerName ||
+                              closure.customerId?.name ||
+                              ""
+                            }
+                          >
+                            {closure.customerName ||
+                              closure.customerId?.name ||
+                              "-"}
                           </p>
-                        )}
-                      </td>
 
-                      {/* Product */}
-
-                      <td className="px-5 py-4">
-                        <p className="text-sm font-medium text-gray-700">
-                          {closure.productName || "-"}
-                        </p>
-
-                        <p className="mt-1 text-xs text-gray-500">
-                          {closure.productType || ""}
-                        </p>
-
-                        {closure.productCode && (
-                          <p className="mt-1 text-xs text-gray-400">
-                            {closure.productCode}
+                          <p className="mt-1 truncate text-[10px] text-gray-500">
+                            {closure.phone || closure.customerId?.phone || "-"}
                           </p>
-                        )}
-                      </td>
+                        </td>
 
-                      {/* Category */}
+                        {/* Dealer */}
 
-                      <td className="px-5 py-4">
-                        {closure.category ? (
-                          <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                            {closure.category}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-gray-400">-</span>
-                        )}
-                      </td>
+                        <td className="min-w-0 px-3 py-3 xl:px-2">
+                          <p
+                            className="truncate text-[11px] font-medium text-gray-700"
+                            title={
+                              closure.allocatedDealerId?.technicianFirmName ||
+                              closure.dealerName ||
+                              ""
+                            }
+                          >
+                            {closure.allocatedDealerId?.technicianFirmName ||
+                              closure.dealerName ||
+                              "-"}
+                          </p>
 
-                      {/* Status */}
+                          <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                            {closure.allocatedDealerId?.technicianName || ""}
+                          </p>
+                        </td>
 
-                      <td className="px-5 py-4">
-                        <ClosureStatusBadge status={closure.status} />
-                      </td>
+                        {/* Product */}
 
-                      {/* Closed At */}
+                        <td className="min-w-0 px-3 py-3 xl:px-2">
+                          <p
+                            className="truncate text-[11px] font-medium text-gray-700"
+                            title={closure.productName || ""}
+                          >
+                            {closure.productName || "-"}
+                          </p>
 
-                      <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                        {closure.closedAt
-                          ? new Date(closure.closedAt).toLocaleString()
-                          : "-"}
-                      </td>
+                          <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                            {closure.productType || ""}
+                          </p>
+                        </td>
 
-                      {/* Updated At */}
+                        {/* Category */}
 
-                      <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                        <td className="min-w-0 px-3 py-3 xl:px-2">
+                          {closure.category ? (
+                            <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                              {closure.category}
+                            </span>
+                          ) : (
+                            <span className="text-sm text-gray-400">-</span>
+                          )}
+                        </td>
+
+                        {/* Status */}
+
+                        <td className="min-w-0 px-3 py-3 xl:px-2">
+                          <ClosureStatusBadge status={closure.status} />
+                        </td>
+
+                        {/* Closed At */}
+
+                        <td className="px-2 py-3">
+                          <p className="whitespace-nowrap text-[10px] font-medium text-gray-600">
+                            {formatDateTime(closure.closedAt).date}
+                          </p>
+
+                          <p className="mt-0.5 whitespace-nowrap text-[9px] text-gray-400">
+                            {formatDateTime(closure.closedAt).time}
+                          </p>
+                        </td>
+
+                        {/* Updated At */}
+
+                        {/* <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
                         {closure.updatedAt
                           ? new Date(closure.updatedAt).toLocaleString()
                           : "-"}
-                      </td>
+                      </td> */}
 
-                      {/* Action */}
+                        {/* Remark */}
 
-                      <td className="px-5 py-4">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/complaints/${closure._id}`)}
-                          title="View Complaint"
-                          className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
-                        >
-                          <Eye size={17} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+<td className="min-w-0 px-2 py-3 align-middle">
+  {isApproved ? (
+    <div className="min-w-0">
+      <p
+        title={closure.closureRemark || ""}
+        className="
+          line-clamp-2
+          text-[11px] font-medium
+          leading-4 text-green-800
+        "
+      >
+        {closure.closureRemark || "-"}
+      </p>
+
+      {closure.closureApprovedAt && (
+        <p className="mt-1 whitespace-nowrap text-[9px] text-green-600">
+          {new Date(
+            closure.closureApprovedAt,
+          ).toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+      )}
+    </div>
+  ) : (
+    <input
+      type="text"
+      value={remark}
+      onChange={(event) =>
+        handleRemarkChange(
+          closure._id,
+          event.target.value,
+        )
+      }
+      placeholder="Enter remark..."
+      className="
+        h-8 w-full min-w-0
+        rounded-md
+        border border-gray-300
+        px-2 text-[10px]
+        outline-none
+        placeholder:text-gray-400
+        focus:border-[#123B7A]
+      "
+    />
+  )}
+</td>
+
+                        {/* Action */}
+
+<td className="px-1 py-3 text-center align-middle">
+  <div className="flex items-center justify-center gap-1">
+    {/* <button
+      type="button"
+      onClick={() =>
+        navigate(`/complaints/${closure._id}`)
+      }
+      title="View Complaint"
+      className="
+        flex h-8 w-8
+        items-center justify-center
+        rounded-md
+        text-gray-500
+        hover:bg-blue-50
+        hover:text-blue-600
+      "
+    >
+      <Eye size={16} />
+    </button> */}
+
+    {!isApproved && (
+      <button
+        type="button"
+        disabled={isApproving}
+        onClick={() =>
+          handleApproveClosure(closure)
+        }
+        title="Approve Closure"
+        className="
+          flex h-8 w-8
+          items-center justify-center
+          rounded-md
+          text-green-600
+          hover:bg-green-100
+          hover:text-green-700
+          disabled:cursor-not-allowed
+          disabled:opacity-40
+        "
+      >
+        <CircleCheck
+          size={17}
+          className={
+            isApproving
+              ? "animate-pulse"
+              : ""
+          }
+        />
+      </button>
+    )}
+  </div>
+</td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -413,7 +637,7 @@ function ClosureStatusBadge({ status }: { status: ClosureStatus }) {
 
   return (
     <span
-      className={`rounded-full border px-2.5 py-1 text-xs font-medium ${styles[status]}`}
+      className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${styles[status]}`}
     >
       {status}
     </span>

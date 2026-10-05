@@ -234,6 +234,9 @@ export interface CancellationRequest {
   cancelledAt: string | null;
 
   cancellationReason: string;
+  cancellationFollowUpDate?: string;
+  cancellationLatestRemark?: string;
+  cancellationLastUpdatedAt?: string;
 
   createdAt: string;
   updatedAt: string;

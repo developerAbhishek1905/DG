@@ -164,25 +164,18 @@ export default function CancellationListPage() {
     }
   };
 
-const handleStatusChange = async (
-  complaint: CancellationRequest,
-  status: "REOPEN" | "CLOSED",
-) => {
-  try {
-    await updateAppointmentStatus(
-      complaint._id,
-      status,
-      {},
-    );
+  const handleStatusChange = async (
+    complaint: CancellationRequest,
+    status: "REOPEN" | "CLOSED",
+  ) => {
+    try {
+      await updateAppointmentStatus(complaint._id, status, {});
 
-    await loadRequests();
-  } catch (error) {
-    console.error(
-      "Failed to update status:",
-      error,
-    );
-  }
-};
+      await loadRequests();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -297,9 +290,15 @@ const handleStatusChange = async (
           Loading cancellation requests...
         </div>
       ) : (
+        // <CancellationTable
+        //   requests={requests}
+        //   onStatusChange={handleStatusChange}
+        // />
+
         <CancellationTable
           requests={requests}
-          onStatusChange={handleStatusChange}
+          // onStatusChange={handleStatusChange}
+          onRefresh={loadRequests}
         />
         // <CancellationTable
         //   requests={requests}

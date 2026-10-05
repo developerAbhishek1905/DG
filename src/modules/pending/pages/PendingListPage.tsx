@@ -16,6 +16,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import PendingTable from "../components/PendingTable";
+
+import Pagination from "../../../components/ui/Pagination";
 import SLAStats from "../components/SLAStats";
 
 import {
@@ -187,10 +189,6 @@ export default function PendingListPage() {
     }
   }, [page, limit, debouncedSearch, startDate, endDate, dealerId]);
 
-  useEffect(() => {
-    fetchPendingComplaints();
-  }, [fetchPendingComplaints]);
-
   /*
   |--------------------------------------------------------------------------
   | Initial / Filter Load
@@ -286,6 +284,19 @@ export default function PendingListPage() {
 
   const handleStatusChange = (value: PendingStatus | "ALL") => {
     setStatus(value);
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) {
+      return;
+    }
+
+    setPage(newPage);
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
     setPage(1);
   };
 
@@ -519,7 +530,7 @@ export default function PendingListPage() {
 
           {/* Pagination */}
 
-          <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 sm:flex-row">
+          {/* <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 sm:flex-row">
             <div className="text-sm text-gray-500">
               Total: <span className="font-medium text-gray-900">{total}</span>
             </div>
@@ -567,7 +578,18 @@ export default function PendingListPage() {
                 Next
               </button>
             </div>
-          </div>
+          </div> */}
+
+          {total > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              limit={limit}
+              onPageChange={handlePageChange}
+              onLimitChange={handleLimitChange}
+            />
+          )}
         </>
       )}
 

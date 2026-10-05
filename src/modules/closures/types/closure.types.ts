@@ -129,6 +129,14 @@ export interface ClosureRecord extends BaseClosure {
   installationData?: InstallationClosureData;
 
   uninstallationData?: UninstallationClosureData;
+
+    closureApproved?: boolean;
+
+  closureRemark?: string;
+
+  closureApprovedAt?: string | null;
+
+  closureApprovedBy?: string | null;
 }
 
 export interface SubmitClosurePayload {

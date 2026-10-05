@@ -75,24 +75,24 @@ const menuItems = [
     path: "/appointments",
     permission: "appointments.access",
   },
-  {
-    label: "Pending & SLA",
-    icon: Clock3,
-    path: "/pending",
-    permission: "pending.access",
-  },
-  {
-    label: "Cancellation",
-    icon: XCircle,
-    path: "/cancellations",
-    permission: "cancellations.access",
-  },
-  {
-    label: "Closure History",
-    icon: FileCheck2,
-    path: "/closures/history",
-    permission: "closures.access",
-  },
+  // {
+  //   label: "Pending & SLA",
+  //   icon: Clock3,
+  //   path: "/pending",
+  //   permission: "pending.access",
+  // },
+  // {
+  //   label: "Cancellation",
+  //   icon: XCircle,
+  //   path: "/cancellations",
+  //   permission: "cancellations.access",
+  // },
+  // {
+  //   label: "Closure History",
+  //   icon: FileCheck2,
+  //   path: "/closures/history",
+  //   permission: "closures.access",
+  // },
   {
     label: "DG Verification",
     icon: BadgeCheck,
@@ -652,15 +652,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               type="button"
               onClick={handleLogout}
               title="Logout"
-              className="
-        flex h-9 w-9 shrink-0
-        items-center justify-center
-        rounded-lg
-        text-red-500
-        transition
-        hover:bg-red-50
-        hover:text-red-600
-      "
+              className=" flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50 hover:text-red-600 "
             >
               <LogOut size={18} />
             </button>
