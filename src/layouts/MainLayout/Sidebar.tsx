@@ -51,12 +51,12 @@ const menuItems = [
     path: "/complaints",
     permission: "complaints.access",
   },
-  {
-    label: "Dealers Management",
-    icon: Users,
-    path: "/dealers",
-    permission: "dealers.access",
-  },
+  // {
+  //   label: "Dealers Management",
+  //   icon: Users,
+  //   path: "/dealers",
+  //   permission: "dealers.access",
+  // },
   //   {
   //     label: "Category Master",
   //     icon: Tags,
@@ -203,6 +203,21 @@ const addressMasterItems = [
   },
 ];
 
+const dealerManagementItems = [
+  {
+    label: "Dealers",
+    icon: Users,
+    path: "/dealers",
+    permission: "dealers.access",
+  },
+  {
+    label: "Dealer Activity",
+    icon: Clock3,
+    path: "/dealer-activity",
+    permission: "dealers.access",
+  },
+];
+
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -211,6 +226,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
   const permissions = auth.user?.role?.permissions ?? [];
 
+  const isDealerRoute = dealerManagementItems.some((item) =>
+  location.pathname.startsWith(item.path),
+);
+
   const isProductRoute = productManagementItems.some((item) =>
     location.pathname.startsWith(item.path),
   );
@@ -218,6 +237,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     location.pathname.startsWith(item.path),
   );
 
+const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
   const [productOpen, setProductOpen] = useState(isProductRoute);
   const [addressOpen, setAddressOpen] = useState(isAddressRoute);
 
@@ -239,6 +259,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const allowedMenuItems = menuItems.filter((item) =>
     hasPermission(item.permission),
   );
+
+  const allowedDealerItems = dealerManagementItems.filter((item) =>
+  hasPermission(item.permission),
+);
 
   const allowedProductItems = productManagementItems.filter((item) =>
     hasPermission(item.permission),
@@ -320,7 +344,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               FIRST THREE MENUS
           ================================================== */}
 
-          {allowedMenuItems.slice(0, 3).map((item) => {
+          {allowedMenuItems.slice(0, 2).map((item) => {
             const Icon = item.icon;
 
             return (
@@ -348,6 +372,93 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               </NavLink>
             );
           })}
+
+          {/* =================================================
+    DEALER MANAGEMENT DROPDOWN
+================================================== */}
+
+{allowedDealerItems.length > 0 && (
+  <div>
+    <button
+      type="button"
+      onClick={() => setDealerOpen((prev) => !prev)}
+      className={`
+        flex w-full items-center justify-between
+        rounded-lg px-3 py-2.5
+        text-sm font-medium transition
+
+        ${
+          isDealerRoute
+            ? "bg-blue-50 text-[#123B7A]"
+            : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+        }
+      `}
+    >
+      <div className="flex items-center gap-3">
+        <Users size={18} />
+        <span>Dealers Management</span>
+      </div>
+
+      <ChevronDown
+        size={17}
+        className={`
+          transition-transform duration-200
+          ${dealerOpen ? "rotate-180" : ""}
+        `}
+      />
+    </button>
+
+    {/* Dealer Dropdown */}
+    <div
+      className={`
+        overflow-hidden
+        transition-all duration-300
+
+        ${
+          dealerOpen
+            ? "mt-1 max-h-32 opacity-100"
+            : "max-h-0 opacity-0"
+        }
+      `}
+    >
+      <div
+        className="
+          ml-4 space-y-1
+          border-l border-gray-200
+          pl-3
+        "
+      >
+        {allowedDealerItems.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `
+                  flex items-center gap-3
+                  rounded-lg px-3 py-2
+                  text-sm transition
+
+                  ${
+                    isActive
+                      ? "bg-blue-50 font-medium text-[#123B7A]"
+                      : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
+                  }
+                `
+              }
+            >
+              <Icon size={16} />
+              <span>{item.label}</span>
+            </NavLink>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
 
           {/* =================================================
               PRODUCT MANAGEMENT DROPDOWN
@@ -536,7 +647,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               REMAINING SIDEBAR MENUS
           ================================================== */}
 
-          {allowedMenuItems.slice(3).map((item) => {
+          {allowedMenuItems.slice(2).map((item) => {
             const Icon = item.icon;
 
             return (

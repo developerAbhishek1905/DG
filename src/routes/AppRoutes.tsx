@@ -107,6 +107,8 @@ import { ItemMasterPage, CreateEditItemPage } from "../modules/itemMaster";
 import { ProductTypeMasterPage } from "../modules/productTypeMaster";
 import ReasonMasterPage from "../modules/reasonMaster/pages/ReasonMasterPage";
 import UserProfilePage from "../modules/profile/pages/UserProfilePage";
+import DealerActivityPage from "../modules/dealers/components/DealerActivityPage";
+import DealerDailyActivityPage from "../modules/dealers/components/DealerDailyActivityPage";
 
 
 function Dashboard() {
@@ -180,6 +182,14 @@ export default function AppRoutes() {
             path="/dealers/:id/performance"
             element={<DealerPerformancePage />}
           />
+          <Route
+  path="/dealer-activity"
+  element={<DealerActivityPage />}
+/>
+<Route
+  path="/dealer-activity/:dealerId"
+  element={<DealerDailyActivityPage />}
+/>
 
           {/* USERS */}
 
