@@ -555,6 +555,7 @@ const ClosureRow = memo(function ClosureRow({
 
       <td className="min-w-0 px-3 py-3 xl:px-2">
         <ClosureStatusBadge status={closure.status} />
+        <p className="leading-4 text-green-800 text-[10px] px-1 py-2">{closure?.closingReason}</p>
       </td>
 
       {/* Closed At */}
@@ -655,34 +656,30 @@ const ClosureRow = memo(function ClosureRow({
               />
             </button>
           )}
- 
 
-    {closure.rating && closure.rating > 0 ? (
-      <div
-        title={`Rated ${closure.rating}/5`}
-        className="
+          {closure.rating && closure.rating > 0 ? (
+            <div
+              title={`Rated ${closure.rating}/5`}
+              className="
           flex items-center gap-1
           whitespace-nowrap
           rounded-md
           bg-amber-50
           px-2 py-1
         "
-      >
-        <Star
-          size={14}
-          className="fill-amber-400 text-amber-400"
-        />
+            >
+              <Star size={14} className="fill-amber-400 text-amber-400" />
 
-        <span className="text-[11px] font-semibold text-amber-700">
-          {closure.rating}/5
-        </span>
-      </div>
-    ) : (
-      <button
-        type="button"
-        onClick={() => onReview(closure)}
-        title="Rate & Review Dealer"
-        className="
+              <span className="text-[11px] font-semibold text-amber-700">
+                {closure.rating}/5
+              </span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onReview(closure)}
+              title="Rate & Review Dealer"
+              className="
           flex h-8 w-8
           items-center justify-center
           rounded-md
@@ -690,12 +687,10 @@ const ClosureRow = memo(function ClosureRow({
           hover:bg-amber-50
           hover:text-amber-600
         "
-      >
-        <Star size={17} />
-      </button>
-    )}
-
-
+            >
+              <Star size={17} />
+            </button>
+          )}
         </div>
       </td>
     </tr>
