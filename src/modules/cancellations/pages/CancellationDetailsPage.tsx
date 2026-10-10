@@ -1,18 +1,8 @@
-import {
-  ArrowLeft,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Card from "../../../components/ui/Card";
 
@@ -39,59 +29,31 @@ import type {
 } from "../types/cancellation.types";
 
 export default function CancellationDetailsPage() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const { id } =
-    useParams();
+  const { id } = useParams();
 
-  const [
-    request,
-    setRequest,
-  ] =
-    useState<
-      CancellationRequest | null
-    >(null);
+  const [request, setRequest] = useState<CancellationRequest | null>(null);
 
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [
-    approveOpen,
-    setApproveOpen,
-  ] =
-    useState(false);
+  const [approveOpen, setApproveOpen] = useState(false);
 
-  const [
-    rejectOpen,
-    setRejectOpen,
-  ] =
-    useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
 
-  const loadRequest =
-    async () => {
-      if (!id) return;
+  const loadRequest = async () => {
+    if (!id) return;
 
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        const data =
-          await getCancellationById(
-            id
-          );
+      const data = await getCancellationById(id);
 
-        setRequest(
-          data
-            ? { ...data }
-            : null
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+      setRequest(data ? { ...data } : null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadRequest();
@@ -113,318 +75,168 @@ export default function CancellationDetailsPage() {
     );
   }
 
-  const handleVerify =
-    async (
-      payload: VerifyCustomerPayload
-    ) => {
-      const updated =
-        await verifyCancellationCustomer(
-          payload
-        );
+  const handleVerify = async (payload: VerifyCustomerPayload) => {
+    const updated = await verifyCancellationCustomer(payload);
 
-      setRequest({
-        ...updated,
-      });
-    };
+    setRequest({
+      ...updated,
+    });
+  };
 
-  const handleApprove =
-    async (
-      payload: ApproveCancellationPayload
-    ) => {
-      const updated =
-        await approveCancellation(
-          payload
-        );
+  const handleApprove = async (payload: ApproveCancellationPayload) => {
+    const updated = await approveCancellation(payload);
 
-      setRequest({
-        ...updated,
-      });
+    setRequest({
+      ...updated,
+    });
 
-      setApproveOpen(false);
-    };
+    setApproveOpen(false);
+  };
 
-  const handleReject =
-    async (
-      payload: RejectCancellationPayload
-    ) => {
-      const updated =
-        await rejectCancellation(
-          payload
-        );
+  const handleReject = async (payload: RejectCancellationPayload) => {
+    const updated = await rejectCancellation(payload);
 
-      setRequest({
-        ...updated,
-      });
+    setRequest({
+      ...updated,
+    });
 
-      setRejectOpen(false);
-    };
+    setRejectOpen(false);
+  };
 
-  const handleReassign =
-    async (
-      payload: ReassignCancellationPayload
-    ) => {
-      const updated =
-        await reassignAfterCancellation(
-          payload
-        );
+  const handleReassign = async (payload: ReassignCancellationPayload) => {
+    const updated = await reassignAfterCancellation(payload);
 
-      setRequest({
-        ...updated,
-      });
-    };
+    setRequest({
+      ...updated,
+    });
+  };
+  
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <button
-          onClick={() =>
-            navigate(
-              "/cancellations"
-            )
-          }
+          onClick={() => navigate("/cancellations")}
           className="inline-flex items-center gap-2 text-sm text-gray-500"
         >
-          <ArrowLeft
-            size={17}
-          />
-
+          <ArrowLeft size={17} />
           Back to Cancellations
         </button>
 
-        {(request.status ===
-          "PENDING" ||
-          request.status ===
-            "VERIFIED") && (
+        {(request.status === "PENDING" || request.status === "VERIFIED") && (
           <div className="flex gap-2">
             <button
-              onClick={() =>
-                setRejectOpen(
-                  true
-                )
-              }
+              onClick={() => setRejectOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600"
             >
-              <XCircle
-                size={17}
-              />
-
+              <XCircle size={17} />
               Reject
             </button>
 
             <button
-              onClick={() =>
-                setApproveOpen(
-                  true
-                )
-              }
-              disabled={
-                request.verification
-                  .status !==
-                "VERIFIED"
-              }
+              onClick={() => setApproveOpen(true)}
+              disabled={request.verification.status !== "VERIFIED"}
               className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
             >
-              <CheckCircle2
-                size={17}
-              />
-
+              <CheckCircle2 size={17} />
               Approve
             </button>
           </div>
         )}
       </div>
 
-      <CancellationRequestCard
-        request={request}
-      />
+      <CancellationRequestCard request={request} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-6">
-          <h3 className="font-semibold text-gray-900">
-            Customer
-          </h3>
+          <h3 className="font-semibold text-gray-900">Customer</h3>
 
           <div className="mt-5 space-y-4">
-            <Info
-              label="Name"
-              value={
-                request.customer
-                  .name
-              }
-            />
+            <Info label="Name" value={request.customer.name} />
 
-            <Info
-              label="Phone"
-              value={
-                request.customer
-                  .phone
-              }
-            />
+            <Info label="Phone" value={request.customer.phone} />
 
-            <Info
-              label="City"
-              value={
-                request.customer
-                  .city
-              }
-            />
+            <Info label="City" value={request.customer.city} />
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="font-semibold text-gray-900">
-            Dealer
-          </h3>
+          <h3 className="font-semibold text-gray-900">Dealer</h3>
 
           <div className="mt-5 space-y-4">
-            <Info
-              label="Dealer"
-              value={
-                request.dealer
-                  ?.name ??
-                "-"
-              }
-            />
+            <Info label="Dealer" value={request.dealer?.name ?? "-"} />
 
-            <Info
-              label="Code"
-              value={
-                request.dealer
-                  ?.dealerCode ??
-                "-"
-              }
-            />
+            <Info label="Code" value={request.dealer?.dealerCode ?? "-"} />
 
-            <Info
-              label="Phone"
-              value={
-                request.dealer
-                  ?.phone ??
-                "-"
-              }
-            />
+            <Info label="Phone" value={request.dealer?.phone ?? "-"} />
           </div>
         </Card>
       </div>
 
-      <CustomerVerification
-        request={request}
-        onVerify={
-          handleVerify
-        }
-      />
+      <CustomerVerification request={request} onVerify={handleVerify} />
 
-      {request.status ===
-        "REJECTED" && (
+      {request.status === "REJECTED" && (
         <Card className="border-red-200 p-6">
-          <h3 className="font-semibold text-red-700">
-            Cancellation Rejected
-          </h3>
+          <h3 className="font-semibold text-red-700">Cancellation Rejected</h3>
 
           <p className="mt-3 text-sm text-gray-600">
-            {
-              request.rejectionReason
-            }
+            {request.rejectionReason}
           </p>
         </Card>
       )}
 
-      {request.status ===
-        "APPROVED" && (
+      {request.status === "APPROVED" && (
         <Card className="border-green-200 p-6">
           <h3 className="font-semibold text-green-700">
             Cancellation Approved
           </h3>
 
           <p className="mt-3 text-sm text-gray-600">
-            {
-              request.approvalRemarks ??
-              "Cancellation approved."
-            }
+            {request.approvalRemarks ?? "Cancellation approved."}
           </p>
         </Card>
       )}
 
       <ReassignAfterCancellation
         request={request}
-        onReassign={
-          handleReassign
-        }
+        onReassign={handleReassign}
       />
 
-      {request.status ===
-        "REASSIGNED" &&
-        request.reassignedDealer && (
-          <Card className="border-purple-200 p-6">
-            <h3 className="font-semibold text-purple-700">
-              Complaint Reassigned
-            </h3>
+      {request.status === "REASSIGNED" && request.reassignedDealer && (
+        <Card className="border-purple-200 p-6">
+          <h3 className="font-semibold text-purple-700">
+            Complaint Reassigned
+          </h3>
 
-            <p className="mt-3 text-sm text-gray-600">
-              New Dealer:{" "}
-              <strong>
-                {
-                  request.reassignedDealer
-                    .name
-                }
-              </strong>
-            </p>
-          </Card>
-        )}
+          <p className="mt-3 text-sm text-gray-600">
+            New Dealer: <strong>{request.reassignedDealer.name}</strong>
+          </p>
+        </Card>
+      )}
 
       <ApproveCancellationModal
-        open={
-          approveOpen
-        }
-        request={
-          request
-        }
-        onClose={() =>
-          setApproveOpen(
-            false
-          )
-        }
-        onSubmit={
-          handleApprove
-        }
+        open={approveOpen}
+        request={request}
+        onClose={() => setApproveOpen(false)}
+        onSubmit={handleApprove}
       />
 
       <RejectCancellationModal
-        open={
-          rejectOpen
-        }
-        request={
-          request
-        }
-        onClose={() =>
-          setRejectOpen(
-            false
-          )
-        }
-        onSubmit={
-          handleReject
-        }
+        open={rejectOpen}
+        request={request}
+        onClose={() => setRejectOpen(false)}
+        onSubmit={handleReject}
       />
     </div>
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-gray-500">
-        {label}
-      </p>
+      <p className="text-xs text-gray-500">{label}</p>
 
-      <p className="mt-1 text-sm font-medium text-gray-900">
-        {value}
-      </p>
+      <p className="mt-1 text-sm font-medium text-gray-900">{value}</p>
     </div>
   );
 }

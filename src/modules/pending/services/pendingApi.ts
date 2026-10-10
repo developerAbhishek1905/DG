@@ -46,7 +46,15 @@ export interface PendingFilters {
   startDate?: string;
   endDate?: string;
 
+  cityId?: string;
+  createdBy?: string;
   dealerId?: string;
+  productId?: string;
+  categoryId?: string;
+
+  reason?: string;
+  slaStatus?: SLAStatus | "ALL";
+  status?: PendingStatus | "ALL";
 }
 
 export interface PendingResponse {
@@ -75,10 +83,12 @@ export async function getPendingComplaints(
     limit: filters.limit || 10,
   };
 
+  // Search
   if (filters.search?.trim()) {
     params.search = filters.search.trim();
   }
 
+  // Date range
   if (filters.startDate) {
     params.startDate = filters.startDate;
   }
@@ -87,18 +97,42 @@ export async function getPendingComplaints(
     params.endDate = filters.endDate;
   }
 
+  // City
+  if (filters.cityId) {
+    params.cityId = filters.cityId;
+  }
+
+  // Created By
+  if (filters.createdBy) {
+    params.createdBy = filters.createdBy;
+  }
+
+  // Dealer
   if (filters.dealerId) {
     params.dealerId = filters.dealerId;
   }
 
+  // Product
+  if (filters.productId) {
+    params.productId = filters.productId;
+  }
+
+  // Category
+  if (filters.categoryId) {
+    params.categoryId = filters.categoryId;
+  }
+
+  // Reason
   if (filters.reason && filters.reason !== "ALL") {
     params.reason = filters.reason;
   }
 
+  // SLA Status
   if (filters.slaStatus && filters.slaStatus !== "ALL") {
     params.slaStatus = filters.slaStatus;
   }
 
+  // Complaint Status
   if (filters.status && filters.status !== "ALL") {
     params.status = filters.status;
   }
@@ -111,8 +145,6 @@ export async function getPendingComplaints(
   );
 
   return response.data;
-
-  
 }
 
 
@@ -159,4 +191,22 @@ export const getComplaintFollowUpRemarks =
   );
 
   return response.data;
+};
+
+export interface UserDropdownOption {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  roleId: string | null;
+}
+
+export const searchUserDropdown = async (
+  search = "",
+): Promise<UserDropdownOption[]> => {
+  const response = await api.get("/users/dropdown", {
+    params: { search },
+  });
+
+  return response.data?.data ?? [];
 };

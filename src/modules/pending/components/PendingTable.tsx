@@ -1,6 +1,4 @@
-
-
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
 import {
@@ -15,17 +13,12 @@ import type {
   FollowUpStatusOption,
   PendingComplaint,
 } from "../types/pending.types";
+import Pagination from "../../../components/ui/Pagination";
 
 interface Props {
   complaints: PendingComplaint[];
   onRefresh: () => Promise<void>;
 }
-
-// interface RowForm {
-//   followUpStatus: string;
-//   followUpDate: string;
-//   remark: string;
-// }
 
 interface RowForm {
   followUpReasonId: string;
@@ -48,6 +41,32 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
   } | null>(null);
 
   const [remarksLoading, setRemarksLoading] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const total = complaints.length;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
+
+  const paginatedComplaints = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    return complaints.slice(startIndex, startIndex + limit);
+  }, [complaints, page, limit]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -114,74 +133,6 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
     }));
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | Save
-  |--------------------------------------------------------------------------
-  */
-
-  // const handleSave = async (
-  //   complaint: PendingComplaint,
-  //   sendToDealer: boolean,
-  // ) => {
-  //   const form = forms[complaint._id];
-
-  //   if (!form?.followUpStatus) {
-  //     toast.error("Select follow-up status");
-  //     return;
-  //   }
-
-  //   if (!form?.followUpDate) {
-  //     toast.error("Select follow-up date");
-  //     return;
-  //   }
-
-  //   if (!form?.remark?.trim()) {
-  //     toast.error("Enter remark");
-  //     return;
-  //   }
-
-  //   console.log(form?.followUpStatus);
-
-  //   try {
-  //     setSavingId(complaint._id);
-
-  //     await saveComplaintFollowUp(complaint._id, {
-  //       followUpStatus: form.followUpStatus,
-
-  //       followUpDate: form.followUpDate,
-
-  //       remark: form.remark.trim(),
-
-  //       sendToDealer,
-  //     });
-
-  //     toast.success(
-  //       sendToDealer
-  //         ? "Remark saved and sent to dealer"
-  //         : "Remark saved successfully",
-  //     );
-
-  //     setForms((previous) => ({
-  //       ...previous,
-
-  //       [complaint._id]: {
-  //         followUpStatus: "",
-  //         followUpDate: "",
-  //         remark: "",
-  //       },
-  //     }));
-
-  //     await onRefresh();
-  //   } catch (error) {
-  //     console.error(error);
-
-  //     toast.error("Failed to save remark");
-  //   } finally {
-  //     setSavingId(null);
-  //   }
-  // };
-
   const handleSave = async (
     complaint: PendingComplaint,
     sendToDealer: boolean,
@@ -221,17 +172,6 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
           ? "Remark saved and sent to dealer"
           : "Remark saved successfully",
       );
-
-      // setForms((previous) => ({
-      //   ...previous,
-
-      //   [complaint._id]: {
-      //     followUpReasonId: "",
-      //     followUpDate: "",
-      //     remark: "",
-      //   },
-      // }));
-
       await onRefresh();
       setForms((previous) => {
         const updated = { ...previous };
@@ -329,40 +269,45 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
   };
 
   return (
-    <>
-      <div className="w-full rounded-xl border border-gray-200 bg-white">
-        <table className="w-full table-fixed text-sm">
-          <colgroup>
-            <col className="w-[10%]" /> {/* Complaint */}
-            <col className="w-[9%]" /> {/* Customer */}
-            <col className="w-[7%]" /> {/* City */}
-            <col className="w-[7%]" /> {/* Product */}
-            <col className="w-[8%]" /> {/* Technician */}
-            <col className="w-[8%]" /> {/* Reason */}
-            <col className="w-[7%]" /> {/* Updated */}
-            <col className="w-[10%]" /> {/* Follow-up */}
-            <col className="w-[13%]" /> {/* Follow-up Date */}
-            <col className="w-[11%]" /> {/* Remark */}
-            <col className="w-[10%]" /> {/* Action */}
-          </colgroup>
-          <thead className="bg-gray-50">
-            <tr className="border-b text-left text-[11px] font-semibold uppercase text-gray-500">
+    <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="w-full overflow-x-auto overscroll-x-contain">
+        <table className="w-full min-w-[1650px] table-fixed text-left text-sm">
+          {/* <colgroup>
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[7%]" />
+            <col className="w-[8%]" />
+            <col className="w-[9%]" />
+            <col className="w-[8%]" />
+            <col className="w-[8%]" />
+            <col className="w-[10%]" />
+            <col className="w-[12%]" />
+            <col className="w-[10%]" />
+            <col className="w-[8%]" />
+          </colgroup> */}
+
+          <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-500">
+            <tr>
               <th className="px-2 py-3">Complaint</th>
               <th className="px-2 py-3">Customer</th>
               <th className="px-2 py-3">City</th>
               <th className="px-2 py-3">Product</th>
+
+              <th className="px-2 py-3">Quote</th>
+              <th className="px-2 py-3">Created By</th>
+
               <th className="px-2 py-3">Technician</th>
               <th className="px-2 py-3">Reason</th>
               <th className="px-2 py-3">Updated</th>
               <th className="px-2 py-3">Follow-up</th>
               <th className="px-2 py-3">Follow-up Date</th>
               <th className="px-2 py-3">Remark</th>
-              <th className="px-2 py-3 text-center">Action</th>
+              <th className="px-2 py-3 text-right">Actions</th>
             </tr>
           </thead>
 
-          <tbody>
-            {complaints.map((complaint) => {
+          <tbody className="divide-y divide-gray-100">
+            {paginatedComplaints.map((complaint) => {
               const form = forms[complaint._id] || {
                 followUpReasonId: complaint.customerFollowUpReasonId || "",
 
@@ -379,11 +324,29 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                   key={complaint._id}
                   className="border-b align-top last:border-b-0 hover:bg-gray-50"
                 >
-                  {/* Complaint */}
+                  {/* Complaint Number + Type */}
 
                   <td className="px-2 py-3 align-top">
-                    <div className="whitespace-nowrap text-[11px] font-semibold text-blue-600">
-                      {complaint.complaintNumber}
+                    <div className="space-y-1">
+                      <p className="whitespace-nowrap text-[11px] font-semibold text-blue-600">
+                        {complaint.complaintNumber}
+                      </p>
+
+                      <span
+                        className={`inline-flex rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${
+                          complaint.complaintType === "WARRANTY"
+                            ? "bg-purple-50 text-purple-700"
+                            : complaint.complaintType === "REPEAT"
+                              ? "bg-orange-50 text-orange-700"
+                              : complaint.complaintType === "INQUIRY"
+                                ? "bg-sky-50 text-sky-700"
+                                : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {complaint.complaintType === "WARRANTY"
+                          ? "REPEAT"
+                          : complaint.complaintType || "-"}
+                      </span>
                     </div>
                   </td>
 
@@ -413,20 +376,58 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                     </p>
                   </td>
 
-                  {/* Product */}
+                  {/* Product + Units */}
 
                   <td className="px-2 py-3 align-top">
                     <p
-                      className="truncate text-xs text-gray-700"
+                      className="truncate text-xs font-medium text-gray-800"
                       title={complaint.productName}
                     >
                       {complaint.productName || "-"}
+                    </p>
+
+                    <p className="mt-1 text-[10px] text-gray-500">
+                      Units:{" "}
+                      <span className="font-semibold text-gray-700">
+                        {complaint.units ?? "-"}
+                      </span>
+                    </p>
+                  </td>
+
+                  {/* Quote Amount */}
+
+                  <td className="px-2 py-3 align-top">
+                    <span className="whitespace-nowrap text-xs font-semibold text-gray-800">
+                      {complaint.quoteAmount != null
+                        ? `₹${complaint.quoteAmount.toLocaleString("en-IN")}`
+                        : "-"}
+                    </span>
+                  </td>
+
+                  {/* Created By */}
+
+                  <td className="px-2 py-3 align-top">
+                    <p
+                      className="truncate text-[11px] font-medium text-gray-700"
+                      title={
+                        typeof complaint.createdBy === "object"
+                          ? complaint.createdBy?.name || ""
+                          : ""
+                      }
+                    >
+                      {typeof complaint.createdBy === "object"
+                        ? complaint.createdBy?.name || "-"
+                        : "-"}
                     </p>
                   </td>
 
                   {/* Technician */}
 
                   <td className="px-2 py-3 align-top">
+                    <p className="text-xs font-medium">
+                      {complaint.allocatedDealerId?.technicianFirmName || "-"}
+                    </p>
+
                     <p
                       className="truncate text-xs font-medium text-gray-800"
                       title={complaint.allocatedDealerId?.technicianName || ""}
@@ -450,13 +451,32 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                   </td>
 
                   {/* Reason */}
-                  <td className="px-2 py-3 align-top">
+                  {/* <td className="px-2 py-3 align-top">
                     <p className="break-words text-[11px] leading-4 text-gray-700">
                       {complaint.pendingReason
                         ?.replaceAll("_", " ")
                         .toLowerCase()
                         .replace(/\b\w/g, (char) => char.toUpperCase()) || "-"}
                     </p>
+                  </td> */}
+
+                  {/* Reason */}
+
+                  <td className="px-2 py-3 align-top">
+                    <span
+                      title={formatReason(complaint.pendingReason)}
+                      className={`
+      inline-flex max-w-full
+      items-center rounded-lg
+      px-2.5 py-1.5
+      text-[11px] font-semibold
+      leading-4 ring-1 ring-inset
+      whitespace-normal break-words
+      ${getReasonColor(complaint.pendingReason)}
+    `}
+                    >
+                      {formatReason(complaint.pendingReason)}
+                    </span>
                   </td>
 
                   {/* Updated */}
@@ -618,7 +638,16 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
           onClose={() => setRemarksModal(null)}
         />
       )}
-    </>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
+      />
+    </div>
   );
 }
 
@@ -707,3 +736,40 @@ function RemarksModal({
     </div>
   );
 }
+
+const reasonColors = [
+  "bg-red-100 text-red-700 ring-red-200",
+  "bg-orange-100 text-orange-700 ring-orange-200",
+  "bg-amber-100 text-amber-800 ring-amber-200",
+  "bg-blue-100 text-blue-700 ring-blue-200",
+  "bg-purple-100 text-purple-700 ring-purple-200",
+  "bg-pink-100 text-pink-700 ring-pink-200",
+  "bg-teal-100 text-teal-700 ring-teal-200",
+  "bg-emerald-100 text-emerald-700 ring-emerald-200",
+  "bg-indigo-100 text-indigo-700 ring-indigo-200",
+];
+
+const getReasonColor = (reason?: string) => {
+  if (!reason?.trim()) {
+    return "bg-gray-100 text-gray-500 ring-gray-200";
+  }
+
+  const normalizedReason = reason.trim().toLowerCase();
+
+  let hash = 0;
+
+  for (let i = 0; i < normalizedReason.length; i++) {
+    hash = (hash * 31 + normalizedReason.charCodeAt(i)) | 0;
+  }
+
+  return reasonColors[(hash >>> 0) % reasonColors.length];
+};
+
+const formatReason = (reason?: string) => {
+  if (!reason?.trim()) return "-";
+
+  return reason
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};

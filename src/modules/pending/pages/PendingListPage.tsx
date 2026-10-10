@@ -11,7 +11,8 @@ import {
   UserX,
 } from "lucide-react";
 
-import { useCallback, useEffect, useState } from "react";
+// import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -22,6 +23,7 @@ import SLAStats from "../components/SLAStats";
 
 import {
   getPendingComplaints,
+  searchUserDropdown,
   // sendPendingReminder,
   // updatePendingAction,
 } from "../services/pendingApi";
@@ -34,6 +36,16 @@ import type {
   SLAStatus,
 } from "../types/pending.types";
 import SummaryCard from "../../../components/ui/SummaryCard";
+import SearchSelect, {
+  type SearchSelectOption,
+} from "../../../components/ui/SearchSelect";
+import {
+  searchDealerDropdown,
+  searchProductCategories,
+} from "../../dealers/services/dealerApi";
+import { getCitiesByStateAndDistrict } from "../../cityMaster";
+import { searchCities } from "../../dealers/services/addressApi";
+
 export interface ComplaintStatusSummary {
   total: number;
 
@@ -93,11 +105,11 @@ export default function PendingListPage() {
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const [reason, setReason] = useState<PendingReason | "ALL">("ALL");
+  // const [reason, setReason] = useState<PendingReason | "ALL">("ALL");
 
-  const [slaStatus, setSlaStatus] = useState<SLAStatus | "ALL">("ALL");
+  // const [slaStatus, setSlaStatus] = useState<SLAStatus | "ALL">("ALL");
 
-  const [status, setStatus] = useState<PendingStatus | "ALL">("ALL");
+  // const [status, setStatus] = useState<PendingStatus | "ALL">("ALL");
 
   const [startDate, setStartDate] = useState("");
 
@@ -105,6 +117,51 @@ export default function PendingListPage() {
 
   const [dealerId, setDealerId] = useState("");
 
+  const [cityId, setCityId] = useState("");
+  const [createdBy, setCreatedBy] = useState("");
+  const [productId, setProductId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [selectedReason, setSelectedReason] = useState("ALL");
+
+  const [selectedCity, setSelectedCity] = useState<SearchSelectOption | null>(
+    null,
+  );
+
+  const [selectedCreator, setSelectedCreator] =
+    useState<SearchSelectOption | null>(null);
+
+  const [selectedDealer, setSelectedDealer] =
+    useState<SearchSelectOption | null>(null);
+
+  const [selectedProduct, setSelectedProduct] =
+    useState<SearchSelectOption | null>(null);
+
+  const [selectedCategory, setSelectedCategory] =
+    useState<SearchSelectOption | null>(null);
+
+  interface FilterOption {
+    value: string;
+    label: string;
+  }
+
+  const [cities, setCities] = useState<FilterOption[]>([]);
+  const [creators, setCreators] = useState<FilterOption[]>([]);
+  const [dealers, setDealers] = useState<FilterOption[]>([]);
+  const [products, setProducts] = useState<FilterOption[]>([]);
+  const [categories, setCategories] = useState<SearchSelectOption[]>([]);
+
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [creatorsLoading, setCreatorsLoading] = useState(false);
+  const [dealersLoading, setDealersLoading] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  const [dealerSearch, setDealerSearch] = useState("");
+  const dealerRequestId = useRef(0);
+
+  const [categorySearch, setCategorySearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+  const [creatorSearch, setCreatorSearch] = useState("");
   /*
   |--------------------------------------------------------------------------
   | Pagination
@@ -160,6 +217,11 @@ export default function PendingListPage() {
         startDate,
         endDate,
         dealerId,
+        cityId,
+        createdBy,
+        productId,
+        categoryId,
+        reason: selectedReason === "ALL" ? "" : selectedReason,
       });
 
       setPendingComplaints(response.data || []);
@@ -187,7 +249,19 @@ export default function PendingListPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, debouncedSearch, startDate, endDate, dealerId]);
+  }, [
+    page,
+    limit,
+    debouncedSearch,
+    startDate,
+    endDate,
+    cityId,
+    createdBy,
+    dealerId,
+    productId,
+    categoryId,
+    selectedReason,
+  ]);
 
   /*
   |--------------------------------------------------------------------------
@@ -246,37 +320,69 @@ export default function PendingListPage() {
   |--------------------------------------------------------------------------
   */
 
+  // const handleReset = () => {
+  //   setSearch("");
+  //   setDebouncedSearch("");
+  //   setCityId("");
+  //   setCreatedBy("");
+  //   setDealerId("");
+  //   setProductId("");
+  //   setSelectedReason("ALL");
+
+  //   setReason("ALL");
+
+  //   setSlaStatus("ALL");
+
+  //   setStatus("ALL");
+
+  //   setStartDate("");
+
+  //   setEndDate("");
+
+  //   setDealerId("");
+
+  //   setPage(1);
+  //   setLimit(10);
+  // };
+
   const handleReset = () => {
     setSearch("");
     setDebouncedSearch("");
 
-    setReason("ALL");
+    setCityId("");
+    setDealerId("");
+    setCreatedBy("");
+    setProductId("");
 
-    setSlaStatus("ALL");
+    setSelectedCity(null);
+    setSelectedDealer(null);
+    setSelectedProduct(null);
 
-    setStatus("ALL");
+    setDealerSearch("");
+    setCitySearch("");
 
     setStartDate("");
-
     setEndDate("");
-
-    setDealerId("");
+    setSelectedReason("ALL");
 
     setPage(1);
     setLimit(10);
   };
-
   /*
   |--------------------------------------------------------------------------
   | Filter change helpers
   |--------------------------------------------------------------------------
   */
 
-  const handleReasonChange = (value: PendingReason | "ALL") => {
-    setReason(value);
+  // const handleReasonChange = (value: PendingReason | "ALL") => {
+  //   setReason(value);
+  //   setPage(1);
+  // };
+
+  const handleReasonChange = (value: string) => {
+    setSelectedReason(value);
     setPage(1);
   };
-
   const handleSLAChange = (value: SLAStatus | "ALL") => {
     setSlaStatus(value);
     setPage(1);
@@ -300,6 +406,151 @@ export default function PendingListPage() {
     setPage(1);
   };
 
+  useEffect(() => {
+    const requestId = ++dealerRequestId.current;
+
+    const timer = setTimeout(async () => {
+      try {
+        setDealersLoading(true);
+
+        const response = await searchDealerDropdown(dealerSearch);
+
+        if (requestId !== dealerRequestId.current) return;
+
+        setDealers(
+          response.map((dealer) => ({
+            value: dealer._id,
+            label: dealer.technicianFirmName || dealer.technicianName,
+            data: dealer,
+          })),
+        );
+      } catch (error) {
+        if (requestId !== dealerRequestId.current) return;
+
+        console.error("Failed to load dealers:", error);
+        setDealers([]);
+      } finally {
+        if (requestId === dealerRequestId.current) {
+          setDealersLoading(false);
+        }
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [dealerSearch]);
+
+  useEffect(() => {
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        setCategoriesLoading(true);
+
+        const response = await searchProductCategories({
+          search: categorySearch.trim(),
+        });
+
+        if (!active) return;
+
+        const options: SearchSelectOption[] = response.map((category) => ({
+          value: category._id,
+          label: `${category.category} - ${category.description}`,
+          data: category,
+        }));
+
+        setCategories(options);
+      } catch (error) {
+        if (!active) return;
+
+        console.error("Failed to load categories:", error);
+        setCategories([]);
+      } finally {
+        if (active) {
+          setCategoriesLoading(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [categorySearch]);
+
+  useEffect(() => {
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        setCitiesLoading(true);
+
+        const response = await searchCities({
+          search: citySearch.trim(),
+        });
+
+        if (!active) return;
+
+        const options: SearchSelectOption[] = response.map((city) => ({
+          value: city.city_id,
+          label: city.city_name,
+          data: city,
+        }));
+
+        setCities(options);
+      } catch (error) {
+        if (!active) return;
+
+        console.error("Failed to load cities:", error);
+        setCities([]);
+      } finally {
+        if (active) {
+          setCitiesLoading(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [citySearch]);
+
+  useEffect(() => {
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        setCreatorsLoading(true);
+
+        const response = await searchUserDropdown(creatorSearch.trim());
+
+        if (!active) return;
+
+        setCreators(
+          response.map((user) => ({
+            value: user._id,
+            label: user.name,
+            data: user,
+          })),
+        );
+      } catch (error) {
+        if (!active) return;
+
+        console.error("Failed to load users:", error);
+        setCreators([]);
+      } finally {
+        if (active) {
+          setCreatorsLoading(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [creatorSearch]);
+
   const reasonColors = [
     "green",
     "red",
@@ -316,27 +567,29 @@ export default function PendingListPage() {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pending & SLA</h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Monitor pending complaints and SLA deadlines.
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">Pending</h1>
         </div>
-
-        {/* <button
-          onClick={() => navigate("/pending/sla")}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          <BarChart3 size={17} />
-          SLA Overview
-        </button> */}
       </div>
       {/* Summary Cards */}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7">
         {/* Total */}
 
-        <SummaryCard label="Total Pending" count={summary.total} color="blue" />
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedReason("ALL");
+            setPage(1);
+          }}
+          className="rounded-xl text-left"
+        >
+          <SummaryCard
+            label="Total Pending"
+            count={summary.total}
+            color="blue"
+            compact
+          />
+        </button>
 
         {/* Status Counts */}
 
@@ -344,16 +597,18 @@ export default function PendingListPage() {
           label="Pending On Call"
           count={summary.statusCounts.PENDING_ON_CALL}
           color="orange"
+          compact
         />
 
         <SummaryCard
           label="Pending On Visit"
           count={summary.statusCounts.PENDING_ON_VISIT}
           color="purple"
+          compact
         />
 
         {/* Reason Counts */}
-
+        {/* 
         {Object.entries(summary.reasonCounts).map(([reason, count], index) => (
           <SummaryCard
             key={reason}
@@ -364,7 +619,39 @@ export default function PendingListPage() {
             count={count}
             color={reasonColors[index % reasonColors.length]}
           />
-        ))}
+        ))} */}
+
+        {Object.entries(summary.reasonCounts).map(([reason, count], index) => {
+          const isActive = selectedReason === reason;
+
+          return (
+            <button
+              key={reason}
+              type="button"
+              onClick={() => {
+                setSelectedReason(isActive ? "ALL" : reason);
+                setPage(1);
+              }}
+              className={`
+          rounded-xl text-left transition-all
+          hover:-translate-y-0.5
+          focus-visible:outline-2
+          focus-visible:outline-blue-600
+          ${isActive ? "ring-2 ring-blue-600 ring-offset-2" : ""}
+        `}
+            >
+              <SummaryCard
+                label={reason
+                  .replaceAll("_", " ")
+                  .toLowerCase()
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
+                count={count}
+                color={reasonColors[index % reasonColors.length]}
+                compact
+              />
+            </button>
+          );
+        })}
       </div>
       {/* 
      
@@ -378,134 +665,212 @@ export default function PendingListPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-4">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {/* Search */}
+          <div className="flex flex-col">
+            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#123B7A]">
+              Search
+            </label>
 
-          <div className="relative">
-            <Search
-              size={17}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+            <div className="relative">
+              <Search
+                size={13}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search complaint, customer..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm"
-            />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search complaint, customer..."
+                className="
+        h-8 w-full rounded-md border border-gray-300
+        bg-white pl-7 pr-3 text-xs text-gray-700
+        outline-none transition
+        focus:border-blue-500 focus:ring-1 focus:ring-blue-100
+      "
+              />
+            </div>
           </div>
 
-          {/* Start Date */}
-
-          <input
-            type="date"
-            value={startDate}
-            onChange={(event) => {
-              setStartDate(event.target.value);
-
+          {/* City */}
+          <SearchSelect
+            label="City"
+            placeholder="Search city..."
+            value={selectedCity?.label || ""}
+            options={cities}
+            loading={citiesLoading}
+            filterMode="server"
+            onSearch={(search) => {
+              setCitySearch(search);
+            }}
+            onSelect={(option) => {
+              setSelectedCity(option);
+              setCityId(String(option.value));
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+            onClear={() => {
+              setSelectedCity(null);
+              setCityId("");
+              setCitySearch("");
+              setPage(1);
+            }}
           />
 
-          {/* End Date */}
-
-          <input
-            type="date"
-            value={endDate}
-            onChange={(event) => {
-              setEndDate(event.target.value);
-
+          {/* Created By */}
+          <SearchSelect
+            label="Created By"
+            placeholder="Search user..."
+            value={selectedCreator?.label || ""}
+            options={creators}
+            loading={creatorsLoading}
+            filterMode="server"
+            onSearch={setCreatorSearch}
+            onSelect={(option) => {
+              setSelectedCreator(option);
+              setCreatedBy(String(option.value));
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+            onClear={() => {
+              setSelectedCreator(null);
+              setCreatedBy("");
+              setCreatorSearch("");
+              setPage(1);
+            }}
           />
 
           {/* Dealer */}
-
-          <input
-            value={dealerId}
-            onChange={(event) => {
-              setDealerId(event.target.value);
-
+          <SearchSelect
+            label="Dealer"
+            placeholder="Search dealer..."
+            value={selectedDealer?.label || ""}
+            options={dealers}
+            loading={dealersLoading}
+            filterMode="server"
+            onSearch={setDealerSearch}
+            onSelect={(option) => {
+              console.log(option)
+              setSelectedDealer(option);
+              setDealerId(String(option?.data?.value));
               setPage(1);
             }}
-            placeholder="Dealer ID"
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+            onClear={() => {
+              setSelectedDealer(null);
+              setDealerId("");
+              setDealerSearch("");
+              setPage(1);
+            }}
           />
 
-          {/* Reason */}
+          {/* Product */}
+          <SearchSelect
+            label="Category"
+            placeholder="Search category..."
+            value={selectedCategory?.label || ""}
+            options={categories}
+            loading={categoriesLoading}
+            filterMode="server"
+            onSearch={setCategorySearch}
+            onSelect={(option) => {
+              setSelectedCategory(option);
+              setCategoryId(String(option.value));
+              setPage(1);
+            }}
+            onClear={() => {
+              setSelectedCategory(null);
+              setCategoryId("");
+              setCategorySearch("");
+              setPage(1);
+            }}
+          />
 
-          <select
-            value={reason}
-            onChange={(event) =>
-              handleReasonChange(event.target.value as PendingReason | "ALL")
-            }
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
+          {/* Start Date */}
+          <div className="flex flex-col">
+            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#123B7A]">
+              From Date
+            </label>
+
+            <input
+              type="date"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setPage(1);
+              }}
+              className="
+      h-8 w-full rounded-md border border-gray-300
+      bg-white px-2.5 text-xs text-gray-700
+      outline-none transition
+      focus:border-blue-500 focus:ring-1 focus:ring-blue-100
+    "
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="flex flex-col">
+            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#123B7A]">
+              To Date
+            </label>
+
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setPage(1);
+              }}
+              className="
+      h-8 w-full rounded-md border border-gray-300
+      bg-white px-2.5 text-xs text-gray-700
+      outline-none transition
+      focus:border-blue-500 focus:ring-1 focus:ring-blue-100
+    "
+            />
+          </div>
+
+          {/* Reason */}
+          {/* <select
+            value={selectedReason}
+            onChange={(e) => {
+              setSelectedReason(e.target.value);
+              setPage(1);
+            }}
+            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm"
           >
             <option value="ALL">All Reasons</option>
-
-            <option value="WAITING_FOR_CUSTOMER">Waiting for Customer</option>
-
-            <option value="PRODUCT_INSPECTION_PENDING">
-              Product Inspection Pending
-            </option>
-
-            <option value="SPARE_PARTS_NOT_AVAILABLE">
-              Spare Parts Not Available
-            </option>
-
-            <option value="DEALER_UNAVAILABLE">Dealer Unavailable</option>
-          </select>
-
-          {/* SLA */}
-
-          <select
-            value={slaStatus}
-            onChange={(event) =>
-              handleSLAChange(event.target.value as SLAStatus | "ALL")
-            }
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-          >
-            <option value="ALL">All SLA</option>
-
-            <option value="SAFE">Within SLA</option>
-
-            <option value="WARNING">SLA Warning</option>
-
-            <option value="BREACHED">SLA Breached</option>
-          </select>
-
-          {/* Status */}
-
-          <select
-            value={status}
-            onChange={(event) =>
-              handleStatusChange(event.target.value as PendingStatus | "ALL")
-            }
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-          >
-            <option value="ALL">All Status</option>
-
-            <option value="PENDING">Pending</option>
-
-            <option value="RESOLVED">Resolved</option>
-
-            <option value="ESCALATED">Escalated</option>
-
-            <option value="REASSIGNED">Reassigned</option>
-
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+            {Object.keys(summary.reasonCounts).map((reason) => (
+              <option key={reason} value={reason}>
+                {reason
+                  .replaceAll("_", " ")
+                  .toLowerCase()
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
+              </option>
+            ))}
+          </select> */}
 
           {/* Reset */}
+          <div className="flex flex-col">
+            <span
+              aria-hidden="true"
+              className="mb-0.5 block text-[11px] leading-4 opacity-0"
+            >
+              Reset
+            </span>
 
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
-          >
-            <RotateCcw size={16} />
-            Reset
-          </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="
+      flex h-8 w-full items-center justify-center gap-2
+      rounded-md border border-gray-300
+      bg-white px-3 text-xs font-medium text-gray-600
+      transition hover:bg-gray-50
+    "
+            >
+              <RotateCcw size={13} />
+              Reset Filters
+            </button>
+          </div>
         </div>
       </div>
 
@@ -527,69 +892,6 @@ export default function PendingListPage() {
             complaints={pendingComplaints}
             onRefresh={fetchPendingComplaints}
           />
-
-          {/* Pagination */}
-
-          {/* <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 sm:flex-row">
-            <div className="text-sm text-gray-500">
-              Total: <span className="font-medium text-gray-900">{total}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <select
-                value={limit}
-                onChange={(event) => {
-                  setLimit(Number(event.target.value));
-
-                  setPage(1);
-                }}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              >
-                <option value={10}>10</option>
-
-                <option value={20}>20</option>
-
-                <option value={50}>50</option>
-
-                <option value={100}>100</option>
-              </select>
-
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Previous
-              </button>
-
-              <span className="min-w-[100px] text-center text-sm text-gray-600">
-                Page {page} of {totalPages}
-              </span>
-
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() =>
-                  setPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          </div> */}
-
-          {total > 0 && (
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              total={total}
-              limit={limit}
-              onPageChange={handlePageChange}
-              onLimitChange={handleLimitChange}
-            />
-          )}
         </>
       )}
 

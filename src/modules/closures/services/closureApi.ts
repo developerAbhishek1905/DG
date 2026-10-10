@@ -12,13 +12,15 @@ import type {
 export interface ClosureFilters {
   page?: number;
   limit?: number;
-
+  search?: string;
   startDate?: string;
   endDate?: string;
-
-  search?: string;
-
   dealerId?: string;
+  cityId?: string;
+  createdBy?: string;
+  categoryId?: string;
+  status?: string;
+  type?: string;
 }
 
 export interface ClosureResponse {
@@ -44,41 +46,48 @@ export interface ClosureResponse {
 export async function getClosures(
   filters: ClosureFilters = {},
 ): Promise<ClosureResponse> {
-  const response =
-    await api.get<ClosureResponse>(
-      "/appointments/closed",
-      {
-        params: {
-          page: filters.page ?? 1,
+  const response = await api.get<ClosureResponse>(
+    "/appointments/closed",
+    {
+      params: {
+        page: filters.page ?? 1,
+        limit: filters.limit ?? 10,
 
-          limit: filters.limit ?? 10,
+        ...(filters.search?.trim() && {
+          search: filters.search.trim(),
+        }),
 
-          ...(filters.startDate && {
-            startDate:
-              filters.startDate,
-          }),
+        ...(filters.startDate && {
+          startDate: filters.startDate,
+        }),
 
-          ...(filters.endDate && {
-            endDate:
-              filters.endDate,
-          }),
+        ...(filters.endDate && {
+          endDate: filters.endDate,
+        }),
 
-          ...(filters.search?.trim() && {
-            search:
-              filters.search.trim(),
-          }),
+        ...(filters.dealerId && {
+          dealerId: filters.dealerId,
+        }),
 
-          ...(filters.dealerId && {
-            dealerId:
-              filters.dealerId,
-          }),
-        },
+        // City Filter
+        ...(filters.cityId && {
+          cityId: filters.cityId,
+        }),
+
+        // Created By Filter
+        ...(filters.createdBy && {
+          createdBy: filters.createdBy,
+        }),
+
+        // Category Filter
+        ...(filters.categoryId && {
+          categoryId: filters.categoryId,
+        }),
       },
-    );
+    },
+  );
 
-    console.log(response.data.data)
-
-  return response.data.data;
+  return response.data;
 }
 
 

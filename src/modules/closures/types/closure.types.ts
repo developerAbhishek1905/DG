@@ -31,6 +31,20 @@ export interface ClosureProof {
   size: number;
   previewUrl?: string;
 }
+export interface GetClosuresFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+  dealerId?: string;
+  cityId?: string;
+  createdBy?: string;
+  productId?: string;
+  categoryId?: string;
+  status?: string;
+  type?: string;
+}
 
 export interface BaseClosure {
   id: string;

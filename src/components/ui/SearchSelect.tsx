@@ -42,7 +42,7 @@ export default function SearchSelect({
 }: SearchSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(value);
-const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Prevent browser from recognizing this as city/address/state etc.
@@ -51,10 +51,10 @@ const [query, setQuery] = useState("");
     `search_lookup_${crypto.randomUUID()}`,
   ).current;
 
-useEffect(() => {
-  setSearch(value || "");
-  setQuery("");
-}, [value]);
+  useEffect(() => {
+    setSearch(value || "");
+    setQuery("");
+  }, [value]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -73,72 +73,42 @@ useEffect(() => {
     };
   }, []);
 
-//   const filteredOptions = options.filter((option) =>
-//   option.label.toLowerCase().includes(search.trim().toLowerCase()),
-// );
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
 
-//   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     const newValue = event.target.value;
+    setSearch(newValue);
+    setQuery(newValue);
+    setOpen(true);
 
-//     setSearch(newValue);
-//     setOpen(true);
+    onSearch?.(newValue);
+  };
 
-//     onSearch?.(newValue);
-//   };
-const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const newValue = event.target.value;
+  const handleSelect = (option: SearchSelectOption) => {
+    setSearch(option.label);
+    setQuery("");
+    setOpen(false);
 
-  setSearch(newValue);
-  setQuery(newValue);
-  setOpen(true);
+    onSelect(option);
+  };
 
-  onSearch?.(newValue);
-};
+  const handleClear = () => {
+    setSearch("");
+    setQuery("");
 
-//   const handleSelect = (option: SearchSelectOption) => {
-//     setSearch(option.label);
-//     setOpen(false);
+    onSearch?.("");
+    onClear?.();
 
-//     onSelect(option);
-//   };
+    setOpen(true);
+  };
 
-const handleSelect = (option: SearchSelectOption) => {
-  setSearch(option.label);
-  setQuery("");
-  setOpen(false);
-
-  onSelect(option);
-};
-
-//   const handleClear = () => {
-//     setSearch("");
-
-//     onSearch?.("");
-//     onClear?.();
-
-//     setOpen(true);
-//   };
-
-const handleClear = () => {
-  setSearch("");
-  setQuery("");
-
-  onSearch?.("");
-  onClear?.();
-
-  setOpen(true);
-};
-
-const filteredOptions =
-  filterMode === "server"
-    ? options
-    : query.trim()
-      ? options.filter((option) =>
-          option.label
-            .toLowerCase()
-            .includes(query.trim().toLowerCase()),
-        )
-      : options;
+  const filteredOptions =
+    filterMode === "server"
+      ? options
+      : query.trim()
+        ? options.filter((option) =>
+            option.label.toLowerCase().includes(query.trim().toLowerCase()),
+          )
+        : options;
   return (
     <div ref={containerRef} className="relative">
       {/* Label */}
@@ -147,7 +117,7 @@ const filteredOptions =
         className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]"
       >
         {label}
-         {required && <span className="ml-0.5 text-red-500">*</span>}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
 
       {/* Input */}
@@ -294,8 +264,8 @@ const filteredOptions =
               <Loader2 size={13} className="animate-spin" />
               Loading...
             </div>
-) : filteredOptions.length > 0 ? (
-  filteredOptions.map((option) => (
+          ) : filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"

@@ -36,6 +36,116 @@ import type {
   ClosureType,
 } from "../types/closure.types";
 import RatingReviewModal from "../components/RatingReviewModal";
+import SummaryCard from "../../../components/ui/SummaryCard";
+import Pagination from "../../../components/ui/Pagination";
+import SearchSelect, {
+  type SearchSelectOption,
+} from "../../../components/ui/SearchSelect";
+import { useDebounce } from "../../../hooks/useDebounce";
+import { searchCities } from "../../dealers/services/addressApi";
+import {
+  searchDealerDropdown,
+  searchProductCategories,
+  searchProducts,
+} from "../../dealers/services/dealerApi";
+import { searchUserDropdown } from "../../pending/services/pendingApi";
+
+interface ClosureSummary {
+  total: number;
+  pendingApproval: number;
+  approved: number;
+  rejected: number;
+  rated: number;
+  notRated: number;
+}
+
+const initialSummary: ClosureSummary = {
+  total: 0,
+  pendingApproval: 0,
+  approved: 0,
+  rejected: 0,
+  rated: 0,
+  notRated: 0,
+};
+const formatDateTime = (value?: string | null) => {
+  if (!value) {
+    return {
+      date: "-",
+      time: "",
+    };
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return {
+      date: "-",
+      time: "",
+    };
+  }
+
+  return {
+    date: date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "2-digit",
+    }),
+
+    time: date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  };
+};
+
+function useRemoteOptions<T>(
+  search: string,
+  loader: (search: string) => Promise<T[]>,
+  mapper: (item: T) => SearchSelectOption,
+  enabled = true,
+) {
+  const [options, setOptions] = useState<SearchSelectOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const debouncedSearch = useDebounce(search, 300);
+
+  useEffect(() => {
+    if (!enabled) {
+      setOptions([]);
+      setLoading(false);
+      return;
+    }
+
+    let active = true;
+
+    const fetchOptions = async () => {
+      setLoading(true);
+
+      try {
+        const response = await loader(debouncedSearch);
+
+        if (active) {
+          setOptions(response.map(mapper));
+        }
+      } catch (error) {
+        console.error("Dropdown API error:", error);
+
+        if (active) setOptions([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    fetchOptions();
+
+    return () => {
+      active = false;
+    };
+  }, [debouncedSearch, enabled, loader, mapper]);
+
+  return { options, loading };
+}
 
 export default function ClosureHistoryPage() {
   const navigate = useNavigate();
@@ -74,12 +184,59 @@ export default function ClosureHistoryPage() {
 
   const [approvingId, setApprovingId] = useState<string | null>(null);
 
+  const [summary, setSummary] = useState<ClosureSummary>(initialSummary);
+
+  const [cityId, setCityId] = useState("");
+  const [createdBy, setCreatedBy] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [approvalFilter, setApprovalFilter] = useState<
+    "ALL" | "PENDING" | "APPROVED"
+  >("ALL");
+
+  const [dealerSearch, setDealerSearch] = useState("");
+const [citySearch, setCitySearch] = useState<string>("");
+  const [creatorSearch, setCreatorSearch] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+
+  interface FilterOption {
+    id: string;
+    label: string;
+  }
+
+  const [dealers, setDealers] = useState<FilterOption[]>([]);
+  const [cities, setCities] = useState<FilterOption[]>([]);
+  const [creators, setCreators] = useState<FilterOption[]>([]);
+  const [categories, setCategories] = useState<FilterOption[]>([]);
+
+  const [selectedDealer, setSelectedDealer] =
+    useState<SearchSelectOption | null>(null);
+
+  const [selectedCity, setSelectedCity] = useState<SearchSelectOption | null>(
+    null,
+  );
+
+  const [selectedCreator, setSelectedCreator] =
+    useState<SearchSelectOption | null>(null);
+
+  const [selectedCategory, setSelectedCategory] =
+    useState<SearchSelectOption | null>(null);
+
+  const [products, setProducts] = useState<SearchSelectOption[]>([]);
+
+  const [productSearch, setProductSearch] = useState("");
+
+  const [dealersLoading, setDealersLoading] = useState(false);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [creatorsLoading, setCreatorsLoading] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+
   const handleApproveClosure = async (
     closure: ClosureRecord,
     remark: string,
   ) => {
-    console.log(closure);
-    console.log(remark);
+   
 
     const trimmedRemark = remark.trim();
 
@@ -128,21 +285,22 @@ export default function ClosureHistoryPage() {
         startDate,
         endDate,
         dealerId,
+        cityId,
+        createdBy,
 
-        ...(status !== "ALL" && {
-          status,
-        }),
+        categoryId,
 
-        ...(type !== "ALL" && {
-          type,
-        }),
+        ...(status !== "ALL" && { status }),
+        ...(type !== "ALL" && { type }),
       });
-      console.log(response);
+     
 
-      setClosures(response ?? []);
+      setClosures(response.data ?? []);
+  
 
       setTotal(response.pagination?.total ?? 0);
       setTotalPages(response.pagination?.totalPages ?? 1);
+      setSummary(response.summary ?? initialSummary);
     } catch (error) {
       console.error("Failed to load closed complaints:", error);
 
@@ -159,6 +317,10 @@ export default function ClosureHistoryPage() {
     startDate,
     endDate,
     dealerId,
+    cityId,
+    createdBy,
+    // productId,
+    categoryId,
     status,
     type,
   ]);
@@ -219,6 +381,162 @@ export default function ClosureHistoryPage() {
     }
   };
 
+  useEffect(() => {
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        setDealersLoading(true);
+
+        const response = await searchDealerDropdown(dealerSearch.trim());
+
+        if (!active) return;
+        
+
+        setDealers(
+          response.map((dealer) => ({
+            value: dealer?.value,
+            label:
+            dealer.label ||
+              dealer.technicianFirmName ||
+              dealer.technicianName ||
+              "Unknown Dealer",
+          })),
+        );
+      } catch {
+        if (active) setDealers([]);
+      } finally {
+        if (active) setDealersLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [dealerSearch]);
+
+ 
+
+  useEffect(() => {
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        setCreatorsLoading(true);
+
+        const response = await searchUserDropdown(creatorSearch.trim());
+
+        if (!active) return;
+
+        setCreators(
+          response.map((user) => ({
+            value: user._id,
+            label: user.name,
+          })),
+        );
+      } catch {
+        if (active) setCreators([]);
+      } finally {
+        if (active) setCreatorsLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [creatorSearch]);
+
+useEffect(() => {
+  let active = true;
+
+  const timer = setTimeout(async () => {
+    try {
+      setCitiesLoading(true);
+
+      console.log(citySearch)
+
+              const response = await searchCities({
+          search: citySearch.trim(),
+        });
+
+      console.log("City API response:", response);
+
+      if (!active) return;
+
+      const payload = response as any;
+
+      const cityList = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : [];
+
+      const options: SearchSelectOption[] = cityList.map(
+        (city: any) => ({
+          value: String(city.city_id),
+          label: city.city_name,
+        }),
+      );
+
+      setCities(options);
+    } catch (error) {
+      console.error("Failed to load cities:", error);
+
+      if (active) {
+        setCities([]);
+      }
+    } finally {
+      if (active) {
+        setCitiesLoading(false);
+      }
+    }
+  }, 300);
+
+  return () => {
+    active = false;
+    clearTimeout(timer);
+  };
+}, [citySearch]);
+
+  useEffect(() => {
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        setCategoriesLoading(true);
+
+        const response = await searchProductCategories({
+          search: categorySearch.trim(),
+        });
+
+        if (!active) return;
+
+        setCategories(
+          response.map((category) => ({
+            value: category._id,
+            label: `${category.category} - ${category.description}`,
+          })),
+        );
+      } catch (error) {
+        if (active) {
+          console.error("Failed to load categories:", error);
+          setCategories([]);
+        }
+      } finally {
+        if (active) setCategoriesLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [categorySearch]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -231,76 +549,249 @@ export default function ClosureHistoryPage() {
         </button>
 
         <h1 className="text-2xl font-bold text-gray-900">Closure History</h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Review submitted complaint closures.
-        </p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 xl:flex-row">
-        <div className="relative flex-1">
-          <Search
-            size={17}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+      {/* <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <SummaryCard
+          label="Total Closures"
+          count={summary.total}
+          color="blue"
+          compact
+        />
+
+        <SummaryCard
+          label="Pending Approval"
+          count={summary.pendingApproval}
+          color="orange"
+          compact
+        />
+
+        <SummaryCard
+          label="Approved"
+          count={summary.approved}
+          color="green"
+          compact
+        />
+
+        <SummaryCard
+          label="Rejected"
+          count={summary.rejected}
+          color="red"
+          compact
+        />
+
+        <SummaryCard
+          label="Rated"
+          count={summary.rated}
+          color="yellow"
+          compact
+        />
+
+        <SummaryCard
+          label="Not Rated"
+          count={summary.notRated}
+          color="purple"
+          compact
+        />
+      </div> */}
+      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {/* Search */}
+          <div className="flex flex-col">
+            <label className="mb-1 block text-[11px] font-medium text-[#123B7A]">
+              Search
+            </label>
+
+            <div className="relative">
+              <Search
+                size={13}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                type="text"
+                value={search}
+                onChange={(event) => {
+                  dispatch(setClosureSearch(event.target.value));
+                  setPage(1);
+                }}
+                placeholder="Complaint, customer..."
+                className="h-8 w-full rounded-md border border-gray-300 pl-8 pr-2 text-xs outline-none focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* From Date */}
+          <div>
+            <label className="mb-1 block text-[11px] font-medium text-[#123B7A]">
+              From Date
+            </label>
+
+            <input
+              type="date"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(event) => {
+                setStartDate(event.target.value);
+                setPage(1);
+              }}
+              className="h-8 w-full rounded-md border border-gray-300 px-2 text-xs"
+            />
+          </div>
+
+          {/* To Date */}
+          <div>
+            <label className="mb-1 block text-[11px] font-medium text-[#123B7A]">
+              To Date
+            </label>
+
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(event) => {
+                setEndDate(event.target.value);
+                setPage(1);
+              }}
+              className="h-8 w-full rounded-md border border-gray-300 px-2 text-xs"
+            />
+          </div>
+
+          {/* Dealer */}
+          <SearchSelect
+            label="Dealer"
+            placeholder="Search dealer..."
+            value={selectedDealer?.label || ""}
+            options={dealers}
+            loading={dealersLoading}
+            filterMode="server"
+            onSearch={setDealerSearch}
+            onSelect={(option) => {
+             
+              setSelectedDealer(option);
+              setDealerId(String(option?.value));
+              setPage(1);
+            }}
+            onClear={() => {
+              setSelectedDealer(null);
+              setDealerId("");
+              setDealerSearch("");
+              setPage(1);
+            }}
           />
 
-          <input
-            value={search}
-            onChange={(event) => dispatch(setClosureSearch(event.target.value))}
-            placeholder="Search complaint, customer or dealer..."
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm"
+          {/* City */}
+          <SearchSelect
+            label="City"
+            placeholder="Search city..."
+            value={selectedCity?.label || ""}
+            options={cities}
+            loading={citiesLoading}
+            filterMode="server"
+            onSearch={setCitySearch}
+            onSelect={(option) => {
+              setSelectedCity(option);
+              setCityId(String(option.value));
+              setPage(1);
+            }}
+            onClear={() => {
+              setSelectedCity(null);
+              setCityId("");
+              setCitySearch("");
+              setPage(1);
+            }}
           />
+
+          {/* Created By */}
+          <SearchSelect
+            label="Created By"
+            placeholder="Search user..."
+            value={selectedCreator?.label || ""}
+            options={creators}
+            loading={creatorsLoading}
+            filterMode="server"
+            onSearch={setCreatorSearch}
+            onSelect={(option) => {
+              setSelectedCreator(option);
+              setCreatedBy(String(option.value));
+              setPage(1);
+            }}
+            onClear={() => {
+              setSelectedCreator(null);
+              setCreatedBy("");
+              setCreatorSearch("");
+              setPage(1);
+            }}
+          />
+
+          {/* Category */}
+          <SearchSelect
+            label="Category"
+            placeholder="Search category..."
+            value={selectedCategory?.label || ""}
+            options={categories}
+            loading={categoriesLoading}
+            filterMode="server"
+            onSearch={setCategorySearch}
+            onSelect={(option) => {
+              setSelectedCategory(option);
+              setCategoryId(String(option.value));
+              setPage(1);
+            }}
+            onClear={() => {
+              setSelectedCategory(null);
+              setCategoryId("");
+              setCategorySearch("");
+              setPage(1);
+            }}
+          />
+
+          {/* Reset */}
+          <div className="flex flex-col">
+            <span
+              aria-hidden="true"
+              className="mb-0.5 block text-[11px] leading-4 opacity-0"
+            >
+              Reset
+            </span>
+
+            <button
+              type="button"
+              onClick={() => {
+                dispatch(clearClosureFilters());
+
+                setStartDate("");
+                setEndDate("");
+                setDealerId("");
+                setCityId("");
+                setCreatedBy("");
+                setCategoryId("");
+
+                setSelectedDealer(null);
+                setSelectedCity(null);
+                setSelectedCreator(null);
+                setSelectedCategory(null);
+
+                setDealerSearch("");
+                setCitySearch("");
+                setCreatorSearch("");
+                setCategorySearch("");
+
+                setApprovalFilter("ALL");
+                setPage(1);
+              }}
+              className="
+      flex h-8 w-full items-center justify-center gap-2
+      rounded-md border border-gray-300
+      bg-white px-3 text-xs font-medium text-gray-600
+      transition hover:bg-gray-50
+    "
+            >
+              <RotateCcw size={13} />
+              Reset Filters
+            </button>
+          </div>
         </div>
-
-        <select
-          value={type}
-          onChange={(event) =>
-            dispatch(
-              setClosureHistoryType(event.target.value as ClosureType | "ALL"),
-            )
-          }
-          className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-        >
-          <option value="ALL">All Types</option>
-
-          <option value="VISIT">Visit</option>
-
-          <option value="PART">Part</option>
-
-          <option value="SERVICE">Service</option>
-
-          <option value="INSTALLATION">Installation</option>
-
-          <option value="UNINSTALLATION">Uninstallation</option>
-        </select>
-
-        <select
-          value={status}
-          onChange={(event) =>
-            dispatch(
-              setClosureStatus(event.target.value as ClosureStatus | "ALL"),
-            )
-          }
-          className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-        >
-          <option value="ALL">All Status</option>
-
-          <option value="DRAFT">Draft</option>
-
-          <option value="SUBMITTED">Submitted</option>
-
-          <option value="VERIFIED">Verified</option>
-
-          <option value="REJECTED">Rejected</option>
-        </select>
-
-        <button
-          onClick={() => dispatch(clearClosureFilters())}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-        >
-          <RotateCcw size={16} />
-          Reset
-        </button>
       </div>
 
       {loading ? (
@@ -309,51 +800,40 @@ export default function ClosureHistoryPage() {
         </div>
       ) : (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <div className="overflow-x-auto xl:overflow-x-hidden">
-            <table
-              className="
-        w-full
-        min-w-[1100px]
-        table-auto
-        text-left
-        xl:min-w-0
-        xl:table-fixed
-      "
-            >
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-[1600px] w-full table-auto text-left text-sm">
               <colgroup>
-                <col className="xl:w-[11%]" /> {/* Complaint */}
-                <col className="xl:w-[11%]" /> {/* Customer */}
-                <col className="xl:w-[13%]" /> {/* Dealer */}
-                <col className="xl:w-[11%]" /> {/* Product */}
-                <col className="xl:w-[8%]" /> {/* Category */}
-                <col className="xl:w-13%]" /> {/* Status */}
-                <col className="xl:w-[7%]" /> {/* Closed At */}
-                <col className="xl:w-[18%]" /> {/* Remark */}
-                <col className="xl:w-[8%]" /> {/* Action */}
+                <col className="w-[160px]" /> {/* Complaint */}
+                <col className="w-[170px]" /> {/* Customer */}
+                <col className="w-[140px]" /> {/* City */}
+                <col className="w-[170px]" /> {/* Product */}
+                <col className="w-[110px]" /> {/* Quote */}
+                <col className="w-[150px]" /> {/* Created By */}
+                <col className="w-[180px]" /> {/* Technician */}
+                <col className="w-[170px]" /> {/* Reason */}
+                <col className="w-[140px]" /> {/* Updated */}
+                <col className="w-[220px]" /> {/* Remark */}
+                <col className="w-[120px]" /> {/* Actions */}
               </colgroup>
+
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   {[
                     "Complaint",
                     "Customer",
-                    "Dealer",
+                    "City",
                     "Product",
-                    "Category",
-                    "Status",
-                    "Closed At",
+                    "Quote",
+                    "Created By",
+                    "Technician",
+                    "Reason",
+                    "Updated",
                     "Remark",
-                    "Action",
+                    "Actions",
                   ].map((heading) => (
                     <th
                       key={heading}
-                      className="
-  whitespace-nowrap
-  px-3 py-3
-  text-[10px] font-semibold
-  uppercase tracking-wide
-  text-gray-500
-  xl:px-2
-"
+                      className="whitespace-nowrap px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:text-right"
                     >
                       {heading}
                     </th>
@@ -365,7 +845,7 @@ export default function ClosureHistoryPage() {
                 {closures.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={9}
+                      colSpan={11}
                       className="px-5 py-12 text-center text-sm text-gray-500"
                     >
                       No closed complaints found.
@@ -385,6 +865,20 @@ export default function ClosureHistoryPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          <div className="border-t border-gray-200 px-4 py-3">
+            <Pagination
+              page={page}
+              limit={limit}
+              total={total}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              onLimitChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+            />
           </div>
         </div>
       )}
@@ -457,12 +951,12 @@ const ClosureRow = memo(function ClosureRow({
 }: ClosureRowProps) {
   const [remark, setRemark] = useState("");
 
-  console.log(remark);
   const isApproved = closure.closureApproved === true;
 
   return (
-    <tr
-      className={`
+    <>
+      {/* <tr
+        className={`
         transition-colors
         ${
           isApproved
@@ -470,153 +964,153 @@ const ClosureRow = memo(function ClosureRow({
             : "hover:bg-gray-50"
         }
       `}
-    >
-      {/* Complaint */}
-
-      <td className="min-w-0 px-3 py-3 xl:px-2">
-        <button
-          type="button"
-          onClick={() => onNavigate(closure._id)}
-          className="
+      >
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          <button
+            type="button"
+            onClick={() => onNavigate(closure._id)}
+            className="
             whitespace-nowrap
             text-[11px] font-semibold
             text-[#123B7A]
             hover:underline
           "
-        >
-          {closure.complaintNumber || "-"}
-        </button>
-      </td>
+          >
+            {closure.complaintNumber || "-"}
+          </button>
+        </td>
 
-      {/* Customer */}
+  
 
-      <td className="min-w-0 px-3 py-3 xl:px-2">
-        <p
-          className="truncate text-xs font-medium text-gray-900"
-          title={closure.customerName || closure.customerId?.name || ""}
-        >
-          {closure.customerName || closure.customerId?.name || "-"}
-        </p>
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          <p
+            className="truncate text-xs font-medium text-gray-900"
+            title={closure.customerName || closure.customerId?.name || ""}
+          >
+            {closure.customerName || closure.customerId?.name || "-"}
+          </p>
 
-        <p className="mt-1 truncate text-[10px] text-gray-500">
-          {closure.phone || closure.customerId?.phone || "-"}
-        </p>
-      </td>
+          <p className="mt-1 truncate text-[10px] text-gray-500">
+            {closure.phone || closure.customerId?.phone || "-"}
+          </p>
+        </td>
 
-      {/* Dealer */}
+       
 
-      <td className="min-w-0 px-3 py-3 xl:px-2">
-        <p
-          className="truncate text-[11px] font-medium text-gray-700"
-          title={
-            closure.allocatedDealerId?.technicianFirmName ||
-            closure.dealerName ||
-            ""
-          }
-        >
-          {closure.allocatedDealerId?.technicianFirmName ||
-            closure.dealerName ||
-            "-"}
-        </p>
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          <p
+            className="truncate text-[11px] font-medium text-gray-700"
+            title={
+              closure.allocatedDealerId?.technicianFirmName ||
+              closure.dealerName ||
+              ""
+            }
+          >
+            {closure.allocatedDealerId?.technicianFirmName ||
+              closure.dealerName ||
+              "-"}
+          </p>
 
-        <p className="mt-0.5 truncate text-[10px] text-gray-500">
-          {closure.allocatedDealerId?.technicianName || ""}
-        </p>
-      </td>
+          <p className="mt-0.5 truncate text-[10px] text-gray-500">
+            {closure.allocatedDealerId?.technicianName || ""}
+          </p>
+        </td>
 
-      {/* Product */}
+     
 
-      <td className="min-w-0 px-3 py-3 xl:px-2">
-        <p
-          className="truncate text-[11px] font-medium text-gray-700"
-          title={closure.productName || ""}
-        >
-          {closure.productName || "-"}
-        </p>
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          <p
+            className="truncate text-[11px] font-medium text-gray-700"
+            title={closure.productName || ""}
+          >
+            {closure.productName || "-"}
+          </p>
 
-        <p className="mt-0.5 truncate text-[10px] text-gray-500">
-          {closure.productType || ""}
-        </p>
-      </td>
+          <p className="mt-0.5 truncate text-[10px] text-gray-500">
+            {closure.productType || ""}
+          </p>
+        </td>
 
-      {/* Category */}
+       
 
-      <td className="min-w-0 px-3 py-3 xl:px-2">
-        {closure.category ? (
-          <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-            {closure.category}
-          </span>
-        ) : (
-          <span className="text-sm text-gray-400">-</span>
-        )}
-      </td>
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          {closure.category ? (
+            <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              {closure.category}
+            </span>
+          ) : (
+            <span className="text-sm text-gray-400">-</span>
+          )}
+        </td>
 
-      {/* Status */}
+      
 
-      <td className="min-w-0 px-3 py-3 xl:px-2">
-        <ClosureStatusBadge status={closure.status} />
-        <p className="leading-4 text-green-800 text-[10px] px-1 py-2">{closure?.closingReason}</p>
-      </td>
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          <ClosureStatusBadge status={closure.status} />
+          <p className="leading-4 text-green-800 text-[10px] px-1 py-2">
+            {closure?.closingReason}
+          </p>
+        </td>
 
-      {/* Closed At */}
+   
 
-      <td className="px-2 py-3">
-        {closure.closedAt ? (
-          <>
-            <p className="whitespace-nowrap text-[10px] font-medium text-gray-600">
-              {new Date(closure.closedAt).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "2-digit",
-              })}
-            </p>
-
-            <p className="mt-0.5 whitespace-nowrap text-[9px] text-gray-400">
-              {new Date(closure.closedAt).toLocaleTimeString("en-IN", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          </>
-        ) : (
-          "-"
-        )}
-      </td>
-
-      {/* Remark */}
-
-      <td className="min-w-0 px-2 py-3 align-middle">
-        {isApproved ? (
-          <div className="min-w-0">
-            <p
-              title={closure.closureApprovalRemark || ""}
-              className="
-                line-clamp-2
-                text-[11px] font-medium
-                leading-4 text-green-800
-              "
-            >
-              {closure.closureApprovalRemark || "-"}
-            </p>
-
-            {closure.closureApprovedAt && (
-              <p className="mt-1 whitespace-nowrap text-[9px] text-green-600">
-                {new Date(closure.closureApprovedAt).toLocaleString("en-IN", {
+        <td className="px-2 py-3">
+          {closure.closedAt ? (
+            <>
+              <p className="whitespace-nowrap text-[10px] font-medium text-gray-600">
+                {new Date(closure.closedAt).toLocaleDateString("en-IN", {
                   day: "2-digit",
                   month: "short",
+                  year: "2-digit",
+                })}
+              </p>
+
+              <p className="mt-0.5 whitespace-nowrap text-[9px] text-gray-400">
+                {new Date(closure.closedAt).toLocaleTimeString("en-IN", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </p>
-            )}
-          </div>
-        ) : (
-          <input
-            type="text"
-            value={remark}
-            onChange={(event) => setRemark(event.target.value)}
-            placeholder="Enter remark..."
-            className="
+            </>
+          ) : (
+            "-"
+          )}
+        </td>
+
+        
+
+        <td className="min-w-0 px-2 py-3 align-middle">
+          {isApproved ? (
+            <div className="min-w-0">
+              <p
+                title={closure.closureApprovalRemark || ""}
+                className="
+                line-clamp-2
+                text-[11px] font-medium
+                leading-4 text-green-800
+              "
+              >
+                {closure.closureApprovalRemark || "-"}
+              </p>
+
+              {closure.closureApprovedAt && (
+                <p className="mt-1 whitespace-nowrap text-[9px] text-green-600">
+                  {new Date(closure.closureApprovedAt).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              )}
+            </div>
+          ) : (
+            <input
+              type="text"
+              value={remark}
+              onChange={(event) => setRemark(event.target.value)}
+              placeholder="Enter remark..."
+              className="
               h-8 w-full min-w-0
               rounded-md
               border border-gray-300
@@ -625,21 +1119,21 @@ const ClosureRow = memo(function ClosureRow({
               placeholder:text-gray-400
               focus:border-[#123B7A]
             "
-          />
-        )}
-      </td>
+            />
+          )}
+        </td>
 
-      {/* Action */}
+       
 
-      <td className="px-1 py-3 text-center align-middle">
-        <div className="flex items-center justify-center gap-1">
-          {!isApproved && (
-            <button
-              type="button"
-              disabled={isApproving || !remark.trim()}
-              onClick={() => onApprove(closure, remark)}
-              title="Approve Closure"
-              className="
+        <td className="px-1 py-3 text-center align-middle">
+          <div className="flex items-center justify-center gap-1">
+            {!isApproved && (
+              <button
+                type="button"
+                disabled={isApproving || !remark.trim()}
+                onClick={() => onApprove(closure, remark)}
+                title="Approve Closure"
+                className="
               flex h-8 w-8
               items-center justify-center
               rounded-md
@@ -649,37 +1143,37 @@ const ClosureRow = memo(function ClosureRow({
               disabled:cursor-not-allowed
               disabled:opacity-40
             "
-            >
-              <CircleCheck
-                size={17}
-                className={isApproving ? "animate-pulse" : ""}
-              />
-            </button>
-          )}
+              >
+                <CircleCheck
+                  size={17}
+                  className={isApproving ? "animate-pulse" : ""}
+                />
+              </button>
+            )}
 
-          {closure.rating && closure.rating > 0 ? (
-            <div
-              title={`Rated ${closure.rating}/5`}
-              className="
+            {closure.rating && closure.rating > 0 ? (
+              <div
+                title={`Rated ${closure.rating}/5`}
+                className="
           flex items-center gap-1
           whitespace-nowrap
           rounded-md
           bg-amber-50
           px-2 py-1
         "
-            >
-              <Star size={14} className="fill-amber-400 text-amber-400" />
+              >
+                <Star size={14} className="fill-amber-400 text-amber-400" />
 
-              <span className="text-[11px] font-semibold text-amber-700">
-                {closure.rating}/5
-              </span>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onReview(closure)}
-              title="Rate & Review Dealer"
-              className="
+                <span className="text-[11px] font-semibold text-amber-700">
+                  {closure.rating}/5
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onReview(closure)}
+                title="Rate & Review Dealer"
+                className="
           flex h-8 w-8
           items-center justify-center
           rounded-md
@@ -687,12 +1181,180 @@ const ClosureRow = memo(function ClosureRow({
           hover:bg-amber-50
           hover:text-amber-600
         "
-            >
-              <Star size={17} />
-            </button>
+              >
+                <Star size={17} />
+              </button>
+            )}
+          </div>
+        </td>
+      </tr> */}
+      <tr
+        className={`transition-colors ${
+          isApproved
+            ? "border-l-4 border-l-green-500 bg-green-50"
+            : "hover:bg-gray-50"
+        }`}
+      >
+        {/* Complaint */}
+        <td className="whitespace-nowrap px-3 py-3">
+          <button
+            type="button"
+            onClick={() => onNavigate(closure._id)}
+            className="text-xs font-semibold text-[#123B7A] hover:underline"
+          >
+            {closure.complaintNumber || "-"}
+          </button>
+        </td>
+
+        {/* Customer */}
+        <td className="px-3 py-3">
+          <p className="whitespace-nowrap text-xs font-semibold text-gray-800">
+            {closure.customerName || closure.customerId?.name || "-"}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            {closure.phone || closure.customerId?.phone || "-"}
+          </p>
+        </td>
+
+        {/* City */}
+        <td className="px-3 py-3">
+          <span className="whitespace-nowrap text-xs text-gray-700">
+            {closure.address?.city || "-"}
+          </span>
+        </td>
+
+        {/* Product */}
+        <td className="px-3 py-3">
+          <p className="whitespace-nowrap text-xs font-medium text-gray-800">
+            {closure.productName || "-"}
+          </p>
+          {/* <p className="mt-1 text-[11px] text-gray-500">
+            {closure.productType || "-"}
+          </p> */}
+
+          {closure.units != null && (
+                        <p className="mt-1 text-[10px] text-gray-600">
+                          Units: {closure.units}
+                        </p>
+                      )}
+          {closure.category ? (
+            <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              {closure.category}
+            </span>
+          ) : (
+            <span className="text-sm text-gray-400">-</span>
           )}
-        </div>
-      </td>
-    </tr>
+        </td>
+
+        {/* Quote */}
+        <td className="whitespace-nowrap px-3 py-3">
+          <span className="text-xs font-semibold text-gray-800">
+            ₹{Number(closure.quoteAmount ?? 0).toLocaleString("en-IN")}
+          </span>
+        </td>
+
+        {/* Created By */}
+        <td className="px-3 py-3">
+          <p className="whitespace-nowrap text-xs text-gray-700">
+            {closure.createdBy?.name || "-"}
+          </p>
+        </td>
+
+        {/* Technician */}
+        <td className="px-3 py-3">
+          <p className="whitespace-nowrap text-xs font-medium text-gray-800">
+            {closure.allocatedDealerId?.technicianFirmName ||
+              closure.dealerName ||
+              "-"}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            {closure.allocatedDealerId?.technicianName || ""}
+          </p>
+        </td>
+
+        {/* Reason */}
+        {/* <td className="px-3 py-3">
+          <p className="max-w-[170px] whitespace-normal text-xs text-gray-700">
+            {closure.closingReason || "-"}
+          </p>
+        </td> */}
+        <td className="min-w-0 px-3 py-3 xl:px-2">
+          <ClosureStatusBadge status={closure.status} />
+          <p className="leading-4 text-green-800 text-[10px] px-1 py-2">
+            {closure?.closingReason}
+          </p>
+        </td>
+
+        {/* Updated */}
+        <td className="whitespace-nowrap px-3 py-3">
+          <p className="text-xs text-gray-700">
+            {formatDateTime(closure.updatedAt).date}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            {formatDateTime(closure.updatedAt).time}
+          </p>
+        </td>
+
+        {/* Remark */}
+        <td className="px-3 py-3">
+          {isApproved ? (
+            <div>
+              <p className="max-w-[220px] whitespace-normal text-xs font-medium text-green-800">
+                {closure.closureApprovalRemark || "-"}
+              </p>
+
+              {closure.closureApprovedAt && (
+                <p className="mt-1 text-[10px] text-green-600">
+                  {new Date(closure.closureApprovedAt).toLocaleString("en-IN")}
+                </p>
+              )}
+            </div>
+          ) : (
+            <input
+              type="text"
+              value={remark}
+              onChange={(event) => setRemark(event.target.value)}
+              placeholder="Enter remark..."
+              className="h-9 w-[200px] rounded-md border border-gray-300 px-3 text-xs outline-none focus:border-[#123B7A]"
+            />
+          )}
+        </td>
+
+        {/* Actions */}
+        <td className="px-3 py-3 text-right">
+          <div className="flex items-center justify-end gap-2">
+            {!isApproved && (
+              <button
+                type="button"
+                disabled={isApproving || !remark.trim()}
+                onClick={() => onApprove(closure, remark)}
+                title="Approve Closure"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-green-600 hover:bg-green-100 disabled:opacity-40"
+              >
+                <CircleCheck size={17} />
+              </button>
+            )}
+
+            {closure.rating && closure.rating > 0 ? (
+              <div className="flex items-center gap-1 rounded-md bg-amber-50 px-2 py-1">
+                <Star size={14} className="fill-amber-400 text-amber-400" />
+                <span className="text-xs font-semibold text-amber-700">
+                  {closure.rating}/5
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onReview(closure)}
+                title="Rate & Review Dealer"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-amber-500 hover:bg-amber-50"
+              >
+                <Star size={17} />
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+    </>
   );
 });

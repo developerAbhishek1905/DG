@@ -5,17 +5,42 @@ import type {
   RejectCancellationPayload,
 } from "../types/cancellation.types";
 
+// export interface CancellationFilters {
+//   page?: number;
+//   limit?: number;
+
+//   startDate?: string;
+//   endDate?: string;
+
+//   search?: string;
+
+//   dealerId?: string;
+// }
+
 export interface CancellationFilters {
   page?: number;
   limit?: number;
+  search?: string;
 
   startDate?: string;
   endDate?: string;
 
-  search?: string;
-
   dealerId?: string;
+  cityId?: string | number;
+  createdBy?: string;
+  productId?: string | number;
+  categoryId?: string;
+
+  reason?: string;
+  status?: string;
+  verification?: string;
 }
+
+export interface CancellationSummary {
+  total: number;
+  statusCounts: Record<string, number>;
+  reasonCounts: Record<string, number>;
+} 
 
 export interface CancellationResponse {
   success: boolean;
@@ -30,6 +55,7 @@ export interface CancellationResponse {
   };
 
   message?: string;
+  summary?: CancellationSummary;
 }
 
 /*
@@ -38,33 +64,93 @@ export interface CancellationResponse {
 |--------------------------------------------------------------------------
 */
 
+// export async function getCancellationRequests(
+//   filters: CancellationFilters = {},
+// ): Promise<CancellationResponse> {
+//   const response = await api.get<CancellationResponse>(
+//     "/appointments/cancelled",
+//     {
+//       params: {
+//         page: filters.page ?? 1,
+//         limit: filters.limit ?? 10,
+
+//         ...(filters.startDate && {
+//           startDate: filters.startDate,
+//         }),
+
+//         ...(filters.endDate && {
+//           endDate: filters.endDate,
+//         }),
+
+//         ...(filters.search?.trim() && {
+//           search: filters.search.trim(),
+//         }),
+
+//         ...(filters.dealerId && {
+//           dealerId: filters.dealerId,
+//         }),
+//       },
+//     },
+//   );
+
+//   return response.data;
+// }
+
 export async function getCancellationRequests(
   filters: CancellationFilters = {},
 ): Promise<CancellationResponse> {
+  const params: Record<string, string | number> = {
+    page: filters.page ?? 1,
+    limit: filters.limit ?? 10,
+  };
+
+  if (filters.search?.trim()) {
+    params.search = filters.search.trim();
+  }
+
+  if (filters.startDate) {
+    params.startDate = filters.startDate;
+  }
+
+  if (filters.endDate) {
+    params.endDate = filters.endDate;
+  }
+
+  if (filters.dealerId) {
+    params.dealerId = filters.dealerId;
+  }
+
+  if (filters.cityId !== undefined && filters.cityId !== "") {
+    params.cityId = filters.cityId;
+  }
+
+  if (filters.createdBy) {
+    params.createdBy = filters.createdBy;
+  }
+
+  if (filters.productId !== undefined && filters.productId !== "") {
+    params.productId = filters.productId;
+  }
+
+  if (filters.categoryId) {
+    params.categoryId = filters.categoryId;
+  }
+
+  if (filters.reason && filters.reason !== "ALL") {
+    params.reason = filters.reason;
+  }
+
+  if (filters.status && filters.status !== "ALL") {
+    params.status = filters.status;
+  }
+
+  if (filters.verification && filters.verification !== "ALL") {
+    params.verification = filters.verification;
+  }
+
   const response = await api.get<CancellationResponse>(
     "/appointments/cancelled",
-    {
-      params: {
-        page: filters.page ?? 1,
-        limit: filters.limit ?? 10,
-
-        ...(filters.startDate && {
-          startDate: filters.startDate,
-        }),
-
-        ...(filters.endDate && {
-          endDate: filters.endDate,
-        }),
-
-        ...(filters.search?.trim() && {
-          search: filters.search.trim(),
-        }),
-
-        ...(filters.dealerId && {
-          dealerId: filters.dealerId,
-        }),
-      },
-    },
+    { params },
   );
 
   return response.data;

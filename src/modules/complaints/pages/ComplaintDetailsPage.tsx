@@ -21,17 +21,6 @@ import { toast } from "react-toastify";
    TYPES - EXACTLY BASED ON YOUR API RESPONSE
 ========================================================= */
 
-// interface Address {
-//   addressLine: string;
-//   stateId: number | null;
-//   state: string;
-//   districtId: number | null;
-//   district: string;
-//   cityId: number | null;
-//   city: string;
-//   pincodeId: number | null;
-//   pinCode: string;
-// }
 
 interface Customer {
   _id: string;
@@ -108,7 +97,7 @@ interface Complaint {
   subject: string;
   description: string;
   status: string;
-  technicianName: strng;
+  technicianName: string;
   dealerId: string | null;
   dealerName: string;
   allocatedDealerId: AllocatedDealer | null;
@@ -462,26 +451,6 @@ export default function ComplaintDetailsPage() {
                 toast.success("Dealer assigned successfully");
               }}
             />
-            // <DealerInfoCard
-            //   complaintId={complaint._id}
-            //   dealer={
-            //     complaint.allocatedDealerId
-            //       ? {
-            //           id: complaint.allocatedDealerId._id,
-            //           name: complaint.allocatedDealerId.technicianName || "",
-            //           firmName:
-            //             complaint.allocatedDealerId.technicianFirmName || "",
-            //           phone: complaint.allocatedDealerId.mobileNumber || "",
-            //           headCode: complaint.allocatedDealerId.headCode || "",
-            //           rating: complaint.allocatedDealerId.rating ?? 0,
-            //           status: complaint.allocatedDealerId.status || "ACTIVE",
-            //         }
-            //       : null
-            //   }
-            //   allocationStatus={
-            //     complaint.allocatedDealerId ? "ASSIGNED" : "UNASSIGNED"
-            //   }
-            // />
           )}
         </div>
 
