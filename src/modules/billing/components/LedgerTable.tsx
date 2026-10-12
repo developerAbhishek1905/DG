@@ -1,17 +1,15 @@
-import { CheckCircle2, Eye } from "lucide-react";
+import { CheckCircle2, Eye, Pencil } from "lucide-react";
 
 import type { DealerLedger } from "../types/billing.types";
 
 interface Props {
   ledgers: DealerLedger[];
-
   loading?: boolean;
-
   approvingId?: string | null;
 
   onApprove?: (ledger: DealerLedger) => void;
-
   onView?: (ledger: DealerLedger) => void;
+  onEdit?: (ledger: DealerLedger) => void;
 }
 
 export default function LedgerTable({
@@ -20,6 +18,7 @@ export default function LedgerTable({
   approvingId,
   onApprove,
   onView,
+  onEdit,
 }: Props) {
   const formatAmount = (value?: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -132,16 +131,19 @@ export default function LedgerTable({
                 Category
               </th>
 
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">
+                Units
+              </th>
+
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Billing Type
               </th>
-                              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
                 Customer Amount
               </th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
                 Profit Amount
               </th>
-
 
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">
                 %
@@ -149,6 +151,10 @@ export default function LedgerTable({
 
               <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">
                 Amount
+              </th>
+
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                Closing Remark
               </th>
 
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">
@@ -203,6 +209,10 @@ export default function LedgerTable({
                     {ledger.category || "-"}
                   </td>
 
+                  <td className="px-4 py-3 text-center text-sm font-medium text-gray-700">
+  {ledger?.complaintId?.units ?? "-"}
+</td>
+
                   <td className="px-4 py-3">
                     <span className="whitespace-nowrap text-xs font-medium text-gray-700">
                       {getBillingTypeLabel(ledger.billingType)}
@@ -212,7 +222,7 @@ export default function LedgerTable({
                   <td className="px-4 py-3 text-right text-sm text-gray-600">
                     {formatAmount(ledger.calculation.customerAmount)}
                   </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-600">
+                  <td className="px-4 py-3 text-right text-sm text-gray-600">
                     {formatAmount(ledger.calculation.profitAmount)}
                   </td>
 
@@ -226,6 +236,15 @@ export default function LedgerTable({
                     </span>
                   </td>
 
+                  <td className="max-w-[220px] px-4 py-3">
+                    <p
+                      title={ledger?.complaintId?.closureApprovalRemark || ""}
+                      className="truncate text-xs text-gray-600"
+                    >
+                      {ledger?.complaintId?.closureApprovalRemark?.trim() || ledger?.closingRemark?.trim() || "-"}
+                    </p>
+                  </td>
+
                   <td className="px-4 py-3 text-center">
                     <span
                       className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(
@@ -236,32 +255,45 @@ export default function LedgerTable({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      {onView && (
-                        <button
-                          type="button"
-                          title="View Ledger"
-                          onClick={() => onView(ledger)}
-                          className="rounded-lg p-2 text-[#123B7A] transition hover:bg-blue-50"
-                        >
-                          <Eye size={16} />
-                        </button>
-                      )}
+                <td className="px-4 py-3">
+  <div className="flex items-center justify-center gap-1.5">
+    {/* {onView && (
+      <button
+        type="button"
+        title="View Ledger"
+        onClick={() => onView(ledger)}
+        className="rounded-lg p-2 text-[#123B7A] transition hover:bg-blue-50"
+      >
+        <Eye size={16} />
+      </button>
+    )} */}
 
-                      {ledger.status === "PENDING" && onApprove && (
-                        <button
-                          type="button"
-                          title="Approve Ledger"
-                          disabled={approvingId === ledger._id}
-                          onClick={() => onApprove(ledger)}
-                          className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <CheckCircle2 size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
+    {/* {onEdit && 
+    ledger.status === "PENDING" && 
+    ( */}
+      <button
+        type="button"
+        title="Edit Ledger"
+        onClick={() => onEdit(ledger)}
+        className="rounded-lg p-2 text-amber-600 transition hover:bg-amber-50"
+      >
+        <Pencil size={16} />
+      </button>
+    {/* )} */}
+
+    {ledger.status === "PENDING" && onApprove && (
+      <button
+        type="button"
+        title="Approve Ledger"
+        disabled={approvingId === ledger._id}
+        onClick={() => onApprove(ledger)}
+        className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <CheckCircle2 size={16} />
+      </button>
+    )}
+  </div>
+</td>
                 </tr>
               );
             })}

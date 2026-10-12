@@ -68,21 +68,36 @@ export interface LedgerTransaction {
 }
 
 export interface DealerLedgerSummary {
-  dealer: LedgerDealer;
+  dealer: {
+    id: string;
+    name: string;
+    dealerCode: string;
+    phone?: string;
+    city?: string;
+  };
 
-  openingBalance: number;
+  totalDebit: number;
+  totalCredit: number;
+  outstanding: number;
 
-  totalCredits: number;
+  approvedAmount?: number;
+  pendingAmount?: number;
 
-  totalDebits: number;
+  // New overview API fields
+  unpaidBillsCount?: number;
+  unpaidBillsAmount?: number;
+  currentOutstanding?: number;
+  creditAmount?: number;
+  securityDeposit?: number;
+  openingBalanceType?: "DR" | "CR";
 
-  totalPaid: number;
 
-  outstandingAmount: number;
 
-  pendingPaymentAmount: number;
+openingBalance: number;
 
-  lastTransactionAt?: string;
+
+creditLimit: number;
+
 }
 
 export interface LedgerOverviewStats {
@@ -109,4 +124,72 @@ export interface CreateAdjustmentPayload {
   reason: string;
 
   remarks?: string;
+}
+
+export interface PaymentComplaintBill {
+  _id: string;
+  ledgerId: string;
+  complaintId: string;
+  complaintNumber: string;
+  amount: number;
+}
+
+export interface DealerPayment {
+  _id: string;
+  paymentNumber: string;
+  dealerId: string;
+
+  additionalAmount: number;
+  selectedBillsTotal: number;
+
+  complaintBills: PaymentComplaintBill[];
+
+  openingOutstanding: number;
+  closingOutstanding: number;
+
+  paymentDate: string;
+
+  paymentMode:
+    | "CASH"
+    | "UPI"
+    | "BANK_TRANSFER"
+    | "CHEQUE";
+
+  transactionReference: string;
+  remark: string;
+
+  status: "COMPLETED" | "REVERSED";
+
+  createdBy: {
+    _id: string;
+    name: string;
+    email?: string;
+  } | null;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DealerPaymentsResponse {
+  success: boolean;
+  message: string;
+  data: DealerPayment[];
+
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface DealerPaymentFilters {
+  dealerId: string;
+  search?: string;
+  paymentMode?: string;
+  status?: string;
+  fromDate?: string;
+  toDate?: string;
+  page?: number;
+  limit?: number;
 }

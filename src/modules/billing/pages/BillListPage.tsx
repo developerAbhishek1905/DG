@@ -1,85 +1,9 @@
-// import { useEffect, useMemo, useState } from "react";
-
-// import { useAppSelector } from "../../../app/hooks";
-
-// import BillingFilters from "../components/BillingFilters";
-// import BillingStats from "../components/BillingStats";
-// import BillingTable from "../components/BillingTable";
-
-// import { getBills } from "../services/billingApi";
-
-// import type { Bill } from "../types/billing.types";
-
-// export default function BillListPage() {
-//   const [bills, setBills] = useState<Bill[]>([]);
-
-//   const [loading, setLoading] = useState(true);
-
-//   const { search, status, type } = useAppSelector((state) => state.billing);
-
-//   useEffect(() => {
-//     const load = async () => {
-//       try {
-//         setLoading(true);
-
-//         setBills(await getBills());
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     load();
-//   }, []);
-
-//   const filtered = useMemo(
-//     () =>
-//       bills.filter((bill) => {
-//         const query = search.trim().toLowerCase();
-
-//         return (
-//           (!query ||
-//             bill.billNumber.toLowerCase().includes(query) ||
-//             bill.complaintNumber.toLowerCase().includes(query) ||
-//             bill.dealer.name.toLowerCase().includes(query)) &&
-//           (status === "ALL" || bill.status === status) &&
-//           (type === "ALL" || bill.closureType === type)
-//         );
-//       }),
-//     [bills, search, status, type],
-//   );
-
-//   return (
-//     <div className="space-y-6">
-//       <div>
-//         <h1 className="text-2xl font-bold text-gray-900">Bills</h1>
-
-//         <p className="mt-1 text-sm text-gray-500">
-//           Review generated service bills.
-//         </p>
-//       </div>
-
-//       <BillingStats bills={bills} />
-
-//       <BillingFilters />
-
-//       {loading ? (
-//         <div className="rounded-xl border bg-white p-12 text-center">
-//           Loading bills...
-//         </div>
-//       ) : (
-//         <BillingTable bills={filtered} />
-//       )}
-//     </div>
-//   );
-// }
-
 import { useCallback, useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
+import { Plus } from "lucide-react";
 
-// import { useAppSelector } from "../../../app/hooks";
 
-// import BillingFilters from "../components/BillingFilters";
 import BillingFilters, {
   type BillingFilterValues,
 } from "../components/BillingFilters";
@@ -95,7 +19,8 @@ const initialFilters: BillingFilterValues = {
 };
 import LedgerTable from "../components/LedgerTable";
 
-import { approveDealerLedger, getDealerLedgers } from "../services/billingApi";
+import { approveDealerLedger, getDealerLedgers,  createDealerLedger,
+  updateDealerLedger, } from "../services/billingApi";
 
 import type {
   DealerLedger,
@@ -103,6 +28,9 @@ import type {
   LedgerSummary,
 } from "../types/billing.types";
 import { useDebounce } from "../../../hooks/useDebounce";
+import BillForm, {
+  type BillFormValues,
+} from "../components/BillForm";
 
 export default function BillListPage() {
   const [ledgers, setLedgers] = useState<DealerLedger[]>([]);
@@ -145,8 +73,7 @@ export default function BillListPage() {
     balance: 0,
   });
 
-  const [dealers, setDealers] =
-  useState<
+  const [dealers, setDealers] = useState<
     {
       _id: string;
       name: string;
@@ -155,12 +82,12 @@ export default function BillListPage() {
   >([]);
 
   const [filters, setFilters] = useState<BillingFilterValues>(initialFilters);
+  const [billFormOpen, setBillFormOpen] = useState(false);
 
-  const debouncedSearch =
-  useDebounce(
-    filters.search,
-    500,
-  );
+const [editingLedger, setEditingLedger] =
+  useState<DealerLedger | null>(null);
+
+  const debouncedSearch = useDebounce(filters.search, 500);
   /*
   |--------------------------------------------------------------------------
   | Redux filters
@@ -175,156 +102,131 @@ export default function BillListPage() {
   |--------------------------------------------------------------------------
   */
 
-  // const loadLedgers = useCallback(async () => {
-  //   try {
-  //     setLoading(true);
 
-  //     const response = await getDealerLedgers({
-  //       search,
+  const handleCreateBill = () => {
+  setEditingLedger(null);
+  setBillFormOpen(true);
+};
 
-  //       status: status === "ALL" ? undefined : status,
+const handleEdit = (ledger: DealerLedger) => {
+  // if (ledger.status !== "PENDING") {
+  //   toast.error("Only pending bills can be edited");
+  //   return;
+  // }
 
-  //       billingType: type === "ALL" ? undefined : type,
+  setEditingLedger(ledger);
+  setBillFormOpen(true);
+};
 
-  //       page,
+const handleCloseBillForm = () => {
+  setBillFormOpen(false);
+  setEditingLedger(null);
+};
 
-  //       limit,
-  //     });
 
-  //     setLedgers(response.data);
-
-  //     setSummary(response.summary);
-
-  //     setPagination(response.pagination);
-  //   } catch (error) {
-  //     console.error("Failed to load ledger:", error);
-
-  //     toast.error("Failed to load ledger");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [search, status, type, page, limit]);
-
-const loadLedgers = useCallback(async () => {
+const handleSubmitBill = async (values: BillFormValues) => {
+  console.log("BILL LIST PAGE PAYLOAD:", values);
   try {
-    setLoading(true);
+    if (editingLedger) {
+      await updateDealerLedger(
+        editingLedger._id,
+        values,
+      );
 
-    const response =
-      await getDealerLedgers({
-        search:
-          debouncedSearch,
+      toast.success("Bill updated successfully");
+    } else {
+      await createDealerLedger(values);
 
-        dealerId:
-          filters.dealerId ||
-          undefined,
+      toast.success("Bill created successfully");
+    }
 
-        status:
-          filters.status === "ALL"
-            ? undefined
-            : filters.status,
+    handleCloseBillForm();
+
+    // Reload current filters and pagination
+    await loadLedgers();
+  } catch (error: any) {
+    toast.error(
+      error?.response?.data?.message ||
+        "Failed to save bill",
+    );
+
+    throw error;
+  }
+};
+  const loadLedgers = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const response = await getDealerLedgers({
+        search: debouncedSearch,
+
+        dealerId: filters.dealerId || undefined,
+
+        status: filters.status === "ALL" ? undefined : filters.status,
 
         billingType:
-          filters.billingType === "ALL"
-            ? undefined
-            : filters.billingType,
+          filters.billingType === "ALL" ? undefined : filters.billingType,
 
         transactionType:
           filters.transactionType === "ALL"
             ? undefined
             : filters.transactionType,
 
-        fromDate:
-          filters.fromDate ||
-          undefined,
+        fromDate: filters.fromDate || undefined,
 
-        toDate:
-          filters.toDate ||
-          undefined,
+        toDate: filters.toDate || undefined,
 
         page,
 
         limit,
       });
 
-    setLedgers(
-      response.data,
-    );
+      setLedgers(response.data);
 
-    setSummary(
-      response.summary,
-    );
+      setSummary(response.summary);
 
-    setPagination(
-      response.pagination,
-    );
-  } catch (error) {
-    console.error(
-      "Failed to load ledgers:",
-      error,
-    );
+      setPagination(response.pagination);
+    } catch (error) {
+      console.error("Failed to load ledgers:", error);
 
-    toast.error(
-      "Failed to load ledgers",
-    );
-  } finally {
-    setLoading(false);
-  }
-}, [
-  debouncedSearch,
-  filters.dealerId,
-  filters.status,
-  filters.billingType,
-  filters.transactionType,
-  filters.fromDate,
-  filters.toDate,
-  page,
-  limit,
-]);
+      toast.error("Failed to load ledgers");
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    debouncedSearch,
+    filters.dealerId,
+    filters.status,
+    filters.billingType,
+    filters.transactionType,
+    filters.fromDate,
+    filters.toDate,
+    page,
+    limit,
+  ]);
   /*
   |--------------------------------------------------------------------------
   | Fetch
   |--------------------------------------------------------------------------
   */
 
-useEffect(() => {
-  loadLedgers();
-}, [loadLedgers]);
+  useEffect(() => {
+    loadLedgers();
+  }, [loadLedgers]);
 
-const handleResetFilters = () => {
-  setFilters({
-    search: "",
-    dealerId: "",
-    status: "ALL",
-    billingType: "ALL",
-    transactionType: "ALL",
-    fromDate: "",
-    toDate: "",
-  });
+  const handleResetFilters = () => {
+    setFilters({
+      search: "",
+      dealerId: "",
+      status: "ALL",
+      billingType: "ALL",
+      transactionType: "ALL",
+      fromDate: "",
+      toDate: "",
+    });
 
-  setPage(1);
-};
-  /*
-  |--------------------------------------------------------------------------
-  | Reset page when filters change
-  |--------------------------------------------------------------------------
-  */
-
-//   useEffect(() => {
-//     setPage(1);
-//   }, 
-//   // [search, status, type]
-//   [
-//   debouncedSearch,
-//   filters.dealerId,
-//   filters.status,
-//   filters.billingType,
-//   filters.transactionType,
-//   filters.fromDate,
-//   filters.toDate,
-//   page,
-//   limit,
-// ]
-// );
+    setPage(1);
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -377,11 +279,15 @@ const handleResetFilters = () => {
 
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dealer Ledger</h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Review dealer billing, transactions and approvals.
-        </p>
       </div>
+      <button
+  type="button"
+  onClick={handleCreateBill}
+  className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064]"
+>
+  <Plus size={17} />
+  Create Bill
+</button>
 
       {/* STATS */}
 
@@ -423,26 +329,25 @@ const handleResetFilters = () => {
 
       {/* <BillingFilters /> */}
 
-<BillingFilters
-  filters={filters}
-  dealers={dealers}
-  onChange={(newFilters) => {
-    setFilters(newFilters);
-    setPage(1);
-  }}
-  onReset={
-    handleResetFilters
-  }
-/>
+      <BillingFilters
+        filters={filters}
+        dealers={dealers}
+        onChange={(newFilters) => {
+          setFilters(newFilters);
+          setPage(1);
+        }}
+        onReset={handleResetFilters}
+      />
       {/* TABLE */}
 
-      <LedgerTable
-        ledgers={ledgers}
-        loading={loading}
-        approvingId={approvingId}
-        onApprove={handleApprove}
-        onView={handleView}
-      />
+<LedgerTable
+  ledgers={ledgers}
+  loading={loading}
+  approvingId={approvingId}
+  onApprove={handleApprove}
+  onView={handleView}
+  onEdit={handleEdit}
+/>
 
       {/* PAGINATION */}
 
@@ -495,6 +400,15 @@ const handleResetFilters = () => {
           </div>
         </div>
       )}
+
+      {billFormOpen && (
+  <BillForm
+    mode={editingLedger ? "edit" : "create"}
+    initialData={editingLedger}
+    onClose={handleCloseBillForm}
+    onSubmit={handleSubmitBill}
+  />
+)}
     </div>
   );
 }

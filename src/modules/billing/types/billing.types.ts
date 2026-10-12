@@ -13,6 +13,30 @@ export type RateType =
   | "INSTALLATION"
   | "UNINSTALLATION";
 
+export interface BillFormValues {
+  complaintNumber: string;
+
+  dealerId: string;
+  dealerName: string;
+
+  productId: number | null;
+  productName: string;
+
+  categoryId: string;
+  category: string;
+
+  units: number;
+
+  billingType: BillingType;
+
+  customerAmount: number;
+  profitAmount: number;
+  percentage: number;
+  amount: number;
+
+  closingRemark: string;
+}
+
 export interface BillingDealer {
   id: string;
   name: string;
@@ -206,23 +230,24 @@ export interface LedgerComplaint {
 export interface DealerLedger {
   _id: string;
 
-  dealerId:
-    | LedgerDealer
-    | string;
+  dealerId: LedgerDealer | string;
 
   dealerCode?: string;
   dealerName?: string;
 
-  complaintId?:
-    | LedgerComplaint
-    | string
-    | null;
+  complaintId?: LedgerComplaint | string | null;
 
   complaintNumber?: string;
 
   transactionType: TransactionType;
 
   billingType: BillingType;
+  units?: number | null;
+
+  customerName?: string;
+  phone?: string;
+ 
+  closureApprovalRemark?: string;
 
   productId?: number;
   productName?: string;
@@ -237,9 +262,7 @@ export interface DealerLedger {
   serviceRate: number;
   amount: number;
 
-  entryType:
-    | "DEBIT"
-    | "CREDIT";
+  entryType: "DEBIT" | "CREDIT";
 
   calculation?: {
     fixedRate?: number;

@@ -1,614 +1,146 @@
-// import {
-//   AlertTriangle,
-//   CircleDollarSign,
-//   Landmark,
-//   WalletCards,
-// } from "lucide-react";
-
-// import { useEffect, useState } from "react";
-
-// import OutstandingCard from "../components/OutstandingCard";
-
-// // import {
-// //   getAllDealerLedgerSummaries,
-// //   getLedgerOverviewStats,
-// // } from "../services/ledgerApi";
-// import {
-//   // getAllDealerLedgerSummaries,
-//   getAllDealerLedgers,
-//   // getLedgerOverviewStats,
-// } from "../services/ledgerApi";
-
-// import type {
-//   DealerLedgerSummary,
-//   LedgerOverviewStats,
-//   LedgerTransaction,
-// } from "../types/ledger.types";
-
-// // import type {
-// //   DealerLedgerSummary,
-// //   LedgerOverviewStats,
-// // } from "../types/ledger.types";
-
-// import DealerLedgerSearch from "../components/DealerLedgerSearch";
-
-// export default function LedgerOverviewPage() {
-//   const [stats, setStats] = useState<LedgerOverviewStats | null>(null);
-
-//   const [summaries, setSummaries] = useState<DealerLedgerSummary[]>([]);
-
-//   const [loading, setLoading] = useState(true);
-
-//   const [
-//   transactions,
-//   setTransactions,
-// ] = useState<LedgerTransaction[]>([]);
-
-//   // useEffect(() => {
-//   //   const load = async () => {
-//   //     try {
-//   //       setLoading(true);
-
-//   //       const [statsData, summaryData] = await Promise.all([
-//   //         getLedgerOverviewStats(),
-//   //         getAllDealerLedgerSummaries(),
-//   //       ]);
-
-//   //       setStats(statsData);
-
-//   //       setSummaries(summaryData);
-//   //     } finally {
-//   //       setLoading(false);
-//   //     }
-//   //   };
-
-//   //   load();
-//   // }, []);
-
-//   useEffect(() => {
-//   const load = async () => {
-//     try {
-//       setLoading(true);
-
-//       const [
-//         statsData,
-//         // summaryData,
-//         // ledgerData,
-//       ] = await Promise.all([
-//         // getLedgerOverviewStats(),
-
-//         // getAllDealerLedgerSummaries(),
-
-//         getAllDealerLedgers({
-//           page: 1,
-//           limit: 100,
-//         }),
-//       ]);
-
-//       setStats(statsData);
-
-//       // setSummaries(
-//       //   summaryData,
-//       // );
-
-//       // setTransactions(
-//       //   ledgerData.data || [],
-//       // );
-//     } catch (error) {
-//       console.error(
-//         "Failed to load ledger:",
-//         error,
-//       );
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   load();
-// }, []);
-
-//   if (loading || !stats) {
-//     return (
-//       <div className="rounded-xl border bg-white p-12 text-center">
-//         Loading ledger...
-//       </div>
-//     );
-//   }
-
-//   // const cards = [
-//   //   {
-//   //     label: "Total Dealers",
-
-//   //     value: stats.totalDealers,
-
-//   //     icon: Landmark,
-//   //   },
-
-//   //   {
-//   //     label: "Total Outstanding",
-
-//   //     value: `₹${stats.totalOutstanding.toLocaleString("en-IN")}`,
-
-//   //     icon: CircleDollarSign,
-//   //   },
-
-//   //   {
-//   //     label: "Total Credits",
-
-//   //     value: `₹${stats.totalCredits.toLocaleString("en-IN")}`,
-
-//   //     icon: WalletCards,
-//   //   },
-
-//   //   {
-//   //     label: "High Outstanding",
-
-//   //     value: `₹${stats.overdueOutstanding.toLocaleString("en-IN")}`,
-
-//   //     icon: AlertTriangle,
-//   //   },
-//   // ];
-
-//   return (
-//     <div className="space-y-6">
-//       <div>
-//         <h1 className="text-2xl font-bold text-gray-900">Dealer Ledger</h1>
-
-//         <p className="mt-1 text-sm text-gray-500">
-//           Search dealers and monitor credits, payments and outstanding balances.
-//         </p>
-//       </div>
-//       {/* Dealer Search */}
-//       <div className="rounded-xl border border-gray-200 bg-white p-5">
-//         <div className="mb-3">
-//           <h2 className="text-sm font-semibold text-gray-900">Find Dealer</h2>
-
-//           <p className="mt-1 text-xs text-gray-500">
-//             Search and open a dealer's complete ledger.
-//           </p>
-//         </div>
-
-//         <DealerLedgerSearch dealers={summaries} />
-//       </div>
-
-//       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-//         {cards.map((card) => {
-//           const Icon = card.icon;
-
-//           return (
-//             <div
-//               key={card.label}
-//               className="rounded-xl border border-gray-200 bg-white p-5"
-//             >
-//               <div className="flex items-center justify-between">
-//                 <div>
-//                   <p className="text-sm text-gray-500">{card.label}</p>
-
-//                   <p className="mt-2 text-2xl font-bold text-gray-900">
-//                     {card.value}
-//                   </p>
-//                 </div>
-
-//                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
-//                   <Icon size={21} />
-//                 </div>
-//               </div>
-//             </div>
-//           );
-//         })}
-//       </div>
-
-//       <div>
-//         <h2 className="text-lg font-semibold text-gray-900">
-//           Dealer Outstanding
-//         </h2>
-
-//         <p className="mt-1 text-sm text-gray-500">
-//           Current financial position of each dealer.
-//         </p>
-//       </div>
-
-//       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-//         {summaries.map((summary) => (
-//           <OutstandingCard key={summary.dealer.id} summary={summary} />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle,
   CircleDollarSign,
   Landmark,
   WalletCards,
+  Plus,
+  ReceiptText,
+  ShieldCheck,
 } from "lucide-react";
-
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { toast } from "react-toastify";
 
 import DealerLedgerSearch from "../components/DealerLedgerSearch";
 import OutstandingCard from "../components/OutstandingCard";
-
-import {
-  getAllDealerLedgers,
+import AddPaymentModal from "../components/AddPaymentModal";
+import { getDealerLedgerOverview } from "../services/ledgerApi";
+import type { DealerLedgerSummary } from "../types/ledger.types";
+import type {
+  DealerLedgerOverviewItem,
+  DealerLedgerOverviewSummary,
 } from "../services/ledgerApi";
 
-import type {
-  DealerLedgerSummary,
-  LedgerTransaction,
-} from "../types/ledger.types";
+const emptyStats: DealerLedgerOverviewSummary = {
+  totalDealers: 0,
+  unpaidBillsCount: 0,
+  unpaidBillsAmount: 0,
+  currentOutstanding: 0,
+  creditAmount: 0,
+  securityDeposit: 0,
+};
+
+const money = (value: number) =>
+  `₹${Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+// Keep the existing OutstandingCard and DealerLedgerSearch data contract.
+// Additional overview fields are carried along for optional display inside OutstandingCard.
+export type OverviewDealerSummary = DealerLedgerSummary & {
+  unpaidBillsCount: number;
+  unpaidBillsAmount: number;
+  currentOutstanding: number;
+  creditAmount: number;
+
+  securityDeposit: number;
+  openingBalanceType: "DR" | "CR";
+  openingBalance: number;
+  creditLimit:number;
+};
+
+const toDealerSummary = (
+  row: DealerLedgerOverviewItem,
+): OverviewDealerSummary => ({
+  dealer: {
+    id: row.dealerId,
+    name: row.dealerName || "-",
+    dealerCode: row.headCode || "",
+    phone: row.mobileNumber || "",
+    city: "",
+  },
+  // Compatibility with the existing OutstandingCard props.
+  // The running balance is NOT calculated from ledger transaction totals.
+  totalDebit: row.currentOutstanding,
+  totalCredit: row.creditAmount,
+  outstanding: row.currentOutstanding - row.creditAmount,
+  openingBalance: row.openingBalance,
+  unpaidBillsCount: row.unpaidBillsCount,
+  unpaidBillsAmount: row.unpaidBillsAmount,
+  currentOutstanding: row.currentOutstanding,
+  creditLimit:row.creditLimit,
+  creditAmount: row.creditAmount,
+  securityDeposit: row.securityDeposit,
+  openingBalanceType: row.openingBalanceType,
+});
 
 export default function LedgerOverviewPage() {
-  /*
-  |--------------------------------------------------------------------------
-  | State
-  |--------------------------------------------------------------------------
-  */
+  const [summaries, setSummaries] = useState<OverviewDealerSummary[]>([]);
+  const [stats, setStats] = useState<DealerLedgerOverviewSummary>(emptyStats);
+  const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const [
-    transactions,
-    setTransactions,
-  ] = useState<
-    LedgerTransaction[]
-  >([]);
+  const loadOverview = useCallback(async () => {
+    try {
+      setLoading(true);
 
-  const [
-    summaries,
-    setSummaries,
-  ] = useState<
-    DealerLedgerSummary[]
-  >([]);
+      // The existing page shows all dealers as cards and passes them to
+      // DealerLedgerSearch, so fetch all overview pages, not just the first 100.
+      const first = await getDealerLedgerOverview({ page: 1, limit: 100 });
+      const allRows = [...(first.data ?? [])];
+      const totalPages = first.pagination?.totalPages ?? 1;
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Load All Ledger
-  |--------------------------------------------------------------------------
-  */
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-
-        const response =
-          await getAllDealerLedgers({
-            page: 1,
-
-            // Overview needs all dealer records.
-            // Increase/backend-adjust this if needed.
-            limit: 100,
-          });
-
-        console.log(
-          "All ledger response:",
-          response,
-        );
-
-        setTransactions(
-          response.data || [],
-        );
-      } catch (error) {
-        console.error(
-          "Failed to load ledger:",
-          error,
-        );
-
-        setTransactions([]);
-      } finally {
-        setLoading(false);
+      for (let page = 2; page <= totalPages; page += 1) {
+        const next = await getDealerLedgerOverview({ page, limit: 100 });
+        allRows.push(...(next.data ?? []));
       }
-    };
 
-    load();
+      setSummaries(allRows.map(toDealerSummary));
+      setStats(first.summary ?? emptyStats);
+    } catch (error) {
+      console.error("Failed to load dealer overview:", error);
+      toast.error("Failed to load dealer ledger overview");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  /*
-  |--------------------------------------------------------------------------
-  | Dealer Summary
-  |--------------------------------------------------------------------------
-  */
-
-  const dealerSummaries =
-    useMemo(() => {
-      const dealerMap =
-        new Map<
-          string,
-          DealerLedgerSummary
-        >();
-
-      transactions.forEach(
-        (transaction) => {
-          /*
-          |--------------------------------------------------------------------------
-          | Dealer
-          |--------------------------------------------------------------------------
-          |
-          | Adjust these property names if your API type is different.
-          |
-          */
-
-          const dealer =
-            transaction.dealerId;
-
-          if (
-            !dealer ||
-            typeof dealer ===
-              "string"
-          ) {
-            return;
-          }
-
-          const dealerId =
-            dealer._id;
-
-          if (!dealerId) {
-            return;
-          }
-
-          /*
-          |--------------------------------------------------------------------------
-          | Existing Summary
-          |--------------------------------------------------------------------------
-          */
-
-          let current =
-            dealerMap.get(
-              dealerId,
-            );
-
-          if (!current) {
-            current = {
-              dealer: {
-                id: dealerId,
-
-                name:
-                  dealer.technicianFirmName ||
-                  dealer.technicianName ||
-                  transaction.dealerName ||
-                  "-",
-
-                dealerCode:
-                  dealer.headCode ||
-                  transaction.dealerCode ||
-                  "",
-
-                phone:
-                  dealer.mobileNumber ||
-                  "",
-
-                city: "",
-              },
-
-              totalDebit: 0,
-
-              totalCredit: 0,
-
-              outstanding: 0,
-            };
-
-            dealerMap.set(
-              dealerId,
-              current,
-            );
-          }
-
-          /*
-          |--------------------------------------------------------------------------
-          | Amount
-          |--------------------------------------------------------------------------
-          */
-
-          const amount =
-            Number(
-              transaction.amount ||
-                0,
-            );
-
-          if (
-            transaction.entryType ===
-            "DEBIT"
-          ) {
-            current.totalDebit +=
-              amount;
-          }
-
-          if (
-            transaction.entryType ===
-            "CREDIT"
-          ) {
-            current.totalCredit +=
-              amount;
-          }
-
-          current.outstanding =
-            current.totalDebit -
-            current.totalCredit;
-        },
-      );
-
-      return Array.from(
-        dealerMap.values(),
-      );
-    }, [transactions]);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Sync Dealer Summaries
-  |--------------------------------------------------------------------------
-  */
-
   useEffect(() => {
-    setSummaries(
-      dealerSummaries,
-    );
-  }, [dealerSummaries]);
+    void loadOverview();
+  }, [loadOverview, refreshKey]);
 
-  /*
-  |--------------------------------------------------------------------------
-  | Overview Stats
-  |--------------------------------------------------------------------------
-  */
+  const cards = useMemo(
+    () => [
+      {
+        label: "Total Dealers",
+        value: stats.totalDealers.toLocaleString("en-IN"),
+        icon: Landmark,
+      },
+      {
+        label: "Unpaid Bills",
+        value: money(stats.unpaidBillsAmount),
+        icon: ReceiptText,
+      },
+      {
+        label: "Current Outstanding",
+        value: money(stats.currentOutstanding),
+        icon: CircleDollarSign,
+      },
+      {
+        label: "Credit Amount",
+        value: money(stats.creditAmount),
+        icon: WalletCards,
+      },
+      {
+        label: "Security Deposit",
+        value: money(stats.securityDeposit),
+        icon: ShieldCheck,
+      },
+    ],
+    [stats],
+  );
 
-  const stats =
-    useMemo(() => {
-      const totalDealers =
-        summaries.length;
-
-      const totalDebit =
-        transactions.reduce(
-          (total, item) => {
-            if (
-              item.entryType !==
-              "DEBIT"
-            ) {
-              return total;
-            }
-
-            return (
-              total +
-              Number(
-                item.amount ||
-                  0,
-              )
-            );
-          },
-          0,
-        );
-
-      const totalCredit =
-        transactions.reduce(
-          (total, item) => {
-            if (
-              item.entryType !==
-              "CREDIT"
-            ) {
-              return total;
-            }
-
-            return (
-              total +
-              Number(
-                item.amount ||
-                  0,
-              )
-            );
-          },
-          0,
-        );
-
-      const totalOutstanding =
-        totalDebit -
-        totalCredit;
-
-      /*
-      |--------------------------------------------------------------------------
-      | High Outstanding
-      |--------------------------------------------------------------------------
-      |
-      | Here we're showing the highest individual dealer outstanding.
-      |
-      */
-
-      const highOutstanding =
-        summaries.reduce(
-          (highest, item) =>
-            Math.max(
-              highest,
-              Number(
-                item.outstanding ||
-                  0,
-              ),
-            ),
-          0,
-        );
-
-      return {
-        totalDealers,
-
-        totalOutstanding,
-
-        totalCredits:
-          totalCredit,
-
-        highOutstanding,
-      };
-    }, [
-      transactions,
-      summaries,
-    ]);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Cards
-  |--------------------------------------------------------------------------
-  */
-
-  const cards = [
-    {
-      label:
-        "Total Dealers",
-
-      value:
-        stats.totalDealers,
-
-      icon:
-        Landmark,
-    },
-
-    {
-      label:
-        "Total Outstanding",
-
-      value: `₹${stats.totalOutstanding.toLocaleString(
-        "en-IN",
-      )}`,
-
-      icon:
-        CircleDollarSign,
-    },
-
-    {
-      label:
-        "Total Credits",
-
-      value: `₹${stats.totalCredits.toLocaleString(
-        "en-IN",
-      )}`,
-
-      icon:
-        WalletCards,
-    },
-
-    {
-      label:
-        "High Outstanding",
-
-      value: `₹${stats.highOutstanding.toLocaleString(
-        "en-IN",
-      )}`,
-
-      icon:
-        AlertTriangle,
-    },
-  ];
-
-  /*
-  |--------------------------------------------------------------------------
-  | Loading
-  |--------------------------------------------------------------------------
-  */
-
-  if (loading) {
+  if (loading && summaries.length === 0) {
     return (
       <div className="rounded-xl border bg-white p-12 text-center">
         Loading ledger...
@@ -616,131 +148,94 @@ export default function LedgerOverviewPage() {
     );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | UI
-  |--------------------------------------------------------------------------
-  */
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          Dealer Ledger
-        </h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Search dealers and
-          monitor credits,
-          payments and
-          outstanding balances.
-        </p>
-      </div>
-
-      {/* Dealer Search */}
-
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
-        <div className="mb-3">
-          <h2 className="text-sm font-semibold text-gray-900">
-            Find Dealer
-          </h2>
-
-          <p className="mt-1 text-xs text-gray-500">
-            Search and open a
-            dealer's complete
-            ledger.
+      {/* Header — unchanged */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dealer Ledger</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Search dealers and monitor credits, payments and outstanding
+            balances.
           </p>
         </div>
 
-        <DealerLedgerSearch
-          dealers={summaries}
-        />
+        <button
+          type="button"
+          onClick={() => setShowPaymentModal(true)}
+          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3064]"
+        >
+          <Plus size={18} />
+          Add Payment
+        </button>
       </div>
 
-      {/* Stats */}
+      {/* Dealer Search — existing component */}
+      <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div className="mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">Find Dealer</h2>
+          <p className="mt-1 text-xs text-gray-500">
+            Search and open a dealer's complete ledger.
+          </p>
+        </div>
+        <DealerLedgerSearch dealers={summaries} />
+      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map(
-          (card) => {
-            const Icon =
-              card.icon;
-
-            return (
-              <div
-                key={
-                  card.label
-                }
-                className="rounded-xl border border-gray-200 bg-white p-5"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      {
-                        card.label
-                      }
-                    </p>
-
-                    <p className="mt-2 text-2xl font-bold text-gray-900">
-                      {
-                        card.value
-                      }
-                    </p>
-                  </div>
-
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
-                    <Icon
-                      size={
-                        21
-                      }
-                    />
-                  </div>
+      {/* Stats — same card design, new totals */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.label}
+              className="rounded-xl border border-gray-200 bg-white p-5"
+            >
+              <div className="flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm text-gray-500">{card.label}</p>
+                  <p className="mt-2 break-words text-2xl font-bold text-gray-900">
+                    {card.value}
+                  </p>
+                </div>
+                <div className="ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+                  <Icon size={21} />
                 </div>
               </div>
-            );
-          },
-        )}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Outstanding Header */}
-
+      {/* Dealer Outstanding — existing layout and cards */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900">
           Dealer Outstanding
         </h2>
-
         <p className="mt-1 text-sm text-gray-500">
-          Current financial
-          position of each
-          dealer.
+          Current financial position of each dealer.
         </p>
       </div>
 
-      {/* Dealer Cards */}
-
-      {summaries.length ===
-      0 ? (
+      {summaries.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
-          No dealer ledger
-          records found.
+          No dealers found.
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {summaries.map(
-            (summary) => (
-              <OutstandingCard
-                key={
-                  summary
-                    .dealer.id
-                }
-                summary={
-                  summary
-                }
-              />
-            ),
-          )}
+          {summaries.map((summary) => (
+            <OutstandingCard key={summary.dealer.id} summary={summary} />
+          ))}
         </div>
+      )}
+
+      {showPaymentModal && (
+        <AddPaymentModal
+          onClose={() => setShowPaymentModal(false)}
+          onSuccess={() => {
+            setShowPaymentModal(false);
+            setRefreshKey((key) => key + 1);
+          }}
+        />
       )}
     </div>
   );
