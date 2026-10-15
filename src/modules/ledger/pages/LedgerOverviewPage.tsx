@@ -6,6 +6,7 @@ import {
   Plus,
   ReceiptText,
   ShieldCheck,
+  BookPlus,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -18,6 +19,8 @@ import type {
   DealerLedgerOverviewItem,
   DealerLedgerOverviewSummary,
 } from "../services/ledgerApi";
+
+import { useNavigate } from "react-router-dom";
 
 const emptyStats: DealerLedgerOverviewSummary = {
   totalDealers: 0,
@@ -45,7 +48,7 @@ export type OverviewDealerSummary = DealerLedgerSummary & {
   securityDeposit: number;
   openingBalanceType: "DR" | "CR";
   openingBalance: number;
-  creditLimit:number;
+  creditLimit: number;
 };
 
 const toDealerSummary = (
@@ -67,7 +70,7 @@ const toDealerSummary = (
   unpaidBillsCount: row.unpaidBillsCount,
   unpaidBillsAmount: row.unpaidBillsAmount,
   currentOutstanding: row.currentOutstanding,
-  creditLimit:row.creditLimit,
+  creditLimit: row.creditLimit,
   creditAmount: row.creditAmount,
   securityDeposit: row.securityDeposit,
   openingBalanceType: row.openingBalanceType,
@@ -79,6 +82,7 @@ export default function LedgerOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+    const navigate = useNavigate();
 
   const loadOverview = useCallback(async () => {
     try {
@@ -160,14 +164,27 @@ export default function LedgerOverviewPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowPaymentModal(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3064]"
-        >
-          <Plus size={18} />
-          Add Payment
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Add Ledger */}
+          <button
+            type="button"
+onClick={() => navigate("/ledger/add-entry")}
+            className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-semibold text-[#123B7A] transition hover:bg-blue-50"
+          >
+            <BookPlus size={18} />
+            Add Ledger
+          </button>
+
+          {/* Add Payment */}
+          <button
+            type="button"
+            onClick={() => setShowPaymentModal(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3064]"
+          >
+            <Plus size={18} />
+            Add Payment
+          </button>
+        </div>
       </div>
 
       {/* Dealer Search — existing component */}

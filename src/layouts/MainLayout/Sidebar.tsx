@@ -25,6 +25,9 @@ import {
   Package,
   Shapes,
   UserCircle,
+  UserRoundSearch,
+  Wallet,
+  Landmark,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -99,18 +102,18 @@ const menuItems = [
     path: "/verification",
     permission: "complaints.access",
   },
-  {
-    label: "Billing",
-    icon: Receipt,
-    path: "/billing",
-    permission: "billing.access",
-  },
-  {
-    label: "Dealer Ledger",
-    icon: BookOpenText,
-    path: "/ledger",
-    permission: "ledger.access",
-  },
+    // {
+    //   label: "Billing",
+    //   icon: Receipt,
+    //   path: "/billing",
+    //   permission: "billing.access",
+    // },
+    // {
+    //   label: "Dealer Ledger",
+    //   icon: BookOpenText,
+    //   path: "/ledger",
+    //   permission: "ledger.access",
+    // },
   // {
   //   label: "Notifications",
   //   icon: Bell,
@@ -123,6 +126,17 @@ const menuItems = [
   //   path: "/area-master",
   //   permission: "area.access",
   // },
+  {
+    label: "Dealer Allocation",
+    icon: UserRoundSearch,
+    path: "/allocation",
+  },
+
+  //   //   {
+  //   //     label: "Allocation History",
+  //   //     icon: History,
+  //   //     path: "/allocation/history",
+  //   //   },
   {
     label: "Reason Master",
     path: "/reason-master",
@@ -218,6 +232,27 @@ const dealerManagementItems = [
   },
 ];
 
+const accountManagementItems = [
+  {
+    label: "Account",
+    icon: Landmark,
+    path: "/accounts",
+    // permission: "accounts.access",
+  },
+  {
+    label: "Billing",
+    icon: Receipt,
+    path: "/billing",
+    permission: "billing.access",
+  },
+  {
+    label: "Dealer Ledger",
+    icon: BookOpenText,
+    path: "/ledger",
+    permission: "ledger.access",
+  },
+];
+
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -227,8 +262,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const permissions = auth.user?.role?.permissions ?? [];
 
   const isDealerRoute = dealerManagementItems.some((item) =>
-  location.pathname.startsWith(item.path),
-);
+    location.pathname.startsWith(item.path),
+  );
 
   const isProductRoute = productManagementItems.some((item) =>
     location.pathname.startsWith(item.path),
@@ -237,7 +272,15 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     location.pathname.startsWith(item.path),
   );
 
-const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
+  const isAccountRoute = accountManagementItems.some(
+    (item) =>
+      location.pathname === item.path ||
+      location.pathname.startsWith(`${item.path}/`),
+  );
+
+  const [accountOpen, setAccountOpen] = useState(isAccountRoute);
+
+  const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
   const [productOpen, setProductOpen] = useState(isProductRoute);
   const [addressOpen, setAddressOpen] = useState(isAddressRoute);
 
@@ -261,14 +304,18 @@ const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
   );
 
   const allowedDealerItems = dealerManagementItems.filter((item) =>
-  hasPermission(item.permission),
-);
+    hasPermission(item.permission),
+  );
 
   const allowedProductItems = productManagementItems.filter((item) =>
     hasPermission(item.permission),
   );
 
   const allowedAddressItems = addressMasterItems.filter((item) =>
+    hasPermission(item.permission),
+  );
+
+  const allowedAccountItems = accountManagementItems.filter((item) =>
     hasPermission(item.permission),
   );
 
@@ -377,12 +424,12 @@ const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
     DEALER MANAGEMENT DROPDOWN
 ================================================== */}
 
-{allowedDealerItems.length > 0 && (
-  <div>
-    <button
-      type="button"
-      onClick={() => setDealerOpen((prev) => !prev)}
-      className={`
+          {allowedDealerItems.length > 0 && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setDealerOpen((prev) => !prev)}
+                className={`
         flex w-full items-center justify-between
         rounded-lg px-3 py-2.5
         text-sm font-medium transition
@@ -393,51 +440,47 @@ const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
             : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
         }
       `}
-    >
-      <div className="flex items-center gap-3">
-        <Users size={18} />
-        <span>Dealers Management</span>
-      </div>
+              >
+                <div className="flex items-center gap-3">
+                  <Users size={18} />
+                  <span>Dealers Management</span>
+                </div>
 
-      <ChevronDown
-        size={17}
-        className={`
+                <ChevronDown
+                  size={17}
+                  className={`
           transition-transform duration-200
           ${dealerOpen ? "rotate-180" : ""}
         `}
-      />
-    </button>
+                />
+              </button>
 
-    {/* Dealer Dropdown */}
-    <div
-      className={`
+              {/* Dealer Dropdown */}
+              <div
+                className={`
         overflow-hidden
         transition-all duration-300
 
-        ${
-          dealerOpen
-            ? "mt-1 max-h-32 opacity-100"
-            : "max-h-0 opacity-0"
-        }
+        ${dealerOpen ? "mt-1 max-h-32 opacity-100" : "max-h-0 opacity-0"}
       `}
-    >
-      <div
-        className="
+              >
+                <div
+                  className="
           ml-4 space-y-1
           border-l border-gray-200
           pl-3
         "
-      >
-        {allowedDealerItems.map((item) => {
-          const Icon = item.icon;
+                >
+                  {allowedDealerItems.map((item) => {
+                    const Icon = item.icon;
 
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `
+                    return (
+                      <NavLink
+                        key={item.path}
+                        to={item.path}
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                          `
                   flex items-center gap-3
                   rounded-lg px-3 py-2
                   text-sm transition
@@ -448,17 +491,17 @@ const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
                       : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
                   }
                 `
-              }
-            >
-              <Icon size={16} />
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-)}
+                        }
+                      >
+                        <Icon size={16} />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* =================================================
               PRODUCT MANAGEMENT DROPDOWN
@@ -646,6 +689,86 @@ const [dealerOpen, setDealerOpen] = useState(isDealerRoute);
           {/* =================================================
               REMAINING SIDEBAR MENUS
           ================================================== */}
+
+          {/* ACCOUNT MANAGEMENT DROPDOWN */}
+
+          {allowedAccountItems.length > 0 && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setAccountOpen((prev) => !prev)}
+                className={`
+        flex w-full items-center justify-between
+        rounded-lg px-3 py-2.5
+        text-sm font-medium transition
+
+        ${
+          isAccountRoute
+            ? "bg-blue-50 text-[#123B7A]"
+            : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+        }
+      `}
+              >
+                <div className="flex items-center gap-3">
+                  <Wallet size={18} />
+                  <span>Account Management</span>
+                </div>
+
+                <ChevronDown
+                  size={17}
+                  className={`
+          transition-transform duration-200
+          ${accountOpen ? "rotate-180" : ""}
+        `}
+                />
+              </button>
+
+              {/* Dropdown Items */}
+
+              <div
+                className={`
+        overflow-hidden
+        transition-all duration-300
+
+        ${accountOpen ? "mt-1 max-h-40 opacity-100" : "max-h-0 opacity-0"}
+      `}
+              >
+                <div
+                  className="
+          ml-4 space-y-1
+          border-l border-gray-200
+          pl-3
+        "
+                >
+                  {allowedAccountItems.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <NavLink
+                        key={item.path}
+                        to={item.path}
+                        onClick={onClose}
+                        className={({ isActive }) => `
+                flex items-center gap-3
+                rounded-lg px-3 py-2
+                text-sm transition
+
+                ${
+                  isActive
+                    ? "bg-blue-50 font-medium text-[#123B7A]"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
+                }
+              `}
+                      >
+                        <Icon size={16} />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {allowedMenuItems.slice(2).map((item) => {
             const Icon = item.icon;

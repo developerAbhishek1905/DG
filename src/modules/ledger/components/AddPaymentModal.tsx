@@ -1,227 +1,457 @@
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { AlertCircle, Plus, ReceiptText, Save, Trash2, Wallet, X } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  ChevronDown,
+  CreditCard,
+  ReceiptText,
+  RotateCcw,
+  Save,
+  Search,
+  Wallet,
+  X,
+} from "lucide-react";
 import { toast } from "react-toastify";
-import { searchDealerDropdown } from "../../dealers/services/dealerApi";
+
+import { getDealerLedgerOverview } from "../services/ledgerApi";
+import type { DealerLedgerOverviewItem } from "../services/ledgerApi";
+
+// Change this import path if your existing payment service
+// is in a different file.
 import {
   createDealerPayment,
   getDealerUnpaidBills,
-  type DealerOutstandingSummary,
-  type DealerUnpaidBill,
 } from "../services/ledgerApi";
-import { useDebounce } from "../../../hooks/useDebounce";
 
-type PaymentMode = "CASH" | "UPI" | "BANK_TRANSFER" | "CHEQUE";
-type BalanceType = "DEBIT" | "CREDIT" | "SETTLED";
-
-interface DealerOption {
-  _id?: string;
-  value?: string;
-  label?: string;
-  headCode?: string;
-  technicianFirmName?: string;
-  technicianName?: string;
-  mobileNumber?: string;
-}
-
-interface Props {
+interface AddPaymentModalProps {
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:cursor-not-allowed";
-const labelClass = "mb-1.5 block text-xs font-semibold text-gray-600";
-const formatCurrency = (value: number) =>
-  `₹${value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const toPaise = (value: number) => Math.round(value * 100);
-const fromPaise = (value: number) => value / 100;
-const balanceTypeOf = (paise: number): BalanceType =>
-  paise > 0 ? "DEBIT" : paise < 0 ? "CREDIT" : "SETTLED";
+type PaymentMode =
+  | "CASH"
+  | "BANK_TRANSFER"
+  | "UPI"
+  | "CHEQUE"
+  | "ADJUSTMENT";
+
+interface UnpaidBill {
+  _id: string;
+  complaintNumber: string;
+  productName?: string;
+  category?: string;
+  billAmount?: number;
+  paidAmount?: number;
+  remainingAmount: number;
+}
+
+interface PaymentAllocation {
+  billId: string;
+  amount: number;
+}
+
+interface CreatePaymentPayload {
+  dealerId: string;
+  additionalAmount: number;
+  allocations: PaymentAllocation[];
+  outstandingAdjustment: number;
+  paymentDate: string;
+  paymentMode: PaymentMode;
+  transactionReference: string;
+  remark: string;
+}
+
+const money = (value: number) =>
+  `₹${Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const toPaise = (amount: number) =>
+  Math.round(amount * 100);
+
+const fromPaise = (paise: number) =>
+  paise / 100;
+
 const getLocalDate = () => {
   const date = new Date();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-};
-const dealerKey = (dealer: DealerOption) => dealer.value || dealer._id || "";
-const dealerTitle = (dealer: DealerOption) =>
-  dealer.technicianFirmName || dealer.technicianName || dealer.label || dealer.headCode || "Dealer";
 
-export default function AddPaymentModal({ onClose, onSuccess }: Props) {
+  return new Date(
+    date.getTime() - date.getTimezoneOffset() * 60000,
+  )
+    .toISOString()
+    .slice(0, 10);
+};
+
+const inputClass =
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100";
+
+const labelClass =
+  "mb-1.5 block text-sm font-medium text-gray-700";
+
+const isValidMoney = (value: string) =>
+  /^\d+(\.\d{1,2})?$/.test(value) &&
+  Number.isFinite(Number(value)) &&
+  Number(value) >= 0;
+
+export default function AddPaymentModal({
+  onClose,
+  onSuccess,
+}: AddPaymentModalProps) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [dealers, setDealers] = useState<
+    DealerLedgerOverviewItem[]
+  >([]);
+
   const [dealerId, setDealerId] = useState("");
   const [dealerSearch, setDealerSearch] = useState("");
   const [dealerOpen, setDealerOpen] = useState(false);
-  const [dealers, setDealers] = useState<DealerOption[]>([]);
-  const [dealerLoading, setDealerLoading] = useState(false);
-  const [billsLoading, setBillsLoading] = useState(false);
-  const [dealerSummary, setDealerSummary] = useState<DealerOutstandingSummary | null>(null);
-  const [unpaidBills, setUnpaidBills] = useState<DealerUnpaidBill[]>([]);
-  const [additionalAmount, setAdditionalAmount] = useState("");
-  const [selectedBillId, setSelectedBillId] = useState("");
-  const [selectedBillIds, setSelectedBillIds] = useState<string[]>([]);
-  const [paymentDate, setPaymentDate] = useState(getLocalDate());
-  const [paymentMode, setPaymentMode] = useState<PaymentMode>("BANK_TRANSFER");
-  const [transactionReference, setTransactionReference] = useState("");
-  const [remark, setRemark] = useState("");
-  const [saving, setSaving] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const debouncedSearch = useDebounce(dealerSearch, 300);
 
+  const [dealersLoading, setDealersLoading] = useState(false);
+  const [billsLoading, setBillsLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [unpaidBills, setUnpaidBills] = useState<UnpaidBill[]>([]);
+
+  const [billAllocations, setBillAllocations] = useState<
+    Record<string, string>
+  >({});
+
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [outstandingAdjustment, setOutstandingAdjustment] =
+    useState("0");
+
+  const [paymentDate, setPaymentDate] = useState(getLocalDate());
+  const [paymentMode, setPaymentMode] =
+    useState<PaymentMode>("BANK_TRANSFER");
+
+  const [transactionReference, setTransactionReference] =
+    useState("");
+
+  const [remark, setRemark] = useState("");
+
+  // Load dealers
   useEffect(() => {
-    if (!dealerOpen) return;
     let active = true;
-    const load = async () => {
-      setDealerLoading(true);
+
+    const loadDealers = async () => {
       try {
-        const options = await searchDealerDropdown(debouncedSearch.trim());
-        if (active) setDealers(options as DealerOption[]);
+        setDealersLoading(true);
+
+        const first = await getDealerLedgerOverview({
+          page: 1,
+          limit: 100,
+        });
+
+        const rows = [...(first.data ?? [])];
+        const totalPages = first.pagination?.totalPages ?? 1;
+
+        for (let page = 2; page <= totalPages; page++) {
+          const response = await getDealerLedgerOverview({
+            page,
+            limit: 100,
+          });
+
+          rows.push(...(response.data ?? []));
+        }
+
+        if (active) setDealers(rows);
       } catch (error) {
-        console.error("Dealer dropdown failed", error);
-        if (active) setDealers([]);
+        console.error(error);
+        toast.error("Failed to load dealers");
       } finally {
-        if (active) setDealerLoading(false);
+        if (active) setDealersLoading(false);
       }
     };
-    void load();
-    return () => { active = false; };
-  }, [debouncedSearch, dealerOpen]);
 
+    void loadDealers();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Close dealer dropdown on outside click
   useEffect(() => {
-    const outside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handleOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDealerOpen(false);
       }
     };
-    document.addEventListener("mousedown", outside);
-    return () => document.removeEventListener("mousedown", outside);
+
+    document.addEventListener("mousedown", handleOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+    };
   }, []);
 
+  const selectedDealer = useMemo(
+    () =>
+      dealers.find(
+        (dealer) => dealer.dealerId === dealerId,
+      ),
+    [dealers, dealerId],
+  );
+
+  const filteredDealers = useMemo(() => {
+    const search = dealerSearch.trim().toLowerCase();
+
+    if (!search) return dealers;
+
+    return dealers.filter((dealer) =>
+      [
+        dealer.dealerName,
+        dealer.headCode,
+        dealer.mobileNumber,
+      ].some((value) =>
+        String(value || "")
+          .toLowerCase()
+          .includes(search),
+      ),
+    );
+  }, [dealers, dealerSearch]);
+
+  // Load dealer bills
   useEffect(() => {
     if (!dealerId) {
-      setDealerSummary(null);
       setUnpaidBills([]);
+      setBillAllocations({});
       return;
     }
+
     let active = true;
-    const load = async () => {
-      setBillsLoading(true);
+
+    const loadBills = async () => {
       try {
-        // ledgerApi.getDealerUnpaidBills must return response.data.data
+        setBillsLoading(true);
+        setUnpaidBills([]);
+        setBillAllocations({});
+
         const response = await getDealerUnpaidBills(dealerId);
+
         if (!active) return;
-        setDealerSummary(response.summary);
-        setUnpaidBills(response.bills ?? []);
+
+        // Supports { data: [] } and { data: { bills: [] } }
+        const raw = response.data as
+          | UnpaidBill[]
+          | { bills?: UnpaidBill[] };
+
+        const bills = Array.isArray(raw)
+          ? raw
+          : raw?.bills ?? [];
+
+        setUnpaidBills(
+          bills.filter(
+            (bill) => Number(bill.remainingAmount) > 0,
+          ),
+        );
       } catch (error) {
-        console.error("Unpaid bills failed", error);
+        console.error(error);
+
         if (active) {
-          setDealerSummary(null);
-          setUnpaidBills([]);
           toast.error("Failed to load dealer unpaid bills");
         }
       } finally {
         if (active) setBillsLoading(false);
       }
     };
-    void load();
-    return () => { active = false; };
+
+    void loadBills();
+
+    return () => {
+      active = false;
+    };
   }, [dealerId]);
 
-  const openingPaise = toPaise(Number(dealerSummary?.openingBalance ?? 0));
-  const openingType = dealerSummary?.openingBalanceType ?? "DR";
-  // Positive = dealer debit, negative = dealer credit.
-  const startingPaise = openingType === "DR" ? openingPaise : -openingPaise;
-  const debitPaise = Math.max(0, startingPaise);
-  const creditPaise = Math.max(0, -startingPaise);
-  const amountNumber = Number(additionalAmount || 0);
-  const validAmount = Number.isFinite(amountNumber) && amountNumber >= 0 && /^\d*(\.\d{0,2})?$/.test(additionalAmount);
-  const manualPaise = validAmount ? toPaise(amountNumber) : 0;
-  const adjustedPaise = startingPaise - manualPaise;
-  const availableCreditPaise = Math.max(0, -adjustedPaise);
-
   const selectedBills = useMemo(
-    () => unpaidBills.filter((bill) => selectedBillIds.includes(bill._id)),
-    [unpaidBills, selectedBillIds],
+    () =>
+      unpaidBills.filter(
+        (bill) => billAllocations[bill._id] !== undefined,
+      ),
+    [unpaidBills, billAllocations],
   );
-  const selectedBillsPaise = selectedBills.reduce(
-    (total, bill) => total + toPaise(Number(bill.remainingAmount)), 0,
-  );
-  const remainingCreditPaise = Math.max(0, availableCreditPaise - selectedBillsPaise);
-  // Bills consume credit in this running-balance model.
-  const finalPaise = adjustedPaise + selectedBillsPaise;
-  const availableBills = unpaidBills.filter((bill) => !selectedBillIds.includes(bill._id));
-  const selectedBill = unpaidBills.find((bill) => bill._id === selectedBillId);
-  const canAllocate = Boolean(dealerSummary) && validAmount && selectedBillsPaise <= availableCreditPaise;
 
-  const handleSelectDealer = (dealer: DealerOption) => {
-    const id = dealerKey(dealer);
-    if (!id) { toast.error("Invalid dealer selected"); return; }
-    setDealerId(id);
-    setDealerSearch(dealer.label || `${dealer.headCode || ""} - ${dealerTitle(dealer)}`);
+  const paymentPaise = toPaise(Number(paymentAmount || 0));
+
+  const allocatedPaise = selectedBills.reduce(
+    (total, bill) =>
+      total +
+      toPaise(Number(billAllocations[bill._id] || 0)),
+    0,
+  );
+
+  const outstandingPaise = toPaise(
+    Number(outstandingAdjustment || 0),
+  );
+
+  const advancePaise =
+    paymentPaise - allocatedPaise - outstandingPaise;
+
+  const debitOutstandingPaise = selectedDealer
+    ? toPaise(
+        selectedDealer.openingBalanceType === "DR"
+          ? Number(selectedDealer.openingBalance || 0)
+          : 0,
+      )
+    : 0;
+
+  const validAllocations = selectedBills.every((bill) => {
+    const value = billAllocations[bill._id];
+
+    return (
+      isValidMoney(value) &&
+      Number(value) > 0 &&
+      toPaise(Number(value)) <=
+        toPaise(Number(bill.remainingAmount))
+    );
+  });
+
+  const validPayment =
+    isValidMoney(paymentAmount) &&
+    paymentPaise > 0 &&
+    isValidMoney(outstandingAdjustment) &&
+    outstandingPaise <= debitOutstandingPaise &&
+    validAllocations &&
+    advancePaise >= 0;
+
+  const handleSelectDealer = (
+    dealer: DealerLedgerOverviewItem,
+  ) => {
+    setDealerId(dealer.dealerId);
+    setDealerSearch(
+      `${dealer.headCode} - ${dealer.dealerName}`,
+    );
     setDealerOpen(false);
-    setDealerSummary(null);
     setUnpaidBills([]);
-    setSelectedBillId("");
-    setSelectedBillIds([]);
-    setAdditionalAmount("");
+    setBillAllocations({});
+    setOutstandingAdjustment("0");
+  };
+
+  const handleToggleBill = (bill: UnpaidBill) => {
+    setBillAllocations((previous) => {
+      const next = { ...previous };
+
+      if (next[bill._id] !== undefined) {
+        delete next[bill._id];
+      } else {
+        const availablePaise = Math.max(
+          0,
+          paymentPaise -
+            allocatedPaise -
+            outstandingPaise,
+        );
+
+        const defaultPaise = Math.min(
+          toPaise(Number(bill.remainingAmount)),
+          availablePaise,
+        );
+
+        next[bill._id] = fromPaise(
+          defaultPaise,
+        ).toFixed(2);
+      }
+
+      return next;
+    });
   };
 
   const handleReset = () => {
     setDealerId("");
     setDealerSearch("");
     setDealerOpen(false);
-    setDealerSummary(null);
     setUnpaidBills([]);
-    setAdditionalAmount("");
-    setSelectedBillId("");
-    setSelectedBillIds([]);
+    setBillAllocations({});
+    setPaymentAmount("");
+    setOutstandingAdjustment("0");
     setPaymentDate(getLocalDate());
     setPaymentMode("BANK_TRANSFER");
     setTransactionReference("");
     setRemark("");
   };
 
-  const handleAddBill = () => {
-    if (!selectedBill) { toast.error("Please select a complaint bill"); return; }
-    if (!validAmount) { toast.error("Enter a valid additional amount"); return; }
-    if (selectedBillIds.includes(selectedBill._id)) { toast.error("Bill already selected"); return; }
-    if (toPaise(Number(selectedBill.remainingAmount)) > remainingCreditPaise) {
-      toast.error("Bill exceeds available credit");
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (saving) return;
+
+    if (!dealerId) {
+      toast.error("Please select a dealer");
       return;
     }
-    setSelectedBillIds((ids) => [...ids, selectedBill._id]);
-    setSelectedBillId("");
-  };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (saving) return;
-    if (!dealerId || !dealerSummary || billsLoading) { toast.error("Select a dealer and wait for bills to load"); return; }
-//     if (!additionalAmount || Number(additionalAmount) <= 0) {
-//   toast.error("Please enter additional amount");
-//   return;
-// }
-    if (!validAmount) { toast.error("Enter a valid additional amount (maximum 2 decimals)"); return; }
-    // if (!selectedBills.length) { toast.error("Select at least one complaint bill"); return; }
-    if (!canAllocate) { toast.error("Selected bills exceed available credit"); return; }
-    if (!paymentDate) { toast.error("Select payment date"); return; }
-    setSaving(true);
+    if (billsLoading) {
+      toast.error("Please wait for bills to load");
+      return;
+    }
+
+    if (!validPayment) {
+      toast.error(
+        "Check payment amount, bill allocations and outstanding adjustment",
+      );
+      return;
+    }
+
+    if (!paymentDate) {
+      toast.error("Select payment date");
+      return;
+    }
+
+    const payload: CreatePaymentPayload = {
+      dealerId,
+      additionalAmount: fromPaise(paymentPaise),
+      allocations: selectedBills.map((bill) => ({
+        billId: bill._id,
+        amount: fromPaise(
+          toPaise(Number(billAllocations[bill._id])),
+        ),
+      })),
+      outstandingAdjustment: fromPaise(outstandingPaise),
+      paymentDate,
+      paymentMode,
+      transactionReference: transactionReference.trim(),
+      remark: remark.trim(),
+    };
+
     try {
-      const response = await createDealerPayment({
-        dealerId,
-        additionalAmount: fromPaise(manualPaise) || 0,
-        complaintBillIds: selectedBills.map((bill) => bill._id),
-        paymentDate,
-        paymentMode,
-        transactionReference: transactionReference.trim(),
-        remark: [remark.trim(), `Complaints: ${selectedBills.map((bill) => bill.complaintNumber).join(", ")}`]
-          .filter(Boolean).join("\n"),
-      });
-      if (!response.success) throw new Error(response.message || "Payment could not be saved");
-      toast.success(response.message || "Payment created successfully");
+      setSaving(true);
+
+      // The service/backend must accept CreatePaymentPayload.
+      const response = await createDealerPayment(payload);
+
+      if (!response.success) {
+        throw new Error(
+          response.message || "Payment could not be saved",
+        );
+      }
+
+      toast.success(
+        response.message || "Payment created successfully",
+      );
+
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      toast.error(err.response?.data?.message || err.message || "Failed to create payment");
+      console.error(error);
+
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+
+      toast.error(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to create payment",
+      );
     } finally {
       setSaving(false);
     }
@@ -229,240 +459,546 @@ export default function AddPaymentModal({ onClose, onSuccess }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
-      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4 sm:px-6">
+      <div className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-50 p-2.5 text-[#123B7A]"><Wallet size={21} /></div>
+            <div className="rounded-xl bg-blue-50 p-2.5 text-[#123B7A]">
+              <Wallet size={21} />
+            </div>
+
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Add Dealer Payment</h2>
-              <p className="mt-1 text-xs text-gray-500">Allocate available credit against unpaid complaint bills</p>
+              <h2 className="text-lg font-bold text-gray-900">
+                Add Dealer Payment
+              </h2>
+              <p className="text-xs text-gray-500">
+                Allocate payment against individual bills and outstanding
+              </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} disabled={saving} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"><X size={20} /></button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-          <div className="space-y-5 overflow-y-auto p-4 sm:p-6">
-            <section>
-              <label className={labelClass}>Dealer *</label>
+        <form
+          onSubmit={handleSubmit}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="space-y-6 overflow-y-auto p-5">
+            {/* Dealer */}
+            <section className="space-y-4">
+              <h3 className="text-sm font-bold text-gray-900">
+                Dealer Information
+              </h3>
+
               <div ref={dropdownRef} className="relative">
-                <input
-                  value={dealerSearch}
-                  onFocus={() => setDealerOpen(true)}
-                  onChange={(event) => {
-                    setDealerSearch(event.target.value);
-                    setDealerOpen(true);
-                    setDealerId("");
-                    setDealerSummary(null);
-                    setUnpaidBills([]);
-                    setSelectedBillId("");
-                    setSelectedBillIds([]);
-                    setAdditionalAmount("");
-                  }}
-                  placeholder="Search dealer by name, code or phone..."
-                  className={inputClass}
-                  disabled={saving}
+                <label className={labelClass}>
+                  Select Dealer *
+                </label>
+
+                <div className="relative">
+                  <Search
+                    size={17}
+                    className="absolute left-3 top-3 text-gray-400"
+                  />
+
+                  <input
+                    type="text"
+                    value={dealerSearch}
+                    disabled={saving}
+                    onFocus={() => setDealerOpen(true)}
+                    onChange={(e) => {
+                      setDealerSearch(e.target.value);
+                      setDealerId("");
+                      setDealerOpen(true);
+                      setUnpaidBills([]);
+                      setBillAllocations({});
+                      setOutstandingAdjustment("0");
+                    }}
+                    placeholder="Search dealer name, code or mobile..."
+                    className={`${inputClass} pl-10 pr-10`}
+                  />
+
+                  <ChevronDown
+                    size={17}
+                    className="absolute right-3 top-3 text-gray-400"
+                  />
+                </div>
+
+                {dealerOpen && !saving && (
+                  <div className="absolute z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                    {dealersLoading ? (
+                      <p className="p-4 text-sm text-gray-500">
+                        Loading dealers...
+                      </p>
+                    ) : filteredDealers.length === 0 ? (
+                      <p className="p-4 text-sm text-gray-500">
+                        No dealers found
+                      </p>
+                    ) : (
+                      filteredDealers.map((dealer) => (
+                        <button
+                          key={dealer.dealerId}
+                          type="button"
+                          onClick={() =>
+                            handleSelectDealer(dealer)
+                          }
+                          className="flex w-full items-center justify-between border-b border-gray-100 px-4 py-3 text-left hover:bg-blue-50"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold">
+                              {dealer.dealerName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {dealer.headCode} •{" "}
+                              {dealer.mobileNumber}
+                            </p>
+                          </div>
+
+                          {dealerId === dealer.dealerId && (
+                            <Check
+                              size={17}
+                              className="text-[#123B7A]"
+                            />
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {selectedDealer && (
+                <div className="grid gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-4 sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Pending Bills
+                    </p>
+                    <p className="mt-1 text-lg font-bold">
+                      {money(
+                        unpaidBills.reduce(
+                          (sum, bill) =>
+                            sum + Number(bill.remainingAmount),
+                          0,
+                        ),
+                      )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Debit Outstanding
+                    </p>
+                    <p className="mt-1 text-lg font-bold">
+                      {money(fromPaise(debitOutstandingPaise))}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Available Credit
+                    </p>
+                    <p className="mt-1 text-lg font-bold text-green-700">
+                      {money(selectedDealer.creditAmount)}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Payment */}
+            <section className="space-y-4 border-t border-gray-100 pt-5">
+              <h3 className="text-sm font-bold text-gray-900">
+                Payment Details
+              </h3>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <label className={labelClass}>
+                    Payment Amount (₹) *
+                  </label>
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={paymentAmount}
+                    onChange={(e) =>
+                      setPaymentAmount(e.target.value)
+                    }
+                    placeholder="0.00"
+                    className={inputClass}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>
+                    Payment Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={paymentDate}
+                    onChange={(e) =>
+                      setPaymentDate(e.target.value)
+                    }
+                    className={inputClass}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>
+                    Payment Mode
+                  </label>
+                  <select
+                    value={paymentMode}
+                    onChange={(e) =>
+                      setPaymentMode(
+                        e.target.value as PaymentMode,
+                      )
+                    }
+                    className={inputClass}
+                  >
+                    <option value="BANK_TRANSFER">
+                      Bank Transfer
+                    </option>
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="ADJUSTMENT">
+                      Adjustment
+                    </option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2 lg:col-span-3">
+                  <label className={labelClass}>
+                    Transaction Reference
+                  </label>
+                  <input
+                    type="text"
+                    value={transactionReference}
+                    onChange={(e) =>
+                      setTransactionReference(e.target.value)
+                    }
+                    placeholder="UTR / cheque / receipt number"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Bills */}
+            <section className="space-y-4 border-t border-gray-100 pt-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">
+                    Pending Bills
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Select bills and enter the amount to allocate.
+                  </p>
+                </div>
+
+                <span className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                  {selectedBills.length} selected
+                </span>
+              </div>
+
+              {billsLoading ? (
+                <div className="rounded-xl border p-8 text-center text-sm text-gray-500">
+                  Loading pending bills...
+                </div>
+              ) : !dealerId ? (
+                <div className="rounded-xl border p-8 text-center text-sm text-gray-500">
+                  Select a dealer to view pending bills.
+                </div>
+              ) : unpaidBills.length === 0 ? (
+                <div className="rounded-xl border p-8 text-center text-sm text-gray-500">
+                  No pending bills found.
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-gray-200">
+                  <table className="w-full min-w-[680px] text-left text-sm">
+                    <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                      <tr>
+                        <th className="px-4 py-3">Select</th>
+                        <th className="px-4 py-3">Bill</th>
+                        <th className="px-4 py-3 text-right">
+                          Total
+                        </th>
+                        <th className="px-4 py-3 text-right">
+                          Paid
+                        </th>
+                        <th className="px-4 py-3 text-right">
+                          Due
+                        </th>
+                        <th className="px-4 py-3">
+                          Allocate (₹)
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-gray-100">
+                      {unpaidBills.map((bill) => {
+                        const selected =
+                          billAllocations[bill._id] !== undefined;
+
+                        const total = Number(
+                          bill.billAmount ??
+                            Number(bill.remainingAmount) +
+                              Number(bill.paidAmount || 0),
+                        );
+
+                        const paid = Number(
+                          bill.paidAmount ??
+                            total - Number(bill.remainingAmount),
+                        );
+
+                        return (
+                          <tr
+                            key={bill._id}
+                            className={
+                              selected
+                                ? "bg-blue-50/50"
+                                : "hover:bg-gray-50"
+                            }
+                          >
+                            <td className="px-4 py-3">
+                              <input
+                                type="checkbox"
+                                checked={selected}
+                                onChange={() =>
+                                  handleToggleBill(bill)
+                                }
+                                className="h-4 w-4 accent-[#123B7A]"
+                              />
+                            </td>
+
+                            <td className="px-4 py-3">
+                              <p className="font-semibold text-gray-900">
+                                {bill.complaintNumber}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {bill.productName || "-"}
+                                {bill.category
+                                  ? ` • ${bill.category}`
+                                  : ""}
+                              </p>
+                            </td>
+
+                            <td className="px-4 py-3 text-right">
+                              {money(total)}
+                            </td>
+
+                            <td className="px-4 py-3 text-right">
+                              {money(paid)}
+                            </td>
+
+                            <td className="px-4 py-3 text-right font-semibold">
+                              {money(bill.remainingAmount)}
+                            </td>
+
+                            <td className="px-4 py-3">
+                              <input
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                max={bill.remainingAmount}
+                                disabled={!selected}
+                                value={
+                                  billAllocations[bill._id] ?? ""
+                                }
+                                onChange={(e) =>
+                                  setBillAllocations((prev) => ({
+                                    ...prev,
+                                    [bill._id]: e.target.value,
+                                  }))
+                                }
+                                className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-100"
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            {/* Outstanding */}
+            <section className="space-y-4 border-t border-gray-100 pt-5">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">
+                  Outstanding Adjustment
+                </h3>
+                <p className="mt-1 text-xs text-gray-500">
+                  Optional adjustment against existing debit outstanding.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass}>
+                    Adjust Debit Outstanding (₹)
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    max={fromPaise(debitOutstandingPaise)}
+                    value={outstandingAdjustment}
+                    onChange={(e) =>
+                      setOutstandingAdjustment(e.target.value)
+                    }
+                    disabled={!dealerId}
+                    className={inputClass}
+                  />
+                </div>
+
+                <div className="rounded-lg bg-gray-50 p-4">
+                  <p className="text-xs text-gray-500">
+                    Remaining Debit Outstanding
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-gray-900">
+                    {money(
+                      fromPaise(
+                        Math.max(
+                          0,
+                          debitOutstandingPaise -
+                            outstandingPaise,
+                        ),
+                      ),
+                    )}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Summary */}
+            <section className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <ReceiptText
+                  size={18}
+                  className="text-[#123B7A]"
                 />
-                {dealerOpen && (
-                  <div className="absolute z-30 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                    {dealerLoading ? (
-                      <p className="p-3 text-sm text-gray-500">Loading dealers...</p>
-                    ) : dealers.length ? dealers.map((dealer) => (
-                      <button key={dealerKey(dealer)} type="button" onClick={() => handleSelectDealer(dealer)} className="block w-full px-3 py-2.5 text-left hover:bg-gray-50">
-                        <p className="text-sm font-medium text-gray-800">{dealerTitle(dealer)}</p>
-                        <p className="text-xs text-gray-500">{dealer.headCode || ""} {dealer.mobileNumber ? `• ${dealer.mobileNumber}` : ""}</p>
-                      </button>
-                    )) : <p className="p-3 text-sm text-gray-500">No dealers found</p>}
+                <h3 className="text-sm font-bold text-gray-900">
+                  Payment Allocation Summary
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">
+                    Payment Received
+                  </span>
+                  <span className="font-semibold">
+                    {money(fromPaise(paymentPaise))}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">
+                    Bill Allocation
+                  </span>
+                  <span className="font-semibold">
+                    {money(fromPaise(allocatedPaise))}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">
+                    Outstanding Adjustment
+                  </span>
+                  <span className="font-semibold">
+                    {money(fromPaise(outstandingPaise))}
+                  </span>
+                </div>
+
+                <div className="flex justify-between border-t border-gray-200 pt-3">
+                  <span className="text-sm font-bold">
+                    Remaining Future Advance
+                  </span>
+
+                  <span
+                    className={`text-lg font-bold ${
+                      advancePaise < 0
+                        ? "text-red-600"
+                        : "text-green-700"
+                    }`}
+                  >
+                    {money(fromPaise(advancePaise))}
+                  </span>
+                </div>
+
+                {!validPayment && paymentAmount && (
+                  <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-xs text-red-700">
+                    <AlertCircle size={16} className="shrink-0" />
+                    Check allocation amounts. Total allocated cannot
+                    exceed payment received or individual bill dues.
                   </div>
                 )}
               </div>
             </section>
 
-            {dealerId && billsLoading && <p className="text-sm text-gray-500">Loading balance and unpaid bills...</p>}
+            <section>
+              <label className={labelClass}>
+                Remark
+              </label>
 
-            {dealerId && dealerSummary && (
-              <>
-                <section className="space-y-3">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div className="rounded-xl bg-gray-50 p-3">
-                      <p className="text-xs text-gray-500">Opening Debit</p>
-                      <p className="mt-1 text-base font-bold text-gray-900">{formatCurrency(fromPaise(debitPaise))}</p>
-                    </div>
-                    <div className="rounded-xl bg-gray-50 p-3">
-                      <p className="text-xs text-gray-500">Opening Credit</p>
-                      <p className="mt-1 text-base font-bold text-gray-900">{formatCurrency(fromPaise(creditPaise))}</p>
-                    </div>
-                    <div className="rounded-xl bg-gray-50 p-3">
-                      <p className="text-xs text-gray-500">Starting Outstanding</p>
-                      <p className={`mt-1 text-base font-bold ${startingPaise > 0 ? "text-red-600" : startingPaise < 0 ? "text-green-600" : "text-gray-900"}`}>
-                        {formatCurrency(fromPaise(Math.abs(startingPaise)))}
-                      </p>
-                      <span className="text-[10px] font-semibold text-gray-500">{balanceTypeOf(startingPaise)}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Additional Amount</label>
-                    <input type="number" min="0" step="0.01" value={additionalAmount}
-                      onChange={(event) => {
-                        const next = event.target.value;
-                        setAdditionalAmount(next);
-                        const parsed = Number(next || 0);
-                        if (!Number.isFinite(parsed) || parsed < 0) return;
-                        const credit = Math.max(0, -(startingPaise - toPaise(parsed)));
-                        if (selectedBillsPaise > credit) {
-                          setSelectedBillIds([]);
-                          setSelectedBillId("");
-                          toast.info("Credit reduced; select complaint bills again");
-                        }
-                      }}
-                      placeholder="Enter additional amount" className={inputClass} disabled={saving} />
-                    <p className="mt-1 text-xs text-gray-500">Additional amount first clears any debit; excess becomes available credit.</p>
-                    {!validAmount && <p className="mt-1 text-xs text-red-600">Enter a valid non-negative amount with up to two decimals.</p>}
-                  </div>
-
-                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-medium text-gray-600">Balance After Additional Amount</p>
-                        <p className="mt-1 text-xl font-bold text-gray-900">{formatCurrency(fromPaise(Math.abs(adjustedPaise)))}</p>
-                      </div>
-                      <span className={`rounded-full px-3 py-1 text-xs font-bold ${adjustedPaise > 0 ? "bg-red-100 text-red-700" : adjustedPaise < 0 ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"}`}>
-                        {balanceTypeOf(adjustedPaise)}
-                      </span>
-                    </div>
-                    {adjustedPaise > 0 && <p className="mt-2 text-xs text-red-600">Clear the remaining debit before allocating complaint bills.</p>}
-                  </div>
-
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm text-gray-500">Available Credit for Bills</p>
-                      <p className="text-lg font-bold text-gray-900">{formatCurrency(fromPaise(availableCreditPaise))}</p>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between gap-3">
-                      <p className="text-sm text-gray-500">Selected Bills Total</p>
-                      <p className="text-sm font-semibold text-gray-800">− {formatCurrency(fromPaise(selectedBillsPaise))}</p>
-                    </div>
-                    <div className="my-3 border-t border-gray-200" />
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-bold text-gray-900">Remaining Credit</p>
-                      <p className="text-xl font-bold text-[#123B7A]">{formatCurrency(fromPaise(remainingCreditPaise))}</p>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between gap-3">
-                      <p className="text-xs text-gray-500">Final Balance</p>
-                      <p className={`text-sm font-semibold ${finalPaise > 0 ? "text-red-600" : finalPaise < 0 ? "text-green-600" : "text-gray-700"}`}>
-                        {formatCurrency(fromPaise(Math.abs(finalPaise)))} {balanceTypeOf(finalPaise)}
-                      </p>
-                    </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200">
-                      <div className="h-full rounded-full bg-[#123B7A] transition-all" style={{ width: `${availableCreditPaise ? Math.min(100, (selectedBillsPaise / availableCreditPaise) * 100) : 0}%` }} />
-                    </div>
-                  </div>
-                </section>
-
-                <section className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-gray-900">Unpaid Complaint Bills</h3>
-                    <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">{unpaidBills.length} Unpaid</span>
-                  </div>
-                  <label className={labelClass}>Select Complaint Bill</label>
-                  <select value={selectedBillId} onChange={(event) => setSelectedBillId(event.target.value)}
-                    disabled={saving || !validAmount || remainingCreditPaise <= 0 || !availableBills.length} className={inputClass}>
-                    <option value="">{availableBills.length ? "Select unpaid complaint..." : "No available bills"}</option>
-                    {availableBills.map((bill) => (
-                      <option key={bill._id} value={bill._id} disabled={toPaise(Number(bill.remainingAmount)) > remainingCreditPaise}>
-                        {bill.complaintNumber} — {formatCurrency(Number(bill.remainingAmount))}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedBill && (
-                    <div className="flex items-center justify-between gap-3 rounded-lg bg-blue-50 p-3">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{selectedBill.complaintNumber}</p>
-                        <p className="text-xs text-gray-500">{selectedBill.productName} {selectedBill.category ? `• ${selectedBill.category}` : ""}</p>
-                      </div>
-                      <p className="text-lg font-bold text-[#123B7A]">{formatCurrency(Number(selectedBill.remainingAmount))}</p>
-                    </div>
-                  )}
-                  <button type="button" onClick={handleAddBill}
-                    disabled={saving || !selectedBill || !validAmount || toPaise(Number(selectedBill?.remainingAmount ?? 0)) > remainingCreditPaise}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#123B7A] px-4 py-2.5 text-sm font-semibold text-[#123B7A] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40">
-                    <Plus size={17} /> Add Complaint Bill
-                  </button>
-                  {selectedBill && toPaise(Number(selectedBill.remainingAmount)) > remainingCreditPaise && (
-                    <p className="flex items-center gap-2 text-xs text-red-600"><AlertCircle size={14} /> Bill exceeds remaining available credit.</p>
-                  )}
-                </section>
-
-                <section className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-gray-900">Selected Bills</h3>
-                    <span className="text-xs text-gray-500">{selectedBills.length} bills</span>
-                  </div>
-                  {selectedBills.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 p-8">
-                      <ReceiptText size={28} className="text-gray-300" />
-                      <p className="mt-2 text-sm text-gray-500">No bills selected</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-hidden rounded-xl border border-gray-200">
-                      {selectedBills.map((bill, index) => (
-                        <div key={bill._id} className={`flex items-center justify-between gap-3 p-3 ${index ? "border-t border-gray-100" : ""}`}>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-900">{bill.complaintNumber}</p>
-                            <p className="truncate text-xs text-gray-500">{bill.productName} {bill.category ? `• ${bill.category}` : ""}</p>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-3">
-                            <p className="text-sm font-bold text-gray-900">{formatCurrency(Number(bill.remainingAmount))}</p>
-                            <button type="button" disabled={saving} onClick={() => setSelectedBillIds((ids) => ids.filter((id) => id !== bill._id))}
-                              className="rounded-lg p-2 text-red-500 hover:bg-red-50" title="Remove bill"><Trash2 size={16} /></button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </>
-            )}
-
-            <section className="space-y-4 border-t border-gray-100 pt-5">
-              <h3 className="text-sm font-bold text-gray-900">Payment Details</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className={labelClass}>Payment Date *</label>
-                  <input type="date" value={paymentDate} onChange={(event) => setPaymentDate(event.target.value)} className={inputClass} disabled={saving} />
-                </div>
-                <div>
-                  <label className={labelClass}>Payment Mode *</label>
-                  <select value={paymentMode} onChange={(event) => setPaymentMode(event.target.value as PaymentMode)} className={inputClass} disabled={saving}>
-                    <option value="BANK_TRANSFER">Bank Transfer</option>
-                    <option value="UPI">UPI</option>
-                    <option value="CASH">Cash</option>
-                    <option value="CHEQUE">Cheque</option>
-                  </select>
-                </div>
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>Transaction Reference</label>
-                  <input value={transactionReference} onChange={(event) => setTransactionReference(event.target.value)} placeholder="UTR / UPI / Cheque number" className={inputClass} disabled={saving} />
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>Remark / Complaint References</label>
-                <textarea rows={3} value={remark} onChange={(event) => setRemark(event.target.value)} placeholder="Enter payment remark..." className={inputClass} disabled={saving} />
-                <p className="mt-1 text-xs text-gray-500">Selected complaint numbers will be added automatically.</p>
-              </div>
+              <textarea
+                rows={3}
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                placeholder="Enter payment remarks..."
+                className={`${inputClass} resize-y`}
+              />
             </section>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
-            <button type="button" onClick={handleReset} disabled={saving} className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50">Reset</button>
-            <div className="flex gap-3">
-              <button type="button" onClick={onClose} disabled={saving} className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancel</button>
-              <button type="submit" disabled={saving || billsLoading || !dealerId || !dealerSummary || !validAmount  || !canAllocate || !paymentDate}
-                className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064] disabled:cursor-not-allowed disabled:opacity-50">
-                <Save size={16} /> {saving ? "Saving..." : "Save Payment"}
-              </button>
-            </div>
+          {/* Footer */}
+          <div className="flex flex-wrap justify-end gap-3 border-t border-gray-200 bg-white px-5 py-4">
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={saving}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              <RotateCcw size={17} />
+              Reset
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={
+                saving ||
+                !dealerId ||
+                billsLoading ||
+                !validPayment
+              }
+              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3064] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Save size={17} />
+              {saving ? "Saving..." : "Save Payment"}
+            </button>
           </div>
         </form>
       </div>

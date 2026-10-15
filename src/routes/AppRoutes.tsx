@@ -109,7 +109,9 @@ import ReasonMasterPage from "../modules/reasonMaster/pages/ReasonMasterPage";
 import UserProfilePage from "../modules/profile/pages/UserProfilePage";
 import DealerActivityPage from "../modules/dealers/components/DealerActivityPage";
 import DealerDailyActivityPage from "../modules/dealers/components/DealerDailyActivityPage";
-
+import AddLedgerEntryPage from "../modules/ledger/components/AddLedgerEntryPage";
+import AccountPage from "../modules/ledger/pages/AccountPage";
+import AccountDetailsPage from "../modules/ledger/pages/AccountDetailsPage";
 
 function Dashboard() {
   return (
@@ -238,6 +240,15 @@ export default function AppRoutes() {
             path="/verification/:id"
             element={<VerificationDetailsPage />}
           />
+          <Route
+  path="/accounts"
+  element={<AccountPage />}
+/>
+
+<Route
+  path="/accounts/:id"
+  element={<AccountDetailsPage />}
+/>
           <Route path="/billing" element={<BillListPage />} />
           {/* <Route path="/billing/bills" element={<BillListPage />} /> */}
           <Route path="/billing/rates" element={<RateMasterPage />} />
@@ -353,7 +364,12 @@ export default function AppRoutes() {
             element={<CreateEditAreaPage />}
           />
 
-          {/* <Route path="/allocation" element={<AllocationPage />} />
+          <Route path="/allocation" element={<AllocationPage />} />
+
+          <Route
+  path="/ledger/add-entry"
+  element={<AddLedgerEntryPage />}
+/>
 
           <Route
             path="/complaints/:complaintId/allocation"
@@ -363,7 +379,7 @@ export default function AppRoutes() {
           <Route
             path="/allocation/history"
             element={<AllocationHistoryPage />}
-          /> */}
+          />
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
