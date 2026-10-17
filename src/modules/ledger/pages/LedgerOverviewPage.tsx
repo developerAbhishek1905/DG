@@ -83,6 +83,7 @@ export default function LedgerOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [tableSearch, setTableSearch] = useState("");
     const navigate = useNavigate();
 
   const loadOverview = useCallback(async () => {
@@ -144,6 +145,18 @@ export default function LedgerOverviewPage() {
     ],
     [stats],
   );
+
+  const filteredSummaries = useMemo(() => {
+    const query = tableSearch.trim().toLowerCase();
+
+    if (!query) return summaries;
+
+    return summaries.filter(({ dealer }) =>
+      [dealer.name, dealer.dealerCode, dealer.phone, dealer.city].some((field) =>
+        String(field ?? "").toLowerCase().includes(query),
+      ),
+    );
+  }, [summaries, tableSearch]);
 
   if (loading && summaries.length === 0) {
     return (
@@ -225,21 +238,34 @@ onClick={() => navigate("/ledger/add-entry")}
       </div>
 
       {/* Dealer Outstanding — existing layout and cards */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900">
-          Dealer Outstanding
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Current financial position of each dealer.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Dealer Outstanding
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Current financial position of each dealer.
+          </p>
+        </div>
+
+        <input
+          value={tableSearch}
+          onChange={(e) => setTableSearch(e.target.value)}
+          placeholder="Filter by name, code or phone..."
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100 sm:w-72"
+        />
       </div>
 
       {summaries.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
           No dealers found.
         </div>
+      ) : filteredSummaries.length === 0 ? (
+        <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
+          No dealers match "{tableSearch}".
+        </div>
       ) : (
-        <OutstandingTable summaries={summaries} />
+        <OutstandingTable summaries={filteredSummaries} />
       )}
 
       {showPaymentModal && (

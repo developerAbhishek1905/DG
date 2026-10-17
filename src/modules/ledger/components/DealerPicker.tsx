@@ -38,7 +38,15 @@ export default function DealerPicker({
   const debounced = useDebounce(text, 350);
 
   // Keep the text in sync when the parent selects / clears the dealer
+  // (not when the value is cleared because the user is typing a new search)
+  const typingRef = useRef(false);
+
   useEffect(() => {
+    if (!value && typingRef.current) {
+      typingRef.current = false;
+      return;
+    }
+
     setText(value ? labelOf(value) : "");
   }, [value]);
 
@@ -97,7 +105,10 @@ export default function DealerPicker({
           setText(event.target.value);
           setOpen(true);
 
-          if (value) onChange(null);
+          if (value) {
+            typingRef.current = true;
+            onChange(null);
+          }
         }}
         className={className}
       />

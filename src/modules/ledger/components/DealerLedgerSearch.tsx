@@ -28,8 +28,8 @@ export default function DealerLedgerSearch({
         const dealer = item.dealer;
 
         return (
-          dealer.name.toLowerCase().includes(query) ||
-          dealer.dealerCode.toLowerCase().includes(query) ||
+          (dealer.name ?? "").toLowerCase().includes(query) ||
+          (dealer.dealerCode ?? "").toLowerCase().includes(query) ||
           dealer.phone?.toLowerCase().includes(query) ||
           dealer.city?.toLowerCase().includes(query)
         );
@@ -129,9 +129,9 @@ export default function DealerLedgerSearch({
 
                     <p className="mt-1 text-sm font-semibold text-gray-900">
                       ₹
-                      {item.outstandingAmount.toLocaleString(
-                        "en-IN"
-                      )}
+                      {Number(
+                        item.currentOutstanding ?? item.outstanding ?? 0
+                      ).toLocaleString("en-IN")}
                     </p>
                   </div>
                 </button>
