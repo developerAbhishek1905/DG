@@ -233,12 +233,12 @@ const dealerManagementItems = [
 ];
 
 const accountManagementItems = [
-  {
-    label: "Account",
-    icon: Landmark,
-    path: "/accounts",
-    // permission: "accounts.access",
-  },
+  // {
+  //   label: "Account",
+  //   icon: Landmark,
+  //   path: "/accounts",
+  //   // permission: "accounts.access",
+  // },
   {
     label: "Billing",
     icon: Receipt,

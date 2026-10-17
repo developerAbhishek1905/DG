@@ -3,7 +3,7 @@ import { X, RotateCcw } from "lucide-react";
 import type {
   RefundPaymentMode,
   RefundSecurityPayload,
-} from "../services/securityRefundApi";
+} from "../services/ledgerApi";
 
 interface Props {
   open: boolean;

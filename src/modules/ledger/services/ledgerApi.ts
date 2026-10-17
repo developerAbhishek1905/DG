@@ -187,6 +187,7 @@ export interface DealerLedgerOverviewItem {
   currentOutstanding: number;
   creditAmount: number;
   securityDeposit: number;
+  creditLimit?: number;
   openingBalance: number;
   openingBalanceType: "DR" | "CR";
 }
@@ -377,3 +378,276 @@ export const refundDealerSecurity = async (
 
 //   return response.data;
 // };
+
+/*
+|--------------------------------------------------------------------------
+| DEALER ACCOUNTS — Receipt / Adjustments / Credit Note / Security Deposit
+| (backend: /dealer-accounts, stored in the Ledger model)
+|--------------------------------------------------------------------------
+*/
+
+export type AccountPaymentMode =
+  | "CASH"
+  | "UPI"
+  | "BANK_TRANSFER"
+  | "NET_BANKING"
+  | "CHEQUE";
+
+export type BillRefKind = "BILL_REF" | "DUMMY_BILL_REF";
+
+export interface AccountDealer {
+  dealerId: string;
+  headCode: string;
+  dealerName: string;
+  outstanding: number;
+  creditBalance: number;
+  securityAmount: number;
+}
+
+export interface AccountBill {
+  _id: string;
+  kind: BillRefKind;
+  complaintNumber: string;
+  productName: string;
+  serviceDescription: string;
+  customerName: string;
+  amount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  paymentStatus: string;
+  billingDate: string;
+}
+
+export interface AccountReceipt {
+  _id: string;
+  entryNumber: string;
+  date: string;
+  paymentMode: AccountPaymentMode;
+  reference: string;
+  amount: number;
+  adjustedAmount: number;
+  availableAmount: number;
+}
+
+export interface DealerAccountContext {
+  dealer: {
+    _id: string;
+    headCode: string;
+    dealerName: string;
+    securityAmount: number;
+    creditBalance: number;
+    outstanding: number;
+  };
+  bills: AccountBill[];
+  receipts: AccountReceipt[];
+}
+
+export const searchAccountDealers = async (
+  search = "",
+): Promise<AccountDealer[]> => {
+  const response = await api.get("/dealer-accounts/dealers", {
+    params: { search: search || undefined },
+  });
+
+  return response.data?.data ?? [];
+};
+
+export const getDealerAccountContext = async (
+  dealerId: string,
+): Promise<DealerAccountContext> => {
+  const response = await api.get(
+    `/dealer-accounts/dealer/${dealerId}/context`,
+  );
+
+  return response.data.data;
+};
+
+export interface CreateReceiptsPayload {
+  date: string;
+  paymentMode: AccountPaymentMode;
+  receipts: {
+    dealerId: string;
+    amount: number;
+    reference?: string;
+    remark?: string;
+  }[];
+}
+
+export const createReceipts = async (payload: CreateReceiptsPayload) => {
+  const response = await api.post("/dealer-accounts/receipts", payload);
+
+  return response.data;
+};
+
+export interface CreateAdjustmentPayload {
+  receiptId: string;
+  date: string;
+  remark?: string;
+  allocations: { ledgerId: string; amount: number }[];
+}
+
+export const createAdjustment = async (payload: CreateAdjustmentPayload) => {
+  const response = await api.post("/dealer-accounts/adjustments", payload);
+
+  return response.data;
+};
+
+export interface CreateCreditNotePayload {
+  dealerId: string;
+  ledgerId: string;
+  amount: number;
+  date: string;
+  reason: string;
+  remark?: string;
+}
+
+export const createCreditNote = async (payload: CreateCreditNotePayload) => {
+  const response = await api.post("/dealer-accounts/credit-notes", payload);
+
+  return response.data;
+};
+
+export interface CreateSecurityDepositPayload {
+  dealerId: string;
+  amount: number;
+  date: string;
+  paymentMode: AccountPaymentMode;
+  reference?: string;
+  remark?: string;
+}
+
+export const createSecurityDeposit = async (
+  payload: CreateSecurityDepositPayload,
+) => {
+  const response = await api.post(
+    "/dealer-accounts/security-deposits",
+    payload,
+  );
+
+  return response.data;
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| DEALER LEDGER STATEMENT + PENDING BILLS
+|--------------------------------------------------------------------------
+*/
+
+export interface DateRangeParams {
+  fromDate?: string;
+  toDate?: string;
+}
+
+export interface StatementChild {
+  date: string;
+  particulars: string;
+  amount: number;
+}
+
+export interface StatementRow {
+  key: string;
+  date: string;
+  particulars: string;
+  reference: string;
+  type: string;
+  debit: number;
+  credit: number;
+  // positive = Dr (dealer owes), negative = Cr
+  balance: number;
+  children: StatementChild[];
+}
+
+export interface DealerStatement {
+  openingBalance: number;
+  rows: StatementRow[];
+  totals: { debit: number; credit: number; closingBalance: number };
+}
+
+export const getDealerStatement = async (
+  dealerId: string,
+  params: DateRangeParams = {},
+): Promise<DealerStatement> => {
+  const response = await api.get(
+    `/dealer-accounts/dealer/${dealerId}/statement`,
+    {
+      params: {
+        fromDate: params.fromDate || undefined,
+        toDate: params.toDate || undefined,
+      },
+    },
+  );
+
+  return response.data.data;
+};
+
+export interface PendingBill extends AccountBill {
+  ageDays: number;
+}
+
+export interface DealerPendingBills {
+  rows: PendingBill[];
+  totals: {
+    count: number;
+    amount: number;
+    paidAmount: number;
+    remainingAmount: number;
+  };
+}
+
+export const getDealerPendingBills = async (
+  dealerId: string,
+  params: DateRangeParams = {},
+): Promise<DealerPendingBills> => {
+  const response = await api.get(
+    `/dealer-accounts/dealer/${dealerId}/pending-bills`,
+    {
+      params: {
+        fromDate: params.fromDate || undefined,
+        toDate: params.toDate || undefined,
+      },
+    },
+  );
+
+  return response.data.data;
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| ALL BILLS OF A DEALER
+|--------------------------------------------------------------------------
+*/
+
+export interface DealerBill extends AccountBill {
+  // approval status of the bill itself
+  status: string;
+}
+
+export interface DealerAllBills {
+  rows: DealerBill[];
+  totals: {
+    count: number;
+    amount: number;
+    paidAmount: number;
+    remainingAmount: number;
+  };
+}
+
+export const getDealerAllBills = async (
+  dealerId: string,
+  params: DateRangeParams & { paymentStatus?: string } = {},
+): Promise<DealerAllBills> => {
+  const response = await api.get(`/dealer-accounts/dealer/${dealerId}/bills`, {
+    params: {
+      fromDate: params.fromDate || undefined,
+      toDate: params.toDate || undefined,
+      paymentStatus:
+        params.paymentStatus && params.paymentStatus !== "ALL"
+          ? params.paymentStatus
+          : undefined,
+    },
+  });
+
+  return response.data.data;
+};

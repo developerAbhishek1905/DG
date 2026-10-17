@@ -11,7 +11,7 @@ import {
 import { toast } from "react-toastify";
 
 import DealerLedgerSearch from "../components/DealerLedgerSearch";
-import OutstandingCard from "../components/OutstandingCard";
+import OutstandingTable from "../components/OutstandingTable";
 import AddPaymentModal from "../components/AddPaymentModal";
 import { getDealerLedgerOverview } from "../services/ledgerApi";
 import type { DealerLedgerSummary } from "../types/ledger.types";
@@ -29,6 +29,7 @@ const emptyStats: DealerLedgerOverviewSummary = {
   currentOutstanding: 0,
   creditAmount: 0,
   securityDeposit: 0,
+  openingBalance: 0,
 };
 
 const money = (value: number) =>
@@ -70,7 +71,7 @@ const toDealerSummary = (
   unpaidBillsCount: row.unpaidBillsCount,
   unpaidBillsAmount: row.unpaidBillsAmount,
   currentOutstanding: row.currentOutstanding,
-  creditLimit: row.creditLimit,
+  creditLimit: row.creditLimit ?? 0,
   creditAmount: row.creditAmount,
   securityDeposit: row.securityDeposit,
   openingBalanceType: row.openingBalanceType,
@@ -238,11 +239,7 @@ onClick={() => navigate("/ledger/add-entry")}
           No dealers found.
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {summaries.map((summary) => (
-            <OutstandingCard key={summary.dealer.id} summary={summary} />
-          ))}
-        </div>
+        <OutstandingTable summaries={summaries} />
       )}
 
       {showPaymentModal && (

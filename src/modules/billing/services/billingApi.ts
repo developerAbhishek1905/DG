@@ -136,3 +136,26 @@ export const searchAllCategories = async (
 
   return response.data?.data?.categories ?? response.data?.data ?? [];
 };
+
+/*
+|--------------------------------------------------------------------------
+| CREATE DUMMY BILL
+|--------------------------------------------------------------------------
+*/
+
+export interface DummyBillValues {
+  dealerId: string;
+  complaintNumber: string;
+  billingDate: string;
+  amount: number;
+  serviceDescription: string;
+  customerName: string;
+  customerMobile: string;
+  customerAddress: string;
+}
+
+export const createDummyBill = async (data: DummyBillValues) => {
+  const response = await api.post("/dealer-ledger/dummy-bills", data);
+
+  return response.data;
+};

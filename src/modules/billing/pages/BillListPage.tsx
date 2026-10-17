@@ -20,7 +20,8 @@ const initialFilters: BillingFilterValues = {
 import LedgerTable from "../components/LedgerTable";
 
 import { approveDealerLedger, getDealerLedgers,  createDealerLedger,
-  updateDealerLedger, } from "../services/billingApi";
+  updateDealerLedger, createDummyBill, type DummyBillValues } from "../services/billingApi";
+import DummyBillForm from "../components/DummyBillForm";
 
 import type {
   DealerLedger,
@@ -83,6 +84,7 @@ export default function BillListPage() {
 
   const [filters, setFilters] = useState<BillingFilterValues>(initialFilters);
   const [billFormOpen, setBillFormOpen] = useState(false);
+  const [dummyBillOpen, setDummyBillOpen] = useState(false);
 
 const [editingLedger, setEditingLedger] =
   useState<DealerLedger | null>(null);
@@ -116,6 +118,24 @@ const handleEdit = (ledger: DealerLedger) => {
 
   setEditingLedger(ledger);
   setBillFormOpen(true);
+};
+
+const handleSubmitDummyBill = async (values: DummyBillValues) => {
+  try {
+    await createDummyBill(values);
+
+    toast.success("Dummy bill created successfully");
+
+    setDummyBillOpen(false);
+
+    await loadLedgers();
+  } catch (error: any) {
+    toast.error(
+      error?.response?.data?.message || "Failed to create dummy bill",
+    );
+
+    throw error;
+  }
 };
 
 const handleCloseBillForm = () => {
@@ -280,14 +300,25 @@ const handleSubmitBill = async (values: BillFormValues) => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dealer Ledger</h1>
       </div>
-      <button
-  type="button"
-  onClick={handleCreateBill}
-  className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064]"
->
-  <Plus size={17} />
-  Create Bill
-</button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={handleCreateBill}
+          className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064]"
+        >
+          <Plus size={17} />
+          Create Bill
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setDummyBillOpen(true)}
+          className="flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-semibold text-[#123B7A] hover:bg-blue-50"
+        >
+          <Plus size={17} />
+          Create Dummy Bill
+        </button>
+      </div>
 
       {/* STATS */}
 
@@ -399,6 +430,13 @@ const handleSubmitBill = async (values: BillFormValues) => {
             </button>
           </div>
         </div>
+      )}
+
+      {dummyBillOpen && (
+        <DummyBillForm
+          onClose={() => setDummyBillOpen(false)}
+          onSubmit={handleSubmitDummyBill}
+        />
       )}
 
       {billFormOpen && (

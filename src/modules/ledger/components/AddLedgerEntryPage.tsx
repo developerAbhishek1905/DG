@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Plus,
@@ -11,16 +11,24 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-type Tab = "RECEIPT" | "CREDIT_NOTE" | "SECURITY_DEPOSIT";
+import DealerPicker from "./DealerPicker";
+import {
+  createAdjustment,
+  createCreditNote,
+  createReceipts,
+  createSecurityDeposit,
+  getDealerAccountContext,
+  refundDealerSecurity,
+  type AccountDealer,
+  type AccountPaymentMode,
+  type BillRefKind,
+  type DealerAccountContext,
+  type RefundPaymentMode,
+} from "../services/ledgerApi";
 
-type TransactionType = "CASH" | "BANK" | "UPI" | "NET_BANKING" | "CHEQUE";
+type Tab = "RECEIPT" | "ADJUSTMENTS" | "CREDIT_NOTE" | "SECURITY_DEPOSIT";
 
-type AllocationType =
-  | ""
-  | "ON_ACCOUNT"
-  | "ADVANCE"
-  | "DUMMY_BILL_REF"
-  | "BILL_REF";
+type AllocationType = "" | BillRefKind;
 
 type Row = {
   id: number;
@@ -29,20 +37,11 @@ type Row = {
   amount: string;
 };
 
-type Bill = {
-  id: string;
-  dealerId: string;
-  label: string;
-  outstanding: number;
-  kind: "DUMMY_BILL_REF" | "BILL_REF";
-};
-
-type Dealer = {
-  id: string;
-  code: string;
-  name: string;
-  outstanding: number;
-  security: number;
+type ReceiptRow = {
+  id: number;
+  dealer: AccountDealer | null;
+  amount: string;
+  reference: string;
 };
 
 type HistoryEntry = {
@@ -54,87 +53,19 @@ type HistoryEntry = {
   date: string;
 };
 
-const dealers: Dealer[] = [
-  {
-    id: "d1",
-    code: "HEAD0035",
-    name: "IPS Service Center",
-    outstanding: 10800,
-    security: 5000,
-  },
-  {
-    id: "d2",
-    code: "HEAD0042",
-    name: "Shree Balaji Services",
-    outstanding: 7600,
-    security: 3000,
-  },
-  {
-    id: "d3",
-    code: "HEAD0051",
-    name: "Metro Repair Hub",
-    outstanding: 13200,
-    security: 0,
-  },
+const PAYMENT_MODES: { value: AccountPaymentMode; label: string }[] = [
+  { value: "CASH", label: "Cash" },
+  { value: "BANK_TRANSFER", label: "Bank Transfer" },
+  { value: "UPI", label: "UPI" },
+  { value: "NET_BANKING", label: "Net Banking" },
+  { value: "CHEQUE", label: "Cheque" },
 ];
 
-const bills: Bill[] = [
-  {
-    id: "db1",
-    dealerId: "d1",
-    label: "DB-001 · Washing Machine",
-    outstanding: 1500,
-    kind: "DUMMY_BILL_REF",
-  },
-  {
-    id: "db2",
-    dealerId: "d1",
-    label: "DB-002 · Refrigerator",
-    outstanding: 1000,
-    kind: "DUMMY_BILL_REF",
-  },
-  {
-    id: "b1",
-    dealerId: "d1",
-    label: "BILL-101 · Service Charge",
-    outstanding: 2200,
-    kind: "BILL_REF",
-  },
-  {
-    id: "b2",
-    dealerId: "d1",
-    label: "BILL-102 · Installation",
-    outstanding: 3500,
-    kind: "BILL_REF",
-  },
-  {
-    id: "db3",
-    dealerId: "d2",
-    label: "DB-003 · AC Repair",
-    outstanding: 2400,
-    kind: "DUMMY_BILL_REF",
-  },
-  {
-    id: "b3",
-    dealerId: "d2",
-    label: "BILL-103 · Service",
-    outstanding: 5200,
-    kind: "BILL_REF",
-  },
-  {
-    id: "db4",
-    dealerId: "d3",
-    label: "DB-004 · Service",
-    outstanding: 3200,
-    kind: "DUMMY_BILL_REF",
-  },
-  {
-    id: "b4",
-    dealerId: "d3",
-    label: "BILL-104 · Maintenance",
-    outstanding: 10000,
-    kind: "BILL_REF",
-  },
+const REFUND_MODES: RefundPaymentMode[] = [
+  "CASH",
+  "UPI",
+  "BANK_TRANSFER",
+  "CHEQUE",
 ];
 
 const format = (value: number) =>
@@ -156,6 +87,10 @@ const today = () => {
   ].join("-");
 };
 
+const errorMessage = (error: unknown, fallback: string) =>
+  (error as { response?: { data?: { message?: string } } })?.response?.data
+    ?.message || fallback;
+
 let nextId = 1;
 
 const makeRow = (): Row => ({
@@ -165,107 +100,143 @@ const makeRow = (): Row => ({
   amount: "",
 });
 
+const makeReceiptRow = (): ReceiptRow => ({
+  id: nextId++,
+  dealer: null,
+  amount: "",
+  reference: "",
+});
+
 const input =
-  "h-8 w-full min-w-0 rounded-md border border-gray-300 bg-white px-2.5 text-xs text-gray-800 outline-none transition focus:border-blue-700 focus:ring-1 focus:ring-blue-100";
+  "h-8 w-full min-w-0 rounded-md border border-gray-300 bg-white px-2.5 text-xs text-gray-800 outline-none transition focus:border-blue-700 focus:ring-1 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-400";
 
 const label = "mb-1 block text-xs font-medium text-gray-600";
+
+const receiptColumns =
+  "grid grid-cols-[28px_minmax(240px,1.4fr)_120px_130px_minmax(160px,1fr)_32px] items-center gap-2";
 
 const allocationColumns =
   "grid grid-cols-[28px_145px_minmax(190px,1fr)_115px_125px_32px] items-center gap-2";
 
-const tabOptions: {
-  key: Tab;
-  label: string;
-}[] = [
+const tabOptions: { key: Tab; label: string }[] = [
   { key: "RECEIPT", label: "Receipt" },
+  { key: "ADJUSTMENTS", label: "Adjustments" },
   { key: "CREDIT_NOTE", label: "Credit Note" },
-  {
-    key: "SECURITY_DEPOSIT",
-    label: "Security Deposit",
-  },
+  { key: "SECURITY_DEPOSIT", label: "Security Deposit" },
 ];
 
-export default function AddDealerEntryPage() {
+const tabTitle: Record<Tab, string> = {
+  RECEIPT: "Receipt Details",
+  ADJUSTMENTS: "Adjustment Details",
+  CREDIT_NOTE: "Credit Note Details",
+  SECURITY_DEPOSIT: "Security Deposit Details",
+};
+
+export default function AddLedgerEntryPage() {
   const navigate = useNavigate();
 
   const [tab, setTab] = useState<Tab>("RECEIPT");
-  const [dealerId, setDealerId] = useState("d1");
   const [date, setDate] = useState(today());
-  const [transactionType, setTransactionType] =
-    useState<TransactionType>("UPI");
-  const [amount, setAmount] = useState("5000");
+  const [paymentMode, setPaymentMode] = useState<AccountPaymentMode>("UPI");
+  const [amount, setAmount] = useState("");
   const [reference, setReference] = useState("");
   const [remarks, setRemarks] = useState("");
-  type CreditNoteRefType = "BILL_REF" | "DUMMY_BILL_REF";
+  const [saving, setSaving] = useState(false);
 
-  const [creditNoteRefType, setCreditNoteRefType] =
-    useState<CreditNoteRefType>("BILL_REF");
-
-  const [creditNoteBillId, setCreditNoteBillId] = useState("");
-
-  const [rows, setRows] = useState<Row[]>([
-    {
-      id: nextId++,
-      type: "DUMMY_BILL_REF",
-      refId: "db1",
-      amount: "1500",
-    },
-    {
-      id: nextId++,
-      type: "DUMMY_BILL_REF",
-      refId: "db2",
-      amount: "1000",
-    },
-    {
-      id: nextId++,
-      type: "BILL_REF",
-      refId: "b1",
-      amount: "1200",
-    },
-    {
-      id: nextId++,
-      type: "ON_ACCOUNT",
-      refId: "",
-      amount: "800",
-    },
-    {
-      id: nextId++,
-      type: "ADVANCE",
-      refId: "",
-      amount: "500",
-    },
+  // Receipt tab (many dealers)
+  const [receiptRows, setReceiptRows] = useState<ReceiptRow[]>([
+    makeReceiptRow(),
   ]);
 
+  // Single dealer tabs
+  const [dealer, setDealer] = useState<AccountDealer | null>(null);
+  const [context, setContext] = useState<DealerAccountContext | null>(null);
+  const [contextLoading, setContextLoading] = useState(false);
+
+  // Adjustments
+  const [receiptId, setReceiptId] = useState("");
+  const [rows, setRows] = useState<Row[]>([makeRow()]);
+
+  // Credit note
+  const [creditNoteRefType, setCreditNoteRefType] =
+    useState<BillRefKind>("BILL_REF");
+  const [creditNoteBillId, setCreditNoteBillId] = useState("");
   const [creditReason, setCreditReason] = useState("RATE_DIFFERENCE");
 
+  // Security deposit
   const [securityAction, setSecurityAction] = useState<"RECEIVE" | "REFUND">(
     "RECEIVE",
   );
 
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-
   const [showHistory, setShowHistory] = useState(false);
 
-  const dealer = dealers.find((item) => item.id === dealerId)!;
+  const bills = context?.bills ?? [];
+  const receipts = context?.receipts ?? [];
 
   const total = Number(amount) || 0;
 
-  const creditNoteBills = bills.filter(
-    (bill) =>
-      bill.dealerId === dealerId &&
-      bill.kind === creditNoteRefType &&
-      bill.outstanding > 0,
+  /*
+  |--------------------------------------------------------------------------
+  | Dealer context (unpaid bills + receipts with a balance)
+  |--------------------------------------------------------------------------
+  */
+
+  const loadContext = useCallback(async (dealerId: string) => {
+    try {
+      setContextLoading(true);
+      setContext(await getDealerAccountContext(dealerId));
+    } catch (error) {
+      setContext(null);
+      toast.error(errorMessage(error, "Failed to load dealer account"));
+    } finally {
+      setContextLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (tab === "RECEIPT" || !dealer) {
+      setContext(null);
+      return;
+    }
+
+    loadContext(dealer.dealerId);
+  }, [tab, dealer, loadContext]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Receipt tab
+  |--------------------------------------------------------------------------
+  */
+
+  const receiptBatchTotal = roundAmount(
+    receiptRows.reduce((sum, row) => sum + (Number(row.amount) || 0), 0),
   );
 
-  const selectedCreditNoteBill = creditNoteBills.find(
-    (bill) => bill.id === creditNoteBillId,
-  );
+  const selectedReceiptDealerIds = receiptRows
+    .map((row) => row.dealer?.dealerId)
+    .filter((id): id is string => Boolean(id));
 
-  const creditNoteAmount = tab === "CREDIT_NOTE" ? Number(amount) || 0 : 0;
+  const setReceiptRow = (id: number, patch: Partial<ReceiptRow>) => {
+    setReceiptRows((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, ...patch } : row)),
+    );
+  };
 
-  const creditNoteRemaining = selectedCreditNoteBill
-    ? roundAmount(selectedCreditNoteBill.outstanding - creditNoteAmount)
-    : 0;
+  const handleReceiptAmountChange = (id: number, value: string) => {
+    if (value !== "" && !/^\d*\.?\d{0,2}$/.test(value)) return;
+    setReceiptRow(id, { amount: value });
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Adjustments
+  |--------------------------------------------------------------------------
+  */
+
+  const selectedReceipt = receipts.find((item) => item._id === receiptId);
+
+  const receiptAvailable = selectedReceipt?.availableAmount ?? 0;
 
   const allocated = useMemo(
     () =>
@@ -275,9 +246,10 @@ export default function AddDealerEntryPage() {
     [rows],
   );
 
-  const remaining = roundAmount(total - allocated);
+  // Part or all of the receipt can be used — the user decides
+  const remaining = roundAmount(receiptAvailable - allocated);
 
-  const fullyAllocated = total > 0 && remaining === 0;
+  const fullyAllocated = receiptAvailable > 0 && remaining === 0;
 
   const setRow = (id: number, patch: Partial<Row>) => {
     setRows((prev) =>
@@ -291,21 +263,18 @@ export default function AddDealerEntryPage() {
       0,
     );
 
-    return Math.max(0, roundAmount(total - allocatedElsewhere));
+    return Math.max(0, roundAmount(receiptAvailable - allocatedElsewhere));
   };
+
+  const findBill = (row: Row) =>
+    bills.find((bill) => bill._id === row.refId && bill.kind === row.type);
 
   const getMaxPayable = (row: Row, currentRows: Row[]) => {
     const available = getAvailableForRow(currentRows, row.id);
-
-    const selectedBill = bills.find(
-      (bill) =>
-        bill.id === row.refId &&
-        bill.dealerId === dealerId &&
-        bill.kind === row.type,
-    );
+    const selectedBill = findBill(row);
 
     return selectedBill
-      ? Math.min(selectedBill.outstanding, available)
+      ? Math.min(selectedBill.remainingAmount, available)
       : available;
   };
 
@@ -315,15 +284,11 @@ export default function AddDealerEntryPage() {
       return;
     }
 
-    if (!/^\d*\.?\d{0,2}$/.test(value)) {
-      return;
-    }
+    if (!/^\d*\.?\d{0,2}$/.test(value)) return;
 
-    const enteredAmount = Number(value);
+    const entered = Number(value);
 
-    if (!Number.isFinite(enteredAmount) || enteredAmount < 0) {
-      return;
-    }
+    if (!Number.isFinite(entered) || entered < 0) return;
 
     const currentRow = rows.find((row) => row.id === rowId);
 
@@ -331,7 +296,7 @@ export default function AddDealerEntryPage() {
 
     const maxPayable = getMaxPayable(currentRow, rows);
 
-    if (enteredAmount > maxPayable) {
+    if (entered > maxPayable) {
       toast.warning(`Maximum payable amount is ${format(maxPayable)}`);
       return;
     }
@@ -339,57 +304,35 @@ export default function AddDealerEntryPage() {
     setRow(rowId, { amount: value });
   };
 
-  const changeAllocationType = (id: number, type: AllocationType) => {
-    if (type === "ON_ACCOUNT" || type === "ADVANCE") {
-      const alreadyExists = rows.some(
-        (row) => row.id !== id && row.type === type,
-      );
-
-      if (alreadyExists) {
-        toast.warning(
-          `${
-            type === "ON_ACCOUNT" ? "On Account" : "Advance"
-          } can only be added once`,
-        );
-        return;
-      }
-    }
-
-    setRows((prev) => {
-      const available = getAvailableForRow(prev, id);
-
-      return prev.map((row) => {
-        if (row.id !== id) return row;
-
-        return {
-          ...row,
-          type,
-          refId: "",
-          amount:
-            type === "ON_ACCOUNT" && available > 0 ? available.toFixed(2) : "",
-        };
-      });
-    });
-  };
-
-  const handleBillChange = (rowId: number, refId: string) => {
-    setRow(rowId, {
-      refId,
-      amount: "",
-    });
-  };
-
   const handleAddDebitRow = () => {
-    if (remaining <= 0 || total <= 0) {
-      return;
-    }
+    if (remaining <= 0 || !selectedReceipt) return;
 
     setRows((prev) => [...prev, makeRow()]);
   };
 
-  const handleRemoveRow = (rowId: number) => {
-    setRows((prev) => prev.filter((row) => row.id !== rowId));
-  };
+  /*
+  |--------------------------------------------------------------------------
+  | Credit note
+  |--------------------------------------------------------------------------
+  */
+
+  const creditNoteBills = bills.filter((bill) => bill.kind === creditNoteRefType);
+
+  const selectedCreditNoteBill = creditNoteBills.find(
+    (bill) => bill._id === creditNoteBillId,
+  );
+
+  const creditNoteAmount = tab === "CREDIT_NOTE" ? total : 0;
+
+  const creditNoteRemaining = selectedCreditNoteBill
+    ? roundAmount(selectedCreditNoteBill.remainingAmount - creditNoteAmount)
+    : 0;
+
+  /*
+  |--------------------------------------------------------------------------
+  | Reset
+  |--------------------------------------------------------------------------
+  */
 
   const reset = () => {
     setDate(today());
@@ -397,137 +340,255 @@ export default function AddDealerEntryPage() {
     setReference("");
     setRemarks("");
     setRows([makeRow()]);
+    setReceiptRows([makeReceiptRow()]);
+    setReceiptId("");
+    setCreditNoteBillId("");
+    setCreditNoteRefType("BILL_REF");
   };
 
-  const save = () => {
-    if (!dealerId || !date || !Number.isFinite(total) || total <= 0) {
-      toast.error("Select dealer, date and a valid amount");
+  const switchTab = (next: Tab) => {
+    setTab(next);
+    setDealer(null);
+    setContext(null);
+    setSecurityAction("RECEIVE");
+    reset();
+  };
+
+  const addHistory = (entries: Omit<HistoryEntry, "id">[]) => {
+    setHistory((prev) => [
+      ...entries.map((entry, index) => ({
+        ...entry,
+        id: Date.now() + index,
+      })),
+      ...prev,
+    ]);
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save
+  |--------------------------------------------------------------------------
+  */
+
+  const saveReceipts = async () => {
+    if (!date) {
+      toast.error("Select a date");
       return;
     }
 
-    if (tab === "RECEIPT") {
-      if (!rows.length) {
-        toast.error("Add at least one debit allocation");
-        return;
-      }
-
-      const onAccountCount = rows.filter(
-        (row) => row.type === "ON_ACCOUNT",
-      ).length;
-
-      const advanceCount = rows.filter((row) => row.type === "ADVANCE").length;
-
-      if (onAccountCount > 1) {
-        toast.error("On Account can only be added once");
-        return;
-      }
-
-      if (advanceCount > 1) {
-        toast.error("Advance can only be added once");
-        return;
-      }
-
-      const invalidRow = rows.some(
-        (row) =>
-          !row.type ||
-          !Number.isFinite(Number(row.amount)) ||
-          Number(row.amount) <= 0 ||
-          ((row.type === "BILL_REF" || row.type === "DUMMY_BILL_REF") &&
-            !row.refId),
-      );
-
-      if (invalidRow) {
-        toast.error("Complete every allocation row with a positive amount");
-        return;
-      }
-
-      if (Math.abs(remaining) > 0.001) {
-        toast.error("Receipt must be fully allocated before saving");
-        return;
-      }
-
-      const selectedRefs = rows
-        .filter((row) => row.refId)
-        .map((row) => row.refId);
-
-      if (new Set(selectedRefs).size !== selectedRefs.length) {
-        toast.error("The same bill cannot be selected twice");
-        return;
-      }
-
-      for (const row of rows) {
-        const maxPayable = getMaxPayable(row, rows);
-
-        if (Number(row.amount) > maxPayable + 0.001) {
-          toast.error("Allocation exceeds maximum payable");
-          return;
-        }
-
-        if (!row.refId) continue;
-
-        const bill = bills.find(
-          (item) =>
-            item.id === row.refId &&
-            item.dealerId === dealerId &&
-            item.kind === row.type,
-        );
-
-        if (!bill || Number(row.amount) > bill.outstanding) {
-          toast.error("Bill allocation exceeds available outstanding");
-          return;
-        }
-      }
-    }
-
-    if (tab === "CREDIT_NOTE") {
-      if (!selectedCreditNoteBill) {
-        toast.error("Please select a bill");
-        return;
-      }
-
-      if (creditNoteAmount <= 0) {
-        toast.error("Enter a valid Credit Note amount");
-        return;
-      }
-
-      if (creditNoteAmount > selectedCreditNoteBill.outstanding) {
-        toast.error(
-          `Credit Note cannot exceed ${format(
-            selectedCreditNoteBill.outstanding,
-          )}`,
-        );
-        return;
-      }
+    if (!receiptRows.length) {
+      toast.error("Add at least one dealer");
+      return;
     }
 
     if (
-      tab === "SECURITY_DEPOSIT" &&
-      securityAction === "REFUND" &&
-      total > dealer.security
+      receiptRows.some((row) => !row.dealer || !(Number(row.amount) > 0))
     ) {
-      toast.error("Refund exceeds available security deposit");
+      toast.error("Select a dealer and enter a positive amount in every row");
       return;
     }
 
-    setHistory((prev) => [
-      {
-        id: Date.now(),
-        tab,
-        dealer: dealer.name,
-        amount: total,
+    await createReceipts({
+      date,
+      paymentMode,
+      receipts: receiptRows.map((row) => ({
+        dealerId: row.dealer!.dealerId,
+        amount: Number(row.amount),
+        reference: row.reference.trim(),
+        remark: remarks.trim(),
+      })),
+    });
+
+    addHistory(
+      receiptRows.map((row) => ({
+        tab: "RECEIPT" as Tab,
+        dealer: row.dealer!.dealerName,
+        amount: Number(row.amount),
         date,
-        detail:
-          tab === "RECEIPT"
-            ? `${transactionType} · ${rows.length} allocations`
-            : tab === "CREDIT_NOTE"
-              ? creditReason
-              : securityAction,
+        detail: paymentMode.replaceAll("_", " "),
+      })),
+    );
+
+    toast.success(`${receiptRows.length} receipt(s) recorded`);
+    reset();
+  };
+
+  const saveAdjustment = async () => {
+    if (!dealer || !selectedReceipt) {
+      toast.error("Select a dealer and a receipt to adjust");
+      return;
+    }
+
+    if (allocated <= 0 || allocated > receiptAvailable + 0.001) {
+      toast.error(
+        `Allocate an amount up to the receipt balance (${format(receiptAvailable)})`,
+      );
+      return;
+    }
+
+    if (
+      rows.some(
+        (row) =>
+          !row.type || !row.refId || !(Number(row.amount) > 0),
+      )
+    ) {
+      toast.error("Complete every row with a bill and a positive amount");
+      return;
+    }
+
+    const refs = rows.map((row) => row.refId);
+
+    if (new Set(refs).size !== refs.length) {
+      toast.error("The same bill cannot be selected twice");
+      return;
+    }
+
+    await createAdjustment({
+      receiptId: selectedReceipt._id,
+      date,
+      remark: remarks.trim(),
+      allocations: rows.map((row) => ({
+        ledgerId: row.refId,
+        amount: Number(row.amount),
+      })),
+    });
+
+    addHistory([
+      {
+        tab: "ADJUSTMENTS",
+        dealer: dealer.dealerName,
+        amount: allocated,
+        date,
+        detail: `${selectedReceipt.entryNumber} · ${rows.length} bills`,
       },
-      ...prev,
     ]);
 
-    toast.success("Simulation saved locally — no API called");
+    toast.success("Adjustment saved");
+    reset();
+    await loadContext(dealer.dealerId);
   };
+
+  const saveCreditNote = async () => {
+    if (!dealer || !selectedCreditNoteBill) {
+      toast.error("Please select a bill");
+      return;
+    }
+
+    if (creditNoteAmount <= 0) {
+      toast.error("Enter a valid Credit Note amount");
+      return;
+    }
+
+    if (creditNoteAmount > selectedCreditNoteBill.remainingAmount + 0.001) {
+      toast.error(
+        `Credit Note cannot exceed ${format(selectedCreditNoteBill.remainingAmount)}`,
+      );
+      return;
+    }
+
+    await createCreditNote({
+      dealerId: dealer.dealerId,
+      ledgerId: selectedCreditNoteBill._id,
+      amount: creditNoteAmount,
+      date,
+      reason: creditReason,
+      remark: remarks.trim(),
+    });
+
+    addHistory([
+      {
+        tab: "CREDIT_NOTE",
+        dealer: dealer.dealerName,
+        amount: creditNoteAmount,
+        date,
+        detail: `${selectedCreditNoteBill.complaintNumber} · ${creditReason}`,
+      },
+    ]);
+
+    toast.success("Credit note saved");
+    reset();
+    await loadContext(dealer.dealerId);
+  };
+
+  const saveSecurityDeposit = async () => {
+    if (!dealer) {
+      toast.error("Select a dealer");
+      return;
+    }
+
+    if (securityAction === "REFUND") {
+      if (!REFUND_MODES.includes(paymentMode as RefundPaymentMode)) {
+        toast.error("Select Cash, UPI, Bank Transfer or Cheque for a refund");
+        return;
+      }
+
+      const refund = await refundDealerSecurity(dealer.dealerId, {
+        paymentMode: paymentMode as RefundPaymentMode,
+        transactionReference: reference.trim(),
+        remark: remarks.trim(),
+      });
+
+      addHistory([
+        {
+          tab: "SECURITY_DEPOSIT",
+          dealer: dealer.dealerName,
+          amount: refund.refundAmount,
+          date,
+          detail: "REFUND",
+        },
+      ]);
+
+      toast.success("Security deposit refunded");
+    } else {
+      if (!(total > 0)) {
+        toast.error("Enter a valid amount");
+        return;
+      }
+
+      await createSecurityDeposit({
+        dealerId: dealer.dealerId,
+        amount: total,
+        date,
+        paymentMode,
+        reference: reference.trim(),
+        remark: remarks.trim(),
+      });
+
+      addHistory([
+        {
+          tab: "SECURITY_DEPOSIT",
+          dealer: dealer.dealerName,
+          amount: total,
+          date,
+          detail: "RECEIVE",
+        },
+      ]);
+
+      toast.success("Security deposit recorded");
+    }
+
+    reset();
+    await loadContext(dealer.dealerId);
+  };
+
+  const save = async () => {
+    if (saving) return;
+
+    try {
+      setSaving(true);
+
+      if (tab === "RECEIPT") await saveReceipts();
+      else if (tab === "ADJUSTMENTS") await saveAdjustment();
+      else if (tab === "CREDIT_NOTE") await saveCreditNote();
+      else await saveSecurityDeposit();
+    } catch (error) {
+      toast.error(errorMessage(error, "Failed to save"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const showDealerPicker = tab !== "RECEIPT";
 
   return (
     <div className="flex min-h-screen flex-col gap-2 pb-3 lg:h-[calc(100dvh-24px)] lg:min-h-0 lg:overflow-hidden lg:pb-0">
@@ -548,7 +609,7 @@ export default function AddDealerEntryPage() {
             </h1>
 
             <p className="text-xs text-gray-500">
-              Interactive dummy-data accounting simulation
+              Receipts, adjustments, credit notes and security deposits
             </p>
           </div>
         </div>
@@ -574,12 +635,7 @@ export default function AddDealerEntryPage() {
           <button
             key={item.key}
             type="button"
-            onClick={() => {
-              setTab(item.key);
-              reset();
-              setCreditNoteBillId("");
-              setCreditNoteRefType("BILL_REF");
-            }}
+            onClick={() => switchTab(item.key)}
             className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
               tab === item.key
                 ? "bg-[#123B7A] text-white"
@@ -594,34 +650,28 @@ export default function AddDealerEntryPage() {
       {/* TRANSACTION DETAILS */}
       <div className="shrink-0 rounded-lg border border-gray-200 bg-white p-3">
         <h2 className="mb-2 text-sm font-semibold text-gray-900">
-          {tab === "RECEIPT"
-            ? "Receipt Details"
-            : tab === "CREDIT_NOTE"
-              ? "Credit Note Details"
-              : "Security Deposit Details"}
+          {tabTitle[tab]}
         </h2>
 
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
           {/* DEALER */}
-          <div>
-            <label className={label}>Select Dealer *</label>
+          {showDealerPicker && (
+            <div>
+              <label className={label}>Select Dealer *</label>
 
-            <select
-              className={input}
-              value={dealerId}
-              onChange={(e) => {
-                setDealerId(e.target.value);
-                setRows([makeRow()]);
-                setCreditNoteBillId("");
-              }}
-            >
-              {dealers.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} — {item.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              <DealerPicker
+                value={dealer}
+                onChange={(next) => {
+                  setDealer(next);
+                  setReceiptId("");
+                  setCreditNoteBillId("");
+                  setRows([makeRow()]);
+                  setAmount("");
+                }}
+                className={input}
+              />
+            </div>
+          )}
 
           {/* DATE */}
           <div>
@@ -635,23 +685,62 @@ export default function AddDealerEntryPage() {
             />
           </div>
 
-          {/* TRANSACTION TYPE */}
-          {tab === "RECEIPT" && (
+          {/* PAYMENT MODE */}
+          {(tab === "RECEIPT" || tab === "SECURITY_DEPOSIT") && (
             <div>
               <label className={label}>Transaction Type *</label>
 
               <select
                 className={input}
-                value={transactionType}
+                value={paymentMode}
                 onChange={(e) =>
-                  setTransactionType(e.target.value as TransactionType)
+                  setPaymentMode(e.target.value as AccountPaymentMode)
                 }
               >
-                {(
-                  ["CASH", "BANK", "UPI", "NET_BANKING", "CHEQUE"] as const
-                ).map((type) => (
-                  <option key={type} value={type}>
-                    {type.replaceAll("_", " ")}
+                {PAYMENT_MODES.filter(
+                  (mode) =>
+                    !(
+                      tab === "SECURITY_DEPOSIT" &&
+                      securityAction === "REFUND" &&
+                      !REFUND_MODES.includes(mode.value as RefundPaymentMode)
+                    ),
+                ).map((mode) => (
+                  <option key={mode.value} value={mode.value}>
+                    {mode.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* RECEIPT TO ADJUST */}
+          {tab === "ADJUSTMENTS" && (
+            <div className="md:col-span-2">
+              <label className={label}>Select Receipt / Payment *</label>
+
+              <select
+                className={input}
+                disabled={!dealer || contextLoading}
+                value={receiptId}
+                onChange={(e) => {
+                  setReceiptId(e.target.value);
+                  setRows([makeRow()]);
+                  setAmount("");
+                }}
+              >
+                <option value="">
+                  {!dealer
+                    ? "Select a dealer first"
+                    : receipts.length
+                      ? "Select dealer receipt"
+                      : "No unadjusted receipts for this dealer"}
+                </option>
+
+                {receipts.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.entryNumber} · {item.paymentMode.replaceAll("_", " ")}{" "}
+                    · {item.date.slice(0, 10)} — Available{" "}
+                    {format(item.availableAmount)}
                   </option>
                 ))}
               </select>
@@ -659,100 +748,6 @@ export default function AddDealerEntryPage() {
           )}
 
           {/* CREDIT REASON */}
-          {/* {tab === "CREDIT_NOTE" && (
-            <section className="flex min-h-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white p-3">
-              <h2 className="mb-3 text-sm font-semibold text-gray-900">
-                Credit Note Settlement
-              </h2>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <div>
-                  <label className={label}>Reference Type *</label>
-
-                  <select
-                    className={input}
-                    value={creditNoteRefType}
-                    onChange={(e) => {
-                      setCreditNoteRefType(e.target.value as CreditNoteRefType);
-                      setCreditNoteBillId("");
-                    }}
-                  >
-                    <option value="BILL_REF">Bill Ref</option>
-                    <option value="DUMMY_BILL_REF">Dummy Bill Ref</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className={label}>Select Bill *</label>
-
-                  <select
-                    className={input}
-                    value={creditNoteBillId}
-                    onChange={(e) => setCreditNoteBillId(e.target.value)}
-                  >
-                    <option value="">Select Outstanding Bill</option>
-
-                    {creditNoteBills.map((bill) => (
-                      <option key={bill.id} value={bill.id}>
-                        {bill.label} — {format(bill.outstanding)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className={label}>Credit Note Amount (₹) *</label>
-
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    max={selectedCreditNoteBill?.outstanding ?? 0}
-                    className={input}
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Enter credit amount"
-                  />
-                </div>
-              </div>
-
-              {selectedCreditNoteBill && (
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-md bg-gray-50 p-3">
-                    <p className="text-xs text-gray-500">Bill Outstanding</p>
-                    <p className="mt-1 text-base font-semibold">
-                      {format(selectedCreditNoteBill.outstanding)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-md bg-blue-50 p-3">
-                    <p className="text-xs text-blue-700">
-                      Credit Note Settlement
-                    </p>
-                    <p className="mt-1 text-base font-semibold text-blue-900">
-                      {format(creditNoteAmount)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-md bg-green-50 p-3">
-                    <p className="text-xs text-green-700">
-                      Remaining Bill Payable
-                    </p>
-                    <p
-                      className={`mt-1 text-base font-semibold ${
-                        creditNoteRemaining < 0
-                          ? "text-red-700"
-                          : "text-green-800"
-                      }`}
-                    >
-                      {format(creditNoteRemaining)}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </section>
-          )} */}
-
           {tab === "CREDIT_NOTE" && (
             <div>
               <label className={label}>Credit Reason</label>
@@ -769,6 +764,7 @@ export default function AddDealerEntryPage() {
               </select>
             </div>
           )}
+
           {/* SECURITY ACTION */}
           {tab === "SECURITY_DEPOSIT" && (
             <div>
@@ -777,79 +773,228 @@ export default function AddDealerEntryPage() {
               <select
                 className={input}
                 value={securityAction}
-                onChange={(e) =>
-                  setSecurityAction(e.target.value as "RECEIVE" | "REFUND")
-                }
+                onChange={(e) => {
+                  const next = e.target.value as "RECEIVE" | "REFUND";
+
+                  setSecurityAction(next);
+
+                  if (
+                    next === "REFUND" &&
+                    !REFUND_MODES.includes(paymentMode as RefundPaymentMode)
+                  ) {
+                    setPaymentMode("BANK_TRANSFER");
+                  }
+                }}
               >
                 <option value="RECEIVE">Receive Deposit</option>
-                <option value="REFUND">Refund Deposit (Simulation)</option>
+                <option value="REFUND">Refund Deposit</option>
               </select>
             </div>
           )}
 
-{/* AMOUNT - HIDE IN CREDIT NOTE TAB */}
-{tab !== "CREDIT_NOTE" && (
-  <div>
-    <label className={label}>
-      Amount (₹) *
-    </label>
+          {/* AMOUNT */}
+          {(tab === "ADJUSTMENTS" ||
+            (tab === "SECURITY_DEPOSIT" && securityAction === "RECEIVE")) && (
+            <div>
+              <label className={label}>
+                {tab === "ADJUSTMENTS" ? "Adjusting (₹)" : "Amount (₹) *"}
+              </label>
 
-    <input
-      className={input}
-      type="number"
-      min="0.01"
-      step="0.01"
-      value={amount}
-      onChange={(e) => setAmount(e.target.value)}
-    />
-  </div>
-)}
+              <input
+                className={input}
+                type="number"
+                min="0.01"
+                step="0.01"
+                readOnly={tab === "ADJUSTMENTS"}
+                placeholder={tab === "ADJUSTMENTS" ? "Sum of bill rows" : ""}
+                value={tab === "ADJUSTMENTS" ? (allocated ? String(allocated) : "") : amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </div>
+          )}
 
           {/* REFERENCE */}
-          <div className="md:col-span-2">
-            <label className={label}>Reference / UTR / Cheque No.</label>
+          {tab === "SECURITY_DEPOSIT" && (
+            <div className="md:col-span-2">
+              <label className={label}>Reference / UTR / Cheque No.</label>
 
-            <input
-              className={input}
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              placeholder="Optional reference number"
-            />
-          </div>
+              <input
+                className={input}
+                value={reference}
+                onChange={(e) => setReference(e.target.value)}
+                placeholder="Optional reference number"
+              />
+            </div>
+          )}
         </div>
 
         {/* DEALER SUMMARY */}
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-700">
-          <span className="font-medium">{dealer.name}</span>
+        {tab !== "RECEIPT" && dealer && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-700">
+            <span className="font-medium">{dealer.dealerName}</span>
 
-          <span>
-            Outstanding: <strong>{format(dealer.outstanding)}</strong>
-          </span>
+            {contextLoading || !context ? (
+              <span className="text-gray-400">Loading account...</span>
+            ) : (
+              <>
+                <span>
+                  Outstanding: <strong>{format(context.dealer.outstanding)}</strong>
+                </span>
 
-          <span>
-            Security: <strong>{format(dealer.security)}</strong>
-          </span>
-        </div>
+                {context.dealer.creditBalance > 0 && (
+                  <span>
+                    Credit: <strong>{format(context.dealer.creditBalance)}</strong>
+                  </span>
+                )}
+
+                <span>
+                  Security: <strong>{format(context.dealer.securityAmount)}</strong>
+                </span>
+
+                {tab === "ADJUSTMENTS" && selectedReceipt && (
+                  <span>
+                    Receipt Balance: <strong>{format(receiptAvailable)}</strong>
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* RECEIPT ALLOCATIONS */}
+      {/* RECEIPT — MULTI DEALER */}
       {tab === "RECEIPT" && (
         <section className="flex min-h-[250px] flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white lg:min-h-0">
-          {/* FIXED SECTION HEADER */}
           <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2">
-            <h2 className="text-sm font-semibold text-red-700">
-              Debit (Dr) · Allocations
+            <h2 className="text-sm font-semibold text-green-700">
+              Dealer Receipts
             </h2>
 
-            <strong className="text-sm text-red-700">
-              {format(allocated)}
+            <strong className="text-sm text-green-700">
+              {format(receiptBatchTotal)}
             </strong>
           </div>
 
-          {/* SCROLLABLE TABLE */}
+          <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-w-[780px]">
+              <div
+                className={`${receiptColumns} sticky top-0 z-10 border-b border-gray-200 bg-gray-50 px-2 py-2 text-[11px] font-semibold uppercase text-gray-500`}
+              >
+                <span>#</span>
+                <span>Dealer</span>
+                <span>Outstanding</span>
+                <span>Amount (₹)</span>
+                <span>Reference / UTR</span>
+                <span>Action</span>
+              </div>
+
+              <div className="divide-y divide-gray-100">
+                {receiptRows.map((row, index) => (
+                  <div
+                    key={row.id}
+                    className={`${receiptColumns} px-2 py-1.5 transition-colors hover:bg-gray-50`}
+                  >
+                    <span className="text-xs text-gray-500">{index + 1}</span>
+
+                    <DealerPicker
+                      value={row.dealer}
+                      onChange={(next) => setReceiptRow(row.id, { dealer: next })}
+                      excludeIds={selectedReceiptDealerIds}
+                      className={input}
+                    />
+
+                    <span className="text-xs font-semibold text-gray-700">
+                      {row.dealer ? format(row.dealer.outstanding) : "—"}
+                    </span>
+
+                    <input
+                      className={input}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={row.amount}
+                      onChange={(e) =>
+                        handleReceiptAmountChange(row.id, e.target.value)
+                      }
+                    />
+
+                    <input
+                      className={input}
+                      value={row.reference}
+                      onChange={(e) =>
+                        setReceiptRow(row.id, { reference: e.target.value })
+                      }
+                      placeholder="Optional"
+                    />
+
+                    <button
+                      type="button"
+                      title="Remove dealer"
+                      onClick={() =>
+                        setReceiptRows((prev) =>
+                          prev.filter((item) => item.id !== row.id),
+                        )
+                      }
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-red-500 hover:bg-red-50"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {receiptRows.length === 0 && (
+                <div className="px-3 py-8 text-center text-xs text-gray-400">
+                  No dealers added.
+                </div>
+              )}
+
+              {/* room for the dealer dropdown on the last row */}
+              <div className="h-56" />
+            </div>
+          </div>
+
+          <div className="shrink-0 border-t border-gray-200 bg-white px-3 py-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setReceiptRows((prev) => [...prev, makeReceiptRow()])
+                }
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-blue-200 px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50"
+              >
+                <Plus size={14} />
+                Add Dealer
+              </button>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-700">
+                <span>
+                  Dealers: <strong>{receiptRows.length}</strong>
+                </span>
+
+                <span>
+                  Total Received: <strong>{format(receiptBatchTotal)}</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ADJUSTMENT ALLOCATIONS */}
+      {tab === "ADJUSTMENTS" && (
+        <section className="flex min-h-[250px] flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white lg:min-h-0">
+          <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2">
+            <h2 className="text-sm font-semibold text-red-700">
+              Bill Adjustments
+            </h2>
+
+            <strong className="text-sm text-red-700">{format(allocated)}</strong>
+          </div>
+
           <div className="min-h-0 flex-1 overflow-auto">
             <div className="min-w-[760px]">
-              {/* STICKY TABLE HEADER */}
               <div
                 className={`${allocationColumns} sticky top-0 z-10 border-b border-gray-200 bg-gray-50 px-2 py-2 text-[11px] font-semibold uppercase text-gray-500`}
               >
@@ -861,105 +1006,65 @@ export default function AddDealerEntryPage() {
                 <span>Action</span>
               </div>
 
-              {/* ALLOCATION ROWS */}
               <div className="divide-y divide-gray-100">
                 {rows.map((row, index) => {
-                  const bill = bills.find(
-                    (item) =>
-                      item.id === row.refId &&
-                      item.dealerId === dealerId &&
-                      item.kind === row.type,
-                  );
-
-                  const options = bills.filter(
-                    (item) =>
-                      item.dealerId === dealerId && item.kind === row.type,
-                  );
-
+                  const bill = findBill(row);
+                  const options = bills.filter((item) => item.kind === row.type);
                   const maxPayable = getMaxPayable(row, rows);
-
-                  const isBillType =
-                    row.type === "BILL_REF" || row.type === "DUMMY_BILL_REF";
-
-                  const onAccountExists = rows.some(
-                    (item) => item.id !== row.id && item.type === "ON_ACCOUNT",
-                  );
-
-                  const advanceExists = rows.some(
-                    (item) => item.id !== row.id && item.type === "ADVANCE",
-                  );
 
                   return (
                     <div
                       key={row.id}
                       className={`${allocationColumns} px-2 py-1.5 transition-colors hover:bg-gray-50`}
                     >
-                      {/* ROW NUMBER */}
                       <span className="text-xs text-gray-500">{index + 1}</span>
 
-                      {/* ALLOCATION TYPE */}
                       <select
                         className={input}
+                        disabled={!selectedReceipt}
                         value={row.type}
                         onChange={(e) =>
-                          changeAllocationType(
-                            row.id,
-                            e.target.value as AllocationType,
-                          )
+                          setRow(row.id, {
+                            type: e.target.value as AllocationType,
+                            refId: "",
+                            amount: "",
+                          })
                         }
                       >
                         <option value="" disabled>
                           Select Type
                         </option>
-
-                        <option value="ON_ACCOUNT" disabled={onAccountExists}>
-                          On Account
-                        </option>
-
-                        <option value="ADVANCE" disabled={advanceExists}>
-                          Advance
-                        </option>
-
                         <option value="DUMMY_BILL_REF">Dummy Bill Ref</option>
-
                         <option value="BILL_REF">Bill Ref</option>
                       </select>
 
-                      {/* BILL REFERENCE */}
-                      {isBillType ? (
-                        <select
-                          className={input}
-                          value={row.refId}
-                          onChange={(e) =>
-                            handleBillChange(row.id, e.target.value)
-                          }
-                        >
-                          <option value="">Select Outstanding Bill</option>
+                      <select
+                        className={input}
+                        disabled={!row.type}
+                        value={row.refId}
+                        onChange={(e) =>
+                          setRow(row.id, { refId: e.target.value, amount: "" })
+                        }
+                      >
+                        <option value="">Select Outstanding Bill</option>
 
-                          {options.map((item) => {
-                            const selectedElsewhere = rows.some(
+                        {options.map((item) => (
+                          <option
+                            key={item._id}
+                            value={item._id}
+                            disabled={rows.some(
                               (other) =>
-                                other.id !== row.id && other.refId === item.id,
-                            );
+                                other.id !== row.id && other.refId === item._id,
+                            )}
+                          >
+                            {item.complaintNumber}
+                            {item.customerName ? ` · ${item.customerName}` : ""}
+                            {item.productName ? ` · ${item.productName}` : ""} —{" "}
+                            {format(item.remainingAmount)}
+                          </option>
+                        ))}
+                      </select>
 
-                            return (
-                              <option
-                                key={item.id}
-                                value={item.id}
-                                disabled={selectedElsewhere}
-                              >
-                                {item.label} — {format(item.outstanding)}
-                              </option>
-                            );
-                          })}
-                        </select>
-                      ) : (
-                        <span className="px-2 text-xs text-gray-400">
-                          Not Applicable
-                        </span>
-                      )}
-
-                      {/* AMOUNT */}
                       <input
                         className={input}
                         type="number"
@@ -973,7 +1078,6 @@ export default function AddDealerEntryPage() {
                         }
                       />
 
-                      {/* MAX PAYABLE */}
                       <div className="min-w-0">
                         <span className="text-xs font-semibold text-gray-700">
                           {format(maxPayable)}
@@ -981,16 +1085,19 @@ export default function AddDealerEntryPage() {
 
                         {bill && (
                           <p className="text-[10px] text-gray-400">
-                            Due: {format(bill.outstanding)}
+                            Due: {format(bill.remainingAmount)}
                           </p>
                         )}
                       </div>
 
-                      {/* DELETE */}
                       <button
                         type="button"
                         title="Remove allocation"
-                        onClick={() => handleRemoveRow(row.id)}
+                        onClick={() =>
+                          setRows((prev) =>
+                            prev.filter((item) => item.id !== row.id),
+                          )
+                        }
                         className="flex h-7 w-7 items-center justify-center rounded-md text-red-500 hover:bg-red-50"
                       >
                         <Trash2 size={14} />
@@ -1008,13 +1115,12 @@ export default function AddDealerEntryPage() {
             </div>
           </div>
 
-          {/* FIXED ALLOCATION FOOTER */}
           <div className="shrink-0 border-t border-gray-200 bg-white px-3 py-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={handleAddDebitRow}
-                disabled={remaining <= 0 || total <= 0}
+                disabled={remaining <= 0 || !selectedReceipt}
                 className="inline-flex h-8 items-center gap-1.5 rounded-md border border-blue-200 px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 <Plus size={14} />
@@ -1023,15 +1129,15 @@ export default function AddDealerEntryPage() {
 
               <div className="flex flex-wrap items-center gap-4 text-xs text-gray-700">
                 <span>
-                  Receipt: <strong>{format(total)}</strong>
+                  Receipt Balance: <strong>{format(receiptAvailable)}</strong>
                 </span>
 
                 <span>
-                  Allocated: <strong>{format(allocated)}</strong>
+                  Adjusting: <strong>{format(allocated)}</strong>
                 </span>
 
                 <span>
-                  Remaining:{" "}
+                  Balance Left:{" "}
                   <strong
                     className={
                       remaining === 0
@@ -1050,122 +1156,124 @@ export default function AddDealerEntryPage() {
         </section>
       )}
 
-      {/* CREDIT NOTE / SECURITY DEPOSIT PREVIEW */}
-   {tab === "CREDIT_NOTE" && (
-            <section className="flex min-h-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white p-3">
-              <h2 className="mb-3 text-sm font-semibold text-gray-900">
-                Credit Note Settlement
-              </h2>
+      {/* CREDIT NOTE */}
+      {tab === "CREDIT_NOTE" && (
+        <section className="flex min-h-0 flex-1 flex-col rounded-lg border border-gray-200 bg-white p-3">
+          <h2 className="mb-3 text-sm font-semibold text-gray-900">
+            Credit Note Settlement
+          </h2>
 
-              <div className="grid gap-3 md:grid-cols-3">
-                <div>
-                  <label className={label}>Reference Type *</label>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div>
+              <label className={label}>Reference Type *</label>
 
-                  <select
-                    className={input}
-                    value={creditNoteRefType}
-                    onChange={(e) => {
-                      setCreditNoteRefType(e.target.value as CreditNoteRefType);
-                      setCreditNoteBillId("");
-                    }}
-                  >
-                    <option value="BILL_REF">Bill Ref</option>
-                    <option value="DUMMY_BILL_REF">Dummy Bill Ref</option>
-                  </select>
-                </div>
+              <select
+                className={input}
+                value={creditNoteRefType}
+                onChange={(e) => {
+                  setCreditNoteRefType(e.target.value as BillRefKind);
+                  setCreditNoteBillId("");
+                }}
+              >
+                <option value="BILL_REF">Bill Ref</option>
+                <option value="DUMMY_BILL_REF">Dummy Bill Ref</option>
+              </select>
+            </div>
 
-                <div>
-                  <label className={label}>Select Bill *</label>
+            <div>
+              <label className={label}>Select Bill *</label>
 
-                  <select
-                    className={input}
-                    value={creditNoteBillId}
-                    onChange={(e) => setCreditNoteBillId(e.target.value)}
-                  >
-                    <option value="">Select Outstanding Bill</option>
+              <select
+                className={input}
+                disabled={!dealer || contextLoading}
+                value={creditNoteBillId}
+                onChange={(e) => setCreditNoteBillId(e.target.value)}
+              >
+                <option value="">
+                  {dealer ? "Select Outstanding Bill" : "Select a dealer first"}
+                </option>
 
-                    {creditNoteBills.map((bill) => (
-                      <option key={bill.id} value={bill.id}>
-                        {bill.label} — {format(bill.outstanding)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {creditNoteBills.map((bill) => (
+                  <option key={bill._id} value={bill._id}>
+                    {bill.complaintNumber}
+                    {bill.customerName ? ` · ${bill.customerName}` : ""} —{" "}
+                    {format(bill.remainingAmount)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                <div>
-                  <label className={label}>Credit Note Amount (₹) *</label>
+            <div>
+              <label className={label}>Credit Note Amount (₹) *</label>
 
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    max={selectedCreditNoteBill?.outstanding ?? 0}
-                    className={input}
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Enter credit amount"
-                  />
-                </div>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                max={selectedCreditNoteBill?.remainingAmount ?? 0}
+                className={input}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter credit amount"
+              />
+            </div>
+          </div>
+
+          {selectedCreditNoteBill && (
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-md bg-gray-50 p-3">
+                <p className="text-xs text-gray-500">Bill Outstanding</p>
+                <p className="mt-1 text-base font-semibold">
+                  {format(selectedCreditNoteBill.remainingAmount)}
+                </p>
               </div>
 
-              {selectedCreditNoteBill && (
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-md bg-gray-50 p-3">
-                    <p className="text-xs text-gray-500">Bill Outstanding</p>
-                    <p className="mt-1 text-base font-semibold">
-                      {format(selectedCreditNoteBill.outstanding)}
-                    </p>
-                  </div>
+              <div className="rounded-md bg-blue-50 p-3">
+                <p className="text-xs text-blue-700">Credit Note Settlement</p>
+                <p className="mt-1 text-base font-semibold text-blue-900">
+                  {format(creditNoteAmount)}
+                </p>
+              </div>
 
-                  <div className="rounded-md bg-blue-50 p-3">
-                    <p className="text-xs text-blue-700">
-                      Credit Note Settlement
-                    </p>
-                    <p className="mt-1 text-base font-semibold text-blue-900">
-                      {format(creditNoteAmount)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-md bg-green-50 p-3">
-                    <p className="text-xs text-green-700">
-                      Remaining Bill Payable
-                    </p>
-                    <p
-                      className={`mt-1 text-base font-semibold ${
-                        creditNoteRemaining < 0
-                          ? "text-red-700"
-                          : "text-green-800"
-                      }`}
-                    >
-                      {format(creditNoteRemaining)}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </section>
+              <div className="rounded-md bg-green-50 p-3">
+                <p className="text-xs text-green-700">Remaining Bill Payable</p>
+                <p
+                  className={`mt-1 text-base font-semibold ${
+                    creditNoteRemaining < 0 ? "text-red-700" : "text-green-800"
+                  }`}
+                >
+                  {format(creditNoteRemaining)}
+                </p>
+              </div>
+            </div>
           )}
+        </section>
+      )}
 
-      {/* {tab !== "RECEIPT" && (
-        <section className="flex min-h-[150px] flex-1 flex-col rounded-lg border border-gray-200 bg-white p-3">
+      {/* SECURITY DEPOSIT */}
+      {tab === "SECURITY_DEPOSIT" && (
+        <section className="flex min-h-[120px] flex-1 flex-col rounded-lg border border-gray-200 bg-white p-3">
           <h2 className="text-sm font-semibold text-gray-900">
-            {tab === "CREDIT_NOTE"
-              ? "Credit Note Preview"
-              : "Security Deposit Preview"}
+            {securityAction === "RECEIVE"
+              ? "Receive Security Deposit"
+              : "Refund Security Deposit"}
           </h2>
 
           <p className="mt-2 text-xs text-gray-600">
-            {tab === "CREDIT_NOTE"
-              ? "Simulated dealer credit adjustment. No invoice or outstanding will be modified."
-              : securityAction === "RECEIVE"
-                ? "Simulated security deposit receipt. Security balance will not change until backend integration."
-                : "Simulated security refund. Real refund eligibility and approval rules are not applied here."}
+            {securityAction === "RECEIVE"
+              ? "The amount is added to the dealer's security balance."
+              : "The full security balance is refunded if the dealer is eligible (leaving date and refund rules are checked by the server)."}
           </p>
 
           <p className="mt-3 text-xl font-bold text-gray-900">
-            {format(total)}
+            {securityAction === "RECEIVE"
+              ? format(total)
+              : context
+                ? format(context.dealer.securityAmount)
+                : format(0)}
           </p>
         </section>
-      )} */}
+      )}
 
       {/* FIXED BOTTOM ACTION BAR */}
       <div className="shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-2">
@@ -1182,6 +1290,7 @@ export default function AddDealerEntryPage() {
           <button
             type="button"
             onClick={reset}
+            disabled={saving}
             className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-200 px-3 text-xs font-medium text-gray-700 hover:bg-gray-50"
           >
             <RotateCcw size={14} />
@@ -1191,10 +1300,21 @@ export default function AddDealerEntryPage() {
           <button
             type="button"
             onClick={save}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#123B7A] px-4 text-xs font-semibold text-white hover:bg-blue-900"
+            disabled={saving}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#123B7A] px-4 text-xs font-semibold text-white hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save size={14} />
-            Save Simulation
+            {saving
+              ? "Saving..."
+              : tab === "RECEIPT"
+                ? "Save Receipts"
+                : tab === "ADJUSTMENTS"
+                  ? "Save Adjustment"
+                  : tab === "CREDIT_NOTE"
+                    ? "Save Credit Note"
+                    : securityAction === "REFUND"
+                      ? "Refund Deposit"
+                      : "Save Deposit"}
           </button>
         </div>
       </div>
@@ -1208,19 +1328,18 @@ export default function AddDealerEntryPage() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Session Simulation History"
+            aria-label="Saved this session"
             onClick={(e) => e.stopPropagation()}
             className="flex max-h-[80vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-white shadow-xl"
           >
-            {/* MODAL HEADER */}
             <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
               <div>
                 <h2 className="text-sm font-semibold text-gray-900">
-                  Session Simulation History
+                  Saved This Session
                 </h2>
 
                 <p className="text-xs text-gray-500">
-                  {history.length} saved simulations
+                  {history.length} entries saved
                 </p>
               </div>
 
@@ -1233,11 +1352,10 @@ export default function AddDealerEntryPage() {
               </button>
             </div>
 
-            {/* MODAL TABLE */}
             <div className="overflow-auto p-3">
               {history.length === 0 ? (
                 <div className="py-10 text-center text-xs text-gray-500">
-                  No simulation history available.
+                  Nothing saved in this session yet.
                 </div>
               ) : (
                 <table className="w-full min-w-[650px] text-left text-xs">
@@ -1257,15 +1375,11 @@ export default function AddDealerEntryPage() {
                     {history.map((entry) => (
                       <tr key={entry.id} className="hover:bg-gray-50">
                         <td className="px-3 py-2">{entry.date}</td>
-
                         <td className="px-3 py-2">{entry.dealer}</td>
-
                         <td className="px-3 py-2">
                           {entry.tab.replaceAll("_", " ")}
                         </td>
-
                         <td className="px-3 py-2">{entry.detail}</td>
-
                         <td className="px-3 py-2 font-semibold">
                           {format(entry.amount)}
                         </td>
