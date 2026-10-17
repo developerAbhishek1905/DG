@@ -22,7 +22,7 @@ const menu = [
       Clock3,
   },
 
-  {
+{
     label:
       "Notifications",
     path:
