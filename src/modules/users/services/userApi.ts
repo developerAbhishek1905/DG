@@ -97,3 +97,11 @@ export async function changeUserStatus(
     response.data
   );
 }
+
+
+export async function setUserPassword(
+  id: string,
+  password: string
+): Promise<void> {
+  await api.put(`/users/${id}`, { password });
+}

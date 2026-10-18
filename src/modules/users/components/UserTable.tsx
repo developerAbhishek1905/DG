@@ -1,4 +1,6 @@
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Edit, Eye, EyeOff, KeyRound, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { useNavigate } from "react-router-dom";
 
@@ -7,16 +9,51 @@ import type { AppUser } from "../types/user.types";
 import UserRoleBadge from "./UserRoleBadge";
 import UserStatusBadge from "./UserStatusBadge";
 import { usePermission } from "../../../hooks/usePermission";
+import { setUserPassword } from "../services/userApi";
 
 interface Props {
   users: AppUser[];
 
-  onDelete?: (id: string) => void;
+  onDelete?: (id: string) => void | Promise<unknown>;
 }
 
 export default function UserTable({ users, onDelete }: Props) {
   const navigate = useNavigate();
   const { hasPermission } = usePermission();
+
+  const [pwUser, setPwUser] = useState<AppUser | null>(null);
+  const [newPw, setNewPw] = useState("");
+  const [savingPw, setSavingPw] = useState(false);
+  const [shown, setShown] = useState<Record<string, boolean>>({});
+
+  const handleDelete = async (user: AppUser) => {
+    if (!onDelete || !window.confirm(`Delete ${user.name}?`)) return;
+    try {
+      await onDelete(user.id);
+      toast.success("User deleted");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to delete user");
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (!pwUser) return;
+    if (newPw.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    try {
+      setSavingPw(true);
+      await setUserPassword(pwUser.id, newPw);
+      toast.success(`Password updated for ${pwUser.name}`);
+      setPwUser(null);
+      setNewPw("");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to update password");
+    } finally {
+      setSavingPw(false);
+    }
+  };
 
   if (!users.length) {
     return (
@@ -39,6 +76,7 @@ export default function UserTable({ users, onDelete }: Props) {
                 // "Dealer",
                 "Status",
                 // "Last Login",
+                "Password",
                 "Actions",
               ].map((heading) => (
                 <th
@@ -81,6 +119,26 @@ export default function UserTable({ users, onDelete }: Props) {
                   <UserStatusBadge status={user.status} />
                 </td>
 
+                <td className="px-5 py-4 text-sm text-gray-700">
+                  {user.password ? (
+                    <span className="inline-flex items-center gap-2 font-mono">
+                      {shown[user.id] ? user.password : "••••••••"}
+                      <button
+                        onClick={() =>
+                          setShown((c) => ({ ...c, [user.id]: !c[user.id] }))
+                        }
+                        className="text-gray-400 hover:text-gray-700"
+                      >
+                        {shown[user.id] ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="text-xs text-gray-400">
+                      Not available – set password
+                    </span>
+                  )}
+                </td>
+
                 {/* <td className="px-5 py-4 text-sm text-gray-500">
                   {user.lastLogin
                     ? new Date(user.lastLogin).toLocaleString()
@@ -107,13 +165,22 @@ export default function UserTable({ users, onDelete }: Props) {
                       </button>
                     )}
 
+                    {hasPermission("users.update") && (
+                      <button
+                        title="Set password"
+                        onClick={() => {
+                          setPwUser(user);
+                          setNewPw("");
+                        }}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-amber-50 hover:text-amber-600"
+                      >
+                        <KeyRound size={17} />
+                      </button>
+                    )}
+
                     {hasPermission("users.delete") && onDelete && (
                       <button
-                        onClick={() => {
-                          if (window.confirm(`Delete ${user.name}?`)) {
-                            onDelete(user.id);
-                          }
-                        }}
+                        onClick={() => handleDelete(user)}
                         className="rounded-lg p-2 text-red-500 hover:bg-red-50"
                       >
                         <Trash2 size={17} />
@@ -126,6 +193,40 @@ export default function UserTable({ users, onDelete }: Props) {
           </tbody>
         </table>
       </div>
+
+      {pwUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Set password
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">{pwUser.name}</p>
+            <input
+              type="text"
+              autoFocus
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+              placeholder="New password (min 6 characters)"
+              className="mt-4 w-full rounded-lg border px-3 py-2 text-sm"
+            />
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => setPwUser(null)}
+                className="rounded-lg border px-4 py-2 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSetPassword}
+                disabled={savingPw}
+                className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm text-white disabled:opacity-60"
+              >
+                {savingPw ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,6 @@ import api from "../../../services/api/axios";
 
 api
 export interface ChangePasswordPayload {
-  currentPassword: string;
   newPassword: string;
 }
 

@@ -25,6 +25,8 @@ export interface AppUser {
 
   status: UserStatus;
 
+  password?: string | null;
+
   lastLogin?: string;
 
   createdAt: string;

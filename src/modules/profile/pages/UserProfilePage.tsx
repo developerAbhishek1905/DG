@@ -15,11 +15,9 @@ import { changePassword } from "../services/profileApi";
 export default function UserProfilePage() {
   const user = useAppSelector((state) => state.auth.user);
 console.log(user)
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -29,11 +27,6 @@ console.log(user)
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-
-    if (!currentPassword) {
-      toast.error("Current password is required");
-      return;
-    }
 
     if (!newPassword) {
       toast.error("New password is required");
@@ -50,16 +43,10 @@ console.log(user)
       return;
     }
 
-    if (currentPassword === newPassword) {
-      toast.error("New password must be different from current password");
-      return;
-    }
-
     try {
       setLoading(true);
 
       const response = await changePassword({
-        currentPassword,
         newPassword,
       });
 
@@ -67,7 +54,6 @@ console.log(user)
         response?.message || "Password changed successfully",
       );
 
-      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error: any) {
@@ -188,16 +174,6 @@ console.log(user)
             onSubmit={handleChangePassword}
             className="space-y-5 p-6"
           >
-            <PasswordInput
-              label="Current Password"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-              show={showCurrentPassword}
-              onToggle={() =>
-                setShowCurrentPassword((prev) => !prev)
-              }
-            />
-
             <PasswordInput
               label="New Password"
               value={newPassword}
