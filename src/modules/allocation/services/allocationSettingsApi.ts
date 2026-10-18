@@ -21,6 +21,10 @@ export interface AllocationSettings {
   useCreditLimit: boolean;
   rangeFrom: string | null;
   rangeTo: string | null;
+  monthlyRecalcEnabled: boolean;
+  monthlyRecalcDay: number;
+  lastScheduledRunAt: string | null;
+  lastScheduledRunStatus: string;
   lastAppliedAt: string | null;
   lastAppliedSummary: AllocationApplySummary | null;
 }
@@ -31,6 +35,8 @@ export interface SaveAllocationSettingsPayload {
   useCreditLimit: boolean;
   rangeFrom: string;
   rangeTo: string;
+  monthlyRecalcEnabled: boolean;
+  monthlyRecalcDay: number;
 }
 
 export const getAllocationSettings = async (): Promise<AllocationSettings> => {

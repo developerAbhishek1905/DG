@@ -38,6 +38,8 @@ export default function AllocationPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [citySearch, setCitySearch] = useState("");
+  const [monthlyEnabled, setMonthlyEnabled] = useState(false);
+  const [monthlyDay, setMonthlyDay] = useState(1);
 
   useEffect(() => {
     Promise.all([getAllocationSettings(), getAllocationCities()])
@@ -49,6 +51,8 @@ export default function AllocationPage() {
         setExcluded(settings.excludedCities);
         setFrom(dateInput(settings.rangeFrom));
         setTo(dateInput(settings.rangeTo));
+        setMonthlyEnabled(settings.monthlyRecalcEnabled);
+        setMonthlyDay(settings.monthlyRecalcDay || 1);
       })
       .catch(() => toast.error("Failed to load allocation settings"))
       .finally(() => setLoading(false));
@@ -77,6 +81,8 @@ export default function AllocationPage() {
     useCreditLimit,
     rangeFrom: from,
     rangeTo: to,
+    monthlyRecalcEnabled: monthlyEnabled,
+    monthlyRecalcDay: monthlyDay,
   });
 
   const handleSave = async () => {
@@ -325,6 +331,66 @@ export default function AllocationPage() {
                   </span>
                 </span>
               </label>
+            </div>
+
+            {/* Monthly automatic recalculation */}
+            <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={monthlyEnabled}
+                  onChange={(e) => setMonthlyEnabled(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300"
+                />
+
+                <span>
+                  <span className="block text-sm font-semibold text-gray-900">
+                    Recalculate automatically every month
+                  </span>
+                  <span className="mt-1 block text-xs text-gray-500">
+                    On the chosen date each month, dealer performance is
+                    recalculated for the previous one month.
+                  </span>
+                </span>
+              </label>
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <label className="text-sm text-gray-700">Run on day</label>
+
+                <select
+                  value={monthlyDay}
+                  disabled={!monthlyEnabled}
+                  onChange={(e) => setMonthlyDay(Number(e.target.value))}
+                  className={`${inputClass} w-24 disabled:bg-gray-100`}
+                >
+                  {Array.from({ length: 28 }, (_, index) => index + 1).map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+
+                <span className="text-xs text-gray-500">of every month</span>
+              </div>
+
+              {monthlyEnabled && (
+                <p className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">
+                  Example: on day {monthlyDay}, the run covers the{" "}
+                  {monthlyDay}th of the previous month up to{" "}
+                  {monthlyDay === 1
+                    ? "the last day of that month"
+                    : `the ${monthlyDay - 1}th of the current month`}
+                  .
+                </p>
+              )}
+
+              {saved?.lastScheduledRunAt && (
+                <p className="mt-3 text-xs text-gray-500">
+                  Last automatic run{" "}
+                  {new Date(saved.lastScheduledRunAt).toLocaleString("en-IN")}
+                  {saved.lastScheduledRunStatus ? ` · ${saved.lastScheduledRunStatus}` : ""}
+                </p>
+              )}
             </div>
 
             {/* Actions */}
