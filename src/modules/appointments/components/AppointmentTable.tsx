@@ -153,6 +153,7 @@ import { useNavigate } from "react-router-dom";
 import type { Appointment } from "../types/appointment.types";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
 import { useAppSelector } from "../../../app/hooks";
+import { complaintTypeLabel } from "../utils/complaintTypeLabel";
 
 interface Props {
   appointments: Appointment[];
@@ -427,7 +428,7 @@ export default function AppointmentTable({
                     <p className="text-xs text-gray-400">Complaint Type</p>
 
                     <p className="mt-1 text-sm font-semibold text-gray-800">
-                      {appointment.complaintType || "-"}
+                      {complaintTypeLabel(appointment, roleCode === "DEALER")}
                     </p>
                   </div>
 
@@ -1288,7 +1289,7 @@ export default function AppointmentTable({
                         </p>
 
                         <p className="mt-0.5 text-[11px] font-medium text-gray-600">
-                          {appointment.complaintType || "-"}
+                          {complaintTypeLabel(appointment, roleCode === "DEALER")}
                         </p>
                       </>
                     )}

@@ -301,7 +301,7 @@ import { useEffect, useState } from "react";
 interface Props {
   open: boolean;
 
-  billingType: "PARTIAL_PAYMENT" | "PROFIT_SHARING";
+  billingType: "FIXED" | "PARTIAL_PAYMENT" | "PROFIT_SHARING";
 
   complaintNumber?: string;
 
@@ -310,8 +310,9 @@ interface Props {
   onClose: () => void;
 
   onSubmit: (data: {
-    customerAmount: number;
+    customerAmount?: number;
     profitAmount?: number;
+    warrantyAssured: { value: number; unit: "DAYS" | "MONTHS" };
   }) => Promise<void> | void;
 }
 
@@ -327,6 +328,12 @@ export default function PercentageClosureModal({
 
   const [profitAmount, setProfitAmount] = useState("");
 
+  const [warrantyValue, setWarrantyValue] = useState("");
+
+  const [warrantyUnit, setWarrantyUnit] = useState<"DAYS" | "MONTHS">(
+    "MONTHS",
+  );
+
   /*
   |--------------------------------------------------------------------------
   | Reset form when modal opens
@@ -337,6 +344,8 @@ export default function PercentageClosureModal({
     if (open) {
       setCustomerAmount("");
       setProfitAmount("");
+      setWarrantyValue("");
+      setWarrantyUnit("MONTHS");
     }
   }, [open]);
 
@@ -350,7 +359,19 @@ export default function PercentageClosureModal({
   |--------------------------------------------------------------------------
   */
 
+  const warrantyAssured = {
+    value: Number(warrantyValue),
+    unit: warrantyUnit,
+  };
+
   const handleSubmit = async () => {
+    if (warrantyInvalid) return;
+
+    if (billingType === "FIXED") {
+      await onSubmit({ warrantyAssured });
+      return;
+    }
+
     const customer = Number(customerAmount);
 
     if (!Number.isFinite(customer) || customer <= 0) {
@@ -366,6 +387,7 @@ export default function PercentageClosureModal({
     if (billingType === "PARTIAL_PAYMENT") {
       await onSubmit({
         customerAmount: customer,
+        warrantyAssured,
       });
 
       return;
@@ -390,6 +412,7 @@ export default function PercentageClosureModal({
     await onSubmit({
       customerAmount: customer,
       profitAmount: profit,
+      warrantyAssured,
     });
   };
 
@@ -399,7 +422,13 @@ export default function PercentageClosureModal({
   |--------------------------------------------------------------------------
   */
 
-  const customerInvalid = !customerAmount || Number(customerAmount) <= 0;
+  const warrantyInvalid =
+    warrantyValue === "" ||
+    !Number.isFinite(Number(warrantyValue)) ||
+    Number(warrantyValue) < 0;
+
+  const customerInvalid =
+    billingType !== "FIXED" && (!customerAmount || Number(customerAmount) <= 0);
 
   const profitInvalid =
     billingType === "PROFIT_SHARING" &&
@@ -407,7 +436,7 @@ export default function PercentageClosureModal({
       Number(profitAmount) <= 0 ||
       Number(profitAmount) > Number(customerAmount));
 
-  const isInvalid = customerInvalid || profitInvalid;
+  const isInvalid = customerInvalid || profitInvalid || warrantyInvalid;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -417,9 +446,11 @@ export default function PercentageClosureModal({
         <div className="flex items-start justify-between border-b border-gray-100 p-5">
           <div>
             <h2 className="text-lg font-bold text-gray-900">
-              {billingType === "PARTIAL_PAYMENT"
-                ? "Partial Payment Billing"
-                : "Profit Sharing Billing"}
+              {billingType === "FIXED"
+                ? "Close Complaint"
+                : billingType === "PARTIAL_PAYMENT"
+                  ? "Partial Payment Billing"
+                  : "Profit Sharing Billing"}
             </h2>
 
             <p className="mt-1 text-xs text-gray-500">
@@ -442,6 +473,7 @@ export default function PercentageClosureModal({
         <div className="space-y-5 p-5">
           {/* CUSTOMER AMOUNT */}
 
+          {billingType !== "FIXED" && (
           <div>
             <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
               Customer Amount
@@ -462,6 +494,41 @@ export default function PercentageClosureModal({
                 placeholder="Enter customer amount"
                 className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
               />
+            </div>
+          </div>
+
+          )}
+
+          {/* WARRANTY ASSURED */}
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+              Warranty Assured
+            </label>
+
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={warrantyValue}
+                disabled={loading}
+                onChange={(e) => setWarrantyValue(e.target.value)}
+                placeholder="e.g. 3 (0 = no warranty)"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
+              />
+
+              <select
+                value={warrantyUnit}
+                disabled={loading}
+                onChange={(e) =>
+                  setWarrantyUnit(e.target.value as "DAYS" | "MONTHS")
+                }
+                className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A]"
+              >
+                <option value="DAYS">Days</option>
+                <option value="MONTHS">Months</option>
+              </select>
             </div>
           </div>
 
@@ -528,7 +595,7 @@ export default function PercentageClosureModal({
             onClick={handleSubmit}
             className="flex-1 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Submitting..." : "Submit for Approval"}
+            {loading ? "Submitting..." : billingType === "FIXED" ? "Close Complaint" : "Submit for Approval"}
           </button>
         </div>
       </div>

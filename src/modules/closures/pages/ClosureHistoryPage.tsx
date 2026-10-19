@@ -808,6 +808,7 @@ useEffect(() => {
                 <col className="w-[140px]" /> {/* City */}
                 <col className="w-[170px]" /> {/* Product */}
                 <col className="w-[110px]" /> {/* Quote */}
+                <col className="w-[130px]" /> {/* Warranty */}
                 <col className="w-[150px]" /> {/* Created By */}
                 <col className="w-[180px]" /> {/* Technician */}
                 <col className="w-[170px]" /> {/* Reason */}
@@ -824,6 +825,7 @@ useEffect(() => {
                     "City",
                     "Product",
                     "Quote",
+                    "Warranty",
                     "Created By",
                     "Technician",
                     "Reason",
@@ -845,7 +847,7 @@ useEffect(() => {
                 {closures.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={11}
+                      colSpan={12}
                       className="px-5 py-12 text-center text-sm text-gray-500"
                     >
                       No closed complaints found.
@@ -1250,6 +1252,25 @@ const ClosureRow = memo(function ClosureRow({
         <td className="whitespace-nowrap px-3 py-3">
           <span className="text-xs font-semibold text-gray-800">
             ₹{Number(closure.quoteAmount ?? 0).toLocaleString("en-IN")}
+          </span>
+        </td>
+
+        {/* Warranty Assured */}
+        <td className="whitespace-nowrap px-3 py-3">
+          <span className="text-xs text-gray-700">
+            {closure.warrantyAssured
+              ? closure.warrantyAssured.value === 0
+                ? "No warranty"
+                : `${closure.warrantyAssured.value} ${
+                    closure.warrantyAssured.unit === "DAYS"
+                      ? closure.warrantyAssured.value === 1
+                        ? "day"
+                        : "days"
+                      : closure.warrantyAssured.value === 1
+                        ? "month"
+                        : "months"
+                  }`
+              : "-"}
           </span>
         </td>
 

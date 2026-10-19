@@ -203,6 +203,12 @@ export interface AppointmentComplaint {
 
   complaintType: "REGULAR" | "REPEAT" | "WARRANTY" | "INQUIRY";
 
+  repeatComplaintNumber?: string;
+  parentComplaintId?: { complaintNumber?: string } | string | null;
+  adName?: string;
+  subject?: string;
+  additionalInfo?: string[];
+
   status:
     | "REGISTERED"
     | "ALLOCATED"

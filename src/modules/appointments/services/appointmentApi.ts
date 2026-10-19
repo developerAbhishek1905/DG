@@ -43,6 +43,11 @@ export interface UpdateAppointmentStatusPayload {
   pendingReason?: string;
 
   cancellationReason?: string;
+
+  closingReason?: string;
+  customerAmount?: number;
+  profitAmount?: number;
+  warrantyAssured?: { value: number; unit: "DAYS" | "MONTHS" };
 }
 
 export interface CalendarParams {
@@ -243,3 +248,35 @@ export const getComplaintActivities =
 
     return response.data.data;
   };
+
+
+export interface SentRemark {
+  _id?: string;
+  followUpStatus?: string;
+  remark: string;
+  followUpDate?: string;
+  createdAt: string;
+  createdBy?: { name?: string } | string | null;
+}
+
+// Remarks DG sent to the dealer ("Send to dealer" in the pending module)
+export async function getRemarksSentToDealer(
+  complaintId: string,
+  isDealer: boolean,
+): Promise<SentRemark[]> {
+  if (isDealer) {
+    const response = await api.get(
+      `/appointments/complaints/${complaintId}/dealer-remarks`,
+    );
+
+    return response.data?.data || [];
+  }
+
+  const response = await api.get(
+    `/appointments/complaints/${complaintId}/follow-up-remarks`,
+  );
+
+  return (response.data?.data?.remarks || response.data?.remarks || []).filter(
+    (item: SentRemark & { sentToDealer?: boolean }) => item.sentToDealer,
+  );
+}

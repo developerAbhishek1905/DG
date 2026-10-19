@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Card from "../../../components/ui/Card";
@@ -30,7 +31,10 @@ import {
   updateAppointmentStatus,
   getReasonDropdown,
   getComplaintActivities,
+  getRemarksSentToDealer,
+  type SentRemark,
 } from "../services/appointmentApi";
+import { complaintTypeLabel } from "../utils/complaintTypeLabel";
 
 import type { RescheduleAppointmentPayload } from "../types/appointment.types";
 import ComplaintActivityModal from "../components/ComplaintActivityModal";
@@ -87,6 +91,39 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
 
   const { user } = useAppSelector((state) => state.auth);
   const billingType = user?.dealerId?.billingType;
+  const isDealerUser = user?.role?.code === "DEALER";
+
+  // Opened straight from a link (WhatsApp / after login): put the list page
+  // underneath so the browser back button lands on all appointments.
+  useEffect(() => {
+    if (!id) return;
+
+    if (window.history.state?.idx === 0) {
+      navigate("/appointments", { replace: true });
+      navigate(`/appointments/${id}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const [sentRemarks, setSentRemarks] = useState<SentRemark[]>([]);
+
+  useEffect(() => {
+    if (!appointment?._id) return;
+
+    let active = true;
+
+    getRemarksSentToDealer(appointment._id, isDealerUser)
+      .then((items) => {
+        if (active) setSentRemarks(items);
+      })
+      .catch(() => {
+        if (active) setSentRemarks([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [appointment?._id, isDealerUser]);
 
   // const [percentageBilling, setPercentageBilling] =
   // useState(false);
@@ -477,33 +514,8 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
 
   const billingType = dealer.billingType;
 
-  if (billingType === "FIXED") {
-    try {
-      setActionLoading(true);
-
-      const updated = await updateAppointmentStatus(
-        appointment._id,
-        "CLOSE_ON_BILLING",
-        {
-          closingReason,
-        },
-      );
-
-      if (updated) {
-        setAppointment(updated);
-        toast.success("Complaint closed successfully");
-      }
-    } catch (error) {
-      console.error("Close billing failed:", error);
-      toast.error("Failed to close complaint");
-    } finally {
-      setActionLoading(false);
-    }
-
-    return;
-  }
-
   if (
+    billingType === "FIXED" ||
     billingType === "PARTIAL_PAYMENT" ||
     billingType === "PROFIT_SHARING"
   ) {
@@ -520,9 +532,11 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
   const handleBillingSubmit = async ({
     customerAmount,
     profitAmount,
+    warrantyAssured,
   }: {
-    customerAmount: number;
+    customerAmount?: number;
     profitAmount?: number;
+    warrantyAssured: { value: number; unit: "DAYS" | "MONTHS" };
   }) => {
     try {
       setBillingLoading(true);
@@ -532,12 +546,19 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
           ? {
               customerAmount,
               profitAmount,
+              warrantyAssured,
               closingReason: selectedClosingReason,
             }
-          : {
-              customerAmount,
-              closingReason: selectedClosingReason,
-            };
+          : billingType === "PARTIAL_PAYMENT"
+            ? {
+                customerAmount,
+                warrantyAssured,
+                closingReason: selectedClosingReason,
+              }
+            : {
+                warrantyAssured,
+                closingReason: selectedClosingReason,
+              };
 
       const updated = await updateAppointmentStatus(
         appointment._id,
@@ -1028,9 +1049,9 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
             value={appointment.priority || "-"}
           />} 
 
-         {user?.role?.code !== "DEALER" && <Info
+         {(user?.role?.code !== "DEALER" || appointment.complaintType === "WARRANTY") && <Info
             label="Complaint Type"
-            value={appointment.complaintType || "-"}
+            value={complaintTypeLabel(appointment, isDealerUser)}
           />}
 
           <Info
@@ -1152,9 +1173,9 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
 
           <Info label="Brand" value={appointment.brand || "-"} />
 
-          {user?.role?.code !== "DEALER" &&<Info
+         {(user?.role?.code !== "DEALER" || appointment.complaintType === "WARRANTY") && <Info
             label="Complaint Type"
-            value={appointment.complaintType || "-"}
+            value={complaintTypeLabel(appointment, isDealerUser)}
           />}
 
          {user?.role?.code !== "DEALER" && <Info
@@ -1176,6 +1197,77 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
           </div>
         )}
       </Card>
+
+      {/* =========================
+          REGISTRATION INFORMATION
+      ========================= */}
+
+      {(appointment.adName ||
+        appointment.subject ||
+        (appointment.additionalInfo?.length ?? 0) > 0) && (
+        <Card className="p-5 sm:p-6">
+          <h3 className="text-base font-semibold text-gray-900">
+            Additional Information
+          </h3>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {appointment.adName && (
+              <Info label="Ad. Name" value={appointment.adName} />
+            )}
+
+            {appointment.subject && (
+              <Info label="Subject" value={appointment.subject} />
+            )}
+
+            {appointment.additionalInfo?.map((info, index) => (
+              <Info
+                key={`${index}-${info}`}
+                label={`Additional Info ${index + 1}`}
+                value={info}
+              />
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* =========================
+          REMARKS SENT TO DEALER
+      ========================= */}
+
+      {sentRemarks.length > 0 && (
+        <Card className="p-5 sm:p-6">
+          <h3 className="text-base font-semibold text-gray-900">
+            Remarks Sent to Dealer
+          </h3>
+
+          <div className="mt-4 space-y-3">
+            {sentRemarks.map((item, index) => (
+              <div
+                key={item._id || index}
+                className="rounded-lg border border-amber-200 bg-amber-50 p-3"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                  <span className="font-semibold text-amber-800">
+                    {item.followUpStatus || "Remark"}
+                  </span>
+
+                  <span>{formatDateTime(item.createdAt)}</span>
+                </div>
+
+                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">
+                  {item.remark}
+                </p>
+
+                {item.followUpDate && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Follow-up: {formatDate(item.followUpDate)}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* =========================
           APPOINTMENT INFORMATION
@@ -1811,7 +1903,8 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
         )} */}
 
       {billingModalOpen &&
-        (billingType === "PARTIAL_PAYMENT" ||
+        (billingType === "FIXED" ||
+          billingType === "PARTIAL_PAYMENT" ||
           billingType === "PROFIT_SHARING") && (
           <PercentageClosureModal
             open={billingModalOpen}

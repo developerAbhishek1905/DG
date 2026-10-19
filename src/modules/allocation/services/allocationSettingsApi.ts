@@ -21,6 +21,11 @@ export interface AllocationSettings {
   useCreditLimit: boolean;
   rangeFrom: string | null;
   rangeTo: string | null;
+  noActionReminderEnabled: boolean;
+  noActionReminderMinutes: number;
+  noActionPenaltyEnabled: boolean;
+  noActionPenaltyAfterMinutes: number;
+  noActionPenaltyAmount: number;
   monthlyRecalcEnabled: boolean;
   monthlyRecalcDay: number;
   lastScheduledRunAt: string | null;
@@ -35,6 +40,11 @@ export interface SaveAllocationSettingsPayload {
   useCreditLimit: boolean;
   rangeFrom: string;
   rangeTo: string;
+  noActionReminderEnabled: boolean;
+  noActionReminderMinutes: number;
+  noActionPenaltyEnabled: boolean;
+  noActionPenaltyAfterMinutes: number;
+  noActionPenaltyAmount: number;
   monthlyRecalcEnabled: boolean;
   monthlyRecalcDay: number;
 }

@@ -40,6 +40,11 @@ export default function AllocationPage() {
   const [citySearch, setCitySearch] = useState("");
   const [monthlyEnabled, setMonthlyEnabled] = useState(false);
   const [monthlyDay, setMonthlyDay] = useState(1);
+  const [reminderOn, setReminderOn] = useState(true);
+  const [reminderMin, setReminderMin] = useState(30);
+  const [penaltyOn, setPenaltyOn] = useState(true);
+  const [penaltyAfter, setPenaltyAfter] = useState(30);
+  const [penaltyAmount, setPenaltyAmount] = useState(0);
 
   useEffect(() => {
     Promise.all([getAllocationSettings(), getAllocationCities()])
@@ -53,6 +58,11 @@ export default function AllocationPage() {
         setTo(dateInput(settings.rangeTo));
         setMonthlyEnabled(settings.monthlyRecalcEnabled);
         setMonthlyDay(settings.monthlyRecalcDay || 1);
+        setReminderOn(settings.noActionReminderEnabled ?? true);
+        setReminderMin(settings.noActionReminderMinutes ?? 30);
+        setPenaltyOn(settings.noActionPenaltyEnabled ?? true);
+        setPenaltyAfter(settings.noActionPenaltyAfterMinutes ?? 30);
+        setPenaltyAmount(settings.noActionPenaltyAmount ?? 0);
       })
       .catch(() => toast.error("Failed to load allocation settings"))
       .finally(() => setLoading(false));
@@ -83,6 +93,11 @@ export default function AllocationPage() {
     rangeTo: to,
     monthlyRecalcEnabled: monthlyEnabled,
     monthlyRecalcDay: monthlyDay,
+    noActionReminderEnabled: reminderOn,
+    noActionReminderMinutes: reminderMin,
+    noActionPenaltyEnabled: penaltyOn,
+    noActionPenaltyAfterMinutes: penaltyAfter,
+    noActionPenaltyAmount: penaltyAmount,
   });
 
   const handleSave = async () => {
@@ -331,6 +346,78 @@ export default function AllocationPage() {
                   </span>
                 </span>
               </label>
+            </div>
+
+            {/* No-action reminder and penalty */}
+            <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={reminderOn}
+                  onChange={(e) => setReminderOn(e.target.checked)}
+                  className="mt-1 h-4 w-4"
+                />
+                <span className="text-sm text-gray-700">
+                  <span className="font-medium text-gray-900">
+                    WhatsApp reminder when dealer takes no action
+                  </span>
+                  <span className="block text-gray-500">
+                    If the dealer has not scheduled, cancelled or marked the
+                    complaint pending within this time after allocation.
+                  </span>
+                </span>
+              </label>
+              <div className="flex items-center gap-2 pl-7 text-sm text-gray-700">
+                Send reminder after
+                <input
+                  type="number"
+                  min={1}
+                  value={reminderMin}
+                  onChange={(e) => setReminderMin(Number(e.target.value))}
+                  className="w-20 rounded-lg border px-2 py-1"
+                />
+                minutes
+              </div>
+
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={penaltyOn}
+                  onChange={(e) => setPenaltyOn(e.target.checked)}
+                  className="mt-1 h-4 w-4"
+                />
+                <span className="text-sm text-gray-700">
+                  <span className="font-medium text-gray-900">
+                    Auto-bill a penalty if still no action
+                  </span>
+                  <span className="block text-gray-500">
+                    A penalty bill is added to the dealer ledger. Only
+                    complaints allocated after this feature started are
+                    considered.
+                  </span>
+                </span>
+              </label>
+              <div className="flex flex-wrap items-center gap-2 pl-7 text-sm text-gray-700">
+                Bill penalty
+                <input
+                  type="number"
+                  min={1}
+                  value={penaltyAfter}
+                  onChange={(e) => setPenaltyAfter(Number(e.target.value))}
+                  className="w-20 rounded-lg border px-2 py-1"
+                />
+                minutes after the reminder · Amount ₹
+                <input
+                  type="number"
+                  min={0}
+                  value={penaltyAmount}
+                  onChange={(e) => setPenaltyAmount(Number(e.target.value))}
+                  className="w-24 rounded-lg border px-2 py-1"
+                />
+                <span className="text-xs text-gray-500">
+                  (0 = dealer's cancellation charge)
+                </span>
+              </div>
             </div>
 
             {/* Monthly automatic recalculation */}

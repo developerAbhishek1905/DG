@@ -144,6 +144,11 @@ export interface ClosureRecord extends BaseClosure {
 
   uninstallationData?: UninstallationClosureData;
 
+  warrantyAssured?: {
+    value: number;
+    unit: "DAYS" | "MONTHS";
+  } | null;
+
     closureApproved?: boolean;
 
   closureRemark?: string;
