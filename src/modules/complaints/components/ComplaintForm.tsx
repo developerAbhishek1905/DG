@@ -1062,7 +1062,12 @@ export default function ComplaintForm({
 
     const createdComplaint = await createComplaint(payload);
 
-    reset(getDefaultComplaintValues());
+    // react-hook-form does not clear an uncontrolled number input when the
+    // default is `undefined`, so Quote is reset with an empty string.
+    reset({
+      ...getDefaultComplaintValues(),
+      quoteAmount: "" as unknown as undefined,
+    });
 
     setExistingCustomer(null);
     setComplaintHistory([]);

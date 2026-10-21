@@ -7,6 +7,8 @@ import Pagination from "../../../components/ui/Pagination";
 interface Props {
   categories: Category[];
   loading?: boolean;
+  // page goes back to 1 only when this key (search/filter) changes
+  resetPageKey?: string;
   onEdit: (category: Category) => void;
   onToggleStatus: (category: Category) => void;
   onDelete: (category: Category) => void;
@@ -15,6 +17,7 @@ interface Props {
 export default function CategoryTable({
   categories,
   loading,
+  resetPageKey,
   onEdit,
   onToggleStatus,
   onDelete,
@@ -25,10 +28,10 @@ export default function CategoryTable({
   const total = categories.length;
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
-  // Reset page whenever categories change
+  // Go to page 1 only when search/filter changes, not after an action
   useEffect(() => {
     setPage(1);
-  }, [categories]);
+  }, [resetPageKey]);
 
   // Fix page after delete
   useEffect(() => {
@@ -107,7 +110,7 @@ export default function CategoryTable({
                       <button
                         type="button"
                         onClick={() => onEdit(item)}
-                        className="rounded-md p-2 text-blue-600 hover:bg-blue-50"
+                        className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-600 hover:text-white"
                         title="Edit"
                       >
                         <Edit3 size={17} />
@@ -118,7 +121,7 @@ export default function CategoryTable({
                       <button
                         type="button"
                         onClick={() => onToggleStatus(item)}
-                        className="rounded-md p-2 text-orange-600 hover:bg-orange-50"
+                        className="rounded-lg bg-orange-50 p-2 text-orange-600 transition hover:bg-orange-500 hover:text-white"
                         title={
                           item.status === "ACTIVE" ? "Deactivate" : "Activate"
                         }
@@ -131,7 +134,7 @@ export default function CategoryTable({
                       <button
                         type="button"
                         onClick={() => onDelete(item)}
-                        className="rounded-md p-2 text-red-600 hover:bg-red-50"
+                        className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-600 hover:text-white"
                         title="Delete"
                       >
                         <Trash2 size={17} />

@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Edit3, Power, Trash2 } from "lucide-react";
 import type { Reason } from "../types/reason.types";
 import { usePermission } from "../../../hooks/usePermission";
 
@@ -85,31 +85,38 @@ export default function ReasonTable({
               </td>
 
               <td className="px-5 py-4">
-                {hasPermission("reason.active") && (
-                  <button
-                    type="button"
-                    onClick={() => onStatusChange(reason, !reason.isActive)}
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      reason.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {reason.isActive ? "Active" : "Inactive"}
-                  </button>
-                )}
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs ${
+                    reason.isActive
+                      ? "bg-green-50 text-green-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {reason.isActive ? "ACTIVE" : "INACTIVE"}
+                </span>
               </td>
 
               <td className="px-5 py-4">
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex justify-end gap-2">
                   {hasPermission("reason.update") && (
                     <button
                       type="button"
                       onClick={() => onEdit(reason)}
-                      title="Edit Reason"
-                      className="rounded-lg border border-gray-200 p-2 text-[#123B7A] transition hover:bg-blue-50"
+                      className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                      title="Edit"
                     >
-                      <Pencil size={16} />
+                      <Edit3 size={17} />
+                    </button>
+                  )}
+
+                  {hasPermission("reason.active") && (
+                    <button
+                      type="button"
+                      onClick={() => onStatusChange(reason, !reason.isActive)}
+                      className="rounded-lg bg-orange-50 p-2 text-orange-600 transition hover:bg-orange-500 hover:text-white"
+                      title={reason.isActive ? "Deactivate" : "Activate"}
+                    >
+                      <Power size={17} />
                     </button>
                   )}
 
@@ -117,10 +124,10 @@ export default function ReasonTable({
                     <button
                       type="button"
                       onClick={() => onDelete(reason)}
-                      title="Delete Reason"
-                      className="rounded-lg border border-gray-200 p-2 text-red-600 transition hover:bg-red-50"
+                      className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-600 hover:text-white"
+                      title="Delete"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={17} />
                     </button>
                   )}
                 </div>

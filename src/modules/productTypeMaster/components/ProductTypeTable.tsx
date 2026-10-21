@@ -74,13 +74,13 @@ export default function ProductTypeTable({
                 <td className="px-5 py-4">{item.product_type}</td>
 
                 <td className="px-5 py-4">
-                  <div className="flex justify-end gap-1">
+                  <div className="flex justify-end gap-2">
                     {hasPermission("product_type.update") && (
                       <button
                         type="button"
                         title="Edit Product Type"
                         onClick={() => onEdit(item)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                        className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-600 hover:text-white"
                       >
                         <Edit3 size={17} />
                       </button>
@@ -91,7 +91,7 @@ export default function ProductTypeTable({
                         type="button"
                         title="Delete Product Type"
                         onClick={() => onDelete(item)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                        className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-600 hover:text-white"
                       >
                         <Trash2 size={17} />
                       </button>

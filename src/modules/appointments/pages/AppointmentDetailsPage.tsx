@@ -556,6 +556,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                 closingReason: selectedClosingReason,
               }
             : {
+                customerAmount,
                 warrantyAssured,
                 closingReason: selectedClosingReason,
               };

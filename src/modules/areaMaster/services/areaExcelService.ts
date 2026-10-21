@@ -70,6 +70,9 @@ export interface LocationImportSummary {
 
   citiesCreated: number;
   citiesExisting: number;
+
+  pincodesCreated?: number;
+  pincodesExisting?: number;
 }
 
 export interface LocationImportResult {
@@ -80,10 +83,12 @@ export interface LocationImportResult {
   state_name?: string | null;
   district_name?: string | null;
   city_name?: string | null;
+  pincode_name?: string | null;
 
   stateStatus?: "CREATED" | "EXISTING";
   districtStatus?: "CREATED" | "EXISTING";
   cityStatus?: "CREATED" | "EXISTING";
+  pincodeStatus?: "CREATED" | "EXISTING" | null;
 
   message: string;
 }

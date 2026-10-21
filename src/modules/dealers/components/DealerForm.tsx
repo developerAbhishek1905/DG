@@ -1655,7 +1655,7 @@ const availableIndividualProducts = capacityProducts.filter(
               />
 
               {/* Security Amount */}
-              <Input
+              {/* <Input
                 label="Security Amount"
                 type="number"
                 min={0}
@@ -1663,22 +1663,22 @@ const availableIndividualProducts = capacityProducts.filter(
                 {...register("securityAmount", {
                   valueAsNumber: true,
                 })}
-              />
+              /> */}
 
               {/* Opening Balance */}
 
-              <Input
+              {/* <Input
                 label="Opening Balance"
                 type="number"
                 step="0.01"
                 {...register("openingBalance", {
                   valueAsNumber: true,
                 })}
-              />
+              /> */}
 
               {/* Balance Type */}
 
-              <div>
+              {/* <div>
                 <label className={labelClass}>Balance Type</label>
 
                 <select
@@ -1688,7 +1688,7 @@ const availableIndividualProducts = capacityProducts.filter(
                   <option value="DR">Debit (Dr)</option>
                   <option value="CR">Credit (Cr)</option>
                 </select>
-              </div>
+              </div> */}
 
               {/* Other Info */}
 

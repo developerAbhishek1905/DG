@@ -74,7 +74,16 @@ export default function CategoryMasterPage() {
       const updated = await toggleCategoryStatus(category.id, category.status);
 
       setCategories((prev) =>
-        prev.map((item) => (item.id === category.id ? updated : item)),
+        prev.map((item) =>
+          item.id === category.id
+            ? {
+                ...item,
+                ...updated,
+                // status API does not return the product name; keep it
+                product_name: updated.product_name || item.product_name,
+              }
+            : item,
+        ),
       );
 
       toast.success(
@@ -291,6 +300,7 @@ export default function CategoryMasterPage() {
         <CategoryTable
           categories={filteredCategories}
           loading={loading}
+          resetPageKey={`${filters.search}|${filters.status}`}
           onEdit={handleEdit}
           onToggleStatus={handleToggleStatus}
           onDelete={handleDelete}

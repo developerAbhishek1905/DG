@@ -201,9 +201,23 @@ export default function AreaMasterPage() {
       summary,
     } = response;
 
+    const failed = response.results.filter((r) => r.status === "FAILED");
+
     toast.success(
-      `Import completed. ${summary.processedRows} rows processed, ${summary.failedRows} failed.`,
+      `Import completed. ${summary.processedRows} rows processed, ${summary.failedRows} failed. New: ${summary.statesCreated} states, ${summary.districtsCreated} districts, ${summary.citiesCreated} cities, ${summary.pincodesCreated ?? 0} pincodes.`,
     );
+
+    if (failed.length > 0) {
+      const preview = failed
+        .slice(0, 3)
+        .map((r) => `Row ${r.row}: ${r.message}`)
+        .join(" | ");
+
+      toast.warn(
+        `${failed.length} row(s) failed. ${preview}${failed.length > 3 ? " ..." : ""}`,
+        { autoClose: 10000 },
+      );
+    }
 
     /*
      * Reload your list/table here

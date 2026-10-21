@@ -339,6 +339,7 @@ export default function BrandMasterPage() {
           <BrandTable
             brands={filteredBrands}
             loading={loading}
+            resetPageKey={search}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />

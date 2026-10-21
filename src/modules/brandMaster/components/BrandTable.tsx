@@ -7,6 +7,8 @@ import Pagination from "../../../components/ui/Pagination";
 interface Props {
   brands: Brand[];
   loading?: boolean;
+  // page goes back to 1 only when this key (search) changes
+  resetPageKey?: string;
   onEdit: (brand: Brand) => void;
   onDelete: (brand: Brand) => void;
 }
@@ -14,6 +16,7 @@ interface Props {
 export default function BrandTable({
   brands,
   loading,
+  resetPageKey,
   onEdit,
   onDelete,
 }: Props) {
@@ -23,10 +26,10 @@ export default function BrandTable({
   const total = brands.length;
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
-  // Reset page whenever brand data changes
+  // Go to page 1 only when search changes, not after an action
   useEffect(() => {
     setPage(1);
-  }, [brands]);
+  }, [resetPageKey]);
 
   // Fix current page after delete
   useEffect(() => {
@@ -103,7 +106,7 @@ export default function BrandTable({
                         type="button"
                         title="Edit Brand"
                         onClick={() => onEdit(brand)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                        className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-600 hover:text-white"
                       >
                         <Edit3 size={17} />
                       </button>
@@ -114,7 +117,7 @@ export default function BrandTable({
                         type="button"
                         title="Delete Brand"
                         onClick={() => onDelete(brand)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                        className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-600 hover:text-white"
                       >
                         <Trash2 size={17} />
                       </button>

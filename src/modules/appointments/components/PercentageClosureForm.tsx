@@ -359,22 +359,23 @@ export default function PercentageClosureModal({
   |--------------------------------------------------------------------------
   */
 
+  // Warranty is optional: empty means no warranty (0)
   const warrantyAssured = {
-    value: Number(warrantyValue),
+    value: warrantyValue === "" ? 0 : Number(warrantyValue),
     unit: warrantyUnit,
   };
 
   const handleSubmit = async () => {
     if (warrantyInvalid) return;
 
-    if (billingType === "FIXED") {
-      await onSubmit({ warrantyAssured });
-      return;
-    }
-
     const customer = Number(customerAmount);
 
     if (!Number.isFinite(customer) || customer <= 0) {
+      return;
+    }
+
+    if (billingType === "FIXED") {
+      await onSubmit({ customerAmount: customer, warrantyAssured });
       return;
     }
 
@@ -423,12 +424,10 @@ export default function PercentageClosureModal({
   */
 
   const warrantyInvalid =
-    warrantyValue === "" ||
-    !Number.isFinite(Number(warrantyValue)) ||
-    Number(warrantyValue) < 0;
+    warrantyValue !== "" &&
+    (!Number.isFinite(Number(warrantyValue)) || Number(warrantyValue) < 0);
 
-  const customerInvalid =
-    billingType !== "FIXED" && (!customerAmount || Number(customerAmount) <= 0);
+  const customerInvalid = !customerAmount || Number(customerAmount) <= 0;
 
   const profitInvalid =
     billingType === "PROFIT_SHARING" &&
@@ -473,7 +472,7 @@ export default function PercentageClosureModal({
         <div className="space-y-5 p-5">
           {/* CUSTOMER AMOUNT */}
 
-          {billingType !== "FIXED" && (
+          {(
           <div>
             <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
               Customer Amount
@@ -503,7 +502,8 @@ export default function PercentageClosureModal({
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
-              Warranty Assured
+              Warranty Assured{" "}
+              <span className="font-normal text-gray-400">(optional)</span>
             </label>
 
             <div className="flex gap-2">
@@ -514,7 +514,7 @@ export default function PercentageClosureModal({
                 value={warrantyValue}
                 disabled={loading}
                 onChange={(e) => setWarrantyValue(e.target.value)}
-                placeholder="e.g. 3 (0 = no warranty)"
+                placeholder="Optional, e.g. 3"
                 className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
               />
 

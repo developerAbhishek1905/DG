@@ -104,6 +104,8 @@ export default function ProductServicesModal({
   //     ]);
   //   };
 
+  const [rateDraft, setRateDraft] = useState<Record<string, string>>({});
+
   const updateServiceRate = (categoryId: string | number, rate: number) => {
     setSelected((prev) =>
       prev.map((item) =>
@@ -259,26 +261,53 @@ export default function ProductServicesModal({
                         </div>
 
                         {checked && (
-                          <div className=" border-t border-blue-100 ">
-                            <div className="relative max-w-55">
+                          <div className="ml-auto mr-4 shrink-0">
+                            <div className="relative w-40">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
                                 ₹
                               </span>
 
                               <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={selectedService?.rate ?? ""}
+                                type="text"
+                                inputMode="decimal"
+                                value={
+                                  rateDraft[String(categoryId)] ??
+                                  (selectedService?.rate
+                                    ? String(selectedService.rate)
+                                    : "")
+                                }
                                 placeholder="Enter rate"
                                 onClick={(event) => event.stopPropagation()}
                                 onChange={(event) => {
+                                  let value = event.target.value.replace(
+                                    /[^\d.]/g,
+                                    "",
+                                  );
+
+                                  // only one decimal point, max 2 decimals
+                                  const parts = value.split(".");
+                                  if (parts.length > 2) {
+                                    value = `${parts[0]}.${parts.slice(1).join("")}`;
+                                  }
+                                  const [intPart, decPart] = value.split(".");
+                                  // remove leading zeros (0500 -> 500, 00.5 -> 0.5)
+                                  const cleanInt =
+                                    intPart.replace(/^0+(?=\d)/, "");
+                                  value =
+                                    decPart !== undefined
+                                      ? `${cleanInt || "0"}.${decPart.slice(0, 2)}`
+                                      : cleanInt;
+
+                                  setRateDraft((prev) => ({
+                                    ...prev,
+                                    [String(categoryId)]: value,
+                                  }));
                                   updateServiceRate(
                                     categoryId,
-                                    Number(event.target.value),
+                                    Number(value) || 0,
                                   );
                                 }}
-                                className="w-full rounded-lg border border-gray-300 py-2 pl-7 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                className="w-full rounded-lg border border-gray-300 py-2 pl-7 pr-3 text-right text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                               />
                             </div>
                           </div>

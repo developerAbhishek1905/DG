@@ -39,6 +39,67 @@ interface Props {
   onSubmit: (data: BillFormValues) => Promise<void>;
 }
 
+
+/*
+ * Number input that can be fully cleared: the typed text is kept as a string
+ * so a leading 0 can be removed, and "0" is shown as a placeholder when empty.
+ */
+function NumberField({
+  value,
+  onChange,
+  className,
+  readOnly,
+  disabled,
+  required,
+  placeholder = "0",
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  className?: string;
+  readOnly?: boolean;
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  step?: string | number;
+  required?: boolean;
+  placeholder?: string;
+}) {
+  const [text, setText] = useState(value ? String(value) : "");
+
+  // keep in sync when the value changes from outside (edit load, calculation)
+  useEffect(() => {
+    const rounded = Number((Number(value) || 0).toFixed(2));
+
+    if ((Number(text) || 0) !== rounded) {
+      setText(rounded ? String(rounded) : "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={text}
+      readOnly={readOnly}
+      disabled={disabled}
+      required={required}
+      placeholder={placeholder}
+      className={className}
+      onChange={(e) => {
+        let v = e.target.value.replace(/[^\d.]/g, "");
+        const parts = v.split(".");
+        if (parts.length > 2) v = `${parts[0]}.${parts.slice(1).join("")}`;
+        const [i, d] = v.split(".");
+        const cleanInt = i.replace(/^0+(?=\d)/, "");
+        v = d !== undefined ? `${cleanInt || "0"}.${d.slice(0, 2)}` : cleanInt;
+        setText(v);
+        onChange(Number(v) || 0);
+      }}
+    />
+  );
+}
+
 const defaultValues: BillFormValues = {
   complaintNumber: "",
   dealerId: "",
@@ -76,6 +137,8 @@ export default function BillForm({
     technicianName?: string;
     headCode?: string;
     name?: string;
+    city?: string;
+    value?: string;
   };
 
   type CategoryOption = {
@@ -183,18 +246,23 @@ export default function BillForm({
 
         billingType: initialData.billingType,
 
+        // The top-level fields default to 0 in the database while the real
+        // values of closure bills are stored in `calculation`, so use `||`
+        // (not `??`) to fall back to the calculation values.
         customerAmount:
-          initialData.customerAmount ??
-          initialData.calculation?.customerAmount ??
+          Number(initialData.customerAmount) ||
+          Number(initialData.calculation?.customerAmount) ||
           0,
 
         profitAmount:
-          initialData.profitAmount ??
-          initialData.calculation?.profitAmount ??
+          Number(initialData.profitAmount) ||
+          Number(initialData.calculation?.profitAmount) ||
           0,
 
         percentage:
-          initialData.percentage ?? initialData.calculation?.percentage ?? 0,
+          Number(initialData.percentage) ||
+          Number(initialData.calculation?.percentage) ||
+          0,
 
         amount: initialData.amount ?? 0,
 
@@ -506,8 +574,13 @@ export default function BillForm({
                                 {dealerName}
                               </p>
 
-                              <p className="text-xs text-gray-400">
-                                {dealer.headCode || "-"}
+                              <p className="text-xs text-gray-500">
+                                {[
+                                  dealer.technicianName,
+                                  dealer.city,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" • ") || "-"}
                               </p>
                             </button>
                           );
@@ -625,15 +698,12 @@ export default function BillForm({
                 <div>
                   <label className={labelClass}>Units *</label>
 
-                  <input
-                    type="number"
+                  <NumberField
                     min={1}
                     step={1}
                     required
                     value={form.units}
-                    onChange={(e) =>
-                      updateField("units", Number(e.target.value))
-                    }
+                    onChange={(num) => updateField("units", num)}
                     className={inputClass}
                   />
                 </div>
@@ -670,14 +740,11 @@ export default function BillForm({
                 <div>
                   <label className={labelClass}>Customer Amount</label>
 
-                  <input
-                    type="number"
+                  <NumberField
                     min={0}
                     step="0.01"
                     value={form.customerAmount}
-                    onChange={(e) =>
-                      updateField("customerAmount", Number(e.target.value))
-                    }
+                    onChange={(num) => updateField("customerAmount", num)}
                     className={inputClass}
                   />
                 </div>
@@ -685,14 +752,11 @@ export default function BillForm({
                 <div>
                   <label className={labelClass}>Profit Amount</label>
 
-                  <input
-                    type="number"
+                  <NumberField
                     min={0}
                     step="0.01"
                     value={form.profitAmount}
-                    onChange={(e) =>
-                      updateField("profitAmount", Number(e.target.value))
-                    }
+                    onChange={(num) => updateField("profitAmount", num)}
                     className={inputClass}
                   />
                 </div>
@@ -700,16 +764,13 @@ export default function BillForm({
                 <div>
                   <label className={labelClass}>Billing Percentage (%)</label>
 
-                  <input
-                    type="number"
+                  <NumberField
                     min={0}
                     max={100}
                     step="0.01"
                     value={form.percentage}
                     disabled={!isPercentageBilling}
-                    onChange={(e) =>
-                      updateField("percentage", Number(e.target.value))
-                    }
+                    onChange={(num) => updateField("percentage", num)}
                     className={inputClass}
                   />
                 </div>
@@ -717,15 +778,12 @@ export default function BillForm({
                 <div>
                   <label className={labelClass}>Final Billing Amount</label>
 
-                  <input
-                    type="number"
+                  <NumberField
                     min={0}
                     step="0.01"
                     value={calculatedAmount}
                     readOnly={isPercentageBilling}
-                    onChange={(e) =>
-                      updateField("amount", Number(e.target.value))
-                    }
+                    onChange={(num) => updateField("amount", num)}
                     className={`${inputClass} font-semibold ${
                       isPercentageBilling ? "bg-gray-50 text-[#123B7A]" : ""
                     }`}

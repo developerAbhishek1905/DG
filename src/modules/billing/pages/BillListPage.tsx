@@ -18,6 +18,7 @@ const initialFilters: BillingFilterValues = {
   toDate: "",
 };
 import LedgerTable from "../components/LedgerTable";
+import Pagination from "../../../components/ui/Pagination";
 
 import { approveDealerLedger, getDealerLedgers,  createDealerLedger,
   updateDealerLedger, createDummyBill, type DummyBillValues } from "../services/billingApi";
@@ -272,10 +273,12 @@ const handleSubmitBill = async (values: BillFormValues) => {
       */
 
       await loadLedgers();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Approve ledger failed:", error);
 
-      toast.error("Failed to approve ledger");
+      toast.error(
+        error?.response?.data?.message || "Failed to approve ledger",
+      );
     } finally {
       setApprovingId(null);
     }
@@ -383,52 +386,18 @@ const handleSubmitBill = async (values: BillFormValues) => {
       {/* PAGINATION */}
 
       {!loading && pagination.total > 0 && (
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xs text-gray-500">
-            Showing {(page - 1) * limit + 1}
-            {" - "}
-            {Math.min(page * limit, pagination.total)} of {pagination.total}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <select
-              value={limit}
-              onChange={(e) => {
-                setLimit(Number(e.target.value));
-
-                setPage(1);
-              }}
-              className="rounded-lg border border-gray-300 px-2 py-2 text-xs outline-none"
-            >
-              <option value={10}>10</option>
-
-              <option value={20}>20</option>
-
-              <option value={50}>50</option>
-            </select>
-
-            <button
-              type="button"
-              disabled={page <= 1}
-              onClick={() => setPage((prev) => prev - 1)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Previous
-            </button>
-
-            <span className="px-2 text-xs font-semibold text-gray-600">
-              Page {page} of {pagination.totalPages || 1}
-            </span>
-
-            <button
-              type="button"
-              disabled={page >= pagination.totalPages}
-              onClick={() => setPage((prev) => prev + 1)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <Pagination
+            page={page}
+            totalPages={pagination.totalPages || 1}
+            total={pagination.total}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={(value) => {
+              setLimit(value);
+              setPage(1);
+            }}
+          />
         </div>
       )}
 

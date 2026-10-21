@@ -83,6 +83,9 @@ export default function CancellationListPage() {
 
   const [selectedReason, setSelectedReason] = useState("ALL");
 
+  // ALL | CANCEL_ON_CALL (before schedule) | CANCEL_ON_VISIT (after schedule)
+  const [cancelType, setCancelType] = useState("ALL");
+
   const [cityId, setCityId] = useState("");
   const [createdBy, setCreatedBy] = useState("");
   const [productId, setProductId] = useState("");
@@ -194,11 +197,19 @@ export default function CancellationListPage() {
     setCategorySearch("");
 
     setSelectedReason("ALL");
+    setCancelType("ALL");
 
     dispatch(clearCancellationFilters());
 
     setPage(1);
   };
+
+  const cancelStatusLabel = (value: string) =>
+    value === "CANCEL_ON_CALL"
+      ? "On Call Cancel"
+      : value === "CANCEL_ON_VISIT"
+        ? "After Call Cancel"
+        : formatReason(value);
 
   const formatReason = (value: string) =>
     value
@@ -222,7 +233,7 @@ export default function CancellationListPage() {
         // productId,
         categoryId,
         reason: selectedReason,
-        status,
+        status: cancelType !== "ALL" ? cancelType : status,
         verification,
       });
       setRequests(response.data || []);
@@ -249,6 +260,7 @@ export default function CancellationListPage() {
     productId,
     categoryId,
     selectedReason,
+    cancelType,
     status,
     verification,
   ]);
@@ -553,6 +565,33 @@ export default function CancellationListPage() {
         </h1>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {[
+          { key: "ALL", label: "All Cancelled" },
+          { key: "CANCEL_ON_CALL", label: "On Call Cancel" },
+          { key: "CANCEL_ON_VISIT", label: "After Call Cancel" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => {
+              setCancelType(tab.key);
+              setPage(1);
+            }}
+            className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${
+              cancelType === tab.key
+                ? "border-[#123B7A] bg-[#123B7A] text-white"
+                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            {tab.label}
+            {tab.key !== "ALL" && summary.statusCounts[tab.key] !== undefined
+              ? ` (${summary.statusCounts[tab.key]})`
+              : ""}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7">
         <button
           type="button"
@@ -570,14 +609,25 @@ export default function CancellationListPage() {
           />
         </button>
 
-        {Object.entries(summary.statusCounts).map(([status, count], index) => (
-          <SummaryCard
-            key={status}
-            label={formatReason(status)}
-            count={count}
-            color={index % 2 === 0 ? "orange" : "red"}
-            compact
-          />
+        {Object.entries(summary.statusCounts).map(([key, count], index) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => {
+              setCancelType(cancelType === key ? "ALL" : key);
+              setPage(1);
+            }}
+            className={`min-w-0 rounded-lg text-left ${
+              cancelType === key ? "ring-2 ring-blue-600 ring-offset-1" : ""
+            }`}
+          >
+            <SummaryCard
+              label={cancelStatusLabel(key)}
+              count={count}
+              color={index % 2 === 0 ? "orange" : "red"}
+              compact
+            />
+          </button>
         ))}
 
         {Object.entries(summary.reasonCounts).map(([reason, count], index) => (
