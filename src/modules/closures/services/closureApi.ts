@@ -107,6 +107,18 @@ export const approveClosure = async (
   return response.data;
 };
 
+export const updateClosureCategory = async (
+  complaintId: string,
+  categoryId: string,
+) => {
+  const response = await api.patch(
+    `/appointments/complaints/${complaintId}/closure-category`,
+    { categoryId },
+  );
+
+  return response.data;
+};
+
 interface CreateRatingReviewPayload {
   complaintId: string;
   rating: number;

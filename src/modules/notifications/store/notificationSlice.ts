@@ -157,7 +157,9 @@ const notificationSlice =
         .addCase(
           fetchNotifications.pending,
           (state) => {
-            state.loading = true;
+            // background refreshes must not flash the loading state
+            state.loading =
+              state.notifications.length === 0;
 
             state.error = null;
           }

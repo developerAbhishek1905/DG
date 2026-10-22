@@ -151,6 +151,16 @@ export interface ClosureRecord extends BaseClosure {
 
     closureApproved?: boolean;
 
+  // Service category chosen by the dealer when closing (billing is decided from it)
+  closureCategoryId?: string | null;
+  closureCategory?: string;
+
+  // Category chosen by the dealer when closing / at verification
+  dealerClosureCategoryId?: string | null;
+  dealerClosureCategory?: string;
+  verifiedCategoryId?: string | null;
+  verifiedCategory?: string;
+
   closureRemark?: string;
 
   closureApprovedAt?: string | null;

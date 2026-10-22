@@ -530,10 +530,12 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
 };
 
   const handleBillingSubmit = async ({
+    closureCategoryId,
     customerAmount,
     profitAmount,
     warrantyAssured,
   }: {
+    closureCategoryId?: string;
     customerAmount?: number;
     profitAmount?: number;
     warrantyAssured: { value: number; unit: "DAYS" | "MONTHS" };
@@ -544,6 +546,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
       const payload =
         billingType === "PROFIT_SHARING"
           ? {
+              closureCategoryId,
               customerAmount,
               profitAmount,
               warrantyAssured,
@@ -551,11 +554,13 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
             }
           : billingType === "PARTIAL_PAYMENT"
             ? {
+                closureCategoryId,
                 customerAmount,
                 warrantyAssured,
                 closingReason: selectedClosingReason,
               }
             : {
+                closureCategoryId,
                 customerAmount,
                 warrantyAssured,
                 closingReason: selectedClosingReason,
@@ -574,8 +579,14 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
 
         toast.success("Billing submitted for verification");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Billing submission failed:", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Failed to close the complaint",
+      );
     } finally {
       setBillingLoading(false);
     }
@@ -1163,9 +1174,25 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
 
           <Info
             icon={Tag}
-            label="Category"
+            label="Category (Registration)"
             value={appointment.category || "-"}
           />
+
+          {appointment.dealerClosureCategory && (
+            <Info
+              icon={Tag}
+              label="Category (Dealer Closing)"
+              value={appointment.dealerClosureCategory}
+            />
+          )}
+
+          {appointment.verifiedCategory && (
+            <Info
+              icon={Tag}
+              label="Category (Verification)"
+              value={appointment.verifiedCategory}
+            />
+          )}
 
           <Info
             label="Category Description"
@@ -1912,6 +1939,17 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
             billingType={billingType}
             // percentage={billingPercentage}
             complaintNumber={appointment.complaintNumber}
+            productId={
+              Number(appointment.productId) ||
+              Number(
+                (appointment.categoryId as { product_id?: number } | null)
+                  ?.product_id,
+              ) ||
+              undefined
+            }
+            defaultCategoryId={String(
+              appointment.categoryId?._id ?? appointment.categoryId ?? "",
+            )}
             loading={billingLoading}
             onClose={() => setBillingModalOpen(false)}
             onSubmit={handleBillingSubmit}

@@ -69,6 +69,24 @@ export default function NotificationDropdown() {
     notifications.length,
   ]);
 
+  // Pick up newly sent remarks without a page reload
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") {
+        dispatch(fetchNotifications());
+      }
+    };
+
+    const timer = window.setInterval(refresh, 30000);
+
+    window.addEventListener("focus", refresh);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [dispatch]);
+
   useEffect(() => {
     const handleClickOutside = (
       event: MouseEvent

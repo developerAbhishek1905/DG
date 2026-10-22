@@ -123,6 +123,13 @@ export type AppointmentType =
 export interface Appointment {
   _id: string;
 
+  // Product / service category of the complaint
+  productId?: number | null;
+  category?: string;
+  categoryId?: string | { _id: string } | null;
+  dealerClosureCategory?: string;
+  verifiedCategory?: string;
+
   complaintNumber: string;
 
   customerName: string;

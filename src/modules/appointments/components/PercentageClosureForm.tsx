@@ -297,6 +297,7 @@
 // }
 
 import { useEffect, useState } from "react";
+import { searchCategories } from "../../complaints/services/complaintApi";
 
 interface Props {
   open: boolean;
@@ -305,11 +306,18 @@ interface Props {
 
   complaintNumber?: string;
 
+  // Product of the complaint: all its service categories are offered
+  productId?: number;
+
+  // Category the complaint was registered with (pre-selected)
+  defaultCategoryId?: string;
+
   loading?: boolean;
 
   onClose: () => void;
 
   onSubmit: (data: {
+    closureCategoryId?: string;
     customerAmount?: number;
     profitAmount?: number;
     warrantyAssured: { value: number; unit: "DAYS" | "MONTHS" };
@@ -320,10 +328,22 @@ export default function PercentageClosureModal({
   open,
   billingType,
   complaintNumber,
+  productId,
+  defaultCategoryId = "",
   loading = false,
   onClose,
   onSubmit,
 }: Props) {
+  const [categories, setCategories] = useState<
+    { _id: string; category: string }[]
+  >([]);
+
+  const [categoryId, setCategoryId] = useState("");
+
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  const [categoriesError, setCategoriesError] = useState("");
+
   const [customerAmount, setCustomerAmount] = useState("");
 
   const [profitAmount, setProfitAmount] = useState("");
@@ -346,8 +366,45 @@ export default function PercentageClosureModal({
       setProfitAmount("");
       setWarrantyValue("");
       setWarrantyUnit("MONTHS");
+      setCategoryId(defaultCategoryId);
     }
-  }, [open]);
+  }, [open, defaultCategoryId]);
+
+  // Load every category (service) of the complaint's product
+  useEffect(() => {
+    if (!open || !productId) {
+      return;
+    }
+
+    let active = true;
+
+    setCategoriesLoading(true);
+    setCategoriesError("");
+
+    searchCategories({ productId })
+      .then((items) => {
+        if (active) {
+          setCategories(
+            items.map((item) => ({ _id: item._id, category: item.category })),
+          );
+        }
+      })
+      .catch((error: any) => {
+        if (active) {
+          setCategories([]);
+          setCategoriesError(
+            error?.response?.data?.message || "Could not load categories",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setCategoriesLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [open, productId]);
 
   if (!open) {
     return null;
@@ -366,7 +423,7 @@ export default function PercentageClosureModal({
   };
 
   const handleSubmit = async () => {
-    if (warrantyInvalid) return;
+    if (warrantyInvalid || categoryInvalid) return;
 
     const customer = Number(customerAmount);
 
@@ -375,7 +432,11 @@ export default function PercentageClosureModal({
     }
 
     if (billingType === "FIXED") {
-      await onSubmit({ customerAmount: customer, warrantyAssured });
+      await onSubmit({
+        closureCategoryId: categoryId || undefined,
+        customerAmount: customer,
+        warrantyAssured,
+      });
       return;
     }
 
@@ -387,6 +448,7 @@ export default function PercentageClosureModal({
 
     if (billingType === "PARTIAL_PAYMENT") {
       await onSubmit({
+        closureCategoryId: categoryId || undefined,
         customerAmount: customer,
         warrantyAssured,
       });
@@ -411,6 +473,7 @@ export default function PercentageClosureModal({
     }
 
     await onSubmit({
+      closureCategoryId: categoryId || undefined,
       customerAmount: customer,
       profitAmount: profit,
       warrantyAssured,
@@ -435,7 +498,10 @@ export default function PercentageClosureModal({
       Number(profitAmount) <= 0 ||
       Number(profitAmount) > Number(customerAmount));
 
-  const isInvalid = customerInvalid || profitInvalid || warrantyInvalid;
+  const categoryInvalid = categories.length > 0 && !categoryId;
+
+  const isInvalid =
+    customerInvalid || profitInvalid || warrantyInvalid || categoryInvalid;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -470,6 +536,49 @@ export default function PercentageClosureModal({
         {/* BODY */}
 
         <div className="space-y-5 p-5">
+          {/* SERVICE CATEGORY (all categories of the product) */}
+
+          {(productId || categories.length > 0) && (
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+                Service Category
+              </label>
+
+              {categoriesLoading && (
+                <p className="mb-1 text-xs text-gray-500">
+                  Loading categories...
+                </p>
+              )}
+
+              {categoriesError && (
+                <p className="mb-1 text-xs text-red-600">{categoriesError}</p>
+              )}
+
+              {!categoriesLoading &&
+                !categoriesError &&
+                categories.length === 0 && (
+                  <p className="mb-1 text-xs text-gray-500">
+                    No categories found for this product.
+                  </p>
+                )}
+
+              <select
+                value={categoryId}
+                disabled={loading}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
+              >
+                <option value="">Select the service done</option>
+
+                {categories.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* CUSTOMER AMOUNT */}
 
           {(

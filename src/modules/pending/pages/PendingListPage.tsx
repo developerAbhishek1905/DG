@@ -122,6 +122,7 @@ export default function PendingListPage() {
   const [productId, setProductId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [selectedReason, setSelectedReason] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
 
   const [selectedCity, setSelectedCity] = useState<SearchSelectOption | null>(
     null,
@@ -222,6 +223,7 @@ export default function PendingListPage() {
         productId,
         categoryId,
         reason: selectedReason === "ALL" ? "" : selectedReason,
+        status: selectedStatus === "ALL" ? "" : selectedStatus,
       });
 
       setPendingComplaints(response.data || []);
@@ -261,6 +263,7 @@ export default function PendingListPage() {
     productId,
     categoryId,
     selectedReason,
+    selectedStatus,
   ]);
 
   /*
@@ -364,6 +367,7 @@ export default function PendingListPage() {
     setStartDate("");
     setEndDate("");
     setSelectedReason("ALL");
+    setSelectedStatus("ALL");
 
     setPage(1);
     setLimit(10);
@@ -579,9 +583,14 @@ export default function PendingListPage() {
           type="button"
           onClick={() => {
             setSelectedReason("ALL");
+            setSelectedStatus("ALL");
             setPage(1);
           }}
-          className="rounded-xl text-left"
+          className={`rounded-xl text-left transition-all hover:-translate-y-0.5 ${
+            selectedReason === "ALL" && selectedStatus === "ALL"
+              ? "ring-2 ring-blue-600 ring-offset-2"
+              : ""
+          }`}
         >
           <SummaryCard
             label="Total Pending"
@@ -593,19 +602,41 @@ export default function PendingListPage() {
 
         {/* Status Counts */}
 
-        <SummaryCard
-          label="Pending On Call"
-          count={summary.statusCounts.PENDING_ON_CALL}
-          color="orange"
-          compact
-        />
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedStatus(selectedStatus === "PENDING_ON_CALL" ? "ALL" : "PENDING_ON_CALL");
+            setPage(1);
+          }}
+          className={`rounded-xl text-left transition-all hover:-translate-y-0.5 ${
+            selectedStatus === "PENDING_ON_CALL" ? "ring-2 ring-blue-600 ring-offset-2" : ""
+          }`}
+        >
+          <SummaryCard
+            label="Pending On Call"
+            count={summary.statusCounts.PENDING_ON_CALL}
+            color="orange"
+            compact
+          />
+        </button>
 
-        <SummaryCard
-          label="Pending On Visit"
-          count={summary.statusCounts.PENDING_ON_VISIT}
-          color="purple"
-          compact
-        />
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedStatus(selectedStatus === "PENDING_ON_VISIT" ? "ALL" : "PENDING_ON_VISIT");
+            setPage(1);
+          }}
+          className={`rounded-xl text-left transition-all hover:-translate-y-0.5 ${
+            selectedStatus === "PENDING_ON_VISIT" ? "ring-2 ring-blue-600 ring-offset-2" : ""
+          }`}
+        >
+          <SummaryCard
+            label="Pending On Visit"
+            count={summary.statusCounts.PENDING_ON_VISIT}
+            color="purple"
+            compact
+          />
+        </button>
 
         {/* Reason Counts */}
         {/* 

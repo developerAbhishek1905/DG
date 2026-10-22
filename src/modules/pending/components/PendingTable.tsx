@@ -269,9 +269,25 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="w-full overflow-x-auto overscroll-x-contain">
-        <table className="w-full min-w-[1650px] table-fixed text-left text-sm">
+        <table className="w-full min-w-[1900px] table-fixed text-left text-sm">
+          <colgroup>
+            <col className="w-[120px]" />
+            <col className="w-[150px]" />
+            <col className="w-[100px]" />
+            <col className="w-[140px]" />
+            <col className="w-[90px]" />
+            <col className="w-[110px]" />
+            <col className="w-[170px]" />
+            <col className="w-[150px]" />
+            <col className="w-[130px]" />
+            <col className="w-[90px]" />
+            <col className="w-[170px]" />
+            <col className="w-[180px]" />
+            <col className="w-[180px]" />
+            <col className="w-[120px]" />
+          </colgroup>
           {/* <colgroup>
             <col className="w-[10%]" />
             <col className="w-[10%]" />
@@ -286,23 +302,24 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
             <col className="w-[8%]" />
           </colgroup> */}
 
-          <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-500">
+          <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
-              <th className="px-2 py-3">Complaint</th>
-              <th className="px-2 py-3">Customer</th>
-              <th className="px-2 py-3">City</th>
-              <th className="px-2 py-3">Product</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Complaint</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Customer</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">City</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Product</th>
 
-              <th className="px-2 py-3">Quote</th>
-              <th className="px-2 py-3">Created By</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Quote</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Created By</th>
 
-              <th className="px-2 py-3">Technician</th>
-              <th className="px-2 py-3">Reason</th>
-              <th className="px-2 py-3">Updated</th>
-              <th className="px-2 py-3">Follow-up</th>
-              <th className="px-2 py-3">Follow-up Date</th>
-              <th className="px-2 py-3">Remark</th>
-              <th className="px-2 py-3 text-right">Actions</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Technician</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Reason</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Reason Type</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Updated</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Follow-up</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Follow-up Date</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">Remark</th>
+              <th className="whitespace-nowrap px-3 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wide text-gray-500">Actions</th>
             </tr>
           </thead>
 
@@ -322,11 +339,11 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
               return (
                 <tr
                   key={complaint._id}
-                  className="border-b align-top last:border-b-0 hover:bg-gray-50"
+                  className="align-middle transition-colors even:bg-gray-50/50 hover:bg-blue-50/40"
                 >
                   {/* Complaint Number + Type */}
 
-                  <td className="px-2 py-3 align-top">
+                  <td className="px-3 py-3.5 align-middle">
                     <div className="space-y-1">
                       <p className="whitespace-nowrap text-[11px] font-semibold text-blue-600">
                         {complaint.complaintNumber}
@@ -352,7 +369,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Customer */}
 
-                  <td className="min-w-0 overflow-hidden px-2 py-3 align-top">
+                  <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <p
                       className="truncate text-xs font-semibold text-gray-900"
                       title={complaint.customerName}
@@ -367,7 +384,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* City */}
 
-                  <td className="min-w-0 overflow-hidden px-2 py-3 align-top">
+                  <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <p
                       className="truncate text-xs font-medium text-gray-700"
                       title={complaint.address?.city || ""}
@@ -378,7 +395,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Product + Units */}
 
-                  <td className="px-2 py-3 align-top">
+                  <td className="px-3 py-3.5 align-middle">
                     <p
                       className="truncate text-xs font-medium text-gray-800"
                       title={complaint.productName}
@@ -396,7 +413,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Quote Amount */}
 
-                  <td className="px-2 py-3 align-top">
+                  <td className="px-3 py-3.5 align-middle">
                     <span className="whitespace-nowrap text-xs font-semibold text-gray-800">
                       {complaint.quoteAmount != null
                         ? `₹${complaint.quoteAmount.toLocaleString("en-IN")}`
@@ -406,7 +423,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Created By */}
 
-                  <td className="px-2 py-3 align-top">
+                  <td className="px-3 py-3.5 align-middle">
                     <p
                       className="truncate text-[11px] font-medium text-gray-700"
                       title={
@@ -423,13 +440,16 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Technician */}
 
-                  <td className="px-2 py-3 align-top">
-                    <p className="text-xs font-medium">
+                  <td className="px-3 py-3.5 align-middle">
+                    <p
+                      className="truncate text-xs font-semibold text-gray-900"
+                      title={complaint.allocatedDealerId?.technicianFirmName || ""}
+                    >
                       {complaint.allocatedDealerId?.technicianFirmName || "-"}
                     </p>
 
                     <p
-                      className="truncate text-xs font-medium text-gray-800"
+                      className="truncate text-[11px] text-gray-500"
                       title={complaint.allocatedDealerId?.technicianName || ""}
                     >
                       {complaint.allocatedDealerId?.technicianName || "-"}
@@ -451,7 +471,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                   </td>
 
                   {/* Reason */}
-                  {/* <td className="px-2 py-3 align-top">
+                  {/* <td className="px-3 py-3.5 align-middle">
                     <p className="break-words text-[11px] leading-4 text-gray-700">
                       {complaint.pendingReason
                         ?.replaceAll("_", " ")
@@ -462,7 +482,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Reason */}
 
-                  <td className="px-2 py-3 align-top">
+                  <td className="px-3 py-3.5 align-middle">
                     <span
                       title={formatReason(complaint.pendingReason)}
                       className={`
@@ -479,9 +499,25 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                     </span>
                   </td>
 
+                  {/* Reason Type: on call / after call */}
+
+                  <td className="px-3 py-3.5 align-middle">
+                    {complaint.status === "PENDING_ON_CALL" ? (
+                      <span className="inline-flex whitespace-nowrap rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
+                        On Call Pending
+                      </span>
+                    ) : complaint.status === "PENDING_ON_VISIT" ? (
+                      <span className="inline-flex whitespace-nowrap rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
+                        After Call Pending
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-gray-400">-</span>
+                    )}
+                  </td>
+
                   {/* Updated */}
 
-                  <td className="px-2 py-3 align-top">
+                  <td className="px-3 py-3.5 align-middle">
                     <p className="whitespace-nowrap text-[11px] font-medium text-gray-700">
                       {formatTableDate(complaint.updatedAt).date}
                     </p>
@@ -493,7 +529,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Follow-up status */}
 
-                  <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
+                  <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <select
                       value={form.followUpReasonId}
                       onChange={(event) =>
@@ -505,9 +541,10 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                       }
                       className="
     block w-full min-w-0 max-w-full
-    rounded-md border border-gray-300
-    bg-white px-1 py-2 text-[10px]
-    outline-none focus:border-blue-500
+    rounded-lg border border-gray-300
+    bg-white px-2 py-2 text-xs
+    outline-none transition
+    focus:border-blue-500 focus:ring-2 focus:ring-blue-100
   "
                     >
                       <option value="">Select Reason</option>
@@ -522,7 +559,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Follow-up Date */}
 
-                  <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
+                  <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <div className="min-w-0 max-w-full overflow-hidden">
                       <input
                         type="datetime-local"
@@ -536,9 +573,10 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                         }
                         className="
     block w-full min-w-0 max-w-full
-    rounded-md border border-gray-300
-    px-1 py-2 text-[10px]
-    outline-none focus:border-blue-500
+    rounded-lg border border-gray-300
+    px-2 py-2 text-xs
+    outline-none transition
+    focus:border-blue-500 focus:ring-2 focus:ring-blue-100
   "
                       />
                     </div>
@@ -546,7 +584,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   {/* Remark */}
 
-                  <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
+                  <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <input
                       type="text"
                       value={form.remark}
@@ -556,26 +594,27 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                       placeholder="Remark..."
                       className="
     block w-full min-w-0 max-w-full
-    rounded-md border border-gray-300
-    px-2 py-2 text-[10px]
-    outline-none focus:border-blue-500
+    rounded-lg border border-gray-300
+    px-3 py-2 text-xs
+    outline-none transition
+    focus:border-blue-500 focus:ring-2 focus:ring-blue-100
   "
                     />
                   </td>
 
                   {/* Actions */}
 
-                  <td className="min-w-0 overflow-hidden px-1 py-3 align-top">
-                    <div className="flex min-w-0 flex-col gap-1">
+                  <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
+                    <div className="flex min-w-0 flex-col gap-1.5">
                       <button
                         type="button"
                         disabled={isSaving}
                         onClick={() => handleSave(complaint, false)}
                         className="
-        w-full rounded-md bg-blue-600
-        px-1 py-1.5 text-[10px]
-        font-medium text-white
-        hover:bg-blue-700
+        w-full rounded-lg bg-blue-600
+        px-2 py-1.5 text-xs
+        font-semibold text-white shadow-sm
+        transition hover:bg-blue-700
         disabled:opacity-50
       "
                       >
@@ -587,10 +626,10 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                         disabled={isSaving}
                         onClick={() => handleSave(complaint, true)}
                         className="
-        w-full rounded-md bg-green-600
-        px-1 py-1.5 text-[10px]
-        font-medium leading-3 text-white
-        hover:bg-green-700
+        w-full rounded-lg bg-green-600
+        px-2 py-1.5 text-xs
+        font-semibold text-white shadow-sm
+        transition hover:bg-green-700
         disabled:opacity-50
       "
                       >
@@ -601,10 +640,10 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                         type="button"
                         onClick={() => handleViewRemarks(complaint)}
                         className="
-        w-full rounded-md border
-        border-gray-300 px-1 py-1.5
-        text-[10px] font-medium text-gray-600
-        hover:bg-gray-50
+        w-full rounded-lg border
+        border-gray-300 bg-white px-2 py-1.5
+        text-xs font-medium text-gray-600
+        transition hover:bg-gray-50
       "
                       >
                         Remarks
@@ -618,7 +657,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
             {!complaints.length && (
               <tr>
                 <td
-                  colSpan={10}
+                  colSpan={14}
                   className="px-4 py-12 text-center text-gray-500"
                 >
                   No pending complaints found.

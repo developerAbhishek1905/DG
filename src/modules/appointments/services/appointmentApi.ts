@@ -48,6 +48,7 @@ export interface UpdateAppointmentStatusPayload {
   customerAmount?: number;
   profitAmount?: number;
   warrantyAssured?: { value: number; unit: "DAYS" | "MONTHS" };
+  closureCategoryId?: string;
 }
 
 export interface CalendarParams {

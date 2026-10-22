@@ -146,13 +146,14 @@
 //   );
 // }
 
-import { Eye, RefreshCw } from "lucide-react";
+import { Bell, Eye, RefreshCw } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 
 import type { Appointment } from "../types/appointment.types";
 import AppointmentStatusBadge from "./AppointmentStatusBadge";
-import { useAppSelector } from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { readNotification } from "../../notifications/store/notificationSlice";
 import { complaintTypeLabel } from "../utils/complaintTypeLabel";
 
 interface Props {
@@ -161,6 +162,46 @@ interface Props {
   onReschedule?: (appointmentId: string) => void;
 
   onStatusChange?: (appointmentId: string, status: AppointmentStatus) => void;
+}
+
+/*
+ * Bell shown next to a complaint number when DG sent a remark for it.
+ * Red dot = unread. Click opens the complaint (and marks the remark read).
+ */
+function RemarkBell({ complaintId }: { complaintId: string }) {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const remarks = useAppSelector((state) =>
+    state.notifications.notifications.filter(
+      (item) => item.entityId === complaintId,
+    ),
+  );
+
+  if (remarks.length === 0) return null;
+
+  const unread = remarks.filter((item) => !item.isRead);
+
+  return (
+    <button
+      type="button"
+      title={(unread[0] || remarks[0]).message}
+      onClick={(event) => {
+        event.stopPropagation();
+        unread.forEach((item) => dispatch(readNotification(item.id)));
+        navigate(`/appointments/${complaintId}`);
+      }}
+      className="relative shrink-0 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-[#123B7A]"
+    >
+      <Bell size={15} className={unread.length ? "text-amber-500" : ""} />
+
+      {unread.length > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+          {unread.length}
+        </span>
+      )}
+    </button>
+  );
 }
 
 export default function AppointmentTable({
@@ -280,13 +321,16 @@ export default function AppointmentTable({
                     Complaint
                   </p>
 
+<div className="mt-1 flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => navigate(`/appointments/${appointment._id}`)}
-                    className="mt-1 break-all text-left text-sm font-bold text-[#123B7A]"
+                    className="break-all text-left text-sm font-bold text-[#123B7A]"
                   >
                     {appointment.complaintNumber}
                   </button>
+<RemarkBell complaintId={appointment._id} />
+</div>
 
                   <p className="mt-1 text-xs text-gray-400">
                     {formatDate(appointment.complaintDateTime)} •{" "}
@@ -706,9 +750,12 @@ export default function AppointmentTable({
               Complaint No.
             </p>
 
-            <p className="mt-0.5 truncate text-sm font-bold text-[#123B7A]">
+<div className="mt-0.5 flex items-center gap-1.5">
+            <p className="truncate text-sm font-bold text-[#123B7A]">
               {appointment.complaintNumber || "-"}
             </p>
+<RemarkBell complaintId={appointment._id} />
+</div>
           </div>
 
           <div className="shrink-0">
@@ -953,15 +1000,18 @@ export default function AppointmentTable({
                       Complaint
                     </p>
 
+<div className="mt-1 flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() =>
                         navigate(`/appointments/${appointment._id}`)
                       }
-                      className="mt-1 block max-w-full truncate text-left text-xs font-bold text-[#123B7A] hover:underline"
+                      className="block max-w-full truncate text-left text-xs font-bold text-[#123B7A] hover:underline"
                     >
                       {appointment.complaintNumber}
                     </button>
+<RemarkBell complaintId={appointment._id} />
+</div>
 
                     <p className="mt-1 text-[11px] text-gray-500">
                       {formatDate(appointment.complaintDateTime)}

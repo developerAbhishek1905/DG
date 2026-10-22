@@ -19,7 +19,9 @@ import {
   getClosures,
   approveClosure,
   createRatingReview,
+  updateClosureCategory,
 } from "../services/closureApi";
+import { searchCategories } from "../../complaints/services/complaintApi";
 
 import { toast } from "react-toastify";
 
@@ -232,6 +234,25 @@ const [citySearch, setCitySearch] = useState<string>("");
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
 
+  const handleCategoryChange = async (
+    closure: ClosureRecord,
+    categoryId: string,
+  ) => {
+    try {
+      await updateClosureCategory(closure._id, categoryId);
+
+      toast.success("Category updated, bill amount recalculated");
+
+      await loadClosures(true);
+    } catch (error: any) {
+      console.error("Update closure category error:", error);
+
+      toast.error(
+        error?.response?.data?.message || "Failed to update category",
+      );
+    }
+  };
+
   const handleApproveClosure = async (
     closure: ClosureRecord,
     remark: string,
@@ -254,7 +275,7 @@ const [citySearch, setCitySearch] = useState<string>("");
 
       toast.success("Closure approved successfully");
 
-      await loadClosures();
+      await loadClosures(true);
     } catch (error) {
       console.error("Approve closure error:", error);
 
@@ -274,9 +295,10 @@ const [citySearch, setCitySearch] = useState<string>("");
     return () => clearTimeout(timer);
   }, [search]);
 
-  const loadClosures = useCallback(async () => {
+  const loadClosures = useCallback(async (keepOrder = false) => {
     try {
-      setLoading(true);
+      // After an action keep the table mounted (no flash / scroll jump)
+      if (!keepOrder) setLoading(true);
 
       const response = await getClosures({
         page,
@@ -295,7 +317,21 @@ const [citySearch, setCitySearch] = useState<string>("");
       });
      
 
-      setClosures(response.data ?? []);
+      const incoming = response.data ?? [];
+
+      setClosures((prev) => {
+        if (!keepOrder || prev.length === 0) return incoming;
+
+        // Keep every row at the position it already had; only refresh its data
+        const byId = new Map(incoming.map((c) => [c._id, c]));
+        const kept = prev
+          .map((c) => byId.get(c._id))
+          .filter((c): c is ClosureRecord => Boolean(c));
+        const keptIds = new Set(kept.map((c) => c._id));
+        const extra = incoming.filter((c) => !keptIds.has(c._id));
+
+        return [...kept, ...extra];
+      });
   
 
       setTotal(response.pagination?.total ?? 0);
@@ -371,7 +407,7 @@ const [citySearch, setCitySearch] = useState<string>("");
 
       setReviewClosure(null);
 
-      await loadClosures();
+      await loadClosures(true);
     } catch (error: any) {
       console.error("Submit rating error:", error);
 
@@ -801,7 +837,7 @@ useEffect(() => {
       ) : (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="w-full overflow-x-auto">
-            <table className="min-w-[1600px] w-full table-auto text-left text-sm">
+            <table className="min-w-[1900px] w-full table-auto text-left text-sm">
               <colgroup>
                 <col className="w-[160px]" /> {/* Complaint */}
                 <col className="w-[170px]" /> {/* Customer */}
@@ -812,6 +848,9 @@ useEffect(() => {
                 <col className="w-[150px]" /> {/* Created By */}
                 <col className="w-[180px]" /> {/* Technician */}
                 <col className="w-[170px]" /> {/* Reason */}
+                <col className="w-[140px]" /> {/* Registered Category */}
+                <col className="w-[140px]" /> {/* Dealer Closing Category */}
+                <col className="w-[190px]" /> {/* Verification Category */}
                 <col className="w-[140px]" /> {/* Updated */}
                 <col className="w-[220px]" /> {/* Remark */}
                 <col className="w-[120px]" /> {/* Actions */}
@@ -829,6 +868,9 @@ useEffect(() => {
                     "Created By",
                     "Technician",
                     "Reason",
+                    "Registered Category",
+                    "Dealer Closing Category",
+                    "Verification Category",
                     "Updated",
                     "Remark",
                     "Actions",
@@ -847,7 +889,7 @@ useEffect(() => {
                 {closures.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={12}
+                      colSpan={15}
                       className="px-5 py-12 text-center text-sm text-gray-500"
                     >
                       No closed complaints found.
@@ -860,6 +902,7 @@ useEffect(() => {
                       closure={closure}
                       isApproving={approvingId === closure._id}
                       onApprove={handleApproveClosure}
+                      onCategoryChange={handleCategoryChange}
                       onNavigate={(id) => navigate(`/complaints/${id}`)}
                       onReview={setReviewClosure}
                     />
@@ -939,19 +982,90 @@ interface ClosureRowProps {
 
   onApprove: (closure: ClosureRecord, remark: string) => Promise<void>;
 
+  onCategoryChange: (
+    closure: ClosureRecord,
+    categoryId: string,
+  ) => Promise<void>;
+
   onNavigate: (id: string) => void;
 
   onReview: (closure: ClosureRecord) => void;
+}
+
+// One request per product, shared by all rows
+type CategoryOption = {
+  _id: string;
+  category: string;
+  description: string;
+};
+
+const productCategoryCache = new Map<number, Promise<CategoryOption[]>>();
+
+function getProductCategories(productId: number) {
+  let cached = productCategoryCache.get(productId);
+
+  if (!cached) {
+    cached = searchCategories({ productId }).then((items) =>
+      items.map((item) => ({
+        _id: item._id,
+        category: item.category,
+        description: item.categoryDescription || item.description || "",
+      })),
+    );
+
+    productCategoryCache.set(productId, cached);
+
+    cached.catch(() => productCategoryCache.delete(productId));
+  }
+
+  return cached;
 }
 
 const ClosureRow = memo(function ClosureRow({
   closure,
   isApproving,
   onApprove,
+  onCategoryChange,
   onNavigate,
   onReview,
 }: ClosureRowProps) {
   const [remark, setRemark] = useState("");
+
+  // Categories of this complaint's product (billing is decided from the
+  // category selected here)
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
+
+  const descriptionOf = (id?: string | null) =>
+    categoryOptions.find((option) => option._id === String(id || ""))
+      ?.description || "";
+
+  useEffect(() => {
+    const productId = Number(closure.productId);
+
+    if (!productId) return;
+
+    let active = true;
+
+    getProductCategories(productId)
+      .then((items) => {
+        if (active) setCategoryOptions(items);
+      })
+      .catch(() => {
+        if (active) setCategoryOptions([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [closure.productId]);
+
+  // Verification category: what DG picked, otherwise the one in force
+  const selectedCategoryId = String(
+    closure.verifiedCategoryId ||
+      closure.closureCategoryId ||
+      closure.categoryId ||
+      "",
+  );
 
   const isApproved = closure.closureApproved === true;
 
@@ -1239,13 +1353,6 @@ const ClosureRow = memo(function ClosureRow({
                           Units: {closure.units}
                         </p>
                       )}
-          {closure.category ? (
-            <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-              {closure.category}
-            </span>
-          ) : (
-            <span className="text-sm text-gray-400">-</span>
-          )}
         </td>
 
         {/* Quote */}
@@ -1304,6 +1411,74 @@ const ClosureRow = memo(function ClosureRow({
           <p className="leading-4 text-green-800 text-[10px] px-1 py-2">
             {closure?.closingReason}
           </p>
+        </td>
+
+        {/* Registered Category */}
+        <td className="px-3 py-3">
+          <p className="text-xs font-medium text-gray-800">
+            {closure.category || "-"}
+          </p>
+          {descriptionOf(closure.categoryId) && (
+            <p className="mt-0.5 max-w-[170px] whitespace-normal text-[10px] leading-4 text-gray-500">
+              {descriptionOf(closure.categoryId)}
+            </p>
+          )}
+        </td>
+
+        {/* Dealer Closing Category */}
+        <td className="px-3 py-3">
+          <p className="text-xs font-medium text-gray-800">
+            {closure.dealerClosureCategory || "-"}
+          </p>
+          {descriptionOf(closure.dealerClosureCategoryId) && (
+            <p className="mt-0.5 max-w-[170px] whitespace-normal text-[10px] leading-4 text-gray-500">
+              {descriptionOf(closure.dealerClosureCategoryId)}
+            </p>
+          )}
+        </td>
+
+        {/* Verification Category */}
+        <td className="px-3 py-3">
+          {categoryOptions.length > 0 ? (
+            <select
+              value={selectedCategoryId}
+              disabled={isApproved}
+              onChange={(event) => {
+                if (event.target.value) {
+                  void onCategoryChange(closure, event.target.value);
+                }
+              }}
+              title={
+                isApproved
+                  ? "Closure approved, category cannot be changed"
+                  : "Billing amount is decided from this category"
+              }
+              className="w-full max-w-[170px] rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 outline-none focus:border-[#123B7A] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {!selectedCategoryId && <option value="">Select category</option>}
+              {categoryOptions.map((option) => (
+                <option key={option._id} value={option._id}>
+                  {option.category}
+                </option>
+              ))}
+            </select>
+          ) : closure.verifiedCategory ||
+            closure.closureCategory ||
+            closure.category ? (
+            <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              {closure.verifiedCategory ||
+                closure.closureCategory ||
+                closure.category}
+            </span>
+          ) : (
+            <span className="text-sm text-gray-400">-</span>
+          )}
+
+          {descriptionOf(selectedCategoryId) && (
+            <p className="mt-1 max-w-[170px] whitespace-normal text-[10px] leading-4 text-gray-500">
+              {descriptionOf(selectedCategoryId)}
+            </p>
+          )}
         </td>
 
         {/* Updated */}

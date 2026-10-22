@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import NotificationDropdown from "../../notifications/components/NotificationDropdown";
 import AppointmentFilters from "../components/AppointmentFilters";
 import AppointmentTable from "../components/AppointmentTable";
 import RescheduleModal from "../components/RescheduleModal";
@@ -310,7 +311,9 @@ export default function AppointmentListPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <NotificationDropdown />
+
           <button
             onClick={() => navigate("/appointments/calendar")}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700"
