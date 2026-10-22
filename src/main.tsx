@@ -6,6 +6,9 @@ import App from "./App";
 import { store } from "./app/store";
 
 import "./index.css";
+import { enableWheelHorizontalScroll } from "./utils/enableWheelHorizontalScroll";
+
+enableWheelHorizontalScroll();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
