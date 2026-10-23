@@ -106,7 +106,13 @@ export default function ComplaintActivityModal({
                     {/* Timeline */}
 
                     <div className="relative flex flex-col items-center">
-                      <div className="z-10 flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-[#123B7A]">
+                      <div
+                        className={`z-10 flex h-9 w-9 items-center justify-center rounded-full ${
+                          activity.activityType === "ALLOCATION_FAILED"
+                            ? "bg-red-50 text-red-600"
+                            : "bg-blue-50 text-[#123B7A]"
+                        }`}
+                      >
                         <History
                           size={16}
                         />
@@ -179,12 +185,32 @@ export default function ComplaintActivityModal({
                       {/* REASON */}
 
                       {activity.reason && (
-                        <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2">
-                          <p className="text-xs font-medium text-amber-700">
-                            Reason
+                        <div
+                          className={`mt-3 rounded-lg px-3 py-2 ${
+                            activity.activityType === "ALLOCATION_FAILED"
+                              ? "bg-red-50"
+                              : "bg-amber-50"
+                          }`}
+                        >
+                          <p
+                            className={`text-xs font-medium ${
+                              activity.activityType === "ALLOCATION_FAILED"
+                                ? "text-red-700"
+                                : "text-amber-700"
+                            }`}
+                          >
+                            {activity.activityType === "ALLOCATION_FAILED"
+                              ? "Why not allocated"
+                              : "Reason"}
                           </p>
 
-                          <p className="mt-0.5 text-sm text-amber-800">
+                          <p
+                            className={`mt-0.5 text-sm ${
+                              activity.activityType === "ALLOCATION_FAILED"
+                                ? "text-red-800"
+                                : "text-amber-800"
+                            }`}
+                          >
                             {
                               activity.reason
                             }

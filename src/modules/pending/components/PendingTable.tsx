@@ -1,3 +1,4 @@
+import DateTimeInput from "../../../components/ui/DateTimeInput";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -561,23 +562,11 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <div className="min-w-0 max-w-full overflow-hidden">
-                      <input
-                        type="datetime-local"
+                      <DateTimeInput
                         value={form.followUpDate}
-                        onChange={(event) =>
-                          updateForm(
-                            complaint._id,
-                            "followUpDate",
-                            event.target.value,
-                          )
+                        onChange={(value) =>
+                          updateForm(complaint._id, "followUpDate", value)
                         }
-                        className="
-    block w-full min-w-0 max-w-full
-    rounded-lg border border-gray-300
-    px-2 py-2 text-xs
-    outline-none transition
-    focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-  "
                       />
                     </div>
                   </td>

@@ -658,6 +658,91 @@ const [activityLoading, setActivityLoading] =
       </div>
 
       {/* ======================================
+          OPERATING CITIES (one profile, many cities)
+      ====================================== */}
+
+      <Card className="p-5">
+        <h3 className="font-semibold text-gray-900">Operating Cities</h3>
+
+        <p className="mt-1 text-xs text-gray-500">
+          Appointments from all these cities appear under this single dealer
+          profile.
+        </p>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {[
+            {
+              key: "primary",
+              city: dealer.businessAddress?.city || "Primary city",
+              isPrimary: true,
+              services: dealer.productServices ?? [],
+              capacities: dealer.individualCapacities ?? [],
+              combined: dealer.combinedCapacity,
+            },
+            ...(dealer.additionalCities ?? []).map((item) => ({
+              key: String(item.cityId),
+              city: item.city,
+              isPrimary: false,
+              services: item.productServices ?? [],
+              capacities: item.individualCapacities ?? [],
+              combined: item.combinedCapacity,
+            })),
+          ].map((entry) => {
+            const total =
+              entry.capacities.reduce(
+                (sum, c) => sum + Number(c.capacity || 0),
+                0,
+              ) + Number(entry.combined?.capacity ?? 0);
+
+            return (
+              <div
+                key={entry.key}
+                className="rounded-xl border border-gray-200 p-4"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold text-gray-900">{entry.city}</p>
+
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                      entry.isPrimary
+                        ? "bg-blue-50 text-[#123B7A]"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {entry.isPrimary ? "Primary" : "Additional"}
+                  </span>
+                </div>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  Daily capacity: <b className="text-gray-800">{total}</b>
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {entry.services.length === 0 && (
+                    <span className="text-xs text-gray-400">
+                      No products added
+                    </span>
+                  )}
+
+                  {entry.services.map((service) => (
+                    <span
+                      key={service.productId}
+                      className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700"
+                    >
+                      {service.productName}
+                      {service.categories?.length
+                        ? ` (${service.categories.length})`
+                        : ""}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* ======================================
           ADDRESS
       ====================================== */}
 

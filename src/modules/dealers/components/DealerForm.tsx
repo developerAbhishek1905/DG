@@ -10,6 +10,7 @@ import AddressFields from "../components/AddressFields";
 import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ProductServiceFields from "../components/ProductServiceFields";
+import AdditionalCitiesSection from "../components/AdditionalCitiesSection";
 import SearchSelect from "../../../components/ui/SearchSelect";
 type DealerFormTab = "basic" | "documents" | "account" | "service";
 import type { FieldErrors } from "react-hook-form";
@@ -219,6 +220,8 @@ export default function DealerForm({
           }))
         : [],
 
+      additionalCities: dealer?.additionalCities ?? [],
+
       securityAmount: dealer?.securityAmount ?? 0,
 
       additionalInfo: dealer?.additionalInfo?.length
@@ -396,6 +399,7 @@ export default function DealerForm({
               capacity: 0,
             },
           ],
+      additionalCities: dealer.additionalCities ?? [],
       securityAmount: dealer.securityAmount ?? 0,
 
       additionalInfo: dealer.additionalInfo?.length
@@ -610,6 +614,32 @@ const availableIndividualProducts = capacityProducts.filter(
               productName: item.productName,
               capacity: Number(item.capacity || 0),
             })) ?? [],
+
+        additionalCities: (data.additionalCities ?? [])
+          .filter((item) => item.cityId)
+          .map((item) => ({
+            cityId: item.cityId,
+            city: item.city,
+            productServices: item.productServices
+              .filter((p) => p.productId)
+              .map((p) => ({
+                ...p,
+                categories: p.categories?.filter((c) => c.categoryId) ?? [],
+              })),
+            combinedCapacity: {
+              products: item.combinedCapacity?.products ?? [],
+              capacity: item.combinedCapacity?.products?.length
+                ? Number(item.combinedCapacity?.capacity || 0)
+                : 0,
+            },
+            individualCapacities: item.individualCapacities
+              .filter((p) => p.productId)
+              .map((p) => ({
+                productId: p.productId,
+                productName: p.productName,
+                capacity: Number(p.capacity || 0),
+              })),
+          })),
 
         securityAmount: Number(data.securityAmount || 0),
 
@@ -1708,6 +1738,13 @@ const availableIndividualProducts = capacityProducts.filter(
       )}
 
       {activeTab === "service" && (
+        <>
+        <div className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-[#123B7A]">
+          Primary city:{" "}
+          <b>{watch("businessAddress.city") || "select business city in Basic tab"}</b>
+          {" "}— the product services, combined and individual capacity below
+          belong to this city. Add other cities at the bottom.
+        </div>
         <div className="grid grid-cols-1 divide-y divide-gray-200 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
           <div className="pb-3 xl:pb-0 xl:pr-4">
             <Section title="Product & Service Information">
@@ -2061,6 +2098,18 @@ const availableIndividualProducts = capacityProducts.filter(
             </Section>
           </div>
         </div>
+
+        <AdditionalCitiesSection
+          value={watch("additionalCities") ?? []}
+          onChange={(next) =>
+            setValue("additionalCities", next, {
+              shouldDirty: true,
+              shouldValidate: false,
+            })
+          }
+          primaryCityId={watch("businessAddress.cityId")}
+        />
+        </>
       )}
     </form>
   );

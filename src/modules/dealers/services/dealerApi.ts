@@ -66,6 +66,7 @@ const buildDealerFormData = (data: DealerFormData) => {
         "productServices",
         "combinedCapacity",
         "individualCapacities",
+        "additionalCities",
         "additionalInfo",
         "aadhaarFrontFile",
         "aadhaarBackFile",
@@ -111,6 +112,11 @@ const buildDealerFormData = (data: DealerFormData) => {
   formData.append(
     "individualCapacities",
     JSON.stringify(data.individualCapacities ?? []),
+  );
+
+  formData.append(
+    "additionalCities",
+    JSON.stringify(data.additionalCities ?? []),
   );
 
   /* =========================

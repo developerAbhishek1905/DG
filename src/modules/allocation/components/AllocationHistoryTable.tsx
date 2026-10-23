@@ -12,6 +12,10 @@ const LABELS: Record<string, { text: string; className: string }> = {
   DEALER_ALLOCATED: { text: "Allocated", className: "bg-green-50 text-green-700" },
   DEALER_CHANGED: { text: "Changed", className: "bg-amber-50 text-amber-700" },
   DEALER_REMOVED: { text: "Removed", className: "bg-red-50 text-red-700" },
+  ALLOCATION_FAILED: {
+    text: "Not allocated",
+    className: "bg-red-100 text-red-700",
+  },
 };
 
 export default function AllocationHistoryTable() {
@@ -128,7 +132,17 @@ export default function AllocationHistoryTable() {
                               {row.allocationType ? ` · ${row.allocationType}` : ""}
                             </span>
                           )}
-                          <span className={row.reason ? "" : "text-gray-400"}>{row.reason || "Reason not recorded"}</span>
+                          <span
+                            className={
+                              row.activityType === "ALLOCATION_FAILED"
+                                ? "font-medium text-red-700"
+                                : row.reason
+                                  ? ""
+                                  : "text-gray-400"
+                            }
+                          >
+                            {row.reason || "Reason not recorded"}
+                          </span>
                         </div>
 
                         {row.performedBy && (

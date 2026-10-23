@@ -41,6 +41,15 @@ export interface DealerCapacityItem {
   capacity: number;
 }
 
+// Another city the dealer operates in, with its own services and capacity
+export interface DealerAdditionalCity {
+  cityId?: number;
+  city: string;
+  productServices: DealerProductService[];
+  combinedCapacity: DealerCombinedCapacity;
+  individualCapacities: DealerCapacityItem[];
+}
+
 export interface DealerCapacity {
   total: number;
   used: number;
@@ -197,6 +206,9 @@ export interface DealerFormData {
   // capacityType: CapacityType;
   combinedCapacity: DealerCombinedCapacity;
   individualCapacities: DealerCapacityItem[];
+
+  additionalCities?: DealerAdditionalCity[];
+  additionalInfo?: { value: string }[];
 
   productServices: DealerProductService[];
     dateOfJoining?: string;
