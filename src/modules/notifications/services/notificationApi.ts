@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import api from "../../../services/api/axios";
 
 import type {
@@ -44,7 +45,14 @@ export async function getNotifications(): Promise<NotificationResponse> {
 
   cache = ((response.data?.data || []) as Notification[])
     .filter((item) => !deleted.has(item.id))
-    .map((item) => ({ ...item, isRead: read.has(item.id) }));
+    .map((item) => ({
+      ...item,
+      actionUrl:
+        item.actionUrl && item.actionUrl.startsWith("/") && !item.actionUrl.startsWith("/dealer")
+          ? `${getPanelBase()}${item.actionUrl}`
+          : item.actionUrl,
+      isRead: read.has(item.id),
+    }));
 
   return {
     notifications: [...cache],

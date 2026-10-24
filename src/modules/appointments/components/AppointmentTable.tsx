@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 // import { CalendarClock, Eye, RefreshCw } from "lucide-react";
 
 // import { useNavigate } from "react-router-dom";
@@ -58,7 +59,7 @@
 //               <tr key={appointment.id} className="hover:bg-gray-50">
 //                 <td className="px-5 py-4">
 //                   <button
-//                     onClick={() => navigate(`/appointments/${appointment.id}`)}
+//                     onClick={() => navigate(`${getPanelBase()}/appointments/${appointment.id}`)}
 //                     className="font-medium text-[#123B7A] hover:underline"
 //                   >
 //                     {appointment.complaintNumber}
@@ -107,7 +108,7 @@
 //                   <div className="flex gap-1">
 //                     <button
 //                       onClick={() =>
-//                         navigate(`/appointments/${appointment.id}`)
+//                         navigate(`${getPanelBase()}/appointments/${appointment.id}`)
 //                       }
 //                       title="View"
 //                       className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
@@ -189,7 +190,7 @@ function RemarkBell({ complaintId }: { complaintId: string }) {
       onClick={(event) => {
         event.stopPropagation();
         unread.forEach((item) => dispatch(readNotification(item.id)));
-        navigate(`/appointments/${complaintId}`);
+        navigate(`${getPanelBase()}/appointments/${complaintId}`);
       }}
       className="relative shrink-0 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-[#123B7A]"
     >
@@ -324,7 +325,7 @@ export default function AppointmentTable({
 <div className="mt-1 flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => navigate(`/appointments/${appointment._id}`)}
+                    onClick={() => navigate(`${getPanelBase()}/appointments/${appointment._id}`)}
                     className="break-all text-left text-sm font-bold text-[#123B7A]"
                   >
                     {appointment.complaintNumber}
@@ -644,7 +645,7 @@ export default function AppointmentTable({
                 <div className="flex gap-2 border-t border-gray-100 pt-4">
                   <button
                     type="button"
-                    onClick={() => navigate(`/appointments/${appointment._id}`)}
+                    onClick={() => navigate(`${getPanelBase()}/appointments/${appointment._id}`)}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
                   >
                     <Eye size={16} />
@@ -720,7 +721,7 @@ export default function AppointmentTable({
       appointment.status === "REGISTERED";
 
     const openComplaint = () => {
-      navigate(`/appointments/${appointment._id}`);
+      navigate(`${getPanelBase()}/appointments/${appointment._id}`);
     };
 
     return (
@@ -1004,7 +1005,7 @@ export default function AppointmentTable({
                     <button
                       type="button"
                       onClick={() =>
-                        navigate(`/appointments/${appointment._id}`)
+                        navigate(`${getPanelBase()}/appointments/${appointment._id}`)
                       }
                       className="block max-w-full truncate text-left text-xs font-bold text-[#123B7A] hover:underline"
                     >
@@ -1151,7 +1152,7 @@ export default function AppointmentTable({
                         <button
                           type="button"
                           onClick={() =>
-                            navigate(`/appointments/${appointment._id}`)
+                            navigate(`${getPanelBase()}/appointments/${appointment._id}`)
                           }
                           title="View"
                           className="rounded-md border border-gray-200 p-1.5 text-gray-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"

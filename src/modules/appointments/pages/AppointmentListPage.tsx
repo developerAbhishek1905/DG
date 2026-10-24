@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import { CalendarDays, Plus } from "lucide-react";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -315,7 +316,7 @@ export default function AppointmentListPage() {
           <NotificationDropdown />
 
           <button
-            onClick={() => navigate("/appointments/calendar")}
+            onClick={() => navigate(`${getPanelBase()}/appointments/calendar`)}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700"
           >
             <CalendarDays size={17} />
@@ -323,7 +324,7 @@ export default function AppointmentListPage() {
           </button>
 
           {/* <button
-            onClick={() => navigate("/appointments/create")}
+            onClick={() => navigate(`${getPanelBase()}/appointments/create`)}
             className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white"
           >
             <Plus size={17} />

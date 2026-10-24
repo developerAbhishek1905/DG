@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import {
   ArrowLeft,
   BookOpen,
@@ -119,7 +120,7 @@ export default function DealerLedgerPage() {
     <div className="space-y-6">
       <button
         type="button"
-        onClick={() => navigate("/ledger")}
+        onClick={() => navigate(`${getPanelBase()}/ledger`)}
         className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#123B7A]"
       >
         <ArrowLeft size={17} />

@@ -3,6 +3,7 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
+import { getHomePath } from "../../../utils/panelPath";
 import type { LoginCredentials } from "../types/auth.types";
 
 export default function LoginForm() {
@@ -34,12 +35,24 @@ export default function LoginForm() {
       return;
     }
 
+    let roleCode: string | undefined;
+    try {
+      roleCode = JSON.parse(localStorage.getItem("user") || "null")?.role?.code;
+    } catch {
+      roleCode = undefined;
+    }
+    const isDealer = roleCode === "DEALER";
+    const savedFrom = (
+      location.state as {
+        from?: string;
+      } | null
+    )?.from;
+
+    // Keep each user inside their own panel
     const from =
-      (
-        location.state as {
-          from?: string;
-        } | null
-      )?.from ?? "/dashboard";
+      savedFrom && savedFrom.startsWith("/dealer") === isDealer && savedFrom !== "/login"
+        ? savedFrom
+        : getHomePath(roleCode);
 
     navigate(from, {
       replace: true,

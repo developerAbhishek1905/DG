@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import PercentageClosureForm from "../components/PercentageClosureForm";
 import {
   ArrowLeft,
@@ -99,8 +100,8 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
     if (!id) return;
 
     if (window.history.state?.idx === 0) {
-      navigate("/appointments", { replace: true });
-      navigate(`/appointments/${id}`);
+      navigate(`${getPanelBase()}/appointments`, { replace: true });
+      navigate(`${getPanelBase()}/appointments/${id}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -693,7 +694,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <button
           type="button"
-          onClick={() => navigate("/appointments")}
+          onClick={() => navigate(`${getPanelBase()}/appointments`)}
           className="inline-flex w-fit items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-[#123B7A]"
         >
           <ArrowLeft size={17} />

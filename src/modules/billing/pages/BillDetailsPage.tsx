@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -108,7 +109,7 @@ export default function BillDetailsPage() {
         <button
           onClick={() =>
             navigate(
-              "/billing/bills"
+              `${getPanelBase()}/billing`
             )
           }
           className="inline-flex items-center gap-2 text-sm text-gray-500"

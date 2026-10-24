@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import {
   Bell,
   CheckCheck,
@@ -236,7 +237,7 @@ export default function NotificationDropdown() {
                 );
 
                 navigate(
-                  "/notifications"
+                  `${getPanelBase()}/notifications`
                 );
               }}
               className="text-sm font-medium text-[#123B7A] hover:underline"

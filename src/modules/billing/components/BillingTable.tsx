@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import { Eye } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -54,7 +55,7 @@ export default function BillingTable({ bills }: Props) {
               <tr key={bill.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4">
                   <button
-                    onClick={() => navigate(`/billing/${bill.id}`)}
+                    onClick={() => navigate(`${getPanelBase()}/billing/${bill.id}`)}
                     className="text-sm font-semibold text-[#123B7A] hover:underline"
                   >
                     {bill.billNumber}
@@ -105,7 +106,7 @@ export default function BillingTable({ bills }: Props) {
 
                 <td className="px-5 py-4">
                   <button
-                    onClick={() => navigate(`/billing/${bill.id}`)}
+                    onClick={() => navigate(`${getPanelBase()}/billing/${bill.id}`)}
                     className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
                   >
                     <Eye size={17} />

@@ -1,5 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout/MainLayout";
+import DealerLayout from "../layouts/DealerLayout/DealerLayout";
+import DealerLegacyShell from "../layouts/DealerLayout/DealerLegacyShell";
+import DealerApp from "../modules/dealerPanel/DealerApp";
+import {
+  CrmOnly,
+  DealerOnly,
+  DealerLedgerRedirect,
+  RoleHomeRedirect,
+} from "./RoleGuards";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import {
@@ -164,10 +173,43 @@ export default function AppRoutes() {
 
         {/* PRIVATE */}
 
+        {/* DEALER PANEL */}
+
+        <Route
+          path="/dealer"
+          element={
+            <ProtectedRoute>
+              <DealerOnly>
+                <DealerLayout />
+              </DealerOnly>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<DealerApp />} />
+          <Route path="dashboard" element={<Navigate to="/dealer" replace />} />
+          <Route path="appointments" element={<Navigate to="/dealer?view=calls" replace />} />
+          <Route element={<DealerLegacyShell />}>
+            <Route path="appointments/calendar" element={<AppointmentCalendarPage />} />
+            <Route path="appointments/:id" element={<AppointmentDetailsPage />} />
+            <Route path="billing" element={<BillListPage />} />
+            <Route path="billing/:id" element={<BillDetailsPage />} />
+            <Route path="ledger" element={<DealerLedgerRedirect />} />
+            <Route path="ledger/transactions/:id" element={<LedgerTransactionPage />} />
+            <Route path="ledger/:dealerId" element={<DealerLedgerPage />} />
+            <Route path="notifications" element={<NotificationCenterPage />} />
+            <Route path="profile" element={<UserProfilePage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/dealer" replace />} />
+        </Route>
+
+        {/* CRM PANEL */}
+
         <Route
           element={
             <ProtectedRoute>
-              <MainLayout />
+              <CrmOnly>
+                <MainLayout />
+              </CrmOnly>
             </ProtectedRoute>
           }
         >
@@ -382,8 +424,8 @@ export default function AppRoutes() {
           />
         </Route>
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<ProtectedRoute><RoleHomeRedirect /></ProtectedRoute>} />
+        <Route path="*" element={<ProtectedRoute><RoleHomeRedirect /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

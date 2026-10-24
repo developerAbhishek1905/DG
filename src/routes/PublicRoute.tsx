@@ -9,6 +9,7 @@ import {
 import {
   useAuth,
 } from "../modules/auth";
+import { getHomePath } from "../utils/panelPath";
 
 interface Props {
   children: ReactNode;
@@ -19,12 +20,13 @@ export default function PublicRoute({
 }: Props) {
   const {
     isAuthenticated,
+    user,
   } = useAuth();
 
   if (isAuthenticated) {
     return (
       <Navigate
-        to="/dashboard"
+        to={getHomePath(user?.role?.code)}
         replace
       />
     );

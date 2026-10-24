@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import { ArrowLeft } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -14,7 +15,7 @@ export default function AppointmentCalendarPage() {
   return (
     <div className="space-y-6">
       <button
-        onClick={() => navigate("/appointments")}
+        onClick={() => navigate(`${getPanelBase()}/appointments`)}
         className="inline-flex items-center gap-2 text-sm text-gray-500"
       >
         <ArrowLeft size={17} />
@@ -37,7 +38,7 @@ export default function AppointmentCalendarPage() {
         <AppointmentCalendar
           appointments={appointments?.data}
           onAppointmentClick={(appointment) => {
-            navigate(`/appointments/${appointment._id}`);
+            navigate(`${getPanelBase()}/appointments/${appointment._id}`);
           }}
         />
       )}

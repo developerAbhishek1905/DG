@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import {
   ArrowDownCircle,
   ArrowLeft,
@@ -95,7 +96,7 @@ export default function LedgerTransactionPage() {
       <button
         onClick={() =>
           navigate(
-            `/ledger/${transaction.dealerId}`
+            `${getPanelBase()}/ledger/${transaction.dealerId}`
           )
         }
         className="inline-flex items-center gap-2 text-sm text-gray-500"

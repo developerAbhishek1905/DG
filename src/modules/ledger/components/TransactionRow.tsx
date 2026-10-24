@@ -1,3 +1,4 @@
+import { getPanelBase } from "../../../utils/panelPath";
 import {
   Eye,
 } from "lucide-react";
@@ -26,7 +27,7 @@ export default function TransactionRow({
         <button
           onClick={() =>
             navigate(
-              `/ledger/transactions/${transaction.id}`
+              `${getPanelBase()}/ledger/transactions/${transaction.id}`
             )
           }
           className="text-sm font-semibold text-[#123B7A] hover:underline"
@@ -105,7 +106,7 @@ export default function TransactionRow({
         <button
           onClick={() =>
             navigate(
-              `/ledger/transactions/${transaction.id}`
+              `${getPanelBase()}/ledger/transactions/${transaction.id}`
             )
           }
           className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
