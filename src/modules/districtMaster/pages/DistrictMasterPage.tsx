@@ -1,4 +1,8 @@
 import { Plus, Search, X } from "lucide-react";
+import {
+  searchStates,
+  type StateOption,
+} from "../../dealers/services/addressApi";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDebounce } from "../../../hooks/useDebounce";
@@ -21,6 +25,8 @@ export default function DistrictMasterPage() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [stateFilter, setStateFilter] = useState("");
+  const [states, setStates] = useState<StateOption[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
@@ -41,6 +47,8 @@ export default function DistrictMasterPage() {
         limit,
 
         search: debouncedSearch,
+
+        state_id: stateFilter ? Number(stateFilter) : undefined,
       });
 
       setDistricts(response.data ?? []);
@@ -53,7 +61,17 @@ export default function DistrictMasterPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, debouncedSearch]);
+  }, [page, limit, debouncedSearch, stateFilter]);
+
+  // States for the filter dropdown
+  useEffect(() => {
+    searchStates("")
+      .then(setStates)
+      .catch((error) => {
+        console.error("Failed to load states:", error);
+        setStates([]);
+      });
+  }, []);
 
   useEffect(() => {
     fetchDistricts();
@@ -153,9 +171,6 @@ export default function DistrictMasterPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">District Master</h1>
 
-          <p className="mt-1 text-sm text-gray-500">
-            Manage districts and their state mapping.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -187,7 +202,8 @@ export default function DistrictMasterPage() {
           {/* Search */}
 
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <div className="relative max-w-md">
+            <div className="flex flex-col gap-3 md:flex-row">
+            <div className="relative max-w-md flex-1">
               <Search
                 size={17}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -203,6 +219,23 @@ export default function DistrictMasterPage() {
                 placeholder="Search district..."
                 className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
+            </div>
+
+            <select
+              value={stateFilter}
+              onChange={(event) => {
+                setStateFilter(event.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 md:min-w-[220px]"
+            >
+              <option value="">All States</option>
+              {states.map((state) => (
+                <option key={state.state_id} value={state.state_id}>
+                  {state.state_name}
+                </option>
+              ))}
+            </select>
             </div>
           </div>
 

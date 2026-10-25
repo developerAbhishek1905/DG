@@ -176,10 +176,6 @@ export default function StateMasterPage() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">State Master</h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Manage states and import or export state data.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">

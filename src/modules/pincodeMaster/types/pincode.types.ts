@@ -24,6 +24,8 @@ export interface PincodeQueryParams {
   limit?: number;
   search?: string;
   city_id?: number;
+  state_id?: number;
+  district_id?: number;
 }
 
 export interface PincodeListResponse {

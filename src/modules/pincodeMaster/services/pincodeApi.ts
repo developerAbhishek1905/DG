@@ -30,6 +30,8 @@ export const getPincodes = async (
       limit: params.limit ?? 20,
       search: params.search ?? "",
       ...(params.city_id ? { city_id: params.city_id } : {}),
+      ...(params.state_id ? { state_id: params.state_id } : {}),
+      ...(params.district_id ? { district_id: params.district_id } : {}),
     },
   });
 

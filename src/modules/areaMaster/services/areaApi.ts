@@ -119,7 +119,7 @@ export interface RegisterLocationPayload {
   district_id?: number;
   district_name?: string;
 
-  city_name: string;
+  city_name?: string;
 }
 
 export interface RegisterLocationResponse {

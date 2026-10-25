@@ -44,20 +44,34 @@ export default function CityMasterPage() {
   useEffect(() => {
     const fetchMasters = async () => {
       try {
-        const [statesResponse, districtsResponse] = await Promise.all([
-          getStates({
-            page: 1,
-            limit: 100,
-          }),
-
-          getDistricts({
-            page: 1,
-            limit: 500,
-          }),
-        ]);
+        const statesResponse = await getStates({
+          page: 1,
+          limit: 100,
+        });
 
         setStates(statesResponse.data ?? []);
-        setDistricts(districtsResponse.data ?? []);
+
+        // The API returns at most 100 districts per page,
+        // so keep fetching pages until every district is loaded.
+        const allDistricts: DistrictMaster[] = [];
+
+        let currentPage = 1;
+        let lastPage = 1;
+
+        do {
+          const districtsResponse = await getDistricts({
+            page: currentPage,
+            limit: 100,
+          });
+
+          allDistricts.push(...(districtsResponse.data ?? []));
+
+          lastPage = districtsResponse.pagination?.totalPages ?? 1;
+
+          currentPage += 1;
+        } while (currentPage <= lastPage);
+
+        setDistricts(allDistricts);
       } catch (error) {
         console.error(error);
       }
@@ -204,9 +218,6 @@ export default function CityMasterPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">City Master</h1>
 
-          <p className="mt-1 text-sm text-gray-500">
-            Manage cities and their district/state mapping.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">

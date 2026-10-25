@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getCities } from "../../cityMaster/services/cityApi";
+import { getStates } from "../../stateMaster/services/stateApi";
+import { getDistricts } from "../../districtMaster/services/districtApi";
+import type { StateMaster } from "../../stateMaster/types/state.types";
+import type { DistrictMaster } from "../../districtMaster/types/district.types";
 import type { CityMaster } from "../../cityMaster/types/city.types";
 import PincodeExcelActions from "../components/PincodeExcelActions";
 import PincodeForm from "../components/PincodeForm";
@@ -24,7 +28,11 @@ export default function PincodeMasterPage() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [stateFilter, setStateFilter] = useState(0);
+  const [districtFilter, setDistrictFilter] = useState(0);
   const [cityFilter, setCityFilter] = useState(0);
+  const [states, setStates] = useState<StateMaster[]>([]);
+  const [districts, setDistricts] = useState<DistrictMaster[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
@@ -37,25 +45,87 @@ export default function PincodeMasterPage() {
   const debouncedSearch = useDebounce(search, 500);
   const { hasPermission } = usePermission();
   /* ===========================
-     CITIES FOR FILTER
+     FILTER DROPDOWN DATA
+     (the API returns max 100 rows per page, so every
+      page is fetched until the whole list is loaded)
   =========================== */
 
   useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const response = await getCities({
-          page: 1,
-          limit: 500,
-        });
+    getStates({ page: 1, limit: 100 })
+      .then((response) => setStates(response.data ?? []))
+      .catch((error) => console.error(error));
+  }, []);
 
-        setCities(response.data ?? []);
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchDistricts = async () => {
+      try {
+        const all: DistrictMaster[] = [];
+        let currentPage = 1;
+        let lastPage = 1;
+
+        do {
+          const response = await getDistricts({
+            page: currentPage,
+            limit: 100,
+            state_id: stateFilter || undefined,
+          });
+
+          all.push(...(response.data ?? []));
+          lastPage = response.pagination?.totalPages ?? 1;
+          currentPage += 1;
+        } while (currentPage <= lastPage);
+
+        if (!cancelled) setDistricts(all);
       } catch (error) {
         console.error(error);
+        if (!cancelled) setDistricts([]);
+      }
+    };
+
+    fetchDistricts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stateFilter]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCities = async () => {
+      try {
+        const all: CityMaster[] = [];
+        let currentPage = 1;
+        let lastPage = 1;
+
+        do {
+          const response = await getCities({
+            page: currentPage,
+            limit: 100,
+            state_id: stateFilter || undefined,
+            district_id: districtFilter || undefined,
+          });
+
+          all.push(...(response.data ?? []));
+          lastPage = response.pagination?.totalPages ?? 1;
+          currentPage += 1;
+        } while (currentPage <= lastPage);
+
+        if (!cancelled) setCities(all);
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) setCities([]);
       }
     };
 
     fetchCities();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stateFilter, districtFilter]);
 
   /* ===========================
      FETCH PINCODES
@@ -72,6 +142,10 @@ export default function PincodeMasterPage() {
         search: debouncedSearch,
 
         city_id: cityFilter || undefined,
+
+        state_id: stateFilter || undefined,
+
+        district_id: districtFilter || undefined,
       });
 
       setPincodes(response.data ?? []);
@@ -84,7 +158,7 @@ export default function PincodeMasterPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, debouncedSearch, cityFilter]);
+  }, [page, limit, debouncedSearch, cityFilter, stateFilter, districtFilter]);
 
   useEffect(() => {
     fetchPincodes();
@@ -198,9 +272,6 @@ export default function PincodeMasterPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pincode Master</h1>
 
-          <p className="mt-1 text-sm text-gray-500">
-            Manage pincodes and their city mapping.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -231,7 +302,7 @@ export default function PincodeMasterPage() {
           {/* FILTER */}
 
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <div className="relative">
                 <Search
                   size={17}
@@ -249,6 +320,43 @@ export default function PincodeMasterPage() {
                   className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none"
                 />
               </div>
+
+              <select
+                value={stateFilter}
+                onChange={(event) => {
+                  setStateFilter(Number(event.target.value));
+                  setDistrictFilter(0);
+                  setCityFilter(0);
+                  setPage(1);
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
+              >
+                <option value={0}>All States</option>
+
+                {states.map((state) => (
+                  <option key={state._id} value={state.state_id}>
+                    {state.state_name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={districtFilter}
+                onChange={(event) => {
+                  setDistrictFilter(Number(event.target.value));
+                  setCityFilter(0);
+                  setPage(1);
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"
+              >
+                <option value={0}>All Districts</option>
+
+                {districts.map((district) => (
+                  <option key={district._id} value={district.district_id}>
+                    {district.district_name}
+                  </option>
+                ))}
+              </select>
 
               <select
                 value={cityFilter}

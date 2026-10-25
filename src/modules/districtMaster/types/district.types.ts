@@ -19,6 +19,7 @@ export interface DistrictQueryParams {
   page?: number;
   limit?: number;
   search?: string;
+  state_id?: number;
 }
 
 export interface DistrictListResponse {

@@ -1,103 +1,81 @@
-import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import AreaForm from "../components/AreaForm";
-import { createArea, getAreaById, updateArea } from "../services/areaApi";
-import type { Area, AreaFormData } from "../types/area.types";
+import AreaExcelActions from "../components/AreaExcelActions";
+import {
+  exportLocationExcel,
+  importLocationExcel,
+} from "../services/areaExcelService";
+
+/**
+ * Area Master opens straight on the form (no listing page).
+ */
 export default function CreateEditAreaPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [selectedArea, setSelectedArea] = useState<Area | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
-  const isEdit = Boolean(id);
+  const [excelLoading, setExcelLoading] = useState(false);
 
-  /* =================================
-     FETCH SINGLE AREA
-  ================================= */
-
-  useEffect(() => {
-    const fetchArea = async () => {
-      if (!id) {
-        setSelectedArea(null);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const area = await getAreaById(id);
-        setSelectedArea(area);
-      } catch (error: any) {
-        toast.error(error.response?.data?.message || "Failed to fetch area");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArea();
-  }, [id]);
-
-  /* =================================
-     CREATE / UPDATE
-  ================================= */
-
-  const handleSubmit = async (data: AreaFormData) => {
+  const handleImport = async (file: File) => {
     try {
-      setActionLoading(true);
-      if (isEdit && id) {
-        await updateArea(id, data);
-        toast.success("Area updated successfully");
-      } else {
-        await createArea(data);
-        toast.success("Area created successfully");
-      }
+      setExcelLoading(true);
 
-      navigate("/area-master");
+      const response = await importLocationExcel(file);
+      const { summary } = response;
+      const failed = response.results.filter((r) => r.status === "FAILED");
+
+      toast.success(
+        `Import completed. ${summary.processedRows} rows processed, ${summary.failedRows} failed. New: ${summary.statesCreated} states, ${summary.districtsCreated} districts, ${summary.citiesCreated} cities, ${summary.pincodesCreated ?? 0} pincodes.`,
+      );
+
+      if (failed.length > 0) {
+        const preview = failed
+          .slice(0, 3)
+          .map((r) => `Row ${r.row}: ${r.message}`)
+          .join(" | ");
+
+        toast.warn(
+          `${failed.length} row(s) failed. ${preview}${failed.length > 3 ? " ..." : ""}`,
+          { autoClose: 10000 },
+        );
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to save area");
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to import Excel",
+      );
     } finally {
-      setActionLoading(false);
+      setExcelLoading(false);
     }
   };
 
-  if (isEdit && loading) {
-    return (
-      <div className="py-10 text-center text-sm text-gray-500">
-        Loading area...
-      </div>
-    );
-  }
+  const handleExport = async () => {
+    try {
+      setExcelLoading(true);
+      await exportLocationExcel();
+      toast.success("Location Excel exported successfully");
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to export Excel",
+      );
+    } finally {
+      setExcelLoading(false);
+    }
+  };
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => navigate("/area-master")}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
-      >
-        <ArrowLeft size={17} />
-        Back to Area Master
-      </button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Area Master</h1>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isEdit ? "Edit Area" : "Create Area"}
-        </h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          {isEdit
-            ? "Update area master information."
-            : "Create a new service area."}
-        </p>
+        <AreaExcelActions
+          loading={excelLoading}
+          onImport={handleImport}
+          onExport={handleExport}
+        />
       </div>
 
-      <AreaForm
-        area={selectedArea}
-        loading={actionLoading}
-        onSubmit={handleSubmit}
-        onCancel={() => navigate("/area-master")}
-      />
+      <AreaForm />
     </div>
   );
 }

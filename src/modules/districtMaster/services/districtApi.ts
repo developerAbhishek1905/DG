@@ -28,6 +28,8 @@ export const getDistricts = async (
       limit: params.limit ?? 20,
 
       search: params.search ?? "",
+
+      ...(params.state_id ? { state_id: params.state_id } : {}),
     },
   });
 

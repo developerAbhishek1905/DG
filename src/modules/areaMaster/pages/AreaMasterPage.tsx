@@ -4,12 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDebounce } from "../../../hooks/useDebounce";
 import AreaTable from "../components/AreaTable";
-import {
-  exportAreas,
-  getAreas,
-  importAreas,
-  updateArea,
-} from "../services/areaApi";
+import { getAreas, updateArea } from "../services/areaApi";
 import AreaExcelActions from "../components/AreaExcelActions";
 import { getStates } from "../../stateMaster/services/stateApi";
 import { getCities } from "../../cityMaster/services/cityApi";
@@ -301,7 +296,7 @@ export default function AreaMasterPage() {
 
         <div className="flex flex-wrap items-center gap-2">
           <AreaExcelActions
-            loading={actionLoading}
+            loading={actionLoading || excelLoading}
             onImport={handleImport}
             onExport={handleExport}
           />

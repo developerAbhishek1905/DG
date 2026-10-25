@@ -99,7 +99,7 @@ import {
   PendingReasonPage,
   PermissionSettingsPage,
 } from "../modules/settings";
-import { AreaMasterPage, CreateEditAreaPage } from "../modules/areaMaster";
+import { CreateEditAreaPage } from "../modules/areaMaster";
 import { StateMasterPage } from "../modules/stateMaster";
 import DistrictMasterPage from "../modules/districtMaster/pages/DistrictMasterPage";
 import { CityMasterPage } from "../modules/cityMaster";
@@ -399,11 +399,10 @@ export default function AppRoutes() {
           <Route path="/pincode-master" element={<PincodeMasterPage />} />
           <Route path="/city-master" element={<CityMasterPage />} />
           <Route path="/audit-logs" element={<AuditLogPage />} />
-          <Route path="/area-master" element={<AreaMasterPage />} />
-          <Route path="/area-master/create" element={<CreateEditAreaPage />} />
+          <Route path="/area-master" element={<CreateEditAreaPage />} />
           <Route
-            path="/area-master/:id/edit"
-            element={<CreateEditAreaPage />}
+            path="/area-master/*"
+            element={<Navigate to="/area-master" replace />}
           />
 
           <Route path="/allocation" element={<AllocationPage />} />
