@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 
 import BillingFilters, {
   type BillingFilterValues,
+  type BillingDealerOption,
 } from "../components/BillingFilters";
 
 const initialFilters: BillingFilterValues = {
@@ -30,6 +31,7 @@ import type {
   LedgerSummary,
 } from "../types/billing.types";
 import { useDebounce } from "../../../hooks/useDebounce";
+import { searchDealerDropdown } from "../../dealers/services/dealerApi";
 import BillForm, {
   type BillFormValues,
 } from "../components/BillForm";
@@ -75,13 +77,11 @@ export default function BillListPage() {
     balance: 0,
   });
 
-  const [dealers, setDealers] = useState<
-    {
-      _id: string;
-      name: string;
-      code?: string;
-    }[]
-  >([]);
+  const [dealers, setDealers] = useState<BillingDealerOption[]>([]);
+  const [dealersLoading, setDealersLoading] = useState(false);
+  const [dealerQuery, setDealerQuery] = useState("");
+  const [selectedDealerLabel, setSelectedDealerLabel] = useState("");
+  const debouncedDealerQuery = useDebounce(dealerQuery, 300);
 
   const [filters, setFilters] = useState<BillingFilterValues>(initialFilters);
   const [billFormOpen, setBillFormOpen] = useState(false);
@@ -235,7 +235,56 @@ const handleSubmitBill = async (values: BillFormValues) => {
     loadLedgers();
   }, [loadLedgers]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setDealersLoading(true);
+
+        const result = await searchDealerDropdown(debouncedDealerQuery);
+
+        if (cancelled) return;
+
+        setDealers(
+          result.map((dealer) => ({
+            _id: dealer.value,
+            name:
+              dealer.technicianFirmName ||
+              dealer.technicianName ||
+              dealer.label,
+            code: dealer.dealerCode,
+          })),
+        );
+      } catch (error) {
+        console.error("Failed to load dealers:", error);
+      } finally {
+        if (!cancelled) setDealersLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedDealerQuery]);
+
+  const handleDealerSelect = (dealer: BillingDealerOption | null) => {
+    setSelectedDealerLabel(
+      dealer
+        ? dealer.code
+          ? `${dealer.name} - ${dealer.code}`
+          : dealer.name
+        : "",
+    );
+
+    setFilters((prev) => ({ ...prev, dealerId: dealer?._id ?? "" }));
+    setPage(1);
+  };
+
   const handleResetFilters = () => {
+    setSelectedDealerLabel("");
+    setDealerQuery("");
+
     setFilters({
       search: "",
       dealerId: "",
@@ -301,7 +350,7 @@ const handleSubmitBill = async (values: BillFormValues) => {
       {/* HEADER */}
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dealer Ledger</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <button
@@ -366,6 +415,11 @@ const handleSubmitBill = async (values: BillFormValues) => {
       <BillingFilters
         filters={filters}
         dealers={dealers}
+        dealersLoading={dealersLoading}
+        selectedDealerLabel={selectedDealerLabel}
+        onDealerSearch={setDealerQuery}
+        onDealerSelect={handleDealerSelect}
+        total={pagination.total}
         onChange={(newFilters) => {
           setFilters(newFilters);
           setPage(1);

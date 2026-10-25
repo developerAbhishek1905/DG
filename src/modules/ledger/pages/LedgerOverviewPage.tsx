@@ -3,16 +3,14 @@ import {
   CircleDollarSign,
   Landmark,
   WalletCards,
-  Plus,
   ReceiptText,
-  ShieldCheck,
   BookPlus,
+  RotateCcw,
+  Search,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
-import DealerLedgerSearch from "../components/DealerLedgerSearch";
 import OutstandingTable from "../components/OutstandingTable";
-import AddPaymentModal from "../components/AddPaymentModal";
 import { getDealerLedgerOverview } from "../services/ledgerApi";
 import type { DealerLedgerSummary } from "../types/ledger.types";
 import type {
@@ -31,6 +29,9 @@ const emptyStats: DealerLedgerOverviewSummary = {
   securityDeposit: 0,
   openingBalance: 0,
 };
+
+// Same threshold the table uses to flag a high outstanding
+const HIGH_OUTSTANDING = 2000;
 
 const money = (value: number) =>
   `₹${Number(value || 0).toLocaleString("en-IN", {
@@ -81,9 +82,15 @@ export default function LedgerOverviewPage() {
   const [summaries, setSummaries] = useState<OverviewDealerSummary[]>([]);
   const [stats, setStats] = useState<DealerLedgerOverviewSummary>(emptyStats);
   const [loading, setLoading] = useState(true);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [tableSearch, setTableSearch] = useState("");
+  const [billFilter, setBillFilter] = useState<
+    "" | "UNPAID" | "CLEAR" | "HIGH"
+  >("");
+  const [balanceFilter, setBalanceFilter] = useState<"" | "DR" | "CR">("");
+  const [depositFilter, setDepositFilter] = useState<"" | "YES" | "NO">("");
+  const [sortBy, setSortBy] = useState<
+    "NAME" | "OUTSTANDING_DESC" | "UNPAID_DESC" | "DEPOSIT_DESC"
+  >("NAME");
     const navigate = useNavigate();
 
   const loadOverview = useCallback(async () => {
@@ -113,7 +120,7 @@ export default function LedgerOverviewPage() {
 
   useEffect(() => {
     void loadOverview();
-  }, [loadOverview, refreshKey]);
+  }, [loadOverview]);
 
   const cards = useMemo(
     () => [
@@ -137,11 +144,6 @@ export default function LedgerOverviewPage() {
         value: money(stats.creditAmount),
         icon: WalletCards,
       },
-      {
-        label: "Security Deposit",
-        value: money(stats.securityDeposit),
-        icon: ShieldCheck,
-      },
     ],
     [stats],
   );
@@ -149,14 +151,80 @@ export default function LedgerOverviewPage() {
   const filteredSummaries = useMemo(() => {
     const query = tableSearch.trim().toLowerCase();
 
-    if (!query) return summaries;
+    const unpaidAmount = (item: OverviewDealerSummary) =>
+      Number(item.unpaidBillsAmount ?? item.currentOutstanding ?? 0);
 
-    return summaries.filter(({ dealer }) =>
-      [dealer.name, dealer.dealerCode, dealer.phone, dealer.city].some((field) =>
-        String(field ?? "").toLowerCase().includes(query),
-      ),
-    );
-  }, [summaries, tableSearch]);
+    const rows = summaries.filter((item) => {
+      const { dealer } = item;
+
+      if (
+        query &&
+        ![dealer.name, dealer.dealerCode, dealer.phone, dealer.city].some(
+          (field) => String(field ?? "").toLowerCase().includes(query),
+        )
+      ) {
+        return false;
+      }
+
+      if (billFilter === "UNPAID" && Number(item.unpaidBillsCount) <= 0) {
+        return false;
+      }
+
+      if (billFilter === "CLEAR" && Number(item.unpaidBillsCount) > 0) {
+        return false;
+      }
+
+      if (billFilter === "HIGH" && unpaidAmount(item) <= HIGH_OUTSTANDING) {
+        return false;
+      }
+
+      if (balanceFilter && item.openingBalanceType !== balanceFilter) {
+        return false;
+      }
+
+      if (depositFilter === "YES" && Number(item.securityDeposit) <= 0) {
+        return false;
+      }
+
+      if (depositFilter === "NO" && Number(item.securityDeposit) > 0) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return [...rows].sort((a, b) => {
+      switch (sortBy) {
+        case "OUTSTANDING_DESC":
+          return unpaidAmount(b) - unpaidAmount(a);
+        case "UNPAID_DESC":
+          return Number(b.unpaidBillsCount) - Number(a.unpaidBillsCount);
+        case "DEPOSIT_DESC":
+          return Number(b.securityDeposit) - Number(a.securityDeposit);
+        default:
+          return (a.dealer.name || "").localeCompare(b.dealer.name || "");
+      }
+    });
+  }, [
+    summaries,
+    tableSearch,
+    billFilter,
+    balanceFilter,
+    depositFilter,
+    sortBy,
+  ]);
+
+  const hasActiveFilters = Boolean(
+    tableSearch.trim() || billFilter || balanceFilter || depositFilter,
+  );
+
+  const resetFilters = () => {
+    setTableSearch("");
+    setBillFilter("");
+    setBalanceFilter("");
+    setDepositFilter("");
+    setSortBy("NAME");
+  };
 
   if (loading && summaries.length === 0) {
     return (
@@ -172,10 +240,6 @@ export default function LedgerOverviewPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dealer Ledger</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Search dealers and monitor credits, payments and outstanding
-            balances.
-          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -188,32 +252,11 @@ onClick={() => navigate("/ledger/add-entry")}
             <BookPlus size={18} />
             Add Ledger
           </button>
-
-          {/* Add Payment */}
-          <button
-            type="button"
-            onClick={() => setShowPaymentModal(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3064]"
-          >
-            <Plus size={18} />
-            Add Payment
-          </button>
         </div>
-      </div>
-
-      {/* Dealer Search — existing component */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
-        <div className="mb-3">
-          <h2 className="text-sm font-semibold text-gray-900">Find Dealer</h2>
-          <p className="mt-1 text-xs text-gray-500">
-            Search and open a dealer's complete ledger.
-          </p>
-        </div>
-        <DealerLedgerSearch dealers={summaries} />
       </div>
 
       {/* Stats — same card design, new totals */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
@@ -237,23 +280,90 @@ onClick={() => navigate("/ledger/add-entry")}
         })}
       </div>
 
-      {/* Dealer Outstanding — existing layout and cards */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Dealer Outstanding
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Current financial position of each dealer.
-          </p>
+      {/* Filters — match the table columns */}
+      <div className="rounded-xl border border-gray-200 bg-white p-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+          <div className="relative md:col-span-2">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+
+            <input
+              value={tableSearch}
+              onChange={(e) => setTableSearch(e.target.value)}
+              placeholder="Search dealer name, code or phone..."
+              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+
+          <select
+            value={billFilter}
+            onChange={(e) => setBillFilter(e.target.value as typeof billFilter)}
+            className={filterClass}
+          >
+            <option value="">All Bills</option>
+            <option value="UNPAID">Has Unpaid Bills</option>
+            <option value="CLEAR">No Unpaid Bills</option>
+            <option value="HIGH">High Outstanding (&gt; ₹2,000)</option>
+          </select>
+
+          <select
+            value={balanceFilter}
+            onChange={(e) =>
+              setBalanceFilter(e.target.value as typeof balanceFilter)
+            }
+            className={filterClass}
+          >
+            <option value="">All Balances</option>
+            <option value="DR">Balance Dr</option>
+            <option value="CR">Balance Cr</option>
+          </select>
+
+          <select
+            value={depositFilter}
+            onChange={(e) =>
+              setDepositFilter(e.target.value as typeof depositFilter)
+            }
+            className={filterClass}
+          >
+            <option value="">Security Deposit: All</option>
+            <option value="YES">Deposit Paid</option>
+            <option value="NO">No Deposit</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className={filterClass}
+          >
+            <option value="NAME">Sort: Dealer Name</option>
+            <option value="OUTSTANDING_DESC">Sort: Highest Outstanding</option>
+            <option value="UNPAID_DESC">Sort: Most Unpaid Bills</option>
+            <option value="DEPOSIT_DESC">Sort: Highest Deposit</option>
+          </select>
         </div>
 
-        <input
-          value={tableSearch}
-          onChange={(e) => setTableSearch(e.target.value)}
-          placeholder="Filter by name, code or phone..."
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100 sm:w-72"
-        />
+        <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+          <span>
+            Showing{" "}
+            <span className="font-semibold text-gray-800">
+              {filteredSummaries.length}
+            </span>{" "}
+            of {summaries.length} dealers
+          </span>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <RotateCcw size={13} />
+              Reset
+            </button>
+          )}
+        </div>
       </div>
 
       {summaries.length === 0 ? (
@@ -262,21 +372,14 @@ onClick={() => navigate("/ledger/add-entry")}
         </div>
       ) : filteredSummaries.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
-          No dealers match "{tableSearch}".
+          No dealers match the selected filters.
         </div>
       ) : (
         <OutstandingTable summaries={filteredSummaries} />
       )}
-
-      {showPaymentModal && (
-        <AddPaymentModal
-          onClose={() => setShowPaymentModal(false)}
-          onSuccess={() => {
-            setShowPaymentModal(false);
-            setRefreshKey((key) => key + 1);
-          }}
-        />
-      )}
     </div>
   );
 }
+
+const filterClass =
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";

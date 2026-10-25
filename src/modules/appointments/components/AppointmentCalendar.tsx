@@ -48,6 +48,8 @@ export default function AppointmentCalendar({
 
   const [dealerSearch, setDealerSearch] = useState("");
 
+  const [expandedDay, setExpandedDay] = useState<number | null>(null);
+
   const year = currentDate.getFullYear();
 
   const month = currentDate.getMonth();
@@ -73,8 +75,6 @@ export default function AppointmentCalendar({
         dealerCode: string;
       }
     >();
-
-    console.log(appointments);
 
     appointments.forEach((appointment) => {
       const dealer = appointment.allocatedDealerId;
@@ -127,10 +127,6 @@ export default function AppointmentCalendar({
 
         endDate: calendarEndDate,
 
-        status,
-
-        dealerId:
-          selectedDealerIds.length === 1 ? selectedDealerIds[0] : undefined,
       });
 
       setAppointments(data);
@@ -147,7 +143,7 @@ export default function AppointmentCalendar({
 
   useEffect(() => {
     fetchCalendarAppointments();
-  }, [calendarStartDate, calendarEndDate, selectedDealerIds]);
+  }, [calendarStartDate, calendarEndDate]);
 
   /*
    * Apply dealer + duration filters
@@ -213,9 +209,8 @@ export default function AppointmentCalendar({
   const filteredAppointments = useMemo(() => {
     let result = [...appointments];
 
-    // Apply frontend dealer filter only
-    // when multiple dealers are selected.
-    if (selectedDealerIds.length > 1) {
+    // Dealer filter (any number of dealers)
+    if (selectedDealerIds.length > 0) {
       result = result.filter(
         (appointment) =>
           appointment.allocatedDealerId?._id &&
@@ -223,8 +218,38 @@ export default function AppointmentCalendar({
       );
     }
 
+    // Duration filter
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (duration === "TODAY") {
+      const end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+      result = filterByDateRange(result, today, end);
+    }
+
+    if (duration === "7_DAYS") {
+      const end = new Date(today);
+      end.setDate(end.getDate() + 7);
+      result = filterByDateRange(result, today, end);
+    }
+
+    if (duration === "30_DAYS") {
+      const end = new Date(today);
+      end.setDate(end.getDate() + 30);
+      result = filterByDateRange(result, today, end);
+    }
+
+    if (duration === "CUSTOM" && startDate && endDate) {
+      result = filterByDateRange(
+        result,
+        new Date(`${startDate}T00:00:00`),
+        new Date(`${endDate}T23:59:59`),
+      );
+    }
+
     return result;
-  }, [appointments, selectedDealerIds]);
+  }, [appointments, selectedDealerIds, duration, startDate, endDate]);
 
   /*
    * Calendar days
@@ -285,15 +310,9 @@ export default function AppointmentCalendar({
       String(day).padStart(2, "0"),
     ].join("-");
 
-    return filteredAppointments.filter((appointment) => {
-      if (!appointment.appointmentDate) {
-        return false;
-      }
-
-      const appointmentDate = appointment.appointmentDate.split("T")[0];
-
-      return appointmentDate === dateString;
-    });
+    return filteredAppointments.filter(
+      (appointment) => getDayKey(appointment) === dateString,
+    );
   };
 
   const handleDurationChange = (value: DurationFilter) => {
@@ -321,12 +340,12 @@ export default function AppointmentCalendar({
       ==================================== */}
 
       <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
           {/* Dealer */}
 
           {/* Dealer Multi Select */}
 
-          <div className="relative flex-1">
+          <div className="relative w-full flex-1">
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Dealers
             </label>
@@ -389,7 +408,7 @@ export default function AppointmentCalendar({
             {/* Dropdown */}
 
             {dealerDropdownOpen && (
-              <div className="absolute left-0 top-full z-30 mt-2 w-full min-w-[320px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+              <div className="absolute left-0 top-full z-30 mt-2 w-full sm:min-w-[320px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
                 {/* Search */}
 
                 <div className="border-b border-gray-100 p-3">
@@ -436,15 +455,7 @@ export default function AppointmentCalendar({
                 <div className="max-h-64 overflow-y-auto p-1.5">
                   {filteredDealers.length > 0 ? (
                     filteredDealers.map((dealer) => {
-                      if (selectedDealerIds.length > 0) {
-                        result = result.filter(
-                          (appointment) =>
-                            appointment.allocatedDealerId?._id &&
-                            selectedDealerIds.includes(
-                              appointment.allocatedDealerId._id,
-                            ),
-                        );
-                      }
+                      const selected = selectedDealerIds.includes(dealer.id);
 
                       return (
                         <button
@@ -509,7 +520,7 @@ export default function AppointmentCalendar({
 
           {/* Duration */}
 
-          <div className="flex-1">
+          <div className="w-full flex-1">
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Duration
             </label>
@@ -571,7 +582,7 @@ export default function AppointmentCalendar({
           <button
             type="button"
             onClick={resetFilters}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 lg:w-auto"
           >
             <RotateCcw size={16} />
             Reset
@@ -584,8 +595,12 @@ export default function AppointmentCalendar({
           <span className="text-xs text-gray-500">Showing</span>
 
           <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-            {filteredAppointments.length} Appointments
+            {filteredAppointments.length} Complaints
           </span>
+
+          {loading && (
+            <span className="text-xs text-gray-400">Loading...</span>
+          )}
 
           {selectedDealerIds.length > 0 && (
             <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
@@ -611,7 +626,7 @@ export default function AppointmentCalendar({
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
         {/* Calendar Header */}
 
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 px-3 py-3 sm:px-5 sm:py-4">
           <button
             type="button"
             onClick={goPrevious}
@@ -637,9 +652,10 @@ export default function AppointmentCalendar({
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div
               key={day}
-              className="px-2 py-3 text-center text-xs font-semibold uppercase text-gray-500"
+              className="px-1 py-2 text-center text-[10px] font-semibold uppercase text-gray-500 sm:px-2 sm:py-3 sm:text-xs"
             >
-              {day}
+              <span className="sm:hidden">{day.charAt(0)}</span>
+              <span className="hidden sm:inline">{day}</span>
             </div>
           ))}
         </div>
@@ -652,25 +668,60 @@ export default function AppointmentCalendar({
               return (
                 <div
                   key={`empty-${index}`}
-                  className="min-h-32 border-b border-r border-gray-100 bg-gray-50/40"
+                  className="min-h-14 border-b border-r border-gray-100 bg-gray-50/40 md:min-h-32"
                 />
               );
             }
 
             const dayAppointments = getAppointmentsForDay(day);
 
+            const isToday =
+              formatDateForComparison(new Date()) ===
+              formatDateForComparison(new Date(year, month, day));
+
             return (
               <div
                 key={day}
-                className="min-h-32 border-b border-r border-gray-100 p-2"
+                onClick={() => {
+                  // On phones the cell is just a summary - tap for the list
+                  if (
+                    dayAppointments.length > 0 &&
+                    window.matchMedia("(max-width: 767px)").matches
+                  ) {
+                    setExpandedDay(day);
+                  }
+                }}
+                className={`min-h-14 border-b border-r border-gray-100 p-1 md:min-h-32 md:p-2 ${
+                  dayAppointments.length > 0
+                    ? "cursor-pointer md:cursor-default"
+                    : ""
+                }`}
               >
                 {/* Day */}
 
-                <p className="text-xs font-semibold text-gray-500">{day}</p>
+                <p
+                  className={`text-xs font-semibold ${
+                    isToday
+                      ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#123B7A] text-white"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {day}
+                </p>
 
-                {/* Appointments */}
+                {/* Mobile: count chip only */}
 
-                <div className="mt-2 space-y-2">
+                {dayAppointments.length > 0 && (
+                  <div className="mt-1 md:hidden">
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-[#123B7A]">
+                      {dayAppointments.length}
+                    </span>
+                  </div>
+                )}
+
+                {/* Desktop: appointment cards */}
+
+                <div className="mt-2 hidden space-y-2 md:block">
                   {dayAppointments.slice(0, 3).map((appointment) => (
                     <button
                       type="button"
@@ -693,7 +744,10 @@ export default function AppointmentCalendar({
                       {/* Time */}
 
                       <p className="mt-1 text-[11px] text-gray-500">
-                        {appointment.appointmentTime || "Time not set"}
+                        {appointment.appointmentTime ||
+                          (appointment.appointmentDate
+                            ? "Time not set"
+                            : "No appointment")}
                       </p>
 
                       {/* Dealer */}
@@ -715,9 +769,13 @@ export default function AppointmentCalendar({
                   ))}
 
                   {dayAppointments.length > 3 && (
-                    <p className="text-[11px] font-medium text-gray-400">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedDay(day)}
+                      className="text-[11px] font-semibold text-[#123B7A] hover:underline"
+                    >
                       +{dayAppointments.length - 3} more
-                    </p>
+                    </button>
                   )}
                 </div>
               </div>
@@ -725,6 +783,92 @@ export default function AppointmentCalendar({
           })}
         </div>
       </div>
+
+      {/* ===================================
+          DAY DETAILS (all appointments of a day)
+      ==================================== */}
+
+      {expandedDay !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center sm:p-4"
+          onClick={() => setExpandedDay(null)}
+        >
+          <div
+            className="flex max-h-[85vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:max-w-md sm:rounded-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  {new Date(year, month, expandedDay).toLocaleDateString(
+                    "en-IN",
+                    {
+                      weekday: "long",
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    },
+                  )}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {getAppointmentsForDay(expandedDay).length} complaints
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setExpandedDay(null)}
+                className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2 overflow-y-auto p-3">
+              {getAppointmentsForDay(expandedDay).map((appointment) => (
+                <button
+                  type="button"
+                  key={appointment._id}
+                  onClick={() => {
+                    setExpandedDay(null);
+                    onAppointmentClick?.(appointment);
+                  }}
+                  className="w-full rounded-lg border border-gray-100 bg-gray-50 p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs font-medium text-[#123B7A]">
+                      {appointment.complaintNumber}
+                    </p>
+
+                    <p className="text-[11px] text-gray-500">
+                      {appointment.appointmentTime ||
+                          (appointment.appointmentDate
+                            ? "Time not set"
+                            : "No appointment")}
+                    </p>
+                  </div>
+
+                  <p className="mt-1 text-sm font-semibold text-gray-800">
+                    {appointment.customerName || "Unknown Customer"}
+                  </p>
+
+                  {appointment.allocatedDealerId && (
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {appointment.allocatedDealerId.technicianFirmName ||
+                        appointment.allocatedDealerId.technicianName ||
+                        "-"}
+                    </p>
+                  )}
+
+                  <div className="mt-2 origin-left scale-90">
+                    <AppointmentStatusBadge status={appointment.status} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -733,19 +877,35 @@ export default function AppointmentCalendar({
    HELPERS
 ========================================= */
 
+/*
+ * The day a complaint sits on in the calendar:
+ * its appointment date, or (no appointment yet) its complaint date.
+ */
+function getDayKey(appointment: Appointment): string | null {
+  if (appointment.appointmentDate) {
+    return appointment.appointmentDate.split("T")[0];
+  }
+
+  if (appointment.complaintDateTime) {
+    return formatDateForComparison(new Date(appointment.complaintDateTime));
+  }
+
+  return null;
+}
+
 function filterByDateRange(
   appointments: Appointment[],
   start: Date,
   end: Date,
 ) {
   return appointments.filter((appointment) => {
-    if (!appointment.appointmentDate) {
+    const dayKey = getDayKey(appointment);
+
+    if (!dayKey) {
       return false;
     }
 
-    const dateOnly = appointment.appointmentDate.split("T")[0];
-
-    const appointmentDate = new Date(`${dateOnly}T00:00:00`);
+    const appointmentDate = new Date(`${dayKey}T00:00:00`);
 
     return appointmentDate >= start && appointmentDate <= end;
   });

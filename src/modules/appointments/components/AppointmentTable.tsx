@@ -147,7 +147,7 @@ import { getPanelBase } from "../../../utils/panelPath";
 //   );
 // }
 
-import { Bell, Eye, RefreshCw } from "lucide-react";
+import { Bell, Eye } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -159,8 +159,6 @@ import { complaintTypeLabel } from "../utils/complaintTypeLabel";
 
 interface Props {
   appointments: Appointment[];
-
-  onReschedule?: (appointmentId: string) => void;
 
   onStatusChange?: (appointmentId: string, status: AppointmentStatus) => void;
 }
@@ -207,7 +205,6 @@ function RemarkBell({ complaintId }: { complaintId: string }) {
 
 export default function AppointmentTable({
   appointments,
-  onReschedule,
   onStatusChange,
 }: Props) {
   const navigate = useNavigate();
@@ -1159,51 +1156,8 @@ export default function AppointmentTable({
                         >
                           <Eye size={14} />
                         </button>
-
-                        {onReschedule &&
-                          appointment.status !== "CLOSED" &&
-                          appointment.status !== "CANCELLED" && (
-                            <button
-                              type="button"
-                              onClick={() => onReschedule(appointment._id)}
-                              title="Reschedule"
-                              className="rounded-md border border-gray-200 p-1.5 text-gray-500 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-600"
-                            >
-                              <RefreshCw size={14} />
-                            </button>
-                          )}
                       </div>
                     </div>
-
-                    {appointment.status !== "CLOSED" &&
-                      appointment.status !== "CANCELLED" && (
-                        <select
-                          value=""
-                          onChange={(e) => {
-                            const selectedStatus = e.target
-                              .value as AppointmentStatus;
-
-                            if (!selectedStatus) {
-                              return;
-                            }
-
-                            onStatusChange?.(appointment._id, selectedStatus);
-                          }}
-                          className="mt-1.5 w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-[10px] font-medium text-gray-600 outline-none focus:border-[#123B7A]"
-                        >
-                          <option value="">Change Status</option>
-
-                          <option value="APPOINTMENT_SCHEDULED">
-                            Appointment Scheduled
-                          </option>
-
-                          <option value="PENDING">Pending</option>
-
-                          <option value="CANCELLED">Cancelled</option>
-
-                          <option value="CLOSED">Closed</option>
-                        </select>
-                      )}
                   </div>
                 </div>
 

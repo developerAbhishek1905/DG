@@ -1,315 +1,146 @@
-// import {
-//   RotateCcw,
-//   Search,
-// } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 
-// import {
-//   useAppDispatch,
-//   useAppSelector,
-// } from "../../../app/hooks";
+import { COMPLAINT_STATUS_OPTIONS } from "../../complaints/constants/complaint.constants";
 
-// import {
-//   clearAppointmentFilters,
-//   setAppointmentDate,
-//   setAppointmentSearch,
-//   setAppointmentStatus,
-//   setAppointmentType,
-// } from "../store/appointmentSlice";
+/*
+| Appointments are complaints, so the filters use the real complaint
+| statuses / complaint types the backend stores and filters on.
+*/
 
-// import type {
-//   AppointmentStatus,
-//   AppointmentType,
-// } from "../types/appointment.types";
-
-// export default function AppointmentFilters() {
-//   const dispatch =
-//     useAppDispatch();
-
-//   const {
-//     search,
-//     status,
-//     type,
-//     date,
-//   } = useAppSelector(
-//     (state) =>
-//       state.appointments
-//   );
-
-//   return (
-//     <div className="rounded-xl border border-gray-200 bg-white p-4">
-//       <div className="flex flex-col gap-3 xl:flex-row">
-//         <div className="relative flex-1">
-//           <Search
-//             size={17}
-//             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-//           />
-
-//           <input
-//             value={search}
-//             onChange={(event) =>
-//               dispatch(
-//                 setAppointmentSearch(
-//                   event.target.value
-//                 )
-//               )
-//             }
-//             placeholder="Search complaint, customer or dealer..."
-//             className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-500"
-//           />
-//         </div>
-
-//         <select
-//           value={status}
-//           onChange={(event) =>
-//             dispatch(
-//               setAppointmentStatus(
-//                 event.target.value as
-//                   | AppointmentStatus
-//                   | "ALL"
-//               )
-//             )
-//           }
-//           className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-//         >
-//           <option value="ALL">
-//             All Status
-//           </option>
-
-//           <option value="SCHEDULED">
-//             Scheduled
-//           </option>
-
-//           <option value="CONFIRMED">
-//             Confirmed
-//           </option>
-
-//           <option value="RESCHEDULED">
-//             Rescheduled
-//           </option>
-
-//           <option value="COMPLETED">
-//             Completed
-//           </option>
-
-//           <option value="CANCELLED">
-//             Cancelled
-//           </option>
-
-//           <option value="NO_SHOW">
-//             No Show
-//           </option>
-//         </select>
-
-//         <select
-//           value={type}
-//           onChange={(event) =>
-//             dispatch(
-//               setAppointmentType(
-//                 event.target.value as
-//                   | AppointmentType
-//                   | "ALL"
-//               )
-//             )
-//           }
-//           className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-//         >
-//           <option value="ALL">
-//             All Types
-//           </option>
-
-//           <option value="SERVICE">
-//             Service
-//           </option>
-
-//           <option value="INSTALLATION">
-//             Installation
-//           </option>
-
-//           <option value="UNINSTALLATION">
-//             Uninstallation
-//           </option>
-
-//           <option value="INSPECTION">
-//             Inspection
-//           </option>
-
-//           <option value="VISIT">
-//             Visit
-//           </option>
-//         </select>
-
-//         <input
-//           type="date"
-//           value={date}
-//           onChange={(event) =>
-//             dispatch(
-//               setAppointmentDate(
-//                 event.target.value
-//               )
-//             )
-//           }
-//           className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm"
-//         />
-
-//         <button
-//           type="button"
-//           onClick={() =>
-//             dispatch(
-//               clearAppointmentFilters()
-//             )
-//           }
-//           className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
-//         >
-//           <RotateCcw
-//             size={16}
-//           />
-
-//           Reset
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
+const TYPE_OPTIONS = [
+  { value: "REGULAR", label: "Regular" },
+  { value: "REPEAT", label: "Repeat" },
+  { value: "WARRANTY", label: "Warranty" },
+  { value: "INQUIRY", label: "Inquiry" },
+];
 
 interface AppointmentFiltersProps {
   search: string;
   status: string;
   type: string;
   date: string;
+  total?: number;
 
-  onSearchChange: (
-    value: string,
-  ) => void;
-
-  onStatusChange: (
-    value: string,
-  ) => void;
-
-  onTypeChange: (
-    value: string,
-  ) => void;
-
-  onDateChange: (
-    value: string,
-  ) => void;
+  onSearchChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
+  onTypeChange: (value: string) => void;
+  onDateChange: (value: string) => void;
 
   onReset: () => void;
 }
+
+const labelCls =
+  "mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]";
+
+const controlCls =
+  "h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
 
 export default function AppointmentFilters({
   search,
   status,
   type,
   date,
+  total,
   onSearchChange,
   onStatusChange,
   onTypeChange,
   onDateChange,
   onReset,
 }: AppointmentFiltersProps) {
+  const hasActiveFilters = Boolean(
+    search || status !== "ALL" || type !== "ALL" || date,
+  );
+
   return (
-    <div className="rounded-xl border bg-white p-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        {/* Search */}
+    <div className="rounded-xl border border-gray-200 bg-white p-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label className={labelCls}>Search</label>
 
-        <input
-          type="text"
-          value={search}
-          onChange={(e) =>
-            onSearchChange(
-              e.target.value,
-            )
-          }
-          placeholder="Search complaint, customer..."
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none"
-        />
+          <div className="relative">
+            <Search
+              size={15}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
 
-        {/* Status */}
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Complaint, customer, phone, dealer..."
+              className={`${controlCls} pl-9`}
+            />
+          </div>
+        </div>
 
-        <select
-          value={status}
-          onChange={(e) =>
-            onStatusChange(
-              e.target.value,
-            )
-          }
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none"
-        >
-          <option value="ALL">
-            All Status
-          </option>
+        <div>
+          <label className={labelCls}>Status</label>
 
-          <option value="SCHEDULED">
-            Scheduled
-          </option>
+          <select
+            value={status}
+            onChange={(e) => onStatusChange(e.target.value)}
+            className={controlCls}
+          >
+            <option value="ALL">All Status</option>
 
-          <option value="CONFIRMED">
-            Confirmed
-          </option>
+            {COMPLAINT_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <option value="RESCHEDULED">
-            Rescheduled
-          </option>
+        <div>
+          <label className={labelCls}>Complaint Type</label>
 
-          <option value="COMPLETED">
-            Completed
-          </option>
+          <select
+            value={type}
+            onChange={(e) => onTypeChange(e.target.value)}
+            className={controlCls}
+          >
+            <option value="ALL">All Types</option>
 
-          <option value="CANCELLED">
-            Cancelled
-          </option>
-        </select>
+            {TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* Type */}
+        <div>
+          <label className={labelCls}>Complaint Date</label>
 
-        <select
-          value={type}
-          onChange={(e) =>
-            onTypeChange(
-              e.target.value,
-            )
-          }
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none"
-        >
-          <option value="ALL">
-            All Types
-          </option>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => onDateChange(e.target.value)}
+            className={controlCls}
+          />
+        </div>
+      </div>
 
-          <option value="SERVICE">
-            Service
-          </option>
+      <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+        <span>
+          {typeof total === "number" && (
+            <>
+              <span className="font-semibold text-gray-800">{total}</span>{" "}
+              {total === 1 ? "complaint" : "complaints"} found
+            </>
+          )}
+        </span>
 
-          <option value="INSTALLATION">
-            Installation
-          </option>
-
-          <option value="INSPECTION">
-            Inspection
-          </option>
-        </select>
-
-        {/* Date */}
-
-        <input
-          type="date"
-          value={date}
-          onChange={(e) =>
-            onDateChange(
-              e.target.value,
-            )
-          }
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none"
-        />
-
-        {/* Reset */}
-
-        <button
-          type="button"
-          onClick={onReset}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700"
-        >
-          Reset
-        </button>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <RotateCcw size={13} />
+            Reset
+          </button>
+        )}
       </div>
     </div>
   );

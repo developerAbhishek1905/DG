@@ -200,7 +200,10 @@ export type BillingType =
   | "PARTIAL_PAYMENT"
   | "PROFIT_SHARING"
   | "CANCELLATION"
-  | "ADJUSTMENT";
+  | "ADJUSTMENT"
+  | "PAYMENT"
+  | "DUMMY_BILL"
+  | "PENALTY";
 
 export type TransactionType =
   | "OPENING_BALANCE"

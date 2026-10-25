@@ -140,6 +140,8 @@ export interface Appointment {
     | string
     | null;
 
+  complaintDateTime?: string;
+
   appointmentTime: string;
 
   status: string;

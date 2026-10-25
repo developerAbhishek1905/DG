@@ -5,12 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 import AppointmentCalendar from "../components/AppointmentCalendar";
 
-import { useAppointments } from "../hooks/useAppointments";
-
 export default function AppointmentCalendarPage() {
   const navigate = useNavigate();
-
-  const { appointments, loading } = useAppointments();
 
   return (
     <div className="space-y-6">
@@ -30,18 +26,11 @@ export default function AppointmentCalendarPage() {
         <p className="mt-1 text-sm text-gray-500">View appointments by date.</p>
       </div>
 
-      {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center">
-          Loading calendar...
-        </div>
-      ) : (
-        <AppointmentCalendar
-          appointments={appointments?.data}
-          onAppointmentClick={(appointment) => {
-            navigate(`${getPanelBase()}/appointments/${appointment._id}`);
-          }}
-        />
-      )}
+      <AppointmentCalendar
+        onAppointmentClick={(appointment) => {
+          navigate(`${getPanelBase()}/appointments/${appointment._id}`);
+        }}
+      />
     </div>
   );
 }

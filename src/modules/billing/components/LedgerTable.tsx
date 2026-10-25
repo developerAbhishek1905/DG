@@ -1,3 +1,8 @@
+import {
+  getBillingTypeLabel,
+  getLedgerStatusLabel,
+} from "../constants/billing.constants";
+import { useState } from "react";
 import { CheckCircle2, Eye, Pencil } from "lucide-react";
 
 import type { DealerLedger } from "../types/billing.types";
@@ -20,6 +25,27 @@ export default function LedgerTable({
   onView,
   onEdit,
 }: Props) {
+  const [remarkTip, setRemarkTip] = useState<{
+    text: string;
+    top: number;
+    left: number;
+  } | null>(null);
+
+  const showRemark = (
+    event: React.MouseEvent<HTMLElement>,
+    text: string,
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const width = 320;
+
+    setRemarkTip({
+      text,
+      // keep the popover inside the viewport horizontally
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)),
+      top: rect.bottom + 6,
+    });
+  };
+
   const formatAmount = (value?: number) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -57,31 +83,6 @@ export default function LedgerTable({
 
       default:
         return "bg-gray-100 text-gray-600";
-    }
-  };
-
-  const getBillingTypeLabel = (type: string) => {
-    switch (type) {
-      case "FIXED":
-        return "Fixed";
-
-      case "PARTIAL_PAYMENT":
-        return "Partial Payment";
-
-      case "PROFIT_SHARING":
-        return "Profit Sharing";
-
-      case "CANCELLATION":
-        return "Cancellation";
-
-      case "OPENING_BALANCE":
-        return "Opening Balance";
-
-      case "ADJUSTMENT":
-        return "Adjustment";
-
-      default:
-        return type;
     }
   };
 
@@ -237,12 +238,24 @@ export default function LedgerTable({
                   </td>
 
                   <td className="max-w-[220px] px-4 py-3">
-                    <p
-                      title={ledger?.complaintId?.closureApprovalRemark || ""}
-                      className="truncate text-xs text-gray-600"
-                    >
-                      {ledger?.complaintId?.closureApprovalRemark?.trim() || ledger?.closingRemark?.trim() || "-"}
-                    </p>
+                    {(() => {
+                      const remark =
+                        ledger?.complaintId?.closureApprovalRemark?.trim() ||
+                        ledger?.closingRemark?.trim() ||
+                        "";
+
+                      return remark ? (
+                        <p
+                          onMouseEnter={(e) => showRemark(e, remark)}
+                          onMouseLeave={() => setRemarkTip(null)}
+                          className="cursor-help truncate text-xs text-gray-600"
+                        >
+                          {remark}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400">-</p>
+                      );
+                    })()}
                   </td>
 
                   <td className="px-4 py-3 text-center">
@@ -251,7 +264,7 @@ export default function LedgerTable({
                         ledger.status,
                       )}`}
                     >
-                      {ledger.status}
+                      {getLedgerStatusLabel(ledger.status)}
                     </span>
                   </td>
 
@@ -300,6 +313,26 @@ export default function LedgerTable({
           </tbody>
         </table>
       </div>
+
+      {remarkTip && (
+        <div
+          style={{
+            position: "fixed",
+            top: remarkTip.top,
+            left: remarkTip.left,
+            width: 320,
+          }}
+          className="pointer-events-none z-[100] rounded-lg border border-gray-200 bg-white p-3 shadow-xl"
+        >
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#123B7A]">
+            Closing Remark
+          </p>
+
+          <p className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words text-xs leading-5 text-gray-700">
+            {remarkTip.text}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

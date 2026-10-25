@@ -1,7 +1,7 @@
 import { getPanelBase } from "../../../utils/panelPath";
 import { CalendarDays, Plus } from "lucide-react";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,18 +9,17 @@ import { toast } from "react-toastify";
 import NotificationDropdown from "../../notifications/components/NotificationDropdown";
 import AppointmentFilters from "../components/AppointmentFilters";
 import AppointmentTable from "../components/AppointmentTable";
-import RescheduleModal from "../components/RescheduleModal";
+import Pagination from "../../../components/ui/Pagination";
+import { useDebounce } from "../../../hooks/useDebounce";
 
 import {
   getAppointments,
-  rescheduleAppointment,
-  updateAppointmentStatus
-  
+  updateAppointmentStatus,
 } from "../services/appointmentApi";
 
 import type {
   Appointment,
-  RescheduleAppointmentPayload,
+  AppointmentStatus,
 } from "../types/appointment.types";
 import StatusUpdateModal from "../components/StatusUpdateModal";
 
@@ -53,15 +52,16 @@ export default function AppointmentListPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | Reschedule Modal
+  | Pagination (server side)
   |--------------------------------------------------------------------------
   */
 
-  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
-    string | null
-  >(null);
+  const debouncedSearch = useDebounce(search, 400);
 
   const [statusModalOpen, setStatusModalOpen] = useState(false);
 
@@ -85,11 +85,18 @@ export default function AppointmentListPage() {
       setLoading(true);
 
       const response = await getAppointments({
-        page: 1,
-        limit: 100,
+        page,
+        limit,
+        search: debouncedSearch.trim() || undefined,
+        status: status === "ALL" ? undefined : status,
+        complaintType: type === "ALL" ? undefined : type,
+        fromDate: date || undefined,
+        toDate: date || undefined,
       });
 
       setAppointments(response.data || []);
+      setTotal(response.pagination?.total ?? 0);
+      setTotalPages(response.pagination?.totalPages || 1);
     } catch (error: any) {
       console.error("Fetch appointments error:", error);
 
@@ -99,7 +106,7 @@ export default function AppointmentListPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, limit, debouncedSearch, status, type, date]);
 
   /*
   |--------------------------------------------------------------------------
@@ -110,98 +117,6 @@ export default function AppointmentListPage() {
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Client Side Filtering
-  |--------------------------------------------------------------------------
-  */
-
-  const filteredAppointments = useMemo(() => {
-    return appointments.filter((appointment) => {
-      const query = search.trim().toLowerCase();
-
-      const complaintNumber =
-        appointment.complaintNumber?.toLowerCase()?.trim() || "";
-
-      const customerName =
-        appointment.customer?.name?.toLowerCase()?.trim() || "";
-
-      const dealerName = appointment.dealer?.name?.toLowerCase()?.trim() || "";
-
-      const matchesSearch =
-        !query ||
-        complaintNumber.includes(query) ||
-        customerName.includes(query) ||
-        dealerName.includes(query);
-
-      const matchesStatus = status === "ALL" || appointment.status === status;
-
-      const matchesType = type === "ALL" || appointment.type === type;
-
-      const matchesDate = !date || appointment.appointmentDate === date;
-
-      return matchesSearch && matchesStatus && matchesType && matchesDate;
-    });
-  }, [appointments, search, status, type, date]);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Selected Appointment
-  |--------------------------------------------------------------------------
-  */
-
-  const selectedAppointment = appointments.find(
-    (appointment) => appointment.id === selectedAppointmentId,
-  );
-
-  /*
-  |--------------------------------------------------------------------------
-  | Open Reschedule
-  |--------------------------------------------------------------------------
-  */
-
-  const handleOpenReschedule = (appointmentId: string) => {
-    setSelectedAppointmentId(appointmentId);
-
-    setRescheduleModalOpen(true);
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | Close Reschedule
-  |--------------------------------------------------------------------------
-  */
-
-  const handleCloseReschedule = () => {
-    setRescheduleModalOpen(false);
-
-    setSelectedAppointmentId(null);
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | Reschedule Appointment
-  |--------------------------------------------------------------------------
-  */
-
-  const handleReschedule = async (payload: RescheduleAppointmentPayload) => {
-    try {
-      await rescheduleAppointment(payload);
-
-      toast.success("Appointment rescheduled successfully");
-
-      handleCloseReschedule();
-
-      await fetchAppointments();
-    } catch (error: any) {
-      console.error("Reschedule appointment error:", error);
-
-      toast.error(
-        error?.response?.data?.message || "Failed to reschedule appointment",
-      );
-    }
-  };
 
   // const handleStatusChange = async (
   //   appointmentId: string,
@@ -306,10 +221,6 @@ export default function AppointmentListPage() {
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Manage customer appointments and service visits.
-          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -340,15 +251,29 @@ export default function AppointmentListPage() {
         status={status}
         type={type}
         date={date}
-        onSearchChange={setSearch}
-        onStatusChange={setStatus}
-        onTypeChange={setType}
-        onDateChange={setDate}
+        total={total}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        onStatusChange={(value) => {
+          setStatus(value);
+          setPage(1);
+        }}
+        onTypeChange={(value) => {
+          setType(value);
+          setPage(1);
+        }}
+        onDateChange={(value) => {
+          setDate(value);
+          setPage(1);
+        }}
         onReset={() => {
           setSearch("");
           setStatus("ALL");
           setType("ALL");
           setDate("");
+          setPage(1);
         }}
       />
 
@@ -360,20 +285,28 @@ export default function AppointmentListPage() {
         </div>
       ) : (
         <AppointmentTable
-          appointments={filteredAppointments}
-          onReschedule={handleOpenReschedule}
+          appointments={appointments}
           onStatusChange={handleStatusChange}
         />
       )}
 
-      {/* Reschedule Modal */}
+      {/* Pagination */}
 
-      <RescheduleModal
-        open={rescheduleModalOpen}
-        appointment={selectedAppointment}
-        onClose={handleCloseReschedule}
-        onSubmit={handleReschedule}
-      />
+      {!loading && total > 0 && (
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={(value) => {
+              setLimit(value);
+              setPage(1);
+            }}
+          />
+        </div>
+      )}
 
       <StatusUpdateModal
         open={statusModalOpen}

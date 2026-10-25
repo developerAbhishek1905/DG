@@ -28,6 +28,8 @@ import {
 interface AddPaymentModalProps {
   onClose: () => void;
   onSuccess?: () => void;
+  /** Pre-select a dealer (used by the per-row Payment button) */
+  initialDealerId?: string;
 }
 
 type PaymentMode =
@@ -99,6 +101,7 @@ const isValidMoney = (value: string) =>
 export default function AddPaymentModal({
   onClose,
   onSuccess,
+  initialDealerId,
 }: AddPaymentModalProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -173,6 +176,21 @@ export default function AddPaymentModal({
       active = false;
     };
   }, []);
+
+  // Pre-select dealer when opened from a table row
+  useEffect(() => {
+    if (!initialDealerId || dealerId || dealers.length === 0) return;
+
+    const match = dealers.find(
+      (dealer) => dealer.dealerId === initialDealerId,
+    );
+
+    if (match) {
+      setDealerId(match.dealerId);
+      setDealerSearch(`${match.headCode} - ${match.dealerName}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dealers, initialDealerId]);
 
   // Close dealer dropdown on outside click
   useEffect(() => {
