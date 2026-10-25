@@ -1,126 +1,3 @@
-// import { useEffect } from "react";
-
-// import {
-//   useNavigate,
-//   useParams,
-// } from "react-router-dom";
-
-// import { useDispatch, useSelector } from "react-redux";
-
-// import DealerPerformanceCard from "../components/DealerPerformanceCard";
-
-// import {
-//   fetchDealerById,
-// } from "../store/dealerSlice";
-
-// import type {
-//   AppDispatch,
-//   RootState,
-// } from "../../../app/store";
-
-// export default function DealerPerformancePage() {
-//   const { id } = useParams();
-
-//   const navigate = useNavigate();
-
-//   const dispatch =
-//     useDispatch<AppDispatch>();
-
-//   const {
-//     selectedDealer,
-//     loading,
-//   } = useSelector(
-//     (state: RootState) =>
-//       state.dealers
-//   );
-
-//   useEffect(() => {
-//     if (id) {
-//       dispatch(fetchDealerById(id));
-//     }
-//   }, [id, dispatch]);
-
-//   if (loading || !selectedDealer) {
-//     return (
-//       <div className="p-8">
-//         Loading performance...
-//       </div>
-//     );
-//   }
-
-//   const dealer = selectedDealer;
-
-//   return (
-//     <div className="space-y-6">
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <h1 className="text-2xl font-bold">
-//             Dealer Performance
-//           </h1>
-
-//           <p className="text-sm text-gray-500">
-//             {dealer.name} ·{" "}
-//             {dealer.dealerCode}
-//           </p>
-//         </div>
-
-//         <button
-//           onClick={() =>
-//             navigate(`/dealers/${dealer._id}`)
-//           }
-//           className="rounded-lg border px-4 py-2"
-//         >
-//           Back
-//         </button>
-//       </div>
-
-//       <DealerPerformanceCard
-//         performance={dealer.performance}
-//       />
-
-//       {/* Future analytics */}
-
-//       <div className="rounded-xl border bg-white p-6">
-//         <h2 className="font-semibold">
-//           Performance Analytics
-//         </h2>
-
-//         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-//           <div className="rounded-lg bg-gray-50 p-4">
-//             <p className="text-sm text-gray-500">
-//               Completion Rate
-//             </p>
-
-//             <p className="mt-1 text-2xl font-bold">
-//               {dealer.performance.completionRate}%
-//             </p>
-//           </div>
-
-//           <div className="rounded-lg bg-gray-50 p-4">
-//             <p className="text-sm text-gray-500">
-//               Orders
-//             </p>
-
-//             <p className="mt-1 text-2xl font-bold">
-//               {dealer.performance.totalOrders}
-//             </p>
-//           </div>
-
-//           <div className="rounded-lg bg-gray-50 p-4">
-//             <p className="text-sm text-gray-500">
-//               Rating
-//             </p>
-
-//             <p className="mt-1 text-2xl font-bold">
-//               ⭐ {dealer.performance.rating}
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { ArrowLeft, CheckCircle2, Clock3, Star, XCircle } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -128,6 +5,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import Card from "../../../components/ui/Card";
 
 import { useDealerDetails } from "../hooks/useDealers";
+import type {
+  DealerPerformance,
+  DealerWithPerformance,
+} from "../types/dealer.types";
 
 export default function DealerPerformancePage() {
   const navigate = useNavigate();
@@ -152,7 +33,19 @@ export default function DealerPerformancePage() {
     );
   }
 
-  const { performance  } = dealer;
+  const performance: DealerPerformance = {
+    totalComplaints: 0,
+    completedComplaints: 0,
+    pendingComplaints: 0,
+    cancelledComplaints: 0,
+    cancellationRate: 0,
+    averageResponseTime: 0,
+    feedbackScore: 0,
+    performanceScore: 0,
+    slaCompliance: 0,
+    ...((dealer as DealerWithPerformance).performance ?? {}),
+  };
+  const dealerView = dealer as DealerWithPerformance;
 
   const completionRate = performance.totalComplaints
     ? (
@@ -175,7 +68,8 @@ export default function DealerPerformancePage() {
         <h1 className="text-2xl font-bold text-gray-900">Dealer Performance</h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          {dealer.name} • {dealer.dealerCode}
+          {dealerView.name || dealerView.technicianName} •{" "}
+          {dealerView.dealerCode || dealerView.headCode}
         </p>
       </div>
 

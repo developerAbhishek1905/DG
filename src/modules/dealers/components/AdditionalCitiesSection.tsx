@@ -227,7 +227,9 @@ export default function AdditionalCitiesSection({
                                     s.productId === product.product_id,
                                 )
                               ) {
-                                toast.error("This product is already selected.");
+                                toast.error(
+                                  "This product is already selected.",
+                                );
                                 return;
                               }
 
@@ -276,7 +278,9 @@ export default function AdditionalCitiesSection({
                             type="button"
                             disabled={services.length === 1}
                             onClick={() =>
-                              setServices(services.filter((_, i) => i !== pIndex))
+                              setServices(
+                                services.filter((_, i) => i !== pIndex),
+                              )
                             }
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 bg-white text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
                             title="Remove product"
@@ -339,7 +343,11 @@ export default function AdditionalCitiesSection({
                       onClick={() =>
                         setServices([
                           ...services,
-                          { productId: undefined, productName: "", categories: [] },
+                          {
+                            productId: undefined,
+                            productName: "",
+                            categories: [],
+                          },
                         ])
                       }
                       className="inline-flex h-8 items-center gap-1.5 rounded-md border border-blue-600 px-3 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
@@ -370,7 +378,8 @@ export default function AdditionalCitiesSection({
                           options={productOptions(combinedIds)}
                           onSearch={loadProducts}
                           onSelect={(option) => {
-                            const product = option.data as ProductDropdownOption;
+                            const product =
+                              option.data as ProductDropdownOption;
 
                             if (combinedIds.includes(product.product_id)) {
                               toast.error(
@@ -437,7 +446,8 @@ export default function AdditionalCitiesSection({
                                   onClick={() => {
                                     const next =
                                       city.combinedCapacity.products.filter(
-                                        (p) => p.productId !== product.productId,
+                                        (p) =>
+                                          p.productId !== product.productId,
                                       );
 
                                     updateCity(index, {
@@ -522,7 +532,11 @@ export default function AdditionalCitiesSection({
                                 setIndividual(
                                   city.individualCapacities.map((c, i) =>
                                     i === iIndex
-                                      ? { ...c, productId: undefined, productName: "" }
+                                      ? {
+                                          ...c,
+                                          productId: undefined,
+                                          productName: "",
+                                        }
                                       : c,
                                   ),
                                 )
@@ -543,7 +557,12 @@ export default function AdditionalCitiesSection({
                                   setIndividual(
                                     city.individualCapacities.map((c, i) =>
                                       i === iIndex
-                                        ? { ...c, capacity: Number(e.target.value || 0) }
+                                        ? {
+                                            ...c,
+                                            capacity: Number(
+                                              e.target.value || 0,
+                                            ),
+                                          }
                                         : c,
                                     ),
                                   )
@@ -578,7 +597,11 @@ export default function AdditionalCitiesSection({
                           onClick={() =>
                             setIndividual([
                               ...city.individualCapacities,
-                              { productId: undefined, productName: "", capacity: 0 },
+                              {
+                                productId: undefined,
+                                productName: "",
+                                capacity: 0,
+                              },
                             ])
                           }
                           className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"

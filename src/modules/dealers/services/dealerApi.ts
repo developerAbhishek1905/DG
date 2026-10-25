@@ -24,6 +24,7 @@ export interface CategoryDropdownOption {
   categoryDescription?: string;
   groupCategoryCode?: string;
   description: string;
+  rate?: number;
 }
 
 // export interface DealerFilters {

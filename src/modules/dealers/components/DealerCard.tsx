@@ -10,53 +10,60 @@ interface Props {
 
 export default function DealerCard({ dealer }: Props) {
   const navigate = useNavigate();
-  const available = dealer.capacity.total - dealer.capacity.used;
+  const totalCapacity =
+    Number(dealer.combinedCapacity?.capacity ?? 0) +
+    (dealer.individualCapacities ?? []).reduce(
+      (sum, item) => sum + Number(item.capacity || 0),
+      0,
+    );
 
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-medium text-gray-400">
-            {dealer.dealerCode}
+            {dealer.headCode || dealer.technicianCode}
           </p>
 
-          <h3 className="mt-1 font-semibold text-gray-900">{dealer.name}</h3>
+          <h3 className="mt-1 font-semibold text-gray-900">{dealer.technicianName}</h3>
         </div>
 
         <DealerStatusBadge status={dealer.status} />
       </div>
 
       <div className="mt-5 space-y-3">
-        <Info icon={User} value={dealer.ownerName} />
-        <Info icon={Phone} value={dealer.phone} />
-        <Info icon={MapPin} value={`${dealer.city}, ${dealer.state}`} />
+        <Info icon={User} value={dealer.technicianFirmName} />
+        <Info icon={Phone} value={dealer.mobileNumber} />
+        <Info icon={MapPin} value={[dealer.businessAddress?.city, dealer.businessAddress?.state]
+            .filter(Boolean)
+            .join(", ")} />
       </div>
 
       <div className="mt-5 grid grid-cols-3 gap-3 border-t border-gray-100 pt-4 text-center">
         <div>
-          <p className="font-semibold text-gray-900">{available}</p>
+          <p className="font-semibold text-gray-900">{totalCapacity}</p>
           <p className="text-xs text-gray-500">Capacity</p>
         </div>
 
         <div>
           <p className="font-semibold text-gray-900">
-            {dealer.performance.slaCompliance}%
+            {dealer.rating ?? "-"}
           </p>
 
-          <p className="text-xs text-gray-500">SLA</p>
+          <p className="text-xs text-gray-500">Rating</p>
         </div>
 
         <div>
           <p className="font-semibold text-gray-900">
-            {dealer.performance.performanceScore}
+            {dealer.status}
           </p>
 
-          <p className="text-xs text-gray-500">Score</p>
+          <p className="text-xs text-gray-500">Status</p>
         </div>
       </div>
 
       <button
-        onClick={() => navigate(`/dealers/${dealer.id}`)}
+        onClick={() => navigate(`/dealers/${dealer._id}`)}
         className="mt-5 w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
       >
         View Dealer
@@ -70,13 +77,13 @@ function Info({
   value,
 }: {
   icon: React.ElementType;
-  value: string;
+  value?: string;
 }) {
   return (
     <div className="flex items-center gap-3 text-sm text-gray-600">
       <Icon size={16} className="text-gray-400" />
 
-      {value}
+      {value || "-"}
     </div>
   );
 }

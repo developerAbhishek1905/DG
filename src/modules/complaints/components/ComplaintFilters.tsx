@@ -5,6 +5,7 @@ import SearchSelect, {
   type SearchSelectOption,
 } from "../../../components/ui/SearchSelect";
 
+import { COMPLAINT_STATUS_LABELS } from "../constants/complaint.constants";
 import type {
   ComplaintStatus,
   ComplaintType as SharedComplaintType,
@@ -77,13 +78,18 @@ const statuses: Array<ComplaintStatus | "ALL"> = [
   "REGISTERED",
   "ALLOCATED",
   "APPOINTMENT_SCHEDULED",
-  "PENDING",
-  "WORK_IN_PROGRESS",
-  "WORK_COMPLETED",
-  "DG_VERIFICATION",
+  "RESCHEDULED",
+  "VISITED",
+  "PENDING_ON_CALL",
+  "PENDING_ON_VISIT",
+  "CANCEL_ON_CALL",
+  "CANCEL_ON_VISIT",
+  "CLOSE_ON_BILLING",
+  "CLOSE_ON_VERIFICATION",
+  "REOPEN",
+  "SUSPENDED",
   "CLOSED",
   "CANCELLED",
-  "SUSPENDED",
 ];
 
 export default function ComplaintFilters({
@@ -685,7 +691,7 @@ return (
             <option key={status} value={status}>
               {status === "ALL"
                 ? "All Status"
-                : status.replaceAll("_", " ")}
+                : COMPLAINT_STATUS_LABELS[status]}
             </option>
           ))}
         </select>

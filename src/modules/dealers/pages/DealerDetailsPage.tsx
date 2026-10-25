@@ -1,17 +1,13 @@
 import {
   ArrowLeft,
   BriefcaseBusiness,
-  CalendarOff,
   Edit,
   LogIn,
   Mail,
   MapPin,
-  PauseCircle,
   Phone,
-  Star,
   User,
-
-    Activity,
+  Activity,
   CalendarDays,
   LogOut,
   RefreshCcw,
@@ -55,40 +51,31 @@ export default function DealerDetailsPage() {
   const [rejoinModalOpen, setRejoinModalOpen] = useState(false);
 
   const [leaveHistoryOpen, setLeaveHistoryOpen] = useState(false);
-const [activityLogs, setActivityLogs] = useState<
-  DealerLifecycleLog[]
->([]);
+  const [activityLogs, setActivityLogs] = useState<DealerLifecycleLog[]>([]);
 
-const fetchDealerActivity = useCallback(async () => {
-  if (!id) return;
+  const fetchDealerActivity = useCallback(async () => {
+    if (!id) return;
 
-  try {
-    setActivityLoading(true);
+    try {
+      setActivityLoading(true);
 
-    const response =
-      await getDealerLifecycleLogs(id);
+      const response = await getDealerLifecycleLogs(id);
 
-    setActivityLogs(response.data ?? []);
-  } catch (error) {
-    console.error(
-      "Failed to fetch dealer activity:",
-      error,
-    );
+      setActivityLogs(response.data ?? []);
+    } catch (error) {
+      console.error("Failed to fetch dealer activity:", error);
 
-    setActivityLogs([]);
-  } finally {
-    setActivityLoading(false);
-  }
-}, [id]);
+      setActivityLogs([]);
+    } finally {
+      setActivityLoading(false);
+    }
+  }, [id]);
 
-useEffect(() => {
-  fetchDealerActivity();
-}, [fetchDealerActivity]);
+  useEffect(() => {
+    fetchDealerActivity();
+  }, [fetchDealerActivity]);
 
-
-
-const [activityLoading, setActivityLoading] =
-  useState(false);
+  const [activityLoading, setActivityLoading] = useState(false);
   const dealerDocuments = (dealer as { documents?: DealerDocuments } | null)
     ?.documents;
 
@@ -118,15 +105,44 @@ const [activityLoading, setActivityLoading] =
     );
   }
 
-  const combinedProducts = dealer.combinedCapacity?.products ?? [];
-  const combinedCapacity = Number(dealer.combinedCapacity?.capacity ?? 0);
-  const individualCapacities = dealer.individualCapacities ?? [];
-  const totalIndividualCapacity = individualCapacities.reduce(
-    (total, item) => total + Number(item.capacity || 0),
+  // One entry per city: primary business city + every additional city
+  const cityEntries = [
+    {
+      key: "primary",
+      city: dealer.businessAddress?.city || "Primary city",
+      isPrimary: true,
+      services: dealer.productServices ?? [],
+      capacities: dealer.individualCapacities ?? [],
+      combined: dealer.combinedCapacity,
+    },
+    ...(dealer.additionalCities ?? []).map((item, index) => ({
+      key: `${item.cityId ?? "city"}-${index}`,
+      city: item.city,
+      isPrimary: false,
+      services: item.productServices ?? [],
+      capacities: item.individualCapacities ?? [],
+      combined: item.combinedCapacity,
+    })),
+  ].map((entry) => {
+    const combinedCapacity = Number(entry.combined?.capacity ?? 0);
+    const individualTotal = entry.capacities.reduce(
+      (total, item) => total + Number(item.capacity || 0),
+      0,
+    );
+
+    return {
+      ...entry,
+      combinedProducts: entry.combined?.products ?? [],
+      combinedCapacity,
+      individualTotal,
+      total: combinedCapacity + individualTotal,
+    };
+  });
+
+  const totalCapacity = cityEntries.reduce(
+    (sum, entry) => sum + entry.total,
     0,
   );
-  const totalCapacity = combinedCapacity + totalIndividualCapacity;
-  const productServices = dealer.productServices ?? [];
 
   return (
     <div className="space-y-6">
@@ -363,20 +379,6 @@ const [activityLoading, setActivityLoading] =
             />
 
             <DetailItem label="Status" value={dealer.status} />
-
-            {/* <DetailItem
-              label="Zone"
-              value={dealer.zone ? formatGroupHead(dealer.zone) : undefined}
-            />
-
-            <DetailItem
-              label="Segment"
-              value={
-                dealer.segment ? formatGroupHead(dealer.segment) : undefined
-              }
-            />
-
-            <DetailItem label="Grade" value={dealer.grade} /> */}
           </div>
         </Card>
 
@@ -427,17 +429,6 @@ const [activityLoading, setActivityLoading] =
               }
             />
 
-            {/* <DetailItem label="VAT 15 Column" value={dealer.vat15Column} /> */}
-
-            {/* <DetailItem
-              label="Account Type"
-              value={
-                dealer.accountType ? formatGroupHead(dealer.accountType) : "-"
-              }
-            /> */}
-
-            {/* <DetailItem label="Credit Days" value={dealer.creditDays} /> */}
-
             <DetailItem
               label="Credit Limit"
               value={
@@ -474,273 +465,145 @@ const [activityLoading, setActivityLoading] =
         </Card>
       </div>
 
-      {/* <Card className="p-5">
-        <h3 className="font-semibold text-gray-900">Dealer Settings</h3>
-
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <BooleanDetailItem label="Is Dealer" value={dealer.isDealer} />
-
-          <BooleanDetailItem
-            label="Disable Challan"
-            value={dealer.disableChallan}
-          />
-
-          <BooleanDetailItem
-            label="Ledger Summary Only"
-            value={dealer.ledgerSummaryOnly}
-          />
-
-          <BooleanDetailItem
-            label="Account Deactivated"
-            value={dealer.accountDeactivated}
-          />
-
-          <DetailItem
-            label="Segment"
-            value={dealer.segment ? formatGroupHead(dealer.segment) : "-"}
-          />
-
-          <DetailItem
-            label="Rating"
-            value={dealer.rating !== undefined ? `${dealer.rating} / 5` : "-"}
-          />
-
-          <DetailItem label="Dealer Status" value={dealer.status} />
-
-          <DetailItem
-            label="Technician Status"
-            value={dealer.technicianStatus}
-          />
-        </div>
-      </Card> */}
-
       {/* ======================================
-          PRODUCT & SERVICES
+          CITY WISE PRODUCT & SERVICE MAPPING + CAPACITY
       ====================================== */}
 
-      <Card className="p-5">
-        <div className="flex items-center gap-2">
-          <BriefcaseBusiness size={18} className="text-gray-500" />
+      {cityEntries.map((entry) => (
+        <Card key={entry.key} className="p-4">
+          {/* CITY HEADER */}
 
-          <h3 className="font-semibold text-gray-900">
-            Product & Service Mapping
-          </h3>
-        </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-gray-900">
+                {entry.city}
+              </h3>
 
-        {productServices.length ? (
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {productServices.map((product, index) => (
-              <div
-                key={`${product.productId}-${index}`}
-                className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  entry.isPrimary
+                    ? "bg-blue-50 text-[#123B7A]"
+                    : "bg-gray-100 text-gray-600"
+                }`}
               >
-                <p className="font-medium text-gray-900">
-                  {product.productName}
-                </p>
+                {entry.isPrimary ? "Primary" : "Additional"}
+              </span>
+            </div>
 
-                <p className="mt-1 text-xs text-gray-500">
-                  Product ID: {product.productId}
-                </p>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {product.categories?.length ? (
-                    product.categories.map((category) => (
-                      <span
-                        key={category.categoryId}
-                        className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
-                      >
-                        {category.categoryName} - {category?.description} -{" "}
-                        {category.rate !== undefined
-                          ? `₹${Number(category.rate).toLocaleString("en-IN")}`
-                          : "-"}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-gray-400">
-                      No services mapped
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-4 text-sm text-gray-400">No products mapped.</p>
-        )}
-      </Card>
-
-      {/* ======================================
-          CAPACITY
-      ====================================== */}
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* COMBINED */}
-
-        <Card className="p-5">
-          <h3 className="font-semibold text-gray-900">Combined Capacity</h3>
-
-          <div className="mt-4">
-            <p className="text-3xl font-bold text-[#123B7A]">
-              {combinedCapacity}
-            </p>
-
-            <p className="mt-1 text-xs text-gray-500">Shared capacity</p>
+            <div className="flex items-center gap-3 text-xs text-gray-500">
+              <span>
+                Combined{" "}
+                <b className="text-gray-800">{entry.combinedCapacity}</b>
+              </span>
+              <span>
+                Individual{" "}
+                <b className="text-gray-800">{entry.individualTotal}</b>
+              </span>
+              <span className="rounded-md bg-blue-50 px-2 py-1 font-semibold text-[#123B7A]">
+                Total {entry.total}
+              </span>
+            </div>
           </div>
 
-          <div className="mt-5">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
-              Selected Products
+          {/* PRODUCT & SERVICE MAPPING */}
+
+          <div className="mt-3">
+            <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <BriefcaseBusiness size={13} />
+              Product & Service Mapping
             </p>
 
-            {combinedProducts.length ? (
-              <div className="flex flex-wrap gap-2">
-                {combinedProducts.map((product) => (
-                  <span
-                    key={product.productId}
-                    className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+            {entry.services.length ? (
+              <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+                {entry.services.map((product, index) => (
+                  <div
+                    key={`${product.productId}-${index}`}
+                    className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5"
                   >
-                    {product.productName}
-                  </span>
+                    <p className="w-40 shrink-0 truncate text-xs font-medium text-gray-900">
+                      {product.productName}
+                      <span className="ml-1 font-normal text-gray-400">
+                        #{product.productId}
+                      </span>
+                    </p>
+
+                    <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+                      {product.categories?.length ? (
+                        product.categories.map((category) => (
+                          <span
+                            key={category.categoryId}
+                            className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700"
+                          >
+                            {category.categoryName} - {category?.description} -{" "}
+                            {category.rate !== undefined
+                              ? `₹${Number(category.rate).toLocaleString("en-IN")}`
+                              : "-"}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[11px] text-gray-400">
+                          No services mapped
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400">
-                No combined capacity mapped.
-              </p>
+              <p className="text-xs text-gray-400">No products mapped.</p>
             )}
           </div>
-        </Card>
 
-        {/* INDIVIDUAL */}
+          {/* CAPACITY */}
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Individual Capacity</h3>
-
-            <div className="text-right">
-              <p className="text-xl font-bold text-[#123B7A]">
-                {totalIndividualCapacity}
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <div className="rounded-lg border border-gray-200 px-3 py-2">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                Combined Capacity ·{" "}
+                <span className="text-gray-900">{entry.combinedCapacity}</span>
               </p>
 
-              <p className="text-xs text-gray-500">Total</p>
-            </div>
-          </div>
-
-          {individualCapacities.length ? (
-            <div className="mt-5 divide-y divide-gray-100">
-              {individualCapacities.map((item, index) => (
-                <div
-                  key={`${item.productId}-${index}`}
-                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {item.productName}
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-500">
-                      Product ID: {item.productId}
-                    </p>
-                  </div>
-
-                  <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-900">
-                    {item.capacity}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-gray-400">
-              No individual capacity mapped.
-            </p>
-          )}
-        </Card>
-      </div>
-
-      {/* ======================================
-          OPERATING CITIES (one profile, many cities)
-      ====================================== */}
-
-      <Card className="p-5">
-        <h3 className="font-semibold text-gray-900">Operating Cities</h3>
-
-        <p className="mt-1 text-xs text-gray-500">
-          Appointments from all these cities appear under this single dealer
-          profile.
-        </p>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {[
-            {
-              key: "primary",
-              city: dealer.businessAddress?.city || "Primary city",
-              isPrimary: true,
-              services: dealer.productServices ?? [],
-              capacities: dealer.individualCapacities ?? [],
-              combined: dealer.combinedCapacity,
-            },
-            ...(dealer.additionalCities ?? []).map((item) => ({
-              key: String(item.cityId),
-              city: item.city,
-              isPrimary: false,
-              services: item.productServices ?? [],
-              capacities: item.individualCapacities ?? [],
-              combined: item.combinedCapacity,
-            })),
-          ].map((entry) => {
-            const total =
-              entry.capacities.reduce(
-                (sum, c) => sum + Number(c.capacity || 0),
-                0,
-              ) + Number(entry.combined?.capacity ?? 0);
-
-            return (
-              <div
-                key={entry.key}
-                className="rounded-xl border border-gray-200 p-4"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold text-gray-900">{entry.city}</p>
-
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                      entry.isPrimary
-                        ? "bg-blue-50 text-[#123B7A]"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {entry.isPrimary ? "Primary" : "Additional"}
-                  </span>
-                </div>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  Daily capacity: <b className="text-gray-800">{total}</b>
-                </p>
-
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {entry.services.length === 0 && (
-                    <span className="text-xs text-gray-400">
-                      No products added
-                    </span>
-                  )}
-
-                  {entry.services.map((service) => (
+              {entry.combinedProducts.length ? (
+                <div className="flex flex-wrap gap-1">
+                  {entry.combinedProducts.map((product) => (
                     <span
-                      key={service.productId}
-                      className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700"
+                      key={product.productId}
+                      className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700"
                     >
-                      {service.productName}
-                      {service.categories?.length
-                        ? ` (${service.categories.length})`
-                        : ""}
+                      {product.productName}
                     </span>
                   ))}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
+              ) : (
+                <p className="text-xs text-gray-400">Not mapped.</p>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-gray-200 px-3 py-2">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                Individual Capacity ·{" "}
+                <span className="text-gray-900">{entry.individualTotal}</span>
+              </p>
+
+              {entry.capacities.length ? (
+                <div className="flex flex-wrap gap-1">
+                  {entry.capacities.map((item, index) => (
+                    <span
+                      key={`${item.productId}-${index}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700"
+                    >
+                      {item.productName}
+                      <b className="text-gray-900">{item.capacity}</b>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400">Not mapped.</p>
+              )}
+            </div>
+          </div>
+        </Card>
+      ))}
 
       {/* ======================================
           ADDRESS
@@ -761,10 +624,6 @@ const [activityLoading, setActivityLoading] =
       {/* ======================================
           DOCUMENT INFORMATION
       ====================================== */}
-
-      {/* ======================================
-    DOCUMENT INFORMATION
-====================================== */}
 
       <Card className="p-5">
         <h3 className="font-semibold text-gray-900">Document Information</h3>
@@ -925,92 +784,79 @@ const [activityLoading, setActivityLoading] =
       />
 
       <DealerLeaveHistoryModal
-      dealerId={dealer._id}
+        dealerId={dealer._id}
         open={leaveHistoryOpen}
         leaves={dealer.leaves}
         onClose={() => setLeaveHistoryOpen(false)}
-          onLeaveEnded={refetch}
+        onLeaveEnded={refetch}
       />
 
       <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white">
-  {/* HEADER */}
+        {/* HEADER */}
 
-  <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-    <div className="flex items-center gap-2">
-      <Activity
-        size={18}
-        className="text-[#123B7A]"
-      />
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+          <div className="flex items-center gap-2">
+            <Activity size={18} className="text-[#123B7A]" />
 
-      <div>
-        <h2 className="text-sm font-semibold text-gray-900">
-          Dealer Activity
-        </h2>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-900">
+                Dealer Activity
+              </h2>
 
-        <p className="mt-0.5 text-xs text-gray-500">
-          Joining, leaving, suspension and
-          rejoining history
-        </p>
-      </div>
-    </div>
+              <p className="mt-0.5 text-xs text-gray-500">
+                Joining, leaving, suspension and rejoining history
+              </p>
+            </div>
+          </div>
 
-    <button
-      type="button"
-      onClick={fetchDealerActivity}
-      disabled={activityLoading}
-      className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50"
-    >
-      <RefreshCcw
-        size={13}
-        className={
-          activityLoading ? "animate-spin" : ""
-        }
-      />
-
-      Refresh
-    </button>
-  </div>
-
-  {/* BODY */}
-
-  <div className="p-5">
-    {activityLoading ? (
-      <div className="py-8 text-center text-sm text-gray-500">
-        Loading activity...
-      </div>
-    ) : activityLogs.length === 0 ? (
-      <div className="py-10 text-center">
-        <Activity
-          size={30}
-          className="mx-auto mb-2 text-gray-300"
-        />
-
-        <p className="text-sm font-medium text-gray-600">
-          No activity found
-        </p>
-
-        <p className="mt-1 text-xs text-gray-400">
-          Dealer lifecycle activity will appear here.
-        </p>
-      </div>
-    ) : (
-      <div className="relative">
-        {/* Timeline vertical line */}
-
-        <div className="absolute bottom-3 left-[17px] top-3 w-px bg-gray-200" />
-
-        <div className="space-y-5">
-          {activityLogs.map((log) => (
-            <DealerActivityItem
-              key={log._id}
-              log={log}
+          <button
+            type="button"
+            onClick={fetchDealerActivity}
+            disabled={activityLoading}
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50"
+          >
+            <RefreshCcw
+              size={13}
+              className={activityLoading ? "animate-spin" : ""}
             />
-          ))}
+            Refresh
+          </button>
+        </div>
+
+        {/* BODY */}
+
+        <div className="p-5">
+          {activityLoading ? (
+            <div className="py-8 text-center text-sm text-gray-500">
+              Loading activity...
+            </div>
+          ) : activityLogs.length === 0 ? (
+            <div className="py-10 text-center">
+              <Activity size={30} className="mx-auto mb-2 text-gray-300" />
+
+              <p className="text-sm font-medium text-gray-600">
+                No activity found
+              </p>
+
+              <p className="mt-1 text-xs text-gray-400">
+                Dealer lifecycle activity will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="relative">
+              {/* Timeline vertical line */}
+
+              <div className="absolute bottom-3 left-[17px] top-3 w-px bg-gray-200" />
+
+              <div className="space-y-5">
+                {activityLogs.map((log) => (
+                  <DealerActivityItem key={log._id} log={log} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    )}
-  </div>
-</div>
     </div>
   );
 }
@@ -1018,32 +864,6 @@ const [activityLoading, setActivityLoading] =
 /* ========================================
    INFO
 ======================================== */
-
-// function Info({
-//   icon: Icon,
-//   label,
-//   value,
-// }: {
-//   icon: React.ElementType;
-//   label: string;
-//   value: string;
-// }) {
-//   return (
-//     <div className="flex gap-3">
-//       <div className="mt-1 text-gray-400">
-//         <Icon size={17} />
-//       </div>
-
-//       <div className="min-w-0">
-//         <p className="text-xs text-gray-500">{label}</p>
-
-//         <p className="mt-1 break-words text-sm font-medium text-gray-900">
-//           {value || "-"}
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
 
 function Info({
   icon: Icon,
@@ -1078,23 +898,6 @@ function Info({
    DETAIL ITEM
 ======================================== */
 
-// function DetailItem({
-//   label,
-//   value,
-// }: {
-//   label: string;
-//   value?: string | number | null;
-// }) {
-//   return (
-//     <div>
-//       <p className="text-xs text-gray-500">{label}</p>
-
-//       <p className="mt-1 break-words text-sm font-medium text-gray-900">
-//         {value !== undefined && value !== null && value !== "" ? value : "-"}
-//       </p>
-//     </div>
-//   );
-// }
 function DetailItem({
   label,
   value,
@@ -1138,28 +941,6 @@ interface Address {
   pinCode?: string;
 }
 
-// function AddressCard({ title, address }: { title: string; address?: Address }) {
-//   return (
-//     <Card className="p-5">
-//       <div className="flex items-center gap-2">
-//         <MapPin size={18} className="text-gray-400" />
-
-//         <h3 className="font-semibold text-gray-900">{title}</h3>
-//       </div>
-
-//       <div className="mt-4 text-sm leading-6 text-gray-600">
-//         {address?.addressLine && <p>{address.addressLine}</p>}
-
-//         <p>
-//           {[address?.city, address?.district].filter(Boolean).join(", ") || "-"}
-//         </p>
-
-//         <p>{[address?.state, address?.pinCode].filter(Boolean).join(" - ")}</p>
-//       </div>
-//     </Card>
-//   );
-// }
-
 function AddressCard({ title, address }: { title: string; address?: Address }) {
   return (
     <Card className="p-5">
@@ -1183,18 +964,6 @@ function AddressCard({ title, address }: { title: string; address?: Address }) {
             "-"}
         </p>
       </div>
-
-      {/* <div className="mt-5 grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
-        <DetailItem label="State ID" value={address?.stateId} />
-
-        <DetailItem label="State Code" value={address?.stateCode} />
-
-        <DetailItem label="District ID" value={address?.districtId} />
-
-        <DetailItem label="City ID" value={address?.cityId} />
-
-        <DetailItem label="Pincode ID" value={address?.pincodeId} />
-      </div> */}
     </Card>
   );
 }
@@ -1275,34 +1044,7 @@ function DocumentPreview({
   );
 }
 
-// function BooleanDetailItem({
-//   label,
-//   value,
-// }: {
-//   label: string;
-//   value?: boolean;
-// }) {
-//   return (
-//     <div>
-//       <p className="text-xs text-gray-500">{label}</p>
-
-//       <div className="mt-1">
-//         <span
-//           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-//             value ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-//           }`}
-//         >
-//           {value ? "Yes" : "No"}
-//         </span>
-//       </div>
-//     </div>
-//   );
-// }
-function DealerActivityItem({
-  log,
-}: {
-  log: DealerLifecycleLog;
-}) {
+function DealerActivityItem({ log }: { log: DealerLifecycleLog }) {
   const config = getActivityConfig(log.type);
 
   const Icon = config.icon;
@@ -1344,13 +1086,9 @@ function DealerActivityItem({
 
         {log.reason && (
           <div className="mt-2 rounded-md bg-gray-50 px-3 py-2">
-            <p className="text-xs text-gray-500">
-              Reason
-            </p>
+            <p className="text-xs text-gray-500">Reason</p>
 
-            <p className="mt-0.5 text-sm text-gray-700">
-              {log.reason}
-            </p>
+            <p className="mt-0.5 text-sm text-gray-700">{log.reason}</p>
           </div>
         )}
 
@@ -1368,9 +1106,7 @@ function DealerActivityItem({
     </div>
   );
 }
-function getActivityConfig(
-  type: DealerLifecycleType,
-) {
+function getActivityConfig(type: DealerLifecycleType) {
   switch (type) {
     case "JOINED":
       return {
@@ -1378,11 +1114,9 @@ function getActivityConfig(
         label: "Joined",
         icon: LogIn,
 
-        iconStyle:
-          "border-green-200 bg-green-50 text-green-700",
+        iconStyle: "border-green-200 bg-green-50 text-green-700",
 
-        badgeStyle:
-          "border-green-200 bg-green-50 text-green-700",
+        badgeStyle: "border-green-200 bg-green-50 text-green-700",
       };
 
     case "LEFT":
@@ -1391,11 +1125,9 @@ function getActivityConfig(
         label: "Left",
         icon: LogOut,
 
-        iconStyle:
-          "border-gray-200 bg-gray-50 text-gray-600",
+        iconStyle: "border-gray-200 bg-gray-50 text-gray-600",
 
-        badgeStyle:
-          "border-gray-200 bg-gray-50 text-gray-600",
+        badgeStyle: "border-gray-200 bg-gray-50 text-gray-600",
       };
 
     case "SUSPENDED":
@@ -1404,11 +1136,9 @@ function getActivityConfig(
         label: "Suspended",
         icon: ShieldBan,
 
-        iconStyle:
-          "border-red-200 bg-red-50 text-red-700",
+        iconStyle: "border-red-200 bg-red-50 text-red-700",
 
-        badgeStyle:
-          "border-red-200 bg-red-50 text-red-700",
+        badgeStyle: "border-red-200 bg-red-50 text-red-700",
       };
 
     case "REJOINED":
@@ -1417,11 +1147,9 @@ function getActivityConfig(
         label: "Rejoined",
         icon: RefreshCcw,
 
-        iconStyle:
-          "border-blue-200 bg-blue-50 text-blue-700",
+        iconStyle: "border-blue-200 bg-blue-50 text-blue-700",
 
-        badgeStyle:
-          "border-blue-200 bg-blue-50 text-blue-700",
+        badgeStyle: "border-blue-200 bg-blue-50 text-blue-700",
       };
 
     default:
@@ -1430,11 +1158,9 @@ function getActivityConfig(
         label: type,
         icon: Activity,
 
-        iconStyle:
-          "border-gray-200 bg-gray-50 text-gray-600",
+        iconStyle: "border-gray-200 bg-gray-50 text-gray-600",
 
-        badgeStyle:
-          "border-gray-200 bg-gray-50 text-gray-600",
+        badgeStyle: "border-gray-200 bg-gray-50 text-gray-600",
       };
   }
 }
@@ -1456,10 +1182,3 @@ function formatActivityDate(date: string) {
     minute: "2-digit",
   });
 }
-
-const refreshDealerData = async () => {
-  await Promise.all([
-    refetch(),
-    fetchDealerActivity(),
-  ]);
-};

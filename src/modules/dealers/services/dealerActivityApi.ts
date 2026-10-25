@@ -172,3 +172,28 @@ export const getDealerActivity = async (
 
   return response.data;
 };
+
+export interface DealerActivityRangeSummaryResponse {
+  success: boolean;
+  message: string;
+  summary: DealerActivitySummary;
+  range: {
+    days: number;
+    from: string;
+    to: string;
+  };
+}
+
+// Totals across all dealers for the last N days (default 30)
+export const getDealerActivityRangeSummary = async (
+  params: { search?: string; days?: number } = {},
+): Promise<DealerActivityRangeSummaryResponse> => {
+  const response = await api.get("/dealers/dealer-activity/monthly-summary", {
+    params: {
+      ...(params.search?.trim() ? { search: params.search.trim() } : {}),
+      ...(params.days ? { days: params.days } : {}),
+    },
+  });
+
+  return response.data;
+};

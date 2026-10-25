@@ -228,6 +228,8 @@ additionalField?: {
 }
 
 export interface Dealer extends DealerFormData {
+  // Status after applying leave / lifecycle rules (set by backend list API)
+  effectiveStatus?: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "LEAVE";
   documents: any;
   _id: string;
 
@@ -299,3 +301,22 @@ export interface DealerLifecycleLog {
   createdAt: string;
   updatedAt: string;
 }
+
+// Performance figures shown on the dealer performance page
+export interface DealerPerformance {
+  totalComplaints: number;
+  completedComplaints: number;
+  pendingComplaints: number;
+  cancelledComplaints: number;
+  cancellationRate: number;
+  averageResponseTime: number;
+  feedbackScore: number;
+  performanceScore: number;
+  slaCompliance: number;
+}
+
+export type DealerWithPerformance = Dealer & {
+  name?: string;
+  dealerCode?: string;
+  performance?: Partial<DealerPerformance>;
+};

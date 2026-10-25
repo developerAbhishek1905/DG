@@ -26,6 +26,9 @@ import {
 ===================================================== */
 
 const emptySummary: DealerActivitySummary = {
+  totalDealers: 0,
+  activeDealers: 0,
+  onLeave: 0,
   assignedCalls: 0,
   appointments: 0,
   pending: 0,

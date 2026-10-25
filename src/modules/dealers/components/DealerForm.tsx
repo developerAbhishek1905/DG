@@ -121,15 +121,6 @@ export default function DealerForm({
       cancellationBillingEnabled: dealer?.cancellationBillingEnabled ?? false,
       cancellationCharge: dealer?.cancellationCharge ?? 0,
       drivingLicenceNumber: dealer?.drivingLicenceNumber ?? "",
-      // productServices: dealer?.productServices?.length
-      //   ? dealer.productServices
-      //   : [
-      //       {
-      //         productId: undefined,
-      //         productName: "",
-      //         categories: [],
-      //       },
-      //     ],
       productServices: dealer?.productServices?.length
         ? dealer.productServices
         : [],
@@ -198,19 +189,6 @@ export default function DealerForm({
       dateOfLeaving: dealer?.dateOfLeaving
         ? new Date(dealer.dateOfLeaving).toISOString().split("T")[0]
         : "",
-      // individualCapacities: dealer?.individualCapacities?.length
-      //   ? dealer.individualCapacities.map((item) => ({
-      //       productId: Number(item.productId),
-      //       productName: item.productName ?? "",
-      //       capacity: Number(item.capacity ?? 0),
-      //     }))
-      //   : [
-      //       {
-      //         productId: undefined,
-      //         productName: "",
-      //         capacity: 0,
-      //       },
-      //     ],
 
       individualCapacities: dealer?.individualCapacities?.length
         ? dealer.individualCapacities.map((item) => ({
@@ -412,15 +390,14 @@ export default function DealerForm({
   const individualCapacities = watch("individualCapacities") || [];
 
   // Product IDs already selected in Combined Capacity
-const combinedProductIds = combinedCapacityProducts.map((item) =>
-  Number(item.productId),
-);
+  const combinedProductIds = combinedCapacityProducts.map((item) =>
+    Number(item.productId),
+  );
 
-// Don't show Combined Capacity products in Individual Capacity
-const availableIndividualProducts = capacityProducts.filter(
-  (product) =>
-    !combinedProductIds.includes(Number(product.product_id)),
-);
+  // Don't show Combined Capacity products in Individual Capacity
+  const availableIndividualProducts = capacityProducts.filter(
+    (product) => !combinedProductIds.includes(Number(product.product_id)),
+  );
 
   const createSingleFilePreview = (
     files: FileList | null,
@@ -468,107 +445,6 @@ const availableIndividualProducts = capacityProducts.filter(
     });
     setOtherDocuments((prev) => prev.filter((_, i) => i !== index));
   };
-
-  // const submitForm = async (data: DealerFormData) => {
-  //   const payload: DealerFormData = {
-  //     ...data,
-  //     billingPercentage:
-  //       data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
-  //     cancellationCharge: data.cancellationBillingEnabled
-  //       ? Number(data.cancellationCharge)
-  //       : 0,
-  //     gstRate: Number(data.gstRate || 0),
-  //     reverseChargeLimit: Number(data.reverseChargeLimit || 0),
-  //     creditDays: Number(data.creditDays || 0),
-  //     creditLimit: Number(data.creditLimit || 0),
-  //     rating: Number(data.rating || 0),
-  //     openingBalance: Number(data.openingBalance || 0),
-  //     // COMBINED CAPACITY
-  //     combinedCapacity: {
-  //       products: data.combinedCapacity?.products ?? [],
-  //       capacity: Number(data.combinedCapacity?.capacity || 0),
-  //     },
-
-  //     // INDIVIDUAL CAPACITY
-  //     individualCapacities:
-  //       data.individualCapacities
-  //         ?.filter((item) => item.productId)
-  //         .map((item) => ({
-  //           productId: item.productId,
-  //           productName: item.productName,
-  //           capacity: Number(item.capacity),
-  //         })) ?? [],
-  //   };
-  //   console.log(payload);
-  //   await onSubmit(payload);
-  // };
-
-  // const submitForm = async (data: DealerFormData) => {
-  //   const payload: DealerFormData = {
-  //     ...data,
-
-  //     billingPercentage:
-  //       data.billingType === "FIXED" ? 0 : Number(data.billingPercentage),
-
-  //     cancellationCharge: data.cancellationBillingEnabled
-  //       ? Number(data.cancellationCharge)
-  //       : 0,
-
-  //     gstRate: Number(data.gstRate || 0),
-  //     reverseChargeLimit: Number(data.reverseChargeLimit || 0),
-  //     creditDays: Number(data.creditDays || 0),
-  //     creditLimit: Number(data.creditLimit || 0),
-  //     rating: Number(data.rating || 0),
-  //     openingBalance: Number(data.openingBalance || 0),
-
-  //     // ==========================================
-  //     // PRODUCT & SERVICES - OPTIONAL
-  //     // ==========================================
-  //     productServices:
-  //       data.productServices
-  //         ?.filter((item) => item.productId)
-  //         .map((item) => ({
-  //           ...item,
-  //           categories:
-  //             item.categories?.filter((category) => category.categoryId) ?? [],
-  //         })) ?? [],
-
-  //     // ==========================================
-  //     // COMBINED CAPACITY - OPTIONAL
-  //     // ==========================================
-  //     combinedCapacity: {
-  //       products: data.combinedCapacity?.products ?? [],
-  //       capacity: data.combinedCapacity?.products?.length
-  //         ? Number(data.combinedCapacity?.capacity || 0)
-  //         : 0,
-  //     },
-
-  //     // ==========================================
-  //     // INDIVIDUAL CAPACITY - OPTIONAL
-  //     // ==========================================
-  //     individualCapacities:
-  //       data.individualCapacities
-  //         ?.filter((item) => item.productId)
-  //         .map((item) => ({
-  //           productId: item.productId,
-  //           productName: item.productName,
-  //           capacity: Number(item.capacity || 0),
-  //         })) ?? [],
-
-  //     securityAmount: Number(data.securityAmount || 0),
-
-  //     additionalInfo:
-  //       data.additionalInfo
-  //         ?.filter((item) => item.value?.trim())
-  //         .map((item) => ({
-  //           value: item.value.trim(),
-  //         })) ?? [],
-  //   };
-
-  //   console.log("DEALER PAYLOAD:", payload);
-
-  //   await onSubmit(payload);
-  // };
 
   const submitForm = async (data: DealerFormData) => {
     try {
@@ -739,18 +615,6 @@ const availableIndividualProducts = capacityProducts.filter(
   return (
     <form
       onSubmit={handleSubmit(submitForm, handleFormError)}
-      // onSubmit={handleSubmit(submitForm, (errors) => {
-      //   if (
-      //     errors.billingType ||
-      //     errors.billingPercentage ||
-      //     errors.cancellationCharge
-      //   )
-      //     setActiveTab("account");
-      //   console.error(errors);
-      //   // console.log("FORM VALIDATION ERRORS:", errors);
-      //   toast.error("Please fix the required fields before submitting.");
-      // })}
-      // className="space-y-7"
       className="space-y-2"
     >
       <div className="flex justify-end border-t border-gray-100 pt-6">
@@ -1487,20 +1351,22 @@ const availableIndividualProducts = capacityProducts.filter(
           <Section title="Dealer Billing">
             <p className="mb-3 text-xs text-gray-500"></p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {[
-                {
-                  value: "FIXED",
-                  label: "Service-wise fixed charge",
-                },
-                {
-                  value: "PARTIAL_PAYMENT",
-                  label: "Customer amount percentage",
-                },
-                {
-                  value: "PROFIT_SHARING",
-                  label: "Profit percentage",
-                },
-              ].map((option) => (
+              {(
+                [
+                  {
+                    value: "FIXED",
+                    label: "Service-wise fixed charge",
+                  },
+                  {
+                    value: "PARTIAL_PAYMENT",
+                    label: "Customer amount percentage",
+                  },
+                  {
+                    value: "PROFIT_SHARING",
+                    label: "Profit percentage",
+                  },
+                ] as { value: string; label: string; description?: string }[]
+              ).map((option) => (
                 <label
                   key={option.value}
                   className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-xs ${watch("billingType") === option.value ? "border-[#123B7A] bg-blue-50 text-[#123B7A]" : "border-gray-300 text-gray-600"}`}
@@ -1739,376 +1605,390 @@ const availableIndividualProducts = capacityProducts.filter(
 
       {activeTab === "service" && (
         <>
-        <div className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-[#123B7A]">
-          Primary city:{" "}
-          <b>{watch("businessAddress.city") || "select business city in Basic tab"}</b>
-          {" "}— the product services, combined and individual capacity below
-          belong to this city. Add other cities at the bottom.
-        </div>
-        <div className="grid grid-cols-1 divide-y divide-gray-200 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
-          <div className="pb-3 xl:pb-0 xl:pr-4">
-            <Section title="Product & Service Information">
-              <ProductServiceFields
-                fields={productFields}
-                append={appendProduct}
-                remove={removeProduct}
-                register={register}
-                setValue={setValue}
-                watch={watch}
-                errors={errors}
-              />
-            </Section>
+          <div className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-[#123B7A]">
+            Primary city:{" "}
+            <b>
+              {watch("businessAddress.city") ||
+                "select business city in Basic tab"}
+            </b>{" "}
+            — the product services, combined and individual capacity below
+            belong to this city. Add other cities at the bottom.
           </div>
-          <div className="pt-3 xl:pl-4 xl:pt-0">
-            <Section title="Capacity Master">
-              <div className="space-y-8">
-                {/* ====================================================== */}
-                {/* COMBINED CAPACITY */}
-                {/* ====================================================== */}
+          <div className="grid grid-cols-1 divide-y divide-gray-200 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
+            <div className="pb-3 xl:pb-0 xl:pr-4">
+              <Section title="Product & Service Information">
+                <ProductServiceFields
+                  fields={productFields}
+                  append={appendProduct}
+                  remove={removeProduct}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  errors={errors}
+                />
+              </Section>
+            </div>
+            <div className="pt-3 xl:pl-4 xl:pt-0">
+              <Section title="Capacity Master">
+                <div className="space-y-8">
+                  {/* ====================================================== */}
+                  {/* COMBINED CAPACITY */}
+                  {/* ====================================================== */}
 
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
-                  <div className="mb-5">
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      Combined Capacity
-                    </h4>
-                  </div>
-
-                  {/* SELECT PRODUCT + CAPACITY */}
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {/* SELECT PRODUCTS */}
-
-                    <div>
-                      <SearchSelect
-                        label="Select Products"
-                        value=""
-                        placeholder="Search product..."
-                        loading={capacityProductsLoading}
-                        options={capacityProducts.map((product) => ({
-                          value: product.product_id,
-                          label: product.product_name,
-                          data: product,
-                        }))}
-                        onSearch={loadCapacityProducts}
-                        onSelect={(option) => {
-                          const product = option.data as ProductDropdownOption;
-
-                          const alreadySelected = combinedCapacityProducts.some(
-                            (item) => item.productId === product.product_id,
-                          );
-
-                          if (alreadySelected) {
-                            toast.error(
-                              "Product already selected in combined capacity.",
-                            );
-
-                            return;
-                          }
-
-                          setValue(
-                            "combinedCapacity.products",
-                            [
-                              ...combinedCapacityProducts,
-                              {
-                                productId: product.product_id,
-                                productName: product.product_name,
-                              },
-                            ],
-                            {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            },
-                          );
-                        }}
-                      />
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
+                    <div className="mb-5">
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Combined Capacity
+                      </h4>
                     </div>
 
-                    {/* COMBINED CAPACITY */}
+                    {/* SELECT PRODUCT + CAPACITY */}
 
-                    <div>
-                      <label className={labelClass}>Combined Capacity</label>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {/* SELECT PRODUCTS */}
 
-                      <input
-                        type="number"
-                        min={0}
-                        placeholder="Enter combined capacity"
-                        {...register("combinedCapacity.capacity", {
-                          valueAsNumber: true,
+                      <div>
+                        <SearchSelect
+                          label="Select Products"
+                          value=""
+                          placeholder="Search product..."
+                          loading={capacityProductsLoading}
+                          options={capacityProducts.map((product) => ({
+                            value: product.product_id,
+                            label: product.product_name,
+                            data: product,
+                          }))}
+                          onSearch={loadCapacityProducts}
+                          onSelect={(option) => {
+                            const product =
+                              option.data as ProductDropdownOption;
 
-                          min: {
-                            value: 0,
-                            message: "Capacity cannot be negative",
-                          },
+                            const alreadySelected =
+                              combinedCapacityProducts.some(
+                                (item) => item.productId === product.product_id,
+                              );
 
-                          validate: (value) => {
-                            if (
-                              combinedCapacityProducts.length > 0 &&
-                              (!value || value < 1)
-                            ) {
-                              return "Combined capacity is required";
+                            if (alreadySelected) {
+                              toast.error(
+                                "Product already selected in combined capacity.",
+                              );
+
+                              return;
                             }
 
-                            return true;
-                          },
-                        })}
-                        className={inputClass}
-                      />
+                            setValue(
+                              "combinedCapacity.products",
+                              [
+                                ...combinedCapacityProducts,
+                                {
+                                  productId: product.product_id,
+                                  productName: product.product_name,
+                                },
+                              ],
+                              {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              },
+                            );
+                          }}
+                        />
+                      </div>
 
-                      {errors.combinedCapacity?.capacity && (
-                        <ErrorText>
-                          {errors.combinedCapacity.capacity.message}
-                        </ErrorText>
+                      {/* COMBINED CAPACITY */}
+
+                      <div>
+                        <label className={labelClass}>Combined Capacity</label>
+
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="Enter combined capacity"
+                          {...register("combinedCapacity.capacity", {
+                            valueAsNumber: true,
+
+                            min: {
+                              value: 0,
+                              message: "Capacity cannot be negative",
+                            },
+
+                            validate: (value) => {
+                              if (
+                                combinedCapacityProducts.length > 0 &&
+                                (!value || value < 1)
+                              ) {
+                                return "Combined capacity is required";
+                              }
+
+                              return true;
+                            },
+                          })}
+                          className={inputClass}
+                        />
+
+                        {errors.combinedCapacity?.capacity && (
+                          <ErrorText>
+                            {errors.combinedCapacity.capacity.message}
+                          </ErrorText>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* SELECTED PRODUCTS */}
+
+                    <div className="mt-5">
+                      <p className="mb-2 text-sm font-medium text-gray-700">
+                        Selected Products
+                      </p>
+
+                      {combinedCapacityProducts.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {combinedCapacityProducts.map((product, index) => (
+                            <div
+                              key={product.productId}
+                              className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+                            >
+                              <span>{product.productName}</span>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated =
+                                    combinedCapacityProducts.filter(
+                                      (_, i) => i !== index,
+                                    );
+
+                                  setValue(
+                                    "combinedCapacity.products",
+                                    updated,
+                                    {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                    },
+                                  );
+                                }}
+                                className="flex h-5 w-5 items-center justify-center rounded-full text-blue-500 transition hover:bg-red-50 hover:text-red-600"
+                                title="Remove product"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400">
+                          No products selected
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  {/* SELECTED PRODUCTS */}
+                  {/* ====================================================== */}
+                  {/* INDIVIDUAL CAPACITY */}
+                  {/* ====================================================== */}
 
-                  <div className="mt-5">
-                    <p className="mb-2 text-sm font-medium text-gray-700">
-                      Selected Products
-                    </p>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
+                    <div className="mb-5">
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Individual Capacity
+                      </h4>
+                    </div>
 
-                    {combinedCapacityProducts.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {combinedCapacityProducts.map((product, index) => (
+                    {/* HEADER */}
+
+                    <div className="mb-2 hidden grid-cols-[2fr_1fr_auto] gap-4 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 md:grid">
+                      <div>Product</div>
+
+                      <div>Capacity</div>
+
+                      <div>Action</div>
+                    </div>
+
+                    {/* ROWS */}
+
+                    <div className="space-y-2">
+                      {individualCapacityFields.map((field, index) => {
+                        const item = individualCapacities[index];
+
+                        return (
                           <div
-                            key={product.productId}
-                            className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+                            key={field.id}
+                            className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 md:grid-cols-[2fr_1fr_auto]"
                           >
-                            <span>{product.productName}</span>
+                            {/* PRODUCT */}
 
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const updated = combinedCapacityProducts.filter(
-                                  (_, i) => i !== index,
-                                );
+                            <div>
+                              <SearchSelect
+                                label="Product"
+                                value={item?.productName ?? ""}
+                                placeholder="Search product..."
+                                loading={capacityProductsLoading}
+                                // options={capacityProducts.map((product) => ({
+                                options={availableIndividualProducts.map(
+                                  (product) => ({
+                                    value: product.product_id,
+                                    label: product.product_name,
+                                    data: product,
+                                  }),
+                                )}
+                                onSearch={loadCapacityProducts}
+                                onSelect={(option) => {
+                                  const product =
+                                    option.data as ProductDropdownOption;
 
-                                setValue("combinedCapacity.products", updated, {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                });
-                              }}
-                              className="flex h-5 w-5 items-center justify-center rounded-full text-blue-500 transition hover:bg-red-50 hover:text-red-600"
-                              title="Remove product"
-                            >
-                              <X size={14} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-400">
-                        No products selected
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* ====================================================== */}
-                {/* INDIVIDUAL CAPACITY */}
-                {/* ====================================================== */}
-
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
-                  <div className="mb-5">
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      Individual Capacity
-                    </h4>
-                  </div>
-
-                  {/* HEADER */}
-
-                  <div className="mb-2 hidden grid-cols-[2fr_1fr_auto] gap-4 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 md:grid">
-                    <div>Product</div>
-
-                    <div>Capacity</div>
-
-                    <div>Action</div>
-                  </div>
-
-                  {/* ROWS */}
-
-                  <div className="space-y-2">
-                    {individualCapacityFields.map((field, index) => {
-                      const item = individualCapacities[index];
-
-                      return (
-                        <div
-                          key={field.id}
-                          className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 md:grid-cols-[2fr_1fr_auto]"
-                        >
-                          {/* PRODUCT */}
-
-                          <div>
-                            <SearchSelect
-                              label="Product"
-                              value={item?.productName ?? ""}
-                              placeholder="Search product..."
-                              loading={capacityProductsLoading}
-                              // options={capacityProducts.map((product) => ({
-                              options={availableIndividualProducts.map((product) => ({
-                                value: product.product_id,
-                                label: product.product_name,
-                                data: product,
-                              }))}
-                              onSearch={loadCapacityProducts}
-                              onSelect={(option) => {
-                                const product =
-                                  option.data as ProductDropdownOption;
-
-                                const duplicate = individualCapacities.some(
-                                  (selected, currentIndex) =>
-                                    currentIndex !== index &&
-                                    selected.productId === product.product_id,
-                                );
-
-                                if (duplicate) {
-                                  toast.error(
-                                    "This product already has individual capacity.",
+                                  const duplicate = individualCapacities.some(
+                                    (selected, currentIndex) =>
+                                      currentIndex !== index &&
+                                      selected.productId === product.product_id,
                                   );
 
-                                  return;
-                                }
+                                  if (duplicate) {
+                                    toast.error(
+                                      "This product already has individual capacity.",
+                                    );
 
-                                setValue(
+                                    return;
+                                  }
+
+                                  setValue(
+                                    `individualCapacities.${index}.productId`,
+                                    product.product_id,
+                                    {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                    },
+                                  );
+
+                                  setValue(
+                                    `individualCapacities.${index}.productName`,
+                                    product.product_name,
+                                    {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                    },
+                                  );
+                                }}
+                                onClear={() => {
+                                  setValue(
+                                    `individualCapacities.${index}.productId`,
+                                    undefined,
+                                    {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                    },
+                                  );
+
+                                  setValue(
+                                    `individualCapacities.${index}.productName`,
+                                    "",
+                                    {
+                                      shouldDirty: true,
+                                    },
+                                  );
+                                }}
+                              />
+
+                              {/* REGISTER CUSTOM SELECT */}
+
+                              <input
+                                type="hidden"
+                                {...register(
                                   `individualCapacities.${index}.productId`,
-                                  product.product_id,
-                                  {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                  },
-                                );
+                                  // {
+                                  //   required:
+                                  //     "Product is required",
+                                  // },
+                                )}
+                              />
+                            </div>
 
-                                setValue(
-                                  `individualCapacities.${index}.productName`,
-                                  product.product_name,
-                                  {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                  },
-                                );
-                              }}
-                              onClear={() => {
-                                setValue(
-                                  `individualCapacities.${index}.productId`,
-                                  undefined,
-                                  {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                  },
-                                );
+                            {/* CAPACITY */}
 
-                                setValue(
-                                  `individualCapacities.${index}.productName`,
-                                  "",
+                            <div>
+                              <label className={labelClass}>Capacity</label>
+
+                              <input
+                                type="number"
+                                min={0}
+                                placeholder="Enter capacity"
+                                {...register(
+                                  `individualCapacities.${index}.capacity`,
                                   {
-                                    shouldDirty: true,
+                                    // required: "Capacity is required",
+
+                                    valueAsNumber: true,
+
+                                    min: {
+                                      value: 0,
+                                      message:
+                                        "Capacity must be greater than 0",
+                                    },
                                   },
-                                );
-                              }}
-                            />
+                                )}
+                                className={inputClass}
+                              />
 
-                            {/* REGISTER CUSTOM SELECT */}
-
-                            <input
-                              type="hidden"
-                              {...register(
-                                `individualCapacities.${index}.productId`,
-                                // {
-                                //   required:
-                                //     "Product is required",
-                                // },
+                              {errors.individualCapacities?.[index]
+                                ?.capacity && (
+                                <ErrorText>
+                                  {
+                                    errors.individualCapacities[index]?.capacity
+                                      ?.message
+                                  }
+                                </ErrorText>
                               )}
-                            />
+                            </div>
+
+                            {/* REMOVE */}
+
+                            <div className="flex items-end">
+                              <button
+                                type="button"
+                                onClick={() => removeIndividualCapacity(index)}
+                                className="flex h-10.5 w-10.5 items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                                title="Remove product"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           </div>
+                        );
+                      })}
+                    </div>
 
-                          {/* CAPACITY */}
+                    {/* ADD INDIVIDUAL PRODUCT */}
 
-                          <div>
-                            <label className={labelClass}>Capacity</label>
-
-                            <input
-                              type="number"
-                              min={0}
-                              placeholder="Enter capacity"
-                              {...register(
-                                `individualCapacities.${index}.capacity`,
-                                {
-                                  // required: "Capacity is required",
-
-                                  valueAsNumber: true,
-
-                                  min: {
-                                    value: 0,
-                                    message: "Capacity must be greater than 0",
-                                  },
-                                },
-                              )}
-                              className={inputClass}
-                            />
-
-                            {errors.individualCapacities?.[index]?.capacity && (
-                              <ErrorText>
-                                {
-                                  errors.individualCapacities[index]?.capacity
-                                    ?.message
-                                }
-                              </ErrorText>
-                            )}
-                          </div>
-
-                          {/* REMOVE */}
-
-                          <div className="flex items-end">
-                            <button
-                              type="button"
-                              onClick={() => removeIndividualCapacity(index)}
-                              className="flex h-10.5 w-10.5 items-center justify-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50"
-                              title="Remove product"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* ADD INDIVIDUAL PRODUCT */}
-
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        appendIndividualCapacity({
-                          productId: undefined,
-                          productName: "",
-                          capacity: 0,
-                        })
-                      }
-                      className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
-                    >
-                      <Plus size={17} />
-                      Add Product
-                    </button>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          appendIndividualCapacity({
+                            productId: undefined,
+                            productName: "",
+                            capacity: 0,
+                          })
+                        }
+                        className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
+                      >
+                        <Plus size={17} />
+                        Add Product
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Section>
+              </Section>
+            </div>
           </div>
-        </div>
 
-        <AdditionalCitiesSection
-          value={watch("additionalCities") ?? []}
-          onChange={(next) =>
-            setValue("additionalCities", next, {
-              shouldDirty: true,
-              shouldValidate: false,
-            })
-          }
-          primaryCityId={watch("businessAddress.cityId")}
-        />
+          <AdditionalCitiesSection
+            value={watch("additionalCities") ?? []}
+            onChange={(next) =>
+              setValue("additionalCities", next, {
+                shouldDirty: true,
+                shouldValidate: false,
+              })
+            }
+            primaryCityId={watch("businessAddress.cityId")}
+          />
         </>
       )}
     </form>
@@ -2143,10 +2023,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 function Input({ label, error, required, ...props }: InputProps) {
   return (
     <div>
-      <label className={labelClass}>{label}
-         {required && <span className="ml-0.5 text-red-500">*</span>}
+      <label className={labelClass}>
+        {label}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
-     
+
       <input
         {...props}
         required={required}

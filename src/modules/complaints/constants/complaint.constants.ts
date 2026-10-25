@@ -17,7 +17,7 @@ export const COMPLAINT_STATUS_LABELS: Record<
   DG_VERIFICATION: "DG Verification",
   CLOSED: "Closed",
   CANCELLED: "Cancelled",
-  SUSPENDED: "suspended",
+  SUSPENDED: "Suspended",
 
    
     

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import DealerFilters from "../components/DealerFilters";
-import DealerStats from "../components/DealerStats";
 import DealerTable from "../components/DealerTable";
 
 import { useDealers } from "../hooks/useDealers";

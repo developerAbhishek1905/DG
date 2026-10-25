@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import Pagination from "../../../components/ui/Pagination";
 import {
   CalendarDays,
   CheckCircle2,
@@ -18,6 +19,7 @@ import { useDebounce } from "../../../hooks/useDebounce";
 
 import {
   getDealerActivity,
+  getDealerActivityRangeSummary,
   type DealerActivity,
   type DealerActivitySummary,
 } from "../services/dealerActivityApi";
@@ -67,6 +69,15 @@ export default function DealerActivityPage() {
   const [summary, setSummary] = useState<DealerActivitySummary>(emptySummary);
 
   const [loading, setLoading] = useState(false);
+
+  // Last 30 days totals (all dealers matching search)
+  const [monthSummary, setMonthSummary] =
+    useState<DealerActivitySummary>(emptySummary);
+  const [monthRange, setMonthRange] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
+  const [monthLoading, setMonthLoading] = useState(false);
 
   const [error, setError] = useState("");
 
@@ -126,6 +137,43 @@ export default function DealerActivityPage() {
       setLoading(false);
     }
   }, [selectedDate, debouncedSearch, page, limit]);
+
+  /* =====================================================
+     LOAD LAST 30 DAYS SUMMARY
+  ===================================================== */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setMonthLoading(true);
+
+        const response = await getDealerActivityRangeSummary({
+          search: debouncedSearch?.trim() || undefined,
+          days: 30,
+        });
+
+        if (cancelled) return;
+
+        setMonthSummary(response.summary || emptySummary);
+        setMonthRange(response.range || null);
+      } catch (err) {
+        console.error("Dealer activity 30 days summary error:", err);
+
+        if (!cancelled) {
+          setMonthSummary(emptySummary);
+          setMonthRange(null);
+        }
+      } finally {
+        if (!cancelled) setMonthLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch]);
 
   /* =====================================================
      FETCH
@@ -387,76 +435,44 @@ export default function DealerActivityPage() {
           SUMMARY
       ================================================== */}
 
-      <div
-        className="
-          grid grid-cols-2 gap-3
-          md:grid-cols-4
-          xl:grid-cols-8
-        "
-      >
-        <SummaryCard
-          label="Total Dealers"
-          value={summary.totalDealers}
-          icon={Users}
-          type="gray"
-          loading={loading}
-        />
+      <div className="space-y-4">
+        {/* SELECTED DAY (TODAY BY DEFAULT) */}
 
-        <SummaryCard
-          label="Active Dealers"
-          value={summary.activeDealers}
-          icon={UserCheck}
-          type="green"
-          loading={loading}
-        />
+        <div>
+          <div className="mb-2 flex items-center gap-2">
+            <span className="rounded-md bg-[#123B7A] px-2 py-0.5 text-[11px] font-semibold text-white">
+              {selectedDate === today ? "Today" : "Selected Day"}
+            </span>
 
-        <SummaryCard
-          label="Assigned"
-          value={summary.assignedCalls}
-          icon={PhoneCall}
-          type="blue"
-          loading={loading}
-        />
+            <span className="text-xs text-gray-500">
+              {formatDate(selectedDate)}
+            </span>
+          </div>
 
-        <SummaryCard
-          label="Appointments"
-          value={summary.appointments}
-          icon={CalendarDays}
-          type="purple"
-          loading={loading}
-        />
+          <SummaryGrid summary={summary} loading={loading} />
+        </div>
 
-        <SummaryCard
-          label="Pending"
-          value={summary.pending}
-          icon={Clock3}
-          type="orange"
-          loading={loading}
-        />
+        {/* LAST 30 DAYS */}
 
-        <SummaryCard
-          label="Rescheduled"
-          value={summary.rescheduled}
-          icon={RefreshCcw}
-          type="cyan"
-          loading={loading}
-        />
+        <div>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-violet-600 px-2 py-0.5 text-[11px] font-semibold text-white">
+              Last 30 Days
+            </span>
 
-        <SummaryCard
-          label="Cancelled"
-          value={summary.cancelled}
-          icon={XCircle}
-          type="red"
-          loading={loading}
-        />
+            <span className="text-xs text-gray-500">
+              {monthRange
+                ? `${formatDate(monthRange.from)} - ${formatDate(monthRange.to)}`
+                : ""}
+            </span>
 
-        <SummaryCard
-          label="Closed"
-          value={summary.closed}
-          icon={CheckCircle2}
-          type="green"
-          loading={loading}
-        />
+            <span className="text-[11px] text-gray-400">
+              Pending and Rescheduled show current status
+            </span>
+          </div>
+
+          <SummaryGrid summary={monthSummary} loading={monthLoading} />
+        </div>
       </div>
 
       {/* =================================================
@@ -765,109 +781,17 @@ export default function DealerActivityPage() {
         ================================================ */}
 
         {!loading && total > 0 && (
-          <div
-            className="
-                flex flex-col gap-3
-                border-t
-                border-gray-200
-                px-4 py-3
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-              "
-          >
-            {/* Left */}
-
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span>
-                Showing {(page - 1) * limit + 1}-{Math.min(page * limit, total)}{" "}
-                of {total}
-              </span>
-
-              <select
-                value={limit}
-                onChange={(event) => {
-                  setLimit(Number(event.target.value));
-
-                  setPage(1);
-                }}
-                className="
-                    h-8 rounded-md
-                    border
-                    border-gray-200
-                    bg-white
-                    px-2
-                    text-xs
-                    outline-none
-                  "
-              >
-                <option value={10}>10</option>
-
-                <option value={20}>20</option>
-
-                <option value={50}>50</option>
-              </select>
-            </div>
-
-            {/* Right */}
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((current) => current - 1)}
-                className="
-                    h-8
-                    rounded-md
-                    border
-                    border-gray-200
-                    bg-white
-                    px-3
-                    text-xs
-                    font-medium
-                    text-gray-600
-                    transition
-                    hover:bg-gray-50
-                    disabled:cursor-not-allowed
-                    disabled:opacity-40
-                  "
-              >
-                Previous
-              </button>
-
-              <span
-                className="
-                    text-xs
-                    text-gray-500
-                  "
-              >
-                Page {page} of {totalPages || 1}
-              </span>
-
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => setPage((current) => current + 1)}
-                className="
-                    h-8
-                    rounded-md
-                    border
-                    border-gray-200
-                    bg-white
-                    px-3
-                    text-xs
-                    font-medium
-                    text-gray-600
-                    transition
-                    hover:bg-gray-50
-                    disabled:cursor-not-allowed
-                    disabled:opacity-40
-                  "
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={(value) => {
+              setLimit(value);
+              setPage(1);
+            }}
+          />
         )}
       </div>
     </div>
@@ -998,6 +922,92 @@ function CountBadge({
     >
       {value ?? 0}
     </span>
+  );
+}
+
+/* =====================================================
+   SUMMARY GRID
+===================================================== */
+
+function SummaryGrid({
+  summary,
+  loading,
+}: {
+  summary: DealerActivitySummary;
+  loading: boolean;
+}) {
+  return (
+    <div
+      className="
+          grid grid-cols-2 gap-3
+          md:grid-cols-4
+          xl:grid-cols-8
+        "
+    >
+      <SummaryCard
+        label="Total Dealers"
+        value={summary.totalDealers}
+        icon={Users}
+        type="gray"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Active Dealers"
+        value={summary.activeDealers}
+        icon={UserCheck}
+        type="green"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Assigned"
+        value={summary.assignedCalls}
+        icon={PhoneCall}
+        type="blue"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Appointments"
+        value={summary.appointments}
+        icon={CalendarDays}
+        type="purple"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Pending"
+        value={summary.pending}
+        icon={Clock3}
+        type="orange"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Rescheduled"
+        value={summary.rescheduled}
+        icon={RefreshCcw}
+        type="cyan"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Cancelled"
+        value={summary.cancelled}
+        icon={XCircle}
+        type="red"
+        loading={loading}
+      />
+
+      <SummaryCard
+        label="Closed"
+        value={summary.closed}
+        icon={CheckCircle2}
+        type="green"
+        loading={loading}
+      />
+    </div>
   );
 }
 

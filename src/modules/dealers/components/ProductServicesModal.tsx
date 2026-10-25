@@ -82,28 +82,6 @@ export default function ProductServicesModal({
   const isSelected = (categoryId: string | number) =>
     selected.some((item) => String(item.categoryId) === String(categoryId));
 
-  //   const toggleCategory = (category: CategoryDropdownOption) => {
-  //     const categoryId = category.id;
-
-  //     const categoryName = getCategoryName(category);
-
-  //     if (isSelected(categoryId)) {
-  //       setSelected((prev) =>
-  //         prev.filter((item) => item.categoryId !== categoryId),
-  //       );
-
-  //       return;
-  //     }
-
-  //     setSelected((prev) => [
-  //       ...prev,
-  //       {
-  //         categoryId,
-  //         categoryName,
-  //       },
-  //     ]);
-  //   };
-
   const [rateDraft, setRateDraft] = useState<Record<string, string>>({});
 
   const updateServiceRate = (categoryId: string | number, rate: number) => {
@@ -151,7 +129,7 @@ export default function ProductServicesModal({
         categoryId: String(categoryId),
         categoryName,
         description: category.description || "",
-        rate: category.rate,
+        rate: category.rate ?? 0,
       },
     ]);
   };
@@ -291,8 +269,10 @@ export default function ProductServicesModal({
                                   }
                                   const [intPart, decPart] = value.split(".");
                                   // remove leading zeros (0500 -> 500, 00.5 -> 0.5)
-                                  const cleanInt =
-                                    intPart.replace(/^0+(?=\d)/, "");
+                                  const cleanInt = intPart.replace(
+                                    /^0+(?=\d)/,
+                                    "",
+                                  );
                                   value =
                                     decPart !== undefined
                                       ? `${cleanInt || "0"}.${decPart.slice(0, 2)}`
