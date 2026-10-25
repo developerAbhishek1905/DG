@@ -440,9 +440,16 @@ export default function ComplaintAddressFields({
           onSearch={setCitySearch}
           onSelect={(option) => handleCitySelect(option.data as CityOption)}
           onClear={() => {
+            // Removing city also removes its district and state
             setValue("address.cityId", undefined);
             setValue("address.city", "");
             setCitySearch("");
+            setValue("address.districtId", undefined);
+            setValue("address.district", "");
+            setDistrictSearch("");
+            setValue("address.stateId", undefined);
+            setValue("address.state", "");
+            setStateSearch("");
             resetPincode();
           }}
           error={addressErrors?.city?.message}

@@ -12,8 +12,6 @@ import type {
 } from "../types/complaint.types";
 import { useDebounce } from "../../../hooks/useDebounce";
 
-
-
 export default function ComplaintListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -35,9 +33,10 @@ export default function ComplaintListPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [selectedDealerId, setSelectedDealerId] = useState("");
-    // NEW
-  const [selectedComplaintType, setSelectedComplaintType] =
-    useState<ComplaintType | "ALL">("ALL");
+  // NEW
+  const [selectedComplaintType, setSelectedComplaintType] = useState<
+    ComplaintType | "ALL"
+  >("ALL");
 
   // NEW
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
@@ -47,139 +46,58 @@ export default function ComplaintListPage() {
   // FETCH COMPLAINTS
   // =========================
 
-  // const fetchComplaints = useCallback(async () => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
+  const fetchComplaints = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  //     const response = await getComplaints({
-  //       search: debouncedSearch,
-  //       status: selectedStatus === "ALL" ? undefined : selectedStatus,
-  //       fromDate: fromDate || undefined,
-  //       toDate: toDate || undefined,
-  //       page,
-  //       limit,
-  //     });
+      const response = await getComplaints({
+        search: debouncedSearch,
 
-  //     setComplaints(response.data);
-  //     setTotal(response.pagination.total);
-  //     setTotalPages(response.pagination.totalPages);
-  //   } catch (error: any) {
-  //     console.error("Fetch complaints error:", error);
-  //     setComplaints([]);
-  //     setError(error.response?.data?.message || "Failed to fetch complaints");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [debouncedSearch, selectedStatus, fromDate, toDate, page, limit]);
-//   const fetchComplaints = useCallback(async () => {
-//   try {
-//     setLoading(true);
-//     setError(null);
+        status: selectedStatus === "ALL" ? undefined : selectedStatus,
 
-//     const response = await getComplaints({
-//       search: debouncedSearch,
+        // NEW
+        complaintType:
+          selectedComplaintType === "ALL" ? undefined : selectedComplaintType,
 
-//       status:
-//         selectedStatus === "ALL"
-//           ? undefined
-//           : selectedStatus,
+        // NEW
+        categoryId: selectedCategoryId || undefined,
 
-//       fromDate: fromDate || undefined,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
 
-//       toDate: toDate || undefined,
+        dealerId: selectedDealerId || undefined,
 
-//       dealerId: selectedDealerId || undefined,
+        page,
+        limit,
+      });
 
-//       page,
-//       limit,
-//     });
+      setComplaints(response.data);
+      setTotal(response.pagination.total);
+      setTotalPages(response.pagination.totalPages);
+    } catch (error: any) {
+      console.error("Fetch complaints error:", error);
 
-//     setComplaints(response.data);
-//     setTotal(response.pagination.total);
-//     setTotalPages(response.pagination.totalPages);
-//   } catch (error: any) {
-//     console.error("Fetch complaints error:", error);
+      setComplaints([]);
 
-//     setComplaints([]);
+      setError(error.response?.data?.message || "Failed to fetch complaints");
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    debouncedSearch,
+    selectedStatus,
 
-//     setError(
-//       error.response?.data?.message ||
-//         "Failed to fetch complaints",
-//     );
-//   } finally {
-//     setLoading(false);
-//   }
-// }, [
-//   debouncedSearch,
-//   selectedStatus,
-//   fromDate,
-//   toDate,
-//   selectedDealerId,
-//   page,
-//   limit,
-// ]);
+    // NEW
+    selectedComplaintType,
+    selectedCategoryId,
 
-const fetchComplaints = useCallback(async () => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    const response = await getComplaints({
-      search: debouncedSearch,
-
-      status:
-        selectedStatus === "ALL"
-          ? undefined
-          : selectedStatus,
-
-      // NEW
-      complaintType:
-        selectedComplaintType === "ALL"
-          ? undefined
-          : selectedComplaintType,
-
-      // NEW
-      categoryId: selectedCategoryId || undefined,
-
-      fromDate: fromDate || undefined,
-      toDate: toDate || undefined,
-
-      dealerId: selectedDealerId || undefined,
-
-      page,
-      limit,
-    });
-
-    setComplaints(response.data);
-    setTotal(response.pagination.total);
-    setTotalPages(response.pagination.totalPages);
-  } catch (error: any) {
-    console.error("Fetch complaints error:", error);
-
-    setComplaints([]);
-
-    setError(
-      error.response?.data?.message ||
-        "Failed to fetch complaints",
-    );
-  } finally {
-    setLoading(false);
-  }
-}, [
-  debouncedSearch,
-  selectedStatus,
-
-  // NEW
-  selectedComplaintType,
-  selectedCategoryId,
-
-  fromDate,
-  toDate,
-  selectedDealerId,
-  page,
-  limit,
-]);
+    fromDate,
+    toDate,
+    selectedDealerId,
+    page,
+    limit,
+  ]);
 
   // =========================
   // FETCH
@@ -193,24 +111,20 @@ const fetchComplaints = useCallback(async () => {
   // RESET PAGE ON FILTER
   // =========================
 
-  // useEffect(() => {
-  //   setPage(1);
-  // }, [debouncedSearch, selectedStatus, fromDate, toDate]);
+  useEffect(() => {
+    setPage(1);
+  }, [
+    debouncedSearch,
+    selectedStatus,
 
-useEffect(() => {
-  setPage(1);
-}, [
-  debouncedSearch,
-  selectedStatus,
+    // NEW
+    selectedComplaintType,
+    selectedCategoryId,
 
-  // NEW
-  selectedComplaintType,
-  selectedCategoryId,
-
-  fromDate,
-  toDate,
-  selectedDealerId,
-]);
+    fromDate,
+    toDate,
+    selectedDealerId,
+  ]);
 
   // =========================
   // PAGINATION HANDLERS
@@ -239,10 +153,6 @@ useEffect(() => {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Complaints</h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Manage and track customer complaints
-          </p>
         </div>
 
         <button
@@ -259,39 +169,22 @@ useEffect(() => {
           FILTERS
       ========================== */}
 
-      {/* <ComplaintFilters
+      <ComplaintFilters
         search={search}
         onSearchChange={setSearch}
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
+        selectedComplaintType={selectedComplaintType}
+        onComplaintTypeChange={setSelectedComplaintType}
+        selectedCategoryId={selectedCategoryId}
+        onCategoryChange={setSelectedCategoryId}
         fromDate={fromDate}
         toDate={toDate}
         onFromDateChange={setFromDate}
         onToDateChange={setToDate}
-      /> */}
-
-  <ComplaintFilters
-  search={search}
-  onSearchChange={setSearch}
-
-  selectedStatus={selectedStatus}
-  onStatusChange={setSelectedStatus}
-
-  selectedComplaintType={selectedComplaintType}
-  onComplaintTypeChange={setSelectedComplaintType}
-
-  selectedCategoryId={selectedCategoryId}
-  onCategoryChange={setSelectedCategoryId}
-
-  fromDate={fromDate}
-  toDate={toDate}
-
-  onFromDateChange={setFromDate}
-  onToDateChange={setToDate}
-
-  selectedDealerId={selectedDealerId}
-  onDealerChange={setSelectedDealerId}
-/>
+        selectedDealerId={selectedDealerId}
+        onDealerChange={setSelectedDealerId}
+      />
 
       {/* =========================
           ERROR

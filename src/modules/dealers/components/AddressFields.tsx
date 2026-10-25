@@ -530,10 +530,18 @@ export default function AddressFields({
           onSearch={setCitySearch}
           onSelect={(option) => handleCitySelect(option.data as CityOption)}
           onClear={() => {
+            // Removing city also removes its district and state
             setValue(`${type}.cityId`, undefined);
             setValue(`${type}.city`, "");
             setCitySearch("");
-            resetPincode();
+            setValue(`${type}.districtId`, undefined);
+            setValue(`${type}.district`, "");
+            setDistrictSearch("");
+            setValue(`${type}.stateId`, undefined);
+            setValue(`${type}.state`, "");
+            setStateSearch("");
+            setValue(`${type}.pincodeId`, undefined);
+            setValue(`${type}.pinCode`, "");
           }}
           error={addressErrors?.cityId?.message}
         />
