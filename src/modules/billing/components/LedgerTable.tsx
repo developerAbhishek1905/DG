@@ -262,7 +262,7 @@ export default function LedgerTable({
         type="button"
         title="View Ledger"
         onClick={() => onView(ledger)}
-        className="rounded-lg p-2 text-[#123B7A] transition hover:bg-blue-50"
+        className="rounded-lg p-2 transition bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
       >
         <Eye size={16} />
       </button>
@@ -275,7 +275,7 @@ export default function LedgerTable({
         type="button"
         title="Edit Ledger"
         onClick={() => onEdit(ledger)}
-        className="rounded-lg p-2 text-amber-600 transition hover:bg-amber-50"
+        className="rounded-lg p-2 transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
       >
         <Pencil size={16} />
       </button>
@@ -287,7 +287,7 @@ export default function LedgerTable({
         title="Approve Ledger"
         disabled={approvingId === ledger._id}
         onClick={() => onApprove(ledger)}
-        className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-lg p-2 transition bg-green-50 text-green-600 hover:bg-green-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
         <CheckCircle2 size={16} />
       </button>

@@ -150,7 +150,7 @@ export default function UserTable({ users, onDelete }: Props) {
                     {hasPermission("users.view") && (
                       <button
                         onClick={() => navigate(`/users/${user.id}`)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                        className="rounded-lg p-2 transition bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
                       >
                         <Eye size={17} />
                       </button>
@@ -159,7 +159,7 @@ export default function UserTable({ users, onDelete }: Props) {
                     {hasPermission("users.update") && (
                       <button
                         onClick={() => navigate(`/users/${user.id}/edit`)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                        className="rounded-lg p-2 transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                       >
                         <Edit size={17} />
                       </button>
@@ -172,7 +172,7 @@ export default function UserTable({ users, onDelete }: Props) {
                           setPwUser(user);
                           setNewPw("");
                         }}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-amber-50 hover:text-amber-600"
+                        className="rounded-lg p-2 transition bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white"
                       >
                         <KeyRound size={17} />
                       </button>
@@ -181,7 +181,7 @@ export default function UserTable({ users, onDelete }: Props) {
                     {hasPermission("users.delete") && onDelete && (
                       <button
                         onClick={() => handleDelete(user)}
-                        className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                        className="rounded-lg p-2 transition bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
                       >
                         <Trash2 size={17} />
                       </button>

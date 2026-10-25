@@ -72,7 +72,7 @@ export default function RoleTable({ roles, onDelete }: Props) {
                     {hasPermission("roles.view") && (
                       <button
                         onClick={() => navigate(`/roles/${role.id}`)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50"
+                        className="rounded-lg p-2 transition bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
                       >
                         <Eye size={17} />
                       </button>
@@ -81,7 +81,7 @@ export default function RoleTable({ roles, onDelete }: Props) {
                     {hasPermission("roles.update") && (
                       <button
                         onClick={() => navigate(`/roles/${role.id}/edit`)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                        className="rounded-lg p-2 transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                       >
                         <Edit size={17} />
                       </button>
@@ -92,7 +92,7 @@ export default function RoleTable({ roles, onDelete }: Props) {
                         onClick={() =>
                           navigate(`/roles/${role.id}/permissions`)
                         }
-                        className="rounded-lg p-2 text-gray-500 hover:bg-purple-50 hover:text-purple-600"
+                        className="rounded-lg p-2 transition bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white"
                       >
                         <KeyRound size={17} />
                       </button>
@@ -107,7 +107,7 @@ export default function RoleTable({ roles, onDelete }: Props) {
                               onDelete(role.id);
                             }
                           }}
-                          className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                          className="rounded-lg p-2 transition bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
                         >
                           <Trash2 size={17} />
                         </button>

@@ -107,7 +107,7 @@ export default function BillingTable({ bills }: Props) {
                 <td className="px-5 py-4">
                   <button
                     onClick={() => navigate(`${getPanelBase()}/billing/${bill.id}`)}
-                    className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                    className="rounded-lg p-2 transition bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
                   >
                     <Eye size={17} />
                   </button>

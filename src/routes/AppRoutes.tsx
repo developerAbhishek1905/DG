@@ -106,7 +106,7 @@ import { CityMasterPage } from "../modules/cityMaster";
 import { PincodeMasterPage } from "../modules/pincodeMaster";
 import { ProductMasterPage } from "../modules/productMaster";
 import { AllocationPage, AllocationHistoryPage } from "../modules/allocation";
-import { DashboardPage } from "../modules/dashboard";
+// import { DashboardPage } from "../modules/dashboard";
 import { Navigate } from "react-router-dom";
 import {
   CategoryMasterPage,
@@ -213,7 +213,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<DashboardPage />} />
+          {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
           <Route path="/complaints" element={<ComplaintListPage />} />
           <Route path="/complaints/create" element={<CreateComplaintPage />} />
           <Route path="/complaints/:id" element={<ComplaintDetailsPage />} />

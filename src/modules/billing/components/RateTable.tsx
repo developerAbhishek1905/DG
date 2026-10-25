@@ -133,7 +133,7 @@ export default function RateTable({
                             rate
                           )
                         }
-                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                        className="rounded-lg p-2 transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                       >
                         <Edit
                           size={17}

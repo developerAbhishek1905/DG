@@ -20,4 +20,4 @@ export const getPanelBase = (): string => (isDealerStored() ? DEALER_BASE : "");
 export const panelPath = (path: string): string => `${getPanelBase()}${path}`;
 
 export const getHomePath = (roleCode?: string): string =>
-  roleCode === "DEALER" ? DEALER_BASE : "/dashboard";
+  roleCode === "DEALER" ? DEALER_BASE : "/complaints"; // CRM dashboard is disabled

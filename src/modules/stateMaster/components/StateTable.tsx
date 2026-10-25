@@ -82,7 +82,7 @@ export default function StateTable({
                         type="button"
                         title="Edit State"
                         onClick={() => onEdit(state)}
-                        className="rounded-lg p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-600"
+                        className="rounded-lg p-2 transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                       >
                         <Edit3 size={17} />
                       </button>
@@ -93,7 +93,7 @@ export default function StateTable({
                         type="button"
                         title="Delete State"
                         onClick={() => onDelete(state)}
-                        className="rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                        className="rounded-lg p-2 transition bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
                       >
                         <Trash2 size={17} />
                       </button>

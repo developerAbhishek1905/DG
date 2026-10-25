@@ -216,7 +216,7 @@ export default function VerificationTable({
                     </td>
 
                     <td className="px-5 py-4">
-                      <div className="flex gap-1">
+                      <div className="flex gap-2">
                         <button
                           onClick={() =>
                             navigate(
@@ -224,7 +224,7 @@ export default function VerificationTable({
                             )
                           }
                           title="View"
-                          className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                          className="rounded-lg p-2 transition bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
                         >
                           <Eye
                             size={17}
@@ -240,7 +240,7 @@ export default function VerificationTable({
                                 )
                               }
                               title="Verify"
-                              className="rounded-lg p-2 text-green-600 hover:bg-green-50"
+                              className="rounded-lg p-2 transition bg-green-50 text-green-600 hover:bg-green-600 hover:text-white"
                             >
                               <CheckCircle2
                                 size={17}
@@ -257,7 +257,7 @@ export default function VerificationTable({
                                 )
                               }
                               title="Request Correction"
-                              className="rounded-lg p-2 text-amber-600 hover:bg-amber-50"
+                              className="rounded-lg p-2 transition bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white"
                             >
                               <FileWarning
                                 size={17}
@@ -274,7 +274,7 @@ export default function VerificationTable({
                                 )
                               }
                               title="Reject"
-                              className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                              className="rounded-lg p-2 transition bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
                             >
                               <XCircle
                                 size={17}

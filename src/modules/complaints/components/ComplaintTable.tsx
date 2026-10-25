@@ -341,13 +341,7 @@ export default function ComplaintTable({
                       type="button"
                       title="View complaint"
                       onClick={() => navigate(`/complaints/${complaint.id}`)}
-                      className="
-        flex h-7 w-7 items-center justify-center
-        rounded-md
-        bg-blue-50 text-blue-600
-        transition
-        hover:bg-blue-100 hover:text-blue-700
-      "
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
                     >
                       <Eye size={14} strokeWidth={2} />
                     </button>
@@ -359,13 +353,7 @@ export default function ComplaintTable({
                       onClick={() =>
                         navigate(`/complaints/${complaint.id}/edit`)
                       }
-                      className="
-        flex h-7 w-7 items-center justify-center
-        rounded-md
-        bg-amber-50 text-amber-600
-        transition
-        hover:bg-amber-100 hover:text-amber-700
-      "
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                     >
                       <Pencil size={14} strokeWidth={2} />
                     </button>
@@ -376,15 +364,7 @@ export default function ComplaintTable({
                       title="Delete complaint"
                       disabled={deletingId === complaint.id}
                       onClick={() => handleDelete(complaint.id)}
-                      className="
-        flex h-7 w-7 items-center justify-center
-        rounded-md
-        bg-red-50 text-red-600
-        transition
-        hover:bg-red-100 hover:text-red-700
-        disabled:cursor-not-allowed
-        disabled:opacity-40
-      "
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition bg-red-50 text-red-600 hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {deletingId === complaint.id ? (
                         <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-200 border-t-red-600" />

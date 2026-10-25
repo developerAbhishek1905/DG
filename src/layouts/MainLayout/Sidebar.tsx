@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard,
+  // LayoutDashboard,
   MessageSquare,
   Users,
   CalendarDays,
@@ -30,24 +30,26 @@ import {
   Landmark,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useDispatch } from "react-redux";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logoutSuccess } from "../../modules/auth/store/authSlice";
 import { useAppSelector } from "../../app/hooks";
-import { MessageCircleQuestion } from "lucide-react";
+import { MessageCircleQuestion, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const menuItems = [
-  {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    path: "/",
-    permission: "dashboard.access",
-  },
+  // {
+  //   label: "Dashboard",
+  //   icon: LayoutDashboard,
+  //   path: "/",
+  //   permission: "dashboard.access",
+  // },
   {
     label: "Complaints Management",
     icon: MessageSquare,
@@ -253,7 +255,34 @@ const accountManagementItems = [
   },
 ];
 
-export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
+export default function Sidebar({
+  isOpen = false,
+  onClose,
+  collapsed = false,
+  onToggleCollapse,
+}: SidebarProps) {
+  // Collapse only applies on desktop (lg+); mobile drawer always shows full menu
+  const labelCls = collapsed ? "lg:hidden" : "";
+  const jc = collapsed ? "lg:justify-center" : "";
+
+  // Instant hover tooltip for icon-only (collapsed) view
+  const [tooltip, setTooltip] = useState<{
+    label: string;
+    top: number;
+    left: number;
+  } | null>(null);
+
+  const tip = (label: string) =>
+    collapsed
+      ? {
+          onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+            if (window.innerWidth < 1024) return;
+            const r = e.currentTarget.getBoundingClientRect();
+            setTooltip({ label, top: r.top + r.height / 2, left: r.right + 10 });
+          },
+          onMouseLeave: () => setTooltip(null),
+        }
+      : {};
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -353,17 +382,33 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           fixed left-0 top-0 z-40
           flex h-screen w-64 flex-col
           border-r border-gray-200 bg-white
-          transition-transform duration-300 ease-in-out
+          transition-all duration-300 ease-in-out
           lg:translate-x-0
+          ${collapsed ? "lg:w-20" : ""}
 
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
+        {/* Desktop collapse / expand toggle */}
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="absolute -right-3 top-5 z-50 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-[#123B7A] lg:flex"
+        >
+          {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+        </button>
+
         {/* =====================================================
             LOGO
         ====================================================== */}
 
-        <div className="flex h-16 shrink-0 items-center border-b border-gray-200 px-5">
+        <div
+          className={`flex h-16 shrink-0 items-center border-b border-gray-200 px-5 ${
+            collapsed ? "lg:justify-center lg:px-0" : ""
+          }`}
+        >
           <div className="flex items-center gap-3">
             <div
               className="
@@ -374,7 +419,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               CM
             </div>
 
-            <div>
+            <div className={labelCls}>
               <h1 className="text-sm font-bold text-gray-900">Complaint</h1>
 
               <p className="text-xs text-gray-500">Management System</p>
@@ -391,17 +436,18 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               FIRST THREE MENUS
           ================================================== */}
 
-          {allowedMenuItems.slice(0, 2).map((item) => {
+          {allowedMenuItems.slice(0, 1).map((item) => {
             const Icon = item.icon;
 
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
+                {...tip(item.label)}
                 onClick={onClose}
                 className={({ isActive }) =>
                   `
-                    flex items-center gap-3
+                    flex items-center gap-3 ${jc}
                     rounded-lg px-3 py-2.5
                     text-sm font-medium transition
 
@@ -415,7 +461,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               >
                 <Icon size={18} />
 
-                <span>{item.label}</span>
+                <span className={labelCls}>{item.label}</span>
               </NavLink>
             );
           })}
@@ -429,8 +475,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <button
                 type="button"
                 onClick={() => setDealerOpen((prev) => !prev)}
+                {...tip("Dealers Management")}
                 className={`
-        flex w-full items-center justify-between
+        flex w-full items-center justify-between ${jc}
         rounded-lg px-3 py-2.5
         text-sm font-medium transition
 
@@ -443,13 +490,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               >
                 <div className="flex items-center gap-3">
                   <Users size={18} />
-                  <span>Dealers Management</span>
+                  <span className={labelCls}>Dealers Management</span>
                 </div>
 
                 <ChevronDown
                   size={17}
                   className={`
-          transition-transform duration-200
+          transition-transform duration-200 ${collapsed ? "lg:hidden" : ""}
           ${dealerOpen ? "rotate-180" : ""}
         `}
                 />
@@ -465,11 +512,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       `}
               >
                 <div
-                  className="
+                  className={`
           ml-4 space-y-1
           border-l border-gray-200
-          pl-3
-        "
+          pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
+        `}
                 >
                   {allowedDealerItems.map((item) => {
                     const Icon = item.icon;
@@ -478,10 +525,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       <NavLink
                         key={item.path}
                         to={item.path}
+                {...tip(item.label)}
                         onClick={onClose}
                         className={({ isActive }) =>
                           `
-                  flex items-center gap-3
+                  flex items-center gap-3 ${jc}
                   rounded-lg px-3 py-2
                   text-sm transition
 
@@ -494,7 +542,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         }
                       >
                         <Icon size={16} />
-                        <span>{item.label}</span>
+                        <span className={labelCls}>{item.label}</span>
                       </NavLink>
                     );
                   })}
@@ -512,8 +560,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 <button
                   type="button"
                   onClick={() => setProductOpen((prev) => !prev)}
+                {...tip("Product Management")}
                   className={`
-                  flex w-full items-center justify-between
+                  flex w-full items-center justify-between ${jc}
                   rounded-lg px-3 py-2.5
                   text-sm font-medium transition
 
@@ -527,13 +576,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                   <div className="flex items-center gap-3">
                     <Boxes size={18} />
 
-                    <span>Product Management</span>
+                    <span className={labelCls}>Product Management</span>
                   </div>
 
                   <ChevronDown
                     size={17}
                     className={`
-                    transition-transform duration-200
+                    transition-transform duration-200 ${collapsed ? "lg:hidden" : ""}
 
                     ${productOpen ? "rotate-180" : ""}
                   `}
@@ -555,11 +604,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 `}
                 >
                   <div
-                    className="
+                    className={`
                     ml-4 space-y-1
                     border-l border-gray-200
-                    pl-3
-                  "
+                    pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
+                  `}
                   >
                     {allowedProductItems.map((item) => {
                       const Icon = item.icon;
@@ -568,10 +617,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         <NavLink
                           key={item.path}
                           to={item.path}
+                {...tip(item.label)}
                           onClick={onClose}
                           className={({ isActive }) =>
                             `
-                            flex items-center gap-3
+                            flex items-center gap-3 ${jc}
                             rounded-lg px-3 py-2
                             text-sm transition
 
@@ -585,7 +635,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         >
                           <Icon size={16} />
 
-                          <span>{item.label}</span>
+                          <span className={labelCls}>{item.label}</span>
                         </NavLink>
                       );
                     })}
@@ -604,8 +654,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 <button
                   type="button"
                   onClick={() => setAddressOpen((prev) => !prev)}
+                {...tip("Address Management")}
                   className={`
-                  flex w-full items-center justify-between
+                  flex w-full items-center justify-between ${jc}
                   rounded-lg px-3 py-2.5
                   text-sm font-medium transition
 
@@ -619,13 +670,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                   <div className="flex items-center gap-3">
                     <MapPinned size={18} />
 
-                    <span>Address Management</span>
+                    <span className={labelCls}>Address Management</span>
                   </div>
 
                   <ChevronDown
                     size={17}
                     className={`
-                    transition-transform duration-200
+                    transition-transform duration-200 ${collapsed ? "lg:hidden" : ""}
 
                     ${addressOpen ? "rotate-180" : ""}
                   `}
@@ -647,11 +698,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 `}
                 >
                   <div
-                    className="
+                    className={`
                     ml-4 space-y-1
                     border-l border-gray-200
-                    pl-3
-                  "
+                    pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
+                  `}
                   >
                     {allowedAddressItems.map((item) => {
                       const Icon = item.icon;
@@ -660,10 +711,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         <NavLink
                           key={item.path}
                           to={item.path}
+                {...tip(item.label)}
                           onClick={onClose}
                           className={({ isActive }) =>
                             `
-                            flex items-center gap-3
+                            flex items-center gap-3 ${jc}
                             rounded-lg px-3 py-2
                             text-sm transition
 
@@ -677,7 +729,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         >
                           <Icon size={16} />
 
-                          <span>{item.label}</span>
+                          <span className={labelCls}>{item.label}</span>
                         </NavLink>
                       );
                     })}
@@ -697,8 +749,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <button
                 type="button"
                 onClick={() => setAccountOpen((prev) => !prev)}
+                {...tip("Account Management")}
                 className={`
-        flex w-full items-center justify-between
+        flex w-full items-center justify-between ${jc}
         rounded-lg px-3 py-2.5
         text-sm font-medium transition
 
@@ -711,13 +764,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               >
                 <div className="flex items-center gap-3">
                   <Wallet size={18} />
-                  <span>Account Management</span>
+                  <span className={labelCls}>Account Management</span>
                 </div>
 
                 <ChevronDown
                   size={17}
                   className={`
-          transition-transform duration-200
+          transition-transform duration-200 ${collapsed ? "lg:hidden" : ""}
           ${accountOpen ? "rotate-180" : ""}
         `}
                 />
@@ -734,11 +787,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       `}
               >
                 <div
-                  className="
+                  className={`
           ml-4 space-y-1
           border-l border-gray-200
-          pl-3
-        "
+          pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
+        `}
                 >
                   {allowedAccountItems.map((item) => {
                     const Icon = item.icon;
@@ -747,9 +800,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       <NavLink
                         key={item.path}
                         to={item.path}
+                {...tip(item.label)}
                         onClick={onClose}
                         className={({ isActive }) => `
-                flex items-center gap-3
+                flex items-center gap-3 ${jc}
                 rounded-lg px-3 py-2
                 text-sm transition
 
@@ -761,7 +815,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               `}
                       >
                         <Icon size={16} />
-                        <span>{item.label}</span>
+                        <span className={labelCls}>{item.label}</span>
                       </NavLink>
                     );
                   })}
@@ -770,17 +824,18 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             </div>
           )}
 
-          {allowedMenuItems.slice(2).map((item) => {
+          {allowedMenuItems.slice(1).map((item) => {
             const Icon = item.icon;
 
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
+                {...tip(item.label)}
                 onClick={onClose}
                 className={({ isActive }) =>
                   `
-                    flex items-center gap-3
+                    flex items-center gap-3 ${jc}
                     rounded-lg px-3 py-2.5
                     text-sm font-medium transition
 
@@ -794,7 +849,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               >
                 <Icon size={18} />
 
-                <span>{item.label}</span>
+                <span className={labelCls}>{item.label}</span>
               </NavLink>
             );
           })}
@@ -828,17 +883,19 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
         <div className="shrink-0 border-t border-gray-200 p-3">
           <div
-            className="
+            className={`
       flex items-center gap-2
       rounded-lg px-2 py-2
       transition
       hover:bg-gray-50
-    "
+      ${collapsed ? "lg:flex-col" : ""}
+    `}
           >
             {/* Profile Click Area */}
 
             <button
               type="button"
+              {...tip(auth.user?.name || "Profile")}
               onClick={() => {
                 navigate("/profile");
                 onClose?.();
@@ -869,7 +926,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
               {/* User Details */}
 
-              <div className="min-w-0 flex-1">
+              <div className={`min-w-0 flex-1 ${labelCls}`}>
                 <p className="truncate text-sm font-semibold text-gray-800">
                   {auth.user?.name || "User"}
                 </p>
@@ -885,7 +942,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             <button
               type="button"
               onClick={handleLogout}
-              title="Logout"
+              {...tip("Logout")}
               className=" flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50 hover:text-red-600 "
             >
               <LogOut size={18} />
@@ -893,6 +950,31 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           </div>
         </div>
       </aside>
+
+      {collapsed && tooltip && (
+        <>
+          <style>{`
+            @keyframes sbTipIn {
+              from { opacity: 0; transform: translate(-6px, -50%); }
+              to { opacity: 1; transform: translate(0, -50%); }
+            }
+          `}</style>
+          <div
+            style={{
+              top: tooltip.top,
+              left: tooltip.left,
+              animation: "sbTipIn 160ms ease-out forwards",
+            }}
+            className="pointer-events-none fixed z-[60] hidden lg:block"
+          >
+            <div className="relative flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#123B7A] px-3 py-2 text-[13px] font-semibold tracking-tight text-white shadow-[0_8px_24px_-6px_rgba(18,59,122,0.55)] ring-1 ring-white/10">
+              {/* Arrow */}
+              <span className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rotate-45 rounded-[2px] bg-[#123B7A]" />
+              <span className="relative">{tooltip.label}</span>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

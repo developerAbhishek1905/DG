@@ -107,7 +107,7 @@ export default function AreaTable({
                         type="button"
                         title="Edit Area"
                         onClick={() => onEdit(area)}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                        className="rounded-lg p-2 transition bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                       >
                         <Edit3 size={17} />
                       </button>
