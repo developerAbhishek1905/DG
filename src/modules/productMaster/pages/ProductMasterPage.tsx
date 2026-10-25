@@ -160,10 +160,6 @@ export default function ProductMasterPage() {
             <PackageSearch size={23} className="text-[#123B7A]" />
             <h1 className="text-2xl font-bold text-gray-900">Product Master</h1>
           </div>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Manage products used across service and complaint modules.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">

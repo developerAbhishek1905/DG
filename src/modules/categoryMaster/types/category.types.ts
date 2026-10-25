@@ -25,6 +25,7 @@ export interface CategoryFormData {
 export interface CategoryFilters {
   search: string;
   status: CategoryStatus | "";
+  productId: string;
 }
 
 export interface CategoryImportItem {

@@ -192,7 +192,6 @@ export default function BrandMasterPage() {
       <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Brand Master</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage product brands.</p>
         </div>
 
         <div className="flex flex-wrap gap-2">

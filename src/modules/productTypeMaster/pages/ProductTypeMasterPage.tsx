@@ -19,12 +19,18 @@ import type {
   ProductTypeFormData,
 } from "../types/productType.types";
 import { usePermission } from "../../../hooks/usePermission";
+import {
+  searchProducts,
+  type ProductDropdownOption,
+} from "../../complaints/services/complaintApi";
 
 export default function ProductTypeMasterPage() {
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [productFilter, setProductFilter] = useState("");
+  const [products, setProducts] = useState<ProductDropdownOption[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
@@ -41,6 +47,7 @@ export default function ProductTypeMasterPage() {
       setLoading(true);
       const response = await getProductTypes({
         search: debouncedSearch,
+        product_id: productFilter ? Number(productFilter) : undefined,
         page,
         limit,
       });
@@ -54,7 +61,17 @@ export default function ProductTypeMasterPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, page, limit]);
+  }, [debouncedSearch, productFilter, page, limit]);
+
+  // Products for the filter dropdown
+  useEffect(() => {
+    searchProducts("")
+      .then(setProducts)
+      .catch((error) => {
+        console.error("Failed to load products:", error);
+        setProducts([]);
+      });
+  }, []);
 
   useEffect(() => {
     fetchProductTypes();
@@ -172,10 +189,6 @@ export default function ProductTypeMasterPage() {
               Product Type Master
             </h1>
           </div>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Manage product types mapped with products.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -207,7 +220,8 @@ export default function ProductTypeMasterPage() {
         <>
           {/* SEARCH */}
           <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
-            <div className="relative max-w-xl">
+            <div className="flex flex-col gap-3 md:flex-row">
+            <div className="relative max-w-xl flex-1">
               <Search
                 size={17}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -223,6 +237,23 @@ export default function ProductTypeMasterPage() {
                 placeholder="Search product type..."
                 className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
+            </div>
+
+            <select
+              value={productFilter}
+              onChange={(event) => {
+                setProductFilter(event.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 md:min-w-[220px]"
+            >
+              <option value="">All Products</option>
+              {products.map((product) => (
+                <option key={product.product_id} value={product.product_id}>
+                  {product.product_name}
+                </option>
+              ))}
+            </select>
             </div>
 
             <div className="mt-3 text-xs text-gray-500">

@@ -23,6 +23,7 @@ export default function CategoryMasterPage() {
   const [filters, setFilters] = useState<CategoryFilters>({
     search: "",
     status: "",
+    productId: "",
   });
   const { hasPermission } = usePermission();
   // FETCH CATEGORIES
@@ -43,6 +44,24 @@ export default function CategoryMasterPage() {
     fetchCategoryList();
   }, []);
 
+  // PRODUCT FILTER OPTIONS (products that have categories)
+  const productOptions = useMemo(() => {
+    const map = new Map<number, string>();
+
+    categories.forEach((item) => {
+      if (item.product_id !== undefined && item.product_id !== null) {
+        map.set(
+          item.product_id,
+          item.product_name || `Product ${item.product_id}`,
+        );
+      }
+    });
+
+    return Array.from(map.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [categories]);
+
   // FILTER
   const filteredCategories = useMemo(() => {
     const search = filters.search.toLowerCase().trim();
@@ -50,14 +69,17 @@ export default function CategoryMasterPage() {
     return categories.filter((item) => {
       const matchSearch =
         !search ||
-        item.groupCategoryCode.toLowerCase().includes(search) ||
+        item.groupCategoryCode?.toLowerCase().includes(search) ||
         item.description?.toLowerCase().includes(search) ||
         item.category?.toLowerCase().includes(search) ||
         item.categoryDescription?.toLowerCase().includes(search);
 
       const matchStatus = !filters.status || item.status === filters.status;
 
-      return matchSearch && matchStatus;
+      const matchProduct =
+        !filters.productId || String(item.product_id) === filters.productId;
+
+      return matchSearch && matchStatus && matchProduct;
     });
   }, [categories, filters]);
 
@@ -191,8 +213,6 @@ export default function CategoryMasterPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Category Master</h1>
-
-          <p className="mt-1 text-sm text-gray-500">Manage group categories.</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -273,10 +293,28 @@ export default function CategoryMasterPage() {
                   search: e.target.value,
                 }))
               }
-              placeholder="Search category..."
+              placeholder="Search category, description, category description..."
               className="w-full rounded-lg border border-gray-200 py-2.5 pl-9 pr-3 text-sm"
             />
           </div>
+
+          <select
+            value={filters.productId}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                productId: e.target.value,
+              }))
+            }
+            className="rounded-lg border border-gray-200 px-3 py-2.5 text-sm md:min-w-[200px]"
+          >
+            <option value="">All Products</option>
+            {productOptions.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name}
+              </option>
+            ))}
+          </select>
 
           <select
             value={filters.status}
@@ -300,7 +338,7 @@ export default function CategoryMasterPage() {
         <CategoryTable
           categories={filteredCategories}
           loading={loading}
-          resetPageKey={`${filters.search}|${filters.status}`}
+          resetPageKey={`${filters.search}|${filters.status}|${filters.productId}`}
           onEdit={handleEdit}
           onToggleStatus={handleToggleStatus}
           onDelete={handleDelete}
