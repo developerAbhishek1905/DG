@@ -26,7 +26,7 @@ export default function ComplaintStatusBadge({ status }: Props) {
     CLOSE_ON_VERIFICATION: "danger",
     CANCELLED: "danger",
     CANCEL_ON_CALL: "danger",
-    SUSPENDED: "suspend",
+    SUSPENDED: "suspended",
       
        
   } as const;

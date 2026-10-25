@@ -1,12 +1,8 @@
 import {
   ArrowLeft,
-  Building2,
-  CalendarDays,
   CheckCircle2,
   Package,
-  Phone,
   UserRound,
-  Wrench,
   History,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,11 +12,11 @@ import DealerInfoCard from "../components/DealerInfoCard";
 import ComplaintActivityModal from "../../appointments/components/ComplaintActivityModal";
 import { getComplaintActivities } from "../../appointments/services/appointmentApi";
 import { type Address } from "../types/complaint.types.js";
+import type { ComplaintActivity } from "../../appointments/services/appointmentApi";
 import { toast } from "react-toastify";
 /* =========================================================
    TYPES - EXACTLY BASED ON YOUR API RESPONSE
 ========================================================= */
-
 
 interface Customer {
   _id: string;
@@ -63,6 +59,7 @@ interface AllocatedDealer {
   rating: number;
   status: string;
   technicianCode: string;
+  headCode?: string;
 }
 
 interface Complaint {
@@ -119,11 +116,8 @@ interface Complaint {
   updatedAt: string;
   isWarranty: boolean;
   additionalInfo?: string[];
-}
-
-interface ComplaintApiResponse {
-  success: boolean;
-  data: Complaint;
+  customer?: Customer;
+  createdBy?: { name?: string; email?: string } | null;
 }
 
 /* =========================================================
@@ -156,7 +150,7 @@ export default function ComplaintDetailsPage() {
     try {
       setLoading(true);
       setError("");
-      const response = (await getComplaintById(id)) as ComplaintApiResponse;
+      const response = (await getComplaintById(id)) as unknown as Complaint;
       console.log("Complaint API Response:", response);
       setComplaint(response);
     } catch (error: any) {
@@ -437,7 +431,7 @@ export default function ComplaintDetailsPage() {
                       firmName:
                         complaint.allocatedDealerId.technicianFirmName || "",
                       phone: complaint.allocatedDealerId.mobileNumber || "",
-                      headCode: complaint.allocatedDealerId.headCode || "",
+                      dealerCode: complaint.allocatedDealerId.headCode || "",
                       rating: complaint.allocatedDealerId.rating ?? 0,
                       status: complaint.allocatedDealerId.status || "ACTIVE",
                     }

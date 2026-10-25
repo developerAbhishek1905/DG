@@ -1,4 +1,4 @@
-import { Eye, Ban, MoreVertical, Copy, Trash2, Pencil } from "lucide-react";
+import { Eye, Ban, Copy, Trash2, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -33,7 +33,7 @@ export default function ComplaintTable({
       const message = await deleteComplaint(id);
       toast.success(message);
       // Remove complaint from parent table
-      onDelete?.(id);
+      onReload();
     } catch (error: any) {
       console.error("Delete complaint error:", error);
 
@@ -324,7 +324,7 @@ export default function ComplaintTable({
                   )}
                 </td>
 
-                                <td className="px-1 py-3 text-center text-xs text-gray-600">
+                <td className="px-1 py-3 text-center text-xs text-gray-600">
                   {complaint?.createdBy?.name ?? "-"}
                 </td>
 

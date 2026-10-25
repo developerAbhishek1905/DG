@@ -74,7 +74,6 @@ export default function ComplaintAddressFields({
 
   const stateId = watch("address.stateId");
   const districtId = watch("address.districtId");
-  const cityId = watch("address.cityId");
   const stateName = watch("address.state");
   const districtName = watch("address.district");
   const cityName = watch("address.city");

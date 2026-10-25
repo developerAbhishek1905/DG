@@ -336,7 +336,7 @@ function AllocationStatusBadge({
    DEALER FIELD
 ========================================================= */
 
-interface DealerFieldProps {
+export interface DealerFieldProps {
   icon?: React.ReactNode;
   label: string;
   value?: string | number | null;

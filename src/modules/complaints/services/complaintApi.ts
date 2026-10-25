@@ -3,12 +3,9 @@ import api from "../../../services/api/axios";
 import type {
   Complaint,
   ComplaintFilters,
-  ComplaintHistoryItem,
-  ComplaintListResponse,
   CreateComplaintPayload,
   Customer,
   Address,
-  CustomerLookupResponse,
   UpdateComplaintPayload,
 } from "../types/complaint.types";
 
@@ -35,7 +32,7 @@ interface BackendCustomer {
 //     | null;
 // }
 
-interface BackendParentComplaint {
+export interface BackendParentComplaint {
   _id: string;
   complaintNumber: string;
   complaintType?: string;
@@ -149,7 +146,7 @@ const normalizeComplaint = (complaint: any): Complaint => {
 |--------------------------------------------------------------------------
 */
 
-const normalizeHistoryItem = (complaint: BackendComplaint): any => {
+export const normalizeHistoryItem = (complaint: BackendComplaint): any => {
   const allocatedDealer =
     complaint.allocatedDealerId &&
     typeof complaint.allocatedDealerId === "object"
@@ -197,8 +194,12 @@ export const getComplaints = async (
   }
 
   if (filters.productId) {
-  params.productId = filters.productId;
-}
+    params.productId = filters.productId;
+  }
+
+  if (filters.categoryId) {
+    params.categoryId = filters.categoryId;
+  }
 
   if (filters.complaintType) {
     params.complaintType = filters.complaintType;
@@ -584,12 +585,12 @@ export const searchCategories = async ({
   productId,
   search = "",
 }: {
-  productId: number;
+  productId?: number;
   search?: string;
 }): Promise<CategoryDropdownOption[]> => {
   const response = await api.get("/categories/dropdown", {
     params: {
-      product_id: productId,
+      ...(productId !== undefined ? { product_id: productId } : {}),
       search,
     },
   });

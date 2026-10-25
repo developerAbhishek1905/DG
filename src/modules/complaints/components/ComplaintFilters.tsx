@@ -5,7 +5,10 @@ import SearchSelect, {
   type SearchSelectOption,
 } from "../../../components/ui/SearchSelect";
 
-import type { ComplaintStatus } from "../types/complaint.types";
+import type {
+  ComplaintStatus,
+  ComplaintType as SharedComplaintType,
+} from "../types/complaint.types";
 
 import {
   searchDealerDropdown,
@@ -35,7 +38,7 @@ import {
 //   onDealerChange: (dealerId: string) => void;
 // }
 
-type ComplaintType = "REGULAR" | "WARRANTY" | "INQUIRY";
+type ComplaintType = SharedComplaintType;
 
 interface ComplaintFiltersProps {
   search: string;

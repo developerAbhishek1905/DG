@@ -5,10 +5,13 @@ import ComplaintFilters from "../components/ComplaintFilters";
 import ComplaintTable from "../components/ComplaintTable";
 import Pagination from "../../../components/ui/Pagination";
 import { getComplaints } from "../services/complaintApi";
-import type { Complaint, ComplaintStatus } from "../types/complaint.types";
+import type {
+  Complaint,
+  ComplaintStatus,
+  ComplaintType,
+} from "../types/complaint.types";
 import { useDebounce } from "../../../hooks/useDebounce";
 
-type ComplaintType = "REGULAR" | "REPEAT" | "WARRANTY" | "INQUIRY";
 
 
 export default function ComplaintListPage() {

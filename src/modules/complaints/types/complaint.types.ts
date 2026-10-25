@@ -2,6 +2,15 @@ export type ComplaintStatus =
   | "REGISTERED"
   | "ALLOCATED"
   | "APPOINTMENT_SCHEDULED"
+  | "RESCHEDULED"
+  | "REOPEN"
+  | "VISITED"
+  | "PENDING_ON_CALL"
+  | "PENDING_ON_VISIT"
+  | "CLOSE_ON_BILLING"
+  | "CANCEL_ON_VISIT"
+  | "CLOSE_ON_VERIFICATION"
+  | "CANCEL_ON_CALL"
   | "PENDING"
   | "WORK_IN_PROGRESS"
   | "WORK_COMPLETED"
@@ -17,7 +26,12 @@ export type ComplaintPriority =
   | "URGENT"
   | "CRITICAL";
 
-export type ComplaintType = "REGULAR" | "REPEAT" | "WARRANTY" | "PAID_SERVICE";
+export type ComplaintType =
+  | "REGULAR"
+  | "REPEAT"
+  | "WARRANTY"
+  | "PAID_SERVICE"
+  | "INQUIRY";
 
 export interface ComplaintAddress {
   addressLine: string;
@@ -138,6 +152,13 @@ export interface Complaint {
   slaDueAt?: string;
   timeline?: ComplaintTimelineItem[];
   allocatedDealerId: any;
+  categoryId?: any;
+  allocationType?: string;
+  createdBy?: { id?: string; _id?: string; name?: string } | null;
+  contactInfo?: string;
+  productType?: string;
+  productTypeId?: any;
+  additionalInfo?: any[];
 }
 
 export interface CreateComplaintPayload {
@@ -188,7 +209,7 @@ export interface UpdateComplaintPayload {
   description?: string;
   status?: ComplaintStatus;
   technicianId?: string | null;
-  technicianName: string;
+  technicianName?: string;
   dealerId?: string | null;
   cancellationReason?: string;
 }
@@ -201,6 +222,7 @@ export interface ComplaintFilters {
   customerId?: string;
   technicianId?: string;
   productId?: number;
+  categoryId?: string;
   dealerId?: string;
   fromDate?: string;
   toDate?: string;
@@ -208,7 +230,7 @@ export interface ComplaintFilters {
   limit?: number;
 }
 
-interface AllocatedDealer {
+export interface AllocatedDealer {
   _id: string;
   technicianName: string;
   mobileNumber: string;
@@ -291,6 +313,9 @@ export interface ComplaintHistoryItem {
   additionalInfo?: string[];
 
   isWarranty?: boolean;
+  technicianName?: string;
+  technicianNumber?: string;
+  warrantyEndDate?: string | null;
 
   createdAt: string;
   status: ComplaintStatus;
@@ -316,10 +341,10 @@ export interface ComplaintListResponse {
 
 export interface ComplaintFormData {
   complaintNumber: string;
-  complaintDateTime: string;
+  complaintDateTime?: string;
   customerCode: string;
   customerId?: string;
-  categoryId: number;
+  categoryId: string;
   customerPhone: string;
   customerName: string;
   alternatePhone?: string;

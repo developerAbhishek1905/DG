@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   CheckCircle2,
   History,
   Loader2,
@@ -7,7 +6,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import {
   createComplaint,
   updateComplaint,
@@ -25,20 +24,15 @@ import {
 
 import type {
   Complaint,
-  ComplaintCategory,
   ComplaintHistoryItem,
-  ComplaintPriority,
-  ComplaintStatus,
   ComplaintType,
   Customer,
-  ComplaintAddress,
   ComplaintFormData,
 } from "../types/complaint.types";
 import { toast } from "react-toastify";
 import ComplaintAddressFields from "./ComplaintAddressFields";
 import { useDebounce } from "../../../hooks/useDebounce";
 import SearchSelect from "../../../components/ui/SearchSelect";
-import { useNavigate } from "react-router-dom";
 
 interface ComplaintHistoryTableProps {
   history: ComplaintHistoryItem[];
@@ -111,7 +105,6 @@ export default function ComplaintForm({
     brandId: "",
     brand: "",
 
-    productNumericId: undefined,
     productId: undefined,
     productName: "",
 
@@ -219,11 +212,11 @@ export default function ComplaintForm({
 
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
-  const [lookupError, setLookupError] = useState<string | null>(null);
+  const [, setLookupError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [updatingCustomer, setUpdatingCustomer] = useState(false);
   const [brands, setBrands] = useState<BrandDropdownOption[]>([]);
-  const [products, setProducts] = useState<ProductDropdownOption[]>([]);
+  const [, setProducts] = useState<ProductDropdownOption[]>([]);
   const [productTypes, setProductTypes] = useState<ProductTypeDropdownOption[]>(
     [],
   );
@@ -231,7 +224,7 @@ export default function ComplaintForm({
   const [productSearch, setProductSearch] = useState("");
   const [productTypeSearch, setProductTypeSearch] = useState("");
   const [brandLoading, setBrandLoading] = useState(false);
-  const [productLoading, setProductLoading] = useState(false);
+  const [, setProductLoading] = useState(false);
   const [productTypeLoading, setProductTypeLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryDropdownOption[]>([]);
   const [categorySearch, setCategorySearch] = useState("");
@@ -257,10 +250,7 @@ export default function ComplaintForm({
   const selectedComplaintNumber = watch("repeatComplaintNumber");
   const customerPhone = watch("customerPhone");
   const selectedComplaintType = watch("complaintType");
-  const selectedOldComplaintNumber = watch("repeatComplaintNumber");
-  const selectedCategory = watch("category");
 
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (mode !== "edit" || !initialData) {
@@ -269,7 +259,7 @@ export default function ComplaintForm({
 
     const customer =
       typeof initialData.customerId === "object"
-        ? initialData.customerId
+        ? (initialData.customerId as any)
         : null;
 
     const brand =
@@ -520,7 +510,7 @@ export default function ComplaintForm({
       shouldDirty: true,
     });
 
-    setValue("productName", category.product_name, {
+    setValue("productName", category.product_name || "", {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -561,7 +551,7 @@ export default function ComplaintForm({
     const productId =
       complaint.productId !== null &&
       complaint.productId !== undefined &&
-      complaint.productId !== ""
+      (complaint.productId as unknown) !== ""
         ? Number(complaint.productId)
         : undefined;
 
@@ -1042,7 +1032,7 @@ export default function ComplaintForm({
         return;
       }
 
-      const updatedComplaint = await updateComplaint(
+      await updateComplaint(
         complaintId,
         payload,
       );
@@ -1739,7 +1729,7 @@ function ComplaintHistoryTable({
 
 /*  SECTION */
 
-function Section({
+export function Section({
   title,
   children,
 }: {
