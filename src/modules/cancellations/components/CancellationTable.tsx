@@ -1,4 +1,4 @@
-import DateTimeInput from "../../../components/ui/DateTimeInput";
+import DateAndTimeFields from "../../../components/ui/DateAndTimeFields";
 import { Ban, Loader2, RotateCcw, UserRoundPen } from "lucide-react";import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -503,7 +503,7 @@ export default function CancellationTable({
 
                     {/* Follow-up Date */}
                     <td className="px-2 py-3 align-top">
-                      <DateTimeInput
+                      <DateAndTimeFields
                         value={followUpDate}
                         disabled={isCancelled || isSaving}
                         onChange={(value) =>
