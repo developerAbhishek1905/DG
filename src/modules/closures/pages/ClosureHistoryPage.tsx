@@ -1031,6 +1031,29 @@ const ClosureRow = memo(function ClosureRow({
 }: ClosureRowProps) {
   const [remark, setRemark] = useState("");
 
+  // Full remark popover (fixed, so the table never clips it)
+  const [remarkTip, setRemarkTip] = useState<{
+    text: string;
+    top: number;
+    left: number;
+  } | null>(null);
+
+  const showRemarkTip = (
+    event: React.MouseEvent<HTMLElement>,
+    text: string,
+  ) => {
+    if (!text.trim()) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const width = 320;
+
+    setRemarkTip({
+      text,
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)),
+      top: rect.bottom + 6,
+    });
+  };
+
   // Categories of this complaint's product (billing is decided from the
   // category selected here)
   const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
@@ -1458,7 +1481,9 @@ const ClosureRow = memo(function ClosureRow({
               {!selectedCategoryId && <option value="">Select category</option>}
               {categoryOptions.map((option) => (
                 <option key={option._id} value={option._id}>
-                  {option.category}
+                  {option.description
+                    ? `${option.category} - ${option.description}`
+                    : option.category}
                 </option>
               ))}
             </select>
@@ -1495,7 +1520,13 @@ const ClosureRow = memo(function ClosureRow({
         <td className="px-3 py-3">
           {isApproved ? (
             <div>
-              <p className="max-w-[220px] whitespace-normal text-xs font-medium text-green-800">
+              <p
+                onMouseEnter={(event) =>
+                  showRemarkTip(event, closure.closureApprovalRemark || "")
+                }
+                onMouseLeave={() => setRemarkTip(null)}
+                className="line-clamp-2 max-w-[220px] cursor-help whitespace-normal text-xs font-medium text-green-800"
+              >
                 {closure.closureApprovalRemark || "-"}
               </p>
 
@@ -1511,8 +1542,30 @@ const ClosureRow = memo(function ClosureRow({
               value={remark}
               onChange={(event) => setRemark(event.target.value)}
               placeholder="Enter remark..."
+              onMouseEnter={(event) => showRemarkTip(event, remark)}
+              onMouseLeave={() => setRemarkTip(null)}
               className="h-9 w-[200px] rounded-md border border-gray-300 px-3 text-xs outline-none focus:border-[#123B7A]"
             />
+          )}
+
+          {remarkTip && (
+            <div
+              style={{
+                position: "fixed",
+                top: remarkTip.top,
+                left: remarkTip.left,
+                width: 320,
+              }}
+              className="pointer-events-none z-[100] rounded-lg border border-gray-200 bg-white p-3 shadow-xl"
+            >
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#123B7A]">
+                Remark
+              </p>
+
+              <p className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words text-xs leading-5 text-gray-700">
+                {remarkTip.text}
+              </p>
+            </div>
           )}
         </td>
 
