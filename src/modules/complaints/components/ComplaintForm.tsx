@@ -5,6 +5,7 @@ import {
   Search,
   UserCheck,
 } from "lucide-react";
+import { showWhatsAppFailurePopup } from "./showWhatsAppFailurePopup";
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
@@ -1079,6 +1080,11 @@ export default function ComplaintForm({
     onSuccess?.();
 
     toast.success("Complaint created successfully");
+
+    showWhatsAppFailurePopup(
+      (createdComplaint as any)?.whatsapp,
+      (createdComplaint as any)?.complaintNumber,
+    );
   } catch (error: any) {
     console.error(
       mode === "edit"

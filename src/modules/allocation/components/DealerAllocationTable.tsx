@@ -55,7 +55,11 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
 
     try {
       setSavingRating(true);
-      await setDealerRating(dealerId, value);
+      // Remember the rating that is on screen right now as the previous one
+      const before = result?.data.find((row) => row.dealerId === dealerId);
+      const previousRating = before ? Number(before.rating) : null;
+
+      await setDealerRating(dealerId, value, previousRating);
 
       setResult((current) =>
         current
@@ -66,6 +70,7 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
                   ? {
                       ...row,
                       ratingOverridden: value !== null,
+                      previousRating: previousRating ?? row.previousRating,
                       rating: value !== null ? value : row.calculatedRating,
                     }
                   : row,
@@ -250,6 +255,18 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
                           {row.ratingOverridden && <span className="ml-1 text-[10px]">manual</span>}
                         </button>
                       )}
+
+                      {editingId !== row.dealerId &&
+                        row.previousRating !== null &&
+                        row.previousRating !== undefined &&
+                        Number(row.previousRating) !== Number(row.rating) && (
+                          <p
+                            className="mt-0.5 text-[10px] text-gray-400"
+                            title="Rating before the last change"
+                          >
+                            Previous ★ {Number(row.previousRating).toFixed(1)}
+                          </p>
+                        )}
                     </td>
 
                     <td className="px-4 py-2.5 text-right">

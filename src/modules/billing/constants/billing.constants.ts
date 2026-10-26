@@ -17,6 +17,7 @@ export const BILLING_TYPE_OPTIONS: { value: BillingType; label: string }[] = [
   { value: "DUMMY_BILL", label: "Dummy Bill" },
   { value: "PENALTY", label: "Penalty" },
   { value: "PAYMENT", label: "Payment" },
+  { value: "AUTO_BILL", label: "Auto Bill" },
 ];
 
 export const LEDGER_STATUS_OPTIONS: { value: LedgerStatus; label: string }[] = [

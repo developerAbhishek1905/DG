@@ -244,7 +244,9 @@ export default function BillForm({
         // Fetch units from populated complaint
         units: complaint?.units ?? initialData.units ?? 1,
 
-        billingType: initialData.billingType,
+        // Auto / dummy / penalty bills are not editable as a form type;
+        // the form only knows the manual billing types
+        billingType: initialData.billingType as BillFormValues["billingType"],
 
         // The top-level fields default to 0 in the database while the real
         // values of closure bills are stored in `calculation`, so use `||`

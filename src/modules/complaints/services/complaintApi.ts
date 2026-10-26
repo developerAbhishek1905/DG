@@ -272,7 +272,12 @@ export const createComplaint = async (
   data: CreateComplaintPayload,
 ): Promise<Complaint> => {
   const response = await api.post(COMPLAINT_API, data);
-  return normalizeComplaint(response.data.data);
+  const created = normalizeComplaint(response.data.data) as Complaint & {
+    whatsapp?: unknown;
+  };
+  // WhatsApp delivery result from the server (shown as a popup on failure)
+  created.whatsapp = response.data.whatsapp;
+  return created;
 };
 
 /*

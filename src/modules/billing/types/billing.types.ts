@@ -203,7 +203,9 @@ export type BillingType =
   | "ADJUSTMENT"
   | "PAYMENT"
   | "DUMMY_BILL"
-  | "PENALTY";
+  | "PENALTY"
+  // filter-only: FIXED bills raised by the daily 11 PM auto-billing
+  | "AUTO_BILL";
 
 export type TransactionType =
   | "OPENING_BALANCE"
@@ -245,6 +247,8 @@ export interface DealerLedger {
   transactionType: TransactionType;
 
   billingType: BillingType;
+  // "AUTO_BILL" for bills raised by the daily 11 PM auto-billing
+  entrySource?: "SYSTEM" | "MANUAL_ACCOUNT_ENTRY" | "AUTO_BILL";
   units?: number | null;
 
   customerName?: string;

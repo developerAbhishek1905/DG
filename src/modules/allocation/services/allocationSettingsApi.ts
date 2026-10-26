@@ -44,7 +44,7 @@ export interface SaveAllocationSettingsPayload {
   noActionReminderMinutes: number;
   noActionPenaltyEnabled: boolean;
   noActionPenaltyAfterMinutes: number;
-  noActionPenaltyAmount: number;
+  noActionPenaltyAmount?: number;
   monthlyRecalcEnabled: boolean;
   monthlyRecalcDay: number;
 }
@@ -96,6 +96,8 @@ export interface DealerAllocationRow {
   rating: number;
   calculatedRating: number;
   ratingOverridden: boolean;
+  /** Rating in force before the last change */
+  previousRating?: number | null;
 }
 
 export interface DealerAllocationList {
@@ -123,8 +125,12 @@ export const getDealerAllocations = async (params: {
 export const setDealerRating = async (
   dealerId: string,
   rating: number | null,
+  previousRating?: number | null,
 ): Promise<void> => {
-  await api.put(`/allocation-settings/dealers/${dealerId}/rating`, { rating });
+  await api.put(`/allocation-settings/dealers/${dealerId}/rating`, {
+    rating,
+    previousRating,
+  });
 };
 
 export interface AllocationHistoryRow {

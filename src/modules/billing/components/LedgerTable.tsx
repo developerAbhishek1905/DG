@@ -216,7 +216,9 @@ export default function LedgerTable({
 
                   <td className="px-4 py-3">
                     <span className="whitespace-nowrap text-xs font-medium text-gray-700">
-                      {getBillingTypeLabel(ledger.billingType)}
+                      {ledger.entrySource === "AUTO_BILL"
+                        ? "Auto Bill"
+                        : getBillingTypeLabel(ledger.billingType)}
                     </span>
                   </td>
 

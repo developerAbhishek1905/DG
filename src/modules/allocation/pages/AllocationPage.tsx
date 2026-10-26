@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { History, Play, Save, Settings, X } from "lucide-react";
+import { ArrowLeft, History, Play, Save, Settings, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import AllocationHistoryTable from "../components/AllocationHistoryTable";
@@ -23,6 +24,7 @@ const inputClass =
   "h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
 
 export default function AllocationPage() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [applying, setApplying] = useState(false);
@@ -44,7 +46,6 @@ export default function AllocationPage() {
   const [reminderMin, setReminderMin] = useState(30);
   const [penaltyOn, setPenaltyOn] = useState(true);
   const [penaltyAfter, setPenaltyAfter] = useState(30);
-  const [penaltyAmount, setPenaltyAmount] = useState(0);
 
   useEffect(() => {
     Promise.all([getAllocationSettings(), getAllocationCities()])
@@ -62,7 +63,6 @@ export default function AllocationPage() {
         setReminderMin(settings.noActionReminderMinutes ?? 30);
         setPenaltyOn(settings.noActionPenaltyEnabled ?? true);
         setPenaltyAfter(settings.noActionPenaltyAfterMinutes ?? 30);
-        setPenaltyAmount(settings.noActionPenaltyAmount ?? 0);
       })
       .catch(() => toast.error("Failed to load allocation settings"))
       .finally(() => setLoading(false));
@@ -97,7 +97,6 @@ export default function AllocationPage() {
     noActionReminderMinutes: reminderMin,
     noActionPenaltyEnabled: penaltyOn,
     noActionPenaltyAfterMinutes: penaltyAfter,
-    noActionPenaltyAmount: penaltyAmount,
   });
 
   const handleSave = async () => {
@@ -152,6 +151,25 @@ export default function AllocationPage() {
       <div>
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
+            <button
+              type="button"
+              onClick={() => {
+                // Inside Settings / History -> back to the allocation table,
+                // from the table itself -> back to the previous page.
+                if (view !== "table") {
+                  setView("table");
+                } else if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate("/complaints");
+                }
+              }}
+              className="mb-3 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#123B7A]"
+            >
+              <ArrowLeft size={17} />
+              {view !== "table" ? "Back to Dealer Allocation" : "Back"}
+            </button>
+
             <h1 className="text-2xl font-bold text-gray-900">Dealer Allocation</h1>
 
             <p className="mt-1 text-sm text-gray-500">
@@ -406,17 +424,7 @@ export default function AllocationPage() {
                   onChange={(e) => setPenaltyAfter(Number(e.target.value))}
                   className="w-20 rounded-lg border px-2 py-1"
                 />
-                minutes after the reminder · Amount ₹
-                <input
-                  type="number"
-                  min={0}
-                  value={penaltyAmount}
-                  onChange={(e) => setPenaltyAmount(Number(e.target.value))}
-                  className="w-24 rounded-lg border px-2 py-1"
-                />
-                <span className="text-xs text-gray-500">
-                  (0 = dealer's cancellation charge)
-                </span>
+                minutes after the reminder
               </div>
             </div>
 
