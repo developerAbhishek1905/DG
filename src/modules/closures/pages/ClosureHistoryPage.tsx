@@ -1,5 +1,6 @@
 // import { ArrowLeft, Eye, RotateCcw, Search } from "lucide-react";
 
+import { usePermission } from "../../../hooks/usePermission";
 import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   ArrowLeft,
@@ -1028,6 +1029,8 @@ const ClosureRow = memo(function ClosureRow({
   onNavigate,
   onReview,
 }: ClosureRowProps) {
+  const { hasPermission } = usePermission();
+
   const [remark, setRemark] = useState("");
 
   // Full remark popover (fixed, so the table never clips it)
@@ -1106,6 +1109,7 @@ const ClosureRow = memo(function ClosureRow({
         <td className="min-w-0 px-3 py-3 xl:px-2">
           <button
             type="button"
+            disabled={!hasPermission("closures.view")}
             onClick={() => onNavigate(closure._id)}
             className="
             whitespace-nowrap
@@ -1265,7 +1269,7 @@ const ClosureRow = memo(function ClosureRow({
 
         <td className="px-1 py-3 text-center align-middle">
           <div className="flex items-center justify-center gap-1">
-            {!isApproved && (
+            {!isApproved && hasPermission("closures.approve") && (
               <button
                 type="button"
                 disabled={isApproving || !remark.trim()}
@@ -1337,6 +1341,7 @@ const ClosureRow = memo(function ClosureRow({
         <td className="whitespace-nowrap px-3 py-3">
           <button
             type="button"
+            disabled={!hasPermission("closures.view")}
             onClick={() => onNavigate(closure._id)}
             className="text-xs font-semibold text-[#123B7A] hover:underline"
           >
@@ -1571,7 +1576,7 @@ const ClosureRow = memo(function ClosureRow({
         {/* Actions */}
         <td className="px-3 py-3 text-right">
           <div className="flex items-center justify-end gap-2">
-            {!isApproved && (
+            {!isApproved && hasPermission("closures.approve") && (
               <button
                 type="button"
                 disabled={isApproving || !remark.trim()}

@@ -102,7 +102,7 @@ const menuItems = [
     label: "DG Verification",
     icon: BadgeCheck,
     path: "/verification",
-    permission: "complaints.access",
+    permission: "verification.access",
   },
     // {
     //   label: "Billing",
@@ -132,6 +132,7 @@ const menuItems = [
     label: "Dealer Allocation",
     icon: UserRoundSearch,
     path: "/allocation",
+    permission: "allocation.access",
   },
 
   //   //   {
@@ -230,7 +231,7 @@ const dealerManagementItems = [
     label: "Dealer Activity",
     icon: Clock3,
     path: "/dealer-activity",
-    permission: "dealers.access",
+    permission: "dealers.activity.access",
   },
 ];
 

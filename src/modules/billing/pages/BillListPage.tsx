@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { usePermission } from "../../../hooks/usePermission";
+import { useAppSelector } from "../../../app/hooks";
 import { toast } from "react-toastify";
 import { Plus } from "lucide-react";
 
@@ -37,6 +39,9 @@ import BillForm, {
 } from "../components/BillForm";
 
 export default function BillListPage() {
+  const { hasPermission } = usePermission();
+  const isDealerUser = useAppSelector((s) => s.auth.user?.role?.code) === "DEALER";
+  const can = (permission: string) => isDealerUser || hasPermission(permission);
   const [ledgers, setLedgers] = useState<DealerLedger[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -353,6 +358,7 @@ const handleSubmitBill = async (values: BillFormValues) => {
         <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
       </div>
       <div className="flex flex-wrap items-center gap-3">
+        {can("billing.generate") && (
         <button
           type="button"
           onClick={handleCreateBill}
@@ -361,7 +367,9 @@ const handleSubmitBill = async (values: BillFormValues) => {
           <Plus size={17} />
           Create Bill
         </button>
+        )}
 
+        {can("billing.dummy") && (
         <button
           type="button"
           onClick={() => setDummyBillOpen(true)}
@@ -370,6 +378,7 @@ const handleSubmitBill = async (values: BillFormValues) => {
           <Plus size={17} />
           Create Dummy Bill
         </button>
+        )}
       </div>
 
       {/* STATS */}

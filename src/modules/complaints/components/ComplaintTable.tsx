@@ -1,4 +1,5 @@
 import { Eye, Ban, Copy, Trash2, Pencil } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -19,6 +20,7 @@ export default function ComplaintTable({
   onReload,
 }: Props) {
   const navigate = useNavigate();
+  const { hasPermission } = usePermission();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [suspendingId, setSuspendingId] = useState<string | null>(null);
   const handleDelete = async (id: string) => {
@@ -167,8 +169,9 @@ export default function ComplaintTable({
                   <button
                     type="button"
                     title={complaint.complaintNumber}
+                    disabled={!hasPermission("complaints.view")}
                     onClick={() => navigate(`/complaints/${complaint.id}`)}
-                    className="block max-w-full truncate text-xs font-semibold text-[#123B7A] hover:underline"
+                    className="block max-w-full truncate text-xs font-semibold text-[#123B7A] hover:underline disabled:cursor-default disabled:text-gray-700 disabled:no-underline"
                   >
                     {complaint.complaintNumber}
                   </button>
@@ -337,6 +340,7 @@ export default function ComplaintTable({
                 <td className="px-1 py-3">
                   <div className="flex items-center justify-end gap-1">
                     {/* View */}
+                    {hasPermission("complaints.view") && (
                     <button
                       type="button"
                       title="View complaint"
@@ -345,8 +349,10 @@ export default function ComplaintTable({
                     >
                       <Eye size={14} strokeWidth={2} />
                     </button>
+                    )}
 
                     {/* Edit */}
+                    {hasPermission("complaints.update") && (
                     <button
                       type="button"
                       title="Edit complaint"
@@ -357,8 +363,10 @@ export default function ComplaintTable({
                     >
                       <Pencil size={14} strokeWidth={2} />
                     </button>
+                    )}
 
                     {/* Delete */}
+                    {hasPermission("complaints.delete") && (
                     <button
                       type="button"
                       title="Delete complaint"
@@ -372,8 +380,10 @@ export default function ComplaintTable({
                         <Trash2 size={14} strokeWidth={2} />
                       )}
                     </button>
+                    )}
 
                     {/* Suspend */}
+                    {hasPermission("complaints.suspend") && (
                     <button
                       type="button"
                       title={
@@ -404,6 +414,7 @@ export default function ComplaintTable({
                         <Ban size={14} strokeWidth={2} />
                       )}
                     </button>
+                    )}
                   </div>
                 </td>
               </tr>

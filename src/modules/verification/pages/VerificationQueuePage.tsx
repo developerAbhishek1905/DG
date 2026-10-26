@@ -1,5 +1,6 @@
 import { RotateCcw, Search,Clock3, FileCheck2, XCircle  } from "lucide-react";
 
+import { usePermission } from "../../../hooks/usePermission";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
@@ -71,6 +72,8 @@ export default function VerificationQueuePage() {
 
   const [loading, setLoading] = useState(true);
 
+  const { hasPermission } = usePermission();
+
   const [activeTab, setActiveTab] =
   useState<VerificationTab>("PENDING");
 
@@ -107,6 +110,17 @@ export default function VerificationQueuePage() {
   // useEffect(() => {
   //   loadQueue();
   // }, []);
+
+const TAB_ACCESS: Record<VerificationTab, string> = {
+  PENDING: "pending.access",
+  CANCELLATION: "cancellations.access",
+  CLOSURE: "closures.access",
+};
+
+const allowedTabs = tabs.filter((t) => hasPermission(TAB_ACCESS[t.key]));
+const currentTab = allowedTabs.some((t) => t.key === activeTab)
+  ? activeTab
+  : allowedTabs[0]?.key;
 
 const filtered = useMemo(
   () =>
@@ -229,7 +243,7 @@ return (
 
       <div className="border-b border-gray-200">
         <div className="flex items-center gap-8">
-          {tabs.map((tab) => {
+          {allowedTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
 
@@ -274,13 +288,23 @@ return (
       ====================================================== */}
 
       <div>
-        {activeTab === "PENDING" && <PendingListPage />}
+        {allowedTabs.length === 0 && (
+          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
+            You do not have permission to view any verification section.
+          </div>
+        )}
 
-        {activeTab === "CANCELLATION" && (
+        {currentTab === "PENDING" && hasPermission("pending.table") && (
+          <PendingListPage />
+        )}
+
+        {currentTab === "CANCELLATION" && hasPermission("cancellations.table") && (
           <CancellationListPage />
         )}
 
-        {activeTab === "CLOSURE" && <ClosureHistoryPage />}
+        {currentTab === "CLOSURE" && hasPermission("closures.table") && (
+          <ClosureHistoryPage />
+        )}
       </div>
     </div>
   );

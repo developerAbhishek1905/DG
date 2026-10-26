@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePermission } from "../../../hooks/usePermission";
 import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   CircleDollarSign,
@@ -93,6 +94,7 @@ export default function LedgerOverviewPage() {
     "NAME" | "OUTSTANDING_DESC" | "UNPAID_DESC" | "DEPOSIT_DESC"
   >("NAME");
     const navigate = useNavigate();
+    const { hasPermission } = usePermission();
 
   const loadOverview = useCallback(async () => {
     try {
@@ -243,6 +245,7 @@ export default function LedgerOverviewPage() {
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Add Ledger */}
+          {hasPermission("ledger.create") && (
           <button
             type="button"
 onClick={() => navigate("/ledger/add-entry")}
@@ -251,6 +254,7 @@ onClick={() => navigate("/ledger/add-entry")}
             <BookPlus size={18} />
             Add Ledger
           </button>
+          )}
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import DateAndTimeFields from "../../../components/ui/DateAndTimeFields";
+import { usePermission } from "../../../hooks/usePermission";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -28,6 +29,7 @@ interface RowForm {
 }
 
 export default function PendingTable({ complaints, onRefresh }: Props) {
+  const { hasPermission } = usePermission();
   const [statuses, setStatuses] = useState<FollowUpStatusOption[]>([]);
   const [pendingReasons, setPendingReasons] = useState<FollowUpReasonOption[]>(
     [],
@@ -595,6 +597,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
 
                   <td className="min-w-0 overflow-hidden px-3 py-3.5 align-middle">
                     <div className="flex min-w-0 flex-col gap-1.5">
+                      {hasPermission("pending.update") && (<>
                       <button
                         type="button"
                         disabled={isSaving}
@@ -624,7 +627,9 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                       >
                         Save & Send
                       </button>
+                      </>)}
 
+                      {hasPermission("pending.view") && (
                       <button
                         type="button"
                         onClick={() => handleViewRemarks(complaint)}
@@ -637,6 +642,7 @@ export default function PendingTable({ complaints, onRefresh }: Props) {
                       >
                         Remarks
                       </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -1,4 +1,5 @@
 import { AlertTriangle, Eye } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 import { useNavigate } from "react-router-dom";
 
 import type { DealerLedgerSummary } from "../types/ledger.types";
@@ -27,6 +28,7 @@ const headings = [
 
 export default function OutstandingTable({ summaries }: Props) {
   const navigate = useNavigate();
+  const { hasPermission } = usePermission();
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -103,6 +105,7 @@ export default function OutstandingTable({ summaries }: Props) {
                   </td>
 
                   <td className="px-4 py-3 text-center">
+                    {hasPermission("ledger.dealer.view") && (
                     <button
                       type="button"
                       disabled={!dealer?.id}
@@ -112,6 +115,7 @@ export default function OutstandingTable({ summaries }: Props) {
                       <Eye size={14} />
                       View Ledger
                     </button>
+                    )}
                   </td>
                 </tr>
               );

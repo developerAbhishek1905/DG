@@ -5,6 +5,7 @@ import {
   UserRound,
   History,
 } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getComplaintById } from "../services/complaintApi";
@@ -126,6 +127,7 @@ interface Complaint {
 
 export default function ComplaintDetailsPage() {
   const navigate = useNavigate();
+  const { hasPermission } = usePermission();
   const { id } = useParams<{ id: string }>();
 
   const [complaint, setComplaint] = useState<Complaint | null>(null);
@@ -239,6 +241,7 @@ export default function ComplaintDetailsPage() {
         {/* Right Actions */}
         <div className="flex items-center gap-2">
           {/* Activity */}
+          {hasPermission("complaints.activity") && (
           <button
             type="button"
             onClick={handleOpenActivity}
@@ -247,9 +250,10 @@ export default function ComplaintDetailsPage() {
             <History size={15} />
             Activity
           </button>
+          )}
 
           {/* Close Complaint */}
-          {[
+          {hasPermission("complaints.close") && [
             "IN_PROGRESS",
             "APPOINTMENT_COMPLETED",
             "SERVICE_COMPLETED",

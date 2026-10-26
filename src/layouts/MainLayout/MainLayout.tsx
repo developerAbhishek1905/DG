@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PermissionGuard from "../../routes/PermissionGuard";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
@@ -51,7 +52,9 @@ export default function MainLayout() {
 
         {/* Main Content Scroll Area */}
         <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6">
-          <Outlet />
+          <PermissionGuard>
+            <Outlet />
+          </PermissionGuard>
         </main>
       </div>
     </div>

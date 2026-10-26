@@ -2,6 +2,8 @@ import {
   getBillingTypeLabel,
   getLedgerStatusLabel,
 } from "../constants/billing.constants";
+import { usePermission } from "../../../hooks/usePermission";
+import { useAppSelector } from "../../../app/hooks";
 import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useState } from "react";
 import { CheckCircle2, Eye, Pencil } from "lucide-react";
@@ -26,6 +28,9 @@ export default function LedgerTable({
   onView,
   onEdit,
 }: Props) {
+  const { hasPermission } = usePermission();
+  const isDealerUser = useAppSelector((s) => s.auth.user?.role?.code) === "DEALER";
+  const can = (permission: string) => isDealerUser || hasPermission(permission);
   const [remarkTip, setRemarkTip] = useState<{
     text: string;
     top: number;
@@ -285,6 +290,7 @@ export default function LedgerTable({
     {/* {onEdit && 
     ledger.status === "PENDING" && 
     ( */}
+      {can("billing.update") && (
       <button
         type="button"
         title="Edit Ledger"
@@ -293,9 +299,10 @@ export default function LedgerTable({
       >
         <Pencil size={16} />
       </button>
+      )}
     {/* )} */}
 
-    {ledger.status === "PENDING" && onApprove && (
+    {ledger.status === "PENDING" && onApprove && can("billing.approve") && (
       <button
         type="button"
         title="Approve Ledger"

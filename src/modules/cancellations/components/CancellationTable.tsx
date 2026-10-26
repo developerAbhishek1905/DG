@@ -1,4 +1,5 @@
 import DateAndTimeFields from "../../../components/ui/DateAndTimeFields";
+import { usePermission } from "../../../hooks/usePermission";
 import { Ban, Loader2, RotateCcw, UserRoundPen } from "lucide-react";import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -154,6 +155,7 @@ export default function CancellationTable({
   onLimitChange,
 }: Props) {
   const navigate = useNavigate();
+  const { hasPermission } = usePermission();
 
   const [forms, setForms] = useState<Record<string, CancellationRowForm>>({});
 
@@ -545,6 +547,7 @@ export default function CancellationTable({
         >
           <UserRoundPen size={15} />
         </button> */}
+        {hasPermission("cancellations.reassign") && (
         <button
   type="button"
   onClick={() => onReassignDealer?.(request)}
@@ -558,8 +561,10 @@ export default function CancellationTable({
 >
   <UserRoundPen size={15} />
 </button>
+        )}
 
         {/* Reopen Complaint */}
+        {hasPermission("cancellations.reopen") && (
         <button
           type="button"
           onClick={() => onStatusChange?.(request, "REOPEN")}
@@ -569,8 +574,10 @@ export default function CancellationTable({
         >
           <RotateCcw size={15} />
         </button>
+        )}
 
         {/* Cancel Complaint */}
+        {hasPermission("cancellations.cancel") && (
         <button
           type="button"
           onClick={() => handleCancelComplaint(request)}
@@ -584,6 +591,7 @@ export default function CancellationTable({
             <Ban size={15} />
           )}
         </button>
+        )}
       </>
     )}
   </div>

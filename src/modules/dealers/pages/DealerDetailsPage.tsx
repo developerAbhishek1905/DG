@@ -171,7 +171,7 @@ export default function DealerDetailsPage() {
           </button>
         )} */}
         <div className="flex flex-wrap items-center gap-2">
-          {dealer.status === "ACTIVE" && (
+          {dealer.status === "ACTIVE" && hasPermission("dealers.leave") && (
             <button
               type="button"
               onClick={() => setLeaveModalOpen(true)}
@@ -181,7 +181,8 @@ export default function DealerDetailsPage() {
             </button>
           )}
 
-          {(dealer.status === "INACTIVE" || dealer.status === "SUSPENDED") && (
+          {(dealer.status === "INACTIVE" || dealer.status === "SUSPENDED") &&
+            hasPermission("dealers.rejoin") && (
             <button
               type="button"
               onClick={() => setRejoinModalOpen(true)}
@@ -191,6 +192,7 @@ export default function DealerDetailsPage() {
               Rejoin
             </button>
           )}
+          {hasPermission("dealers.rating") && (
           <button
             type="button"
             onClick={() => setRatingModalOpen(true)}
@@ -198,8 +200,9 @@ export default function DealerDetailsPage() {
           >
             Rating
           </button>
+          )}
 
-          {dealer.status !== "SUSPENDED" && (
+          {dealer.status !== "SUSPENDED" && hasPermission("dealers.suspend") && (
             <button
               type="button"
               onClick={() => setSuspendModalOpen(true)}
@@ -208,6 +211,7 @@ export default function DealerDetailsPage() {
               Suspend
             </button>
           )}
+          {hasPermission("dealers.leave_history") && (
           <button
             type="button"
             onClick={() => setLeaveHistoryOpen(true)}
@@ -221,6 +225,7 @@ export default function DealerDetailsPage() {
               </span>
             )}
           </button>
+          )}
 
           {hasPermission("dealers.update") && (
             <button

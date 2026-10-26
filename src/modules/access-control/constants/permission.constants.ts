@@ -162,6 +162,11 @@ export const PERMISSIONS = {
   DEALER_DELETE: "dealers.delete",
   DEALER_PERFORMANCE_VIEW: "dealers.performance.view",
   DEALER_CAPACITY_MANAGE: "dealers.capacity.manage",
+  DEALER_LEAVE: "dealers.leave",
+  DEALER_REJOIN: "dealers.rejoin",
+  DEALER_RATING: "dealers.rating",
+  DEALER_SUSPEND: "dealers.suspend",
+  DEALER_LEAVE_HISTORY: "dealers.leave_history",
 
   ITEM_ACCESS: "item.access",
 
@@ -205,6 +210,9 @@ export const PERMISSIONS = {
   COMPLAINT_CANCEL: "complaints.cancel",
   COMPLAINT_CLOSE: "complaints.close",
   COMPLAINT_VERIFY: "complaints.verify",
+  COMPLAINT_TABLE: "complaints.table",
+  COMPLAINT_SUSPEND: "complaints.suspend",
+  COMPLAINT_ACTIVITY: "complaints.activity",
 
   APPOINTMENT_VIEW: "appointments.view",
   APPOINTMENT_CREATE: "appointments.create",
@@ -213,6 +221,7 @@ export const PERMISSIONS = {
   APPOINTMENT_RESCHEDULE: "appointments.reschedule",
   APPOINTMENT_COMPLETE: "appointments.complete",
   APPOINTMENT_CANCEL: "appointments.cancel",
+  APPOINTMENT_TABLE: "appointments.table",
 
   PENDING_VIEW: "pending.view",
   PENDING_CREATE: "pending.create",
@@ -247,6 +256,12 @@ export const PERMISSIONS = {
   VERIFICATION_REJECT: "verification.reject",
   VERIFICATION_CORRECTION: "verification.correction",
   VERIFICATION_ASSIGN: "verification.assign",
+  PENDING_TABLE: "pending.table",
+  CANCELLATION_TABLE: "cancellations.table",
+  CANCELLATION_REOPEN: "cancellations.reopen",
+  CANCELLATION_CANCEL: "cancellations.cancel",
+  CLOSURE_TABLE: "closures.table",
+  CLOSURE_APPROVE: "closures.approve",
 
   BILLING_VIEW: "billing.view",
   BILLING_GENERATE: "billing.generate",
@@ -256,6 +271,10 @@ export const PERMISSIONS = {
   BILLING_RATE_CREATE: "billing.rates.create",
   BILLING_RATE_UPDATE: "billing.rates.update",
   BILLING_RATE_DELETE: "billing.rates.delete",
+  BILLING_TABLE: "billing.table",
+  BILLING_UPDATE: "billing.update",
+  BILLING_DUMMY: "billing.dummy",
+  LEDGER_CREATE: "ledger.create",
 
   LEDGER_VIEW: "ledger.view",
   LEDGER_DEALER_VIEW: "ledger.dealer.view",
@@ -307,6 +326,8 @@ export const PERMISSIONS = {
   ALLOCATION_ASSIGN: "allocation.assign",
   ALLOCATION_REASSIGN: "allocation.reassign",
   ALLOCATION_HISTORY_VIEW: "allocation.history.view",
+  ALLOCATION_ACCESS: "allocation.access",
+  DEALER_ACTIVITY_ACCESS: "dealers.activity.access",
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -319,13 +340,6 @@ export const PERMISSION_LIST: Permission[] = [
   //   action: "access",
   //   label: "Access Brand",
   // },
-  {
-    id: "P-001",
-    key: PERMISSIONS.DASHBOARD_ACCESS,
-    module: "Dashboard",
-    action: "access",
-    label: "Access Dashboard",
-  },
   {
     id: "P-002",
     key: PERMISSIONS.COMPLAINT_ACCESS,
@@ -1037,6 +1051,41 @@ export const PERMISSION_LIST: Permission[] = [
     action: "performance",
     label: "View Performance",
   },
+  {
+    id: "P-DEALER-LEAVE",
+    key: PERMISSIONS.DEALER_LEAVE,
+    module: "Dealers",
+    action: "leave",
+    label: "Mark Dealer Leave",
+  },
+  {
+    id: "P-DEALER-REJOIN",
+    key: PERMISSIONS.DEALER_REJOIN,
+    module: "Dealers",
+    action: "rejoin",
+    label: "Rejoin Dealer",
+  },
+  {
+    id: "P-DEALER-RATING",
+    key: PERMISSIONS.DEALER_RATING,
+    module: "Dealers",
+    action: "rating",
+    label: "Change Dealer Rating",
+  },
+  {
+    id: "P-DEALER-SUSPEND",
+    key: PERMISSIONS.DEALER_SUSPEND,
+    module: "Dealers",
+    action: "suspend",
+    label: "Suspend Dealer",
+  },
+  {
+    id: "P-DEALER-LEAVE_HISTORY",
+    key: PERMISSIONS.DEALER_LEAVE_HISTORY,
+    module: "Dealers",
+    action: "history",
+    label: "View Dealer Leave History",
+  },
 
   {
     id: "P-006",
@@ -1048,21 +1097,21 @@ export const PERMISSION_LIST: Permission[] = [
   {
     id: "P-007",
     key: PERMISSIONS.PENDING_ACCESS,
-    module: "Pending & SLA",
+    module: "Pending",
     action: "access",
     label: "Access Pending & SLA",
   },
   {
     id: "P-008",
     key: PERMISSIONS.CANCELLATION_ACCESS,
-    module: "Cancellation",
+    module: "Cancellations",
     action: "access",
     label: "Access Cancellation",
   },
   {
     id: "P-009",
     key: PERMISSIONS.CLOSURE_ACCESS,
-    module: "Closure History",
+    module: "Closures",
     action: "access",
     label: "Access Closure History",
   },
@@ -1088,20 +1137,6 @@ export const PERMISSION_LIST: Permission[] = [
     label: "Access Dealer Ledger",
   },
   {
-    id: "P-013",
-    key: PERMISSIONS.NOTIFICATION_ACCESS,
-    module: "Notifications",
-    action: "access",
-    label: "Access Notifications",
-  },
-  {
-    id: "P-014",
-    key: PERMISSIONS.AREA_ACCESS,
-    module: "Area Master",
-    action: "access",
-    label: "Access Area Master",
-  },
-  {
     id: "P-015",
     key: PERMISSIONS.USER_ACCESS,
     module: "Users",
@@ -1115,46 +1150,6 @@ export const PERMISSION_LIST: Permission[] = [
     action: "access",
     label: "Access Roles & Permissions",
   },
-  {
-    id: "P-098",
-    key: PERMISSIONS.DASHBOARD_VIEW,
-    module: "Dashboard",
-    action: "view",
-    label: "View Dashboard",
-  },
-
-  {
-    id: "P-099",
-    key: PERMISSIONS.DASHBOARD_OPERATIONS,
-    module: "Dashboard",
-    action: "operations",
-    label: "View Operational Dashboard Data",
-  },
-
-  {
-    id: "P-100",
-    key: PERMISSIONS.DASHBOARD_FINANCE,
-    module: "Dashboard",
-    action: "finance",
-    label: "View Financial Dashboard Data",
-  },
-
-  {
-    id: "P-101",
-    key: PERMISSIONS.DASHBOARD_DEALER_PERFORMANCE,
-    module: "Dashboard",
-    action: "dealer_performance",
-    label: "View Dealer Performance",
-  },
-
-  {
-    id: "P-102",
-    key: PERMISSIONS.DASHBOARD_SLA,
-    module: "Dashboard",
-    action: "sla",
-    label: "View SLA Dashboard Data",
-  },
-
   {
     id: "P-002",
     key: PERMISSIONS.USER_VIEW,
@@ -1383,6 +1378,34 @@ export const PERMISSION_LIST: Permission[] = [
     action: "verify",
     label: "Verify Complaint",
   },
+  {
+    id: "P-COMPLAINT-TABLE",
+    key: PERMISSIONS.COMPLAINT_TABLE,
+    module: "Complaints",
+    action: "table",
+    label: "View Complaints Table",
+  },
+  {
+    id: "P-COMPLAINT-SUSPEND",
+    key: PERMISSIONS.COMPLAINT_SUSPEND,
+    module: "Complaints",
+    action: "suspend",
+    label: "Suspend Complaint",
+  },
+  {
+    id: "P-COMPLAINT-CLOSE",
+    key: PERMISSIONS.COMPLAINT_CLOSE,
+    module: "Complaints",
+    action: "close",
+    label: "Close Complaint",
+  },
+  {
+    id: "P-COMPLAINT-ACTIVITY",
+    key: PERMISSIONS.COMPLAINT_ACTIVITY,
+    module: "Complaints",
+    action: "activity",
+    label: "View Complaint Activity",
+  },
 
   {
     id: "P-038",
@@ -1391,54 +1414,14 @@ export const PERMISSION_LIST: Permission[] = [
     action: "view",
     label: "View Appointments",
   },
-
   {
-    id: "P-039",
-    key: PERMISSIONS.APPOINTMENT_CREATE,
+    id: "P-APPOINTMENT-TABLE",
+    key: PERMISSIONS.APPOINTMENT_TABLE,
     module: "Appointments",
-    action: "create",
-    label: "Create Appointment",
+    action: "table",
+    label: "View Appointments Table",
   },
 
-  {
-    id: "P-040",
-    key: PERMISSIONS.APPOINTMENT_UPDATE,
-    module: "Appointments",
-    action: "update",
-    label: "Update Appointment",
-  },
-
-  {
-    id: "P-041",
-    key: PERMISSIONS.APPOINTMENT_CONFIRM,
-    module: "Appointments",
-    action: "confirm",
-    label: "Confirm Appointment",
-  },
-
-  {
-    id: "P-042",
-    key: PERMISSIONS.APPOINTMENT_RESCHEDULE,
-    module: "Appointments",
-    action: "reschedule",
-    label: "Reschedule Appointment",
-  },
-
-  {
-    id: "P-043",
-    key: PERMISSIONS.APPOINTMENT_COMPLETE,
-    module: "Appointments",
-    action: "complete",
-    label: "Complete Appointment",
-  },
-
-  {
-    id: "P-044",
-    key: PERMISSIONS.APPOINTMENT_CANCEL,
-    module: "Appointments",
-    action: "cancel",
-    label: "Cancel Appointment",
-  },
   {
     id: "P-045",
     key: PERMISSIONS.PENDING_VIEW,
@@ -1448,75 +1431,11 @@ export const PERMISSION_LIST: Permission[] = [
   },
 
   {
-    id: "P-046",
-    key: PERMISSIONS.PENDING_CREATE,
-    module: "Pending",
-    action: "create",
-    label: "Set Complaint Pending",
-  },
-
-  {
     id: "P-047",
     key: PERMISSIONS.PENDING_UPDATE,
     module: "Pending",
     action: "update",
     label: "Update Pending Complaint",
-  },
-
-  {
-    id: "P-048",
-    key: PERMISSIONS.PENDING_RESOLVE,
-    module: "Pending",
-    action: "resolve",
-    label: "Resolve Pending Complaint",
-  },
-
-  {
-    id: "P-049",
-    key: PERMISSIONS.PENDING_REASSIGN,
-    module: "Pending",
-    action: "reassign",
-    label: "Reassign Pending Complaint",
-  },
-
-  {
-    id: "P-050",
-    key: PERMISSIONS.PENDING_ESCALATE,
-    module: "Pending",
-    action: "escalate",
-    label: "Escalate Pending Complaint",
-  },
-
-  {
-    id: "P-051",
-    key: PERMISSIONS.PENDING_CANCEL,
-    module: "Pending",
-    action: "cancel",
-    label: "Cancel Pending Complaint",
-  },
-
-  {
-    id: "P-052",
-    key: PERMISSIONS.SLA_VIEW,
-    module: "SLA",
-    action: "view",
-    label: "View SLA Dashboard",
-  },
-
-  {
-    id: "P-053",
-    key: PERMISSIONS.SLA_REMINDER,
-    module: "SLA",
-    action: "reminder",
-    label: "Send SLA Reminder",
-  },
-
-  {
-    id: "P-054",
-    key: PERMISSIONS.SLA_MANAGE,
-    module: "SLA",
-    action: "manage",
-    label: "Manage SLA",
   },
 
   {
@@ -1550,244 +1469,26 @@ export const PERMISSION_LIST: Permission[] = [
     action: "reject",
     label: "Reject Bill",
   },
-
   {
-    id: "P-077",
-    key: PERMISSIONS.BILLING_RATE_VIEW,
-    module: "Rate Master",
-    action: "view",
-    label: "View Rates",
+    id: "P-BILLING-TABLE",
+    key: PERMISSIONS.BILLING_TABLE,
+    module: "Billing",
+    action: "table",
+    label: "View Billing Table",
   },
-
   {
-    id: "P-078",
-    key: PERMISSIONS.BILLING_RATE_CREATE,
-    module: "Rate Master",
-    action: "create",
-    label: "Create Rate",
-  },
-
-  {
-    id: "P-079",
-    key: PERMISSIONS.BILLING_RATE_UPDATE,
-    module: "Rate Master",
+    id: "P-BILLING-UPDATE",
+    key: PERMISSIONS.BILLING_UPDATE,
+    module: "Billing",
     action: "update",
-    label: "Update Rate",
-  },
-
-  {
-    id: "P-080",
-    key: PERMISSIONS.BILLING_RATE_DELETE,
-    module: "Rate Master",
-    action: "delete",
-    label: "Delete Rate",
-  },
-
-  {
-    id: "P-086",
-    key: PERMISSIONS.PAYMENT_VIEW,
-    module: "Payments",
-    action: "view",
-    label: "View Payments",
-  },
-
-  {
-    id: "P-087",
-    key: PERMISSIONS.PAYMENT_DETAILS_VIEW,
-    module: "Payments",
-    action: "details_view",
-    label: "View Payment Details",
-  },
-
-  {
-    id: "P-088",
-    key: PERMISSIONS.PAYMENT_CREATE,
-    module: "Payments",
-    action: "create",
-    label: "Record Payment",
-  },
-
-  {
-    id: "P-089",
-    key: PERMISSIONS.PAYMENT_APPROVE,
-    module: "Payments",
-    action: "approve",
-    label: "Approve Payment",
-  },
-
-  {
-    id: "P-090",
-    key: PERMISSIONS.PAYMENT_REJECT,
-    module: "Payments",
-    action: "reject",
-    label: "Reject Payment",
-  },
-
-  {
-    id: "P-091",
-    key: PERMISSIONS.PAYMENT_REVERSE,
-    module: "Payments",
-    action: "reverse",
-    label: "Reverse Payment",
-  },
-
-  {
-    id: "P-092",
-    key: PERMISSIONS.PAYMENT_EXPORT,
-    module: "Payments",
-    action: "export",
-    label: "Export Payments",
-  },
-
-  {
-    id: "P-103",
-    key: PERMISSIONS.REPORT_VIEW,
-    module: "Reports",
-    action: "view",
-    label: "View Reports",
-  },
-
-  {
-    id: "P-104",
-    key: PERMISSIONS.REPORT_COMPLAINT,
-    module: "Reports",
-    action: "complaint",
-    label: "View Complaint Report",
-  },
-
-  {
-    id: "P-105",
-    key: PERMISSIONS.REPORT_DEALER,
-    module: "Reports",
-    action: "dealer",
-    label: "View Dealer Report",
-  },
-
-  {
-    id: "P-106",
-    key: PERMISSIONS.REPORT_SLA,
-    module: "Reports",
-    action: "sla",
-    label: "View SLA Report",
-  },
-
-  {
-    id: "P-107",
-    key: PERMISSIONS.REPORT_CANCELLATION,
-    module: "Reports",
-    action: "cancellation",
-    label: "View Cancellation Report",
-  },
-
-  {
-    id: "P-108",
-    key: PERMISSIONS.REPORT_BILLING,
-    module: "Reports",
-    action: "billing",
-    label: "View Billing Report",
-  },
-
-  {
-    id: "P-109",
-    key: PERMISSIONS.REPORT_PAYMENT,
-    module: "Reports",
-    action: "payment",
-    label: "View Payment Report",
-  },
-
-  {
-    id: "P-110",
-    key: PERMISSIONS.REPORT_EXPORT,
-    module: "Reports",
-    action: "export",
-    label: "Export Reports",
+    label: "Update Bill",
   },
   {
-    id: "P-115",
-    key: PERMISSIONS.AUDIT_VIEW,
-    module: "Audit Logs",
-    action: "view",
-    label: "View Audit Logs",
-  },
-
-  {
-    id: "P-116",
-    key: PERMISSIONS.AUDIT_DETAILS,
-    module: "Audit Logs",
-    action: "details",
-    label: "View Audit Log Details",
-  },
-
-  {
-    id: "P-117",
-    key: PERMISSIONS.AUDIT_EXPORT,
-    module: "Audit Logs",
-    action: "export",
-    label: "Export Audit Logs",
-  },
-
-  {
-    id: "P-118",
-    key: PERMISSIONS.SETTINGS_VIEW,
-    module: "Settings",
-    action: "view",
-    label: "View Settings",
-  },
-
-  {
-    id: "P-119",
-    key: PERMISSIONS.SETTINGS_SLA,
-    module: "Settings",
-    action: "sla",
-    label: "Manage SLA Settings",
-  },
-
-  {
-    id: "P-120",
-    key: PERMISSIONS.SETTINGS_NOTIFICATION,
-    module: "Settings",
-    action: "notification",
-    label: "Manage Notification Settings",
-  },
-
-  {
-    id: "P-121",
-    key: PERMISSIONS.SETTINGS_BILLING,
-    module: "Settings",
-    action: "billing",
-    label: "Manage Billing Settings",
-  },
-
-  {
-    id: "P-122",
-    key: PERMISSIONS.SETTINGS_STATUS,
-    module: "Settings",
-    action: "status",
-    label: "Manage Status Settings",
-  },
-
-  {
-    id: "P-123",
-    key: PERMISSIONS.SETTINGS_CANCELLATION_REASON,
-    module: "Settings",
-    action: "cancellation_reason",
-    label: "Manage Cancellation Reasons",
-  },
-
-  {
-    id: "P-124",
-    key: PERMISSIONS.SETTINGS_PENDING_REASON,
-    module: "Settings",
-    action: "pending_reason",
-    label: "Manage Pending Reasons",
-  },
-
-  {
-    id: "P-125",
-    key: PERMISSIONS.SETTINGS_PERMISSION,
-    module: "Settings",
-    action: "permission",
-    label: "Manage Permission Settings",
+    id: "P-BILLING-DUMMY",
+    key: PERMISSIONS.BILLING_DUMMY,
+    module: "Billing",
+    action: "dummy",
+    label: "Create Dummy Bill",
   },
 
   {
@@ -1822,43 +1523,25 @@ export const PERMISSION_LIST: Permission[] = [
     label: "View Allocation History",
   },
   {
+    id: "P-ALLOCATION-ACCESS",
+    key: PERMISSIONS.ALLOCATION_ACCESS,
+    module: "Allocation",
+    action: "access",
+    label: "Access Dealer Allocation",
+  },
+  {
+    id: "P-DEALER-ACTIVITY-ACCESS",
+    key: PERMISSIONS.DEALER_ACTIVITY_ACCESS,
+    module: "Dealer Activity",
+    action: "access",
+    label: "Access Dealer Activity",
+  },
+  {
     id: "P-055",
     key: PERMISSIONS.CANCELLATION_VIEW,
     module: "Cancellations",
     action: "view",
     label: "View Cancellation Requests",
-  },
-
-  {
-    id: "P-056",
-    key: PERMISSIONS.CANCELLATION_CREATE,
-    module: "Cancellations",
-    action: "create",
-    label: "Request Cancellation",
-  },
-
-  {
-    id: "P-057",
-    key: PERMISSIONS.CANCELLATION_VERIFY,
-    module: "Cancellations",
-    action: "verify",
-    label: "Verify Customer",
-  },
-
-  {
-    id: "P-058",
-    key: PERMISSIONS.CANCELLATION_APPROVE,
-    module: "Cancellations",
-    action: "approve",
-    label: "Approve Cancellation",
-  },
-
-  {
-    id: "P-059",
-    key: PERMISSIONS.CANCELLATION_REJECT,
-    module: "Cancellations",
-    action: "reject",
-    label: "Reject Cancellation",
   },
 
   {
@@ -1877,95 +1560,51 @@ export const PERMISSION_LIST: Permission[] = [
   },
 
   {
-    id: "P-062",
-    key: PERMISSIONS.CLOSURE_CREATE,
+    id: "P-PENDING-TABLE",
+    key: PERMISSIONS.PENDING_TABLE,
+    module: "Pending",
+    action: "table",
+    label: "View Pending Table",
+  },
+  {
+    id: "P-CANCELLATION-TABLE",
+    key: PERMISSIONS.CANCELLATION_TABLE,
+    module: "Cancellations",
+    action: "table",
+    label: "View Cancellations Table",
+  },
+  {
+    id: "P-CANCELLATION-REOPEN",
+    key: PERMISSIONS.CANCELLATION_REOPEN,
+    module: "Cancellations",
+    action: "reopen",
+    label: "Reopen Complaint",
+  },
+  {
+    id: "P-CANCELLATION-CANCEL",
+    key: PERMISSIONS.CANCELLATION_CANCEL,
+    module: "Cancellations",
+    action: "cancel",
+    label: "Cancel Complaint",
+  },
+  {
+    id: "P-CLOSURE-TABLE",
+    key: PERMISSIONS.CLOSURE_TABLE,
     module: "Closures",
-    action: "create",
-    label: "Create Closure",
+    action: "table",
+    label: "View Closures Table",
   },
-
   {
-    id: "P-063",
-    key: PERMISSIONS.CLOSURE_SUBMIT,
+    id: "P-CLOSURE-APPROVE",
+    key: PERMISSIONS.CLOSURE_APPROVE,
     module: "Closures",
-    action: "submit",
-    label: "Submit Closure",
-  },
-
-  {
-    id: "P-064",
-    key: PERMISSIONS.CLOSURE_VERIFY,
-    module: "Closures",
-    action: "verify",
-    label: "Verify Closure",
-  },
-
-  {
-    id: "P-065",
-    key: PERMISSIONS.CLOSURE_REJECT,
-    module: "Closures",
-    action: "reject",
-    label: "Reject Closure",
-  },
-
-  {
-    id: "P-066",
-    key: PERMISSIONS.CLOSURE_HISTORY_VIEW,
-    module: "Closures",
-    action: "history",
-    label: "View Closure History",
-  },
-  {
-    id: "P-067",
-    key: PERMISSIONS.VERIFICATION_VIEW,
-    module: "Verification",
-    action: "view",
-    label: "View Verification Queue",
-  },
-
-  {
-    id: "P-068",
-    key: PERMISSIONS.VERIFICATION_REVIEW,
-    module: "Verification",
-    action: "review",
-    label: "Review Closure",
-  },
-
-  {
-    id: "P-069",
-    key: PERMISSIONS.VERIFICATION_VERIFY,
-    module: "Verification",
-    action: "verify",
-    label: "Verify Closure",
-  },
-
-  {
-    id: "P-070",
-    key: PERMISSIONS.VERIFICATION_REJECT,
-    module: "Verification",
-    action: "reject",
-    label: "Reject Closure",
-  },
-
-  {
-    id: "P-071",
-    key: PERMISSIONS.VERIFICATION_CORRECTION,
-    module: "Verification",
-    action: "correction",
-    label: "Request Correction",
-  },
-
-  {
-    id: "P-072",
-    key: PERMISSIONS.VERIFICATION_ASSIGN,
-    module: "Verification",
-    action: "assign",
-    label: "Assign Verifier",
+    action: "approve",
+    label: "Approve Closure",
   },
   {
     id: "P-081",
     key: PERMISSIONS.LEDGER_VIEW,
-    module: "Ledger",
+    module: "Dealer Ledger",
     action: "view",
     label: "View Ledger Overview",
   },
@@ -1973,7 +1612,7 @@ export const PERMISSION_LIST: Permission[] = [
   {
     id: "P-082",
     key: PERMISSIONS.LEDGER_DEALER_VIEW,
-    module: "Ledger",
+    module: "Dealer Ledger",
     action: "dealer_view",
     label: "View Dealer Ledger",
   },
@@ -1981,7 +1620,7 @@ export const PERMISSION_LIST: Permission[] = [
   {
     id: "P-083",
     key: PERMISSIONS.LEDGER_TRANSACTION_VIEW,
-    module: "Ledger",
+    module: "Dealer Ledger",
     action: "transaction_view",
     label: "View Ledger Transactions",
   },
@@ -1989,7 +1628,7 @@ export const PERMISSION_LIST: Permission[] = [
   {
     id: "P-084",
     key: PERMISSIONS.LEDGER_ADJUSTMENT_CREATE,
-    module: "Ledger",
+    module: "Dealer Ledger",
     action: "adjust",
     label: "Create Ledger Adjustment",
   },
@@ -1997,80 +1636,16 @@ export const PERMISSION_LIST: Permission[] = [
   {
     id: "P-085",
     key: PERMISSIONS.LEDGER_EXPORT,
-    module: "Ledger",
+    module: "Dealer Ledger",
     action: "export",
     label: "Export Dealer Ledger",
   },
-
   {
-    id: "P-093",
-    key: PERMISSIONS.RECONCILIATION_VIEW,
-    module: "Reconciliation",
-    action: "view",
-    label: "View Reconciliation",
+    id: "P-LEDGER-CREATE",
+    key: PERMISSIONS.LEDGER_CREATE,
+    module: "Dealer Ledger",
+    action: "create",
+    label: "Add Ledger Entry",
   },
 
-  {
-    id: "P-094",
-    key: PERMISSIONS.RECONCILIATION_DETAILS_VIEW,
-    module: "Reconciliation",
-    action: "details_view",
-    label: "View Reconciliation Details",
-  },
-
-  {
-    id: "P-095",
-    key: PERMISSIONS.RECONCILIATION_RECONCILE,
-    module: "Reconciliation",
-    action: "reconcile",
-    label: "Reconcile Difference",
-  },
-
-  {
-    id: "P-096",
-    key: PERMISSIONS.RECONCILIATION_MARK_MATCHED,
-    module: "Reconciliation",
-    action: "mark_matched",
-    label: "Mark Reconciliation Matched",
-  },
-
-  {
-    id: "P-097",
-    key: PERMISSIONS.RECONCILIATION_EXPORT,
-    module: "Reconciliation",
-    action: "export",
-    label: "Export Reconciliation",
-  },
-
-  {
-    id: "P-111",
-    key: PERMISSIONS.NOTIFICATION_VIEW,
-    module: "Notifications",
-    action: "view",
-    label: "View Notifications",
-  },
-
-  {
-    id: "P-112",
-    key: PERMISSIONS.NOTIFICATION_READ,
-    module: "Notifications",
-    action: "read",
-    label: "Mark Notifications Read",
-  },
-
-  {
-    id: "P-113",
-    key: PERMISSIONS.NOTIFICATION_DELETE,
-    module: "Notifications",
-    action: "delete",
-    label: "Delete Notification",
-  },
-
-  {
-    id: "P-114",
-    key: PERMISSIONS.NOTIFICATION_CLEAR,
-    module: "Notifications",
-    action: "clear",
-    label: "Clear Notifications",
-  },
 ];

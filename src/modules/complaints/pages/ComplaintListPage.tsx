@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { usePermission } from "../../../hooks/usePermission";
 import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ import { useDebounce } from "../../../hooks/useDebounce";
 
 export default function ComplaintListPage() {
   const navigate = useNavigate();
+  const { hasPermission } = usePermission();
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -156,14 +158,16 @@ export default function ComplaintListPage() {
           <h1 className="text-2xl font-bold text-gray-900">Complaints</h1>
         </div>
 
-        <button
-          type="button"
-          onClick={() => navigate("/complaints/create")}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
-        >
-          <Plus size={18} />
-          Create Complaint
-        </button>
+        {hasPermission("complaints.create") && (
+          <button
+            type="button"
+            onClick={() => navigate("/complaints/create")}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
+          >
+            <Plus size={18} />
+            Create Complaint
+          </button>
+        )}
       </div>
 
       {/* =========================
