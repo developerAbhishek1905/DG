@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { TableSkeletonRows } from "../../../components/ui/TableSkeleton";
 import { useDebounce } from "../../../hooks/useDebounce";
 import {
   getAllocationHistory,
@@ -96,11 +97,7 @@ export default function AllocationHistoryTable() {
 
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr>
-                  <td colSpan={3} className="px-4 py-12 text-center text-gray-500">
-                    Loading allocation history...
-                  </td>
-                </tr>
+                <TableSkeletonRows cols={3} />
               ) : rows.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="px-4 py-12 text-center text-gray-500">

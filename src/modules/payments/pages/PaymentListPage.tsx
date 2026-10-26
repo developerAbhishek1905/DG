@@ -4,6 +4,7 @@ import {
   Search,
 } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   useEffect,
   useMemo,
@@ -393,9 +394,7 @@ export default function PaymentListPage() {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center">
-          Loading payments...
-        </div>
+        <TableSkeleton />
       ) : (
         <PaymentTable
           payments={filtered}

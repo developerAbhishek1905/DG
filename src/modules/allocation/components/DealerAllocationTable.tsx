@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { TableSkeletonRows } from "../../../components/ui/TableSkeleton";
 import { toast } from "react-toastify";
 
 import { useDebounce } from "../../../hooks/useDebounce";
@@ -166,11 +167,7 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
 
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr>
-                  <td colSpan={headings.length} className="px-4 py-12 text-center text-gray-500">
-                    Loading dealer allocations...
-                  </td>
-                </tr>
+                <TableSkeletonRows cols={headings.length} />
               ) : rows.length === 0 ? (
                 <tr>
                   <td colSpan={headings.length} className="px-4 py-12 text-center text-gray-500">

@@ -1,5 +1,6 @@
 // import { ArrowLeft, Eye, RotateCcw, Search } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   ArrowLeft,
   CircleCheck,
@@ -831,9 +832,7 @@ useEffect(() => {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center">
-          Loading closure history...
-        </div>
+        <TableSkeleton />
       ) : (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="w-full overflow-x-auto">

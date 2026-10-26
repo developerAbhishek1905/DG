@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { TableSkeletonRows } from "../../../components/ui/TableSkeleton";
 import {
   Plus,
   Pencil,
@@ -654,11 +655,7 @@ export default function AccountPage() {
 
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr>
-                  <td colSpan={6} className="py-10 text-center text-gray-500">
-                    Loading accounts...
-                  </td>
-                </tr>
+                <TableSkeletonRows cols={6} />
               ) : accounts.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-10 text-center text-gray-500">

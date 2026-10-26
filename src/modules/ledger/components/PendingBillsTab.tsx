@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { TableSkeletonRows } from "../../../components/ui/TableSkeleton";
 import DateRangeFilter from "./DateRangeFilter";
 import {
   getDealerPendingBills,
@@ -88,11 +89,7 @@ export default function PendingBillsTab({ dealerId }: { dealerId: string }) {
 
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
-                    Loading pending bills...
-                  </td>
-                </tr>
+                <TableSkeletonRows cols={9} />
               ) : !data || data.rows.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-12 text-center text-gray-500">

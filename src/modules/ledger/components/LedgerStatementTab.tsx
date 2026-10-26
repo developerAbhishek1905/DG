@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { TableSkeletonRows } from "../../../components/ui/TableSkeleton";
 import DateRangeFilter from "./DateRangeFilter";
 import { getDealerStatement, type DealerStatement } from "../services/ledgerApi";
 
@@ -90,11 +91,7 @@ export default function LedgerStatementTab({ dealerId }: { dealerId: string }) {
 
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
-                    Loading ledger...
-                  </td>
-                </tr>
+                <TableSkeletonRows cols={6} />
               ) : !data ? null : (
                 <>
                   {from && (

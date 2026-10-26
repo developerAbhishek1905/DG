@@ -1,4 +1,5 @@
 import { Edit3, Power, Trash2 } from "lucide-react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useEffect, useMemo, useState } from "react";
 import type { Category } from "../types/category.types";
 import { usePermission } from "../../../hooks/usePermission";
@@ -62,9 +63,7 @@ export default function CategoryTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-10 text-center">
-        Loading categories...
-      </div>
+      <TableSkeleton />
     );
   }
 

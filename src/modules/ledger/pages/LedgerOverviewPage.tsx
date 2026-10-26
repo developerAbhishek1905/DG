@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   CircleDollarSign,
   Landmark,
@@ -228,9 +229,7 @@ export default function LedgerOverviewPage() {
 
   if (loading && summaries.length === 0) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading ledger...
-      </div>
+      <TableSkeleton />
     );
   }
 

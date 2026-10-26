@@ -1,4 +1,5 @@
 import { getPanelBase } from "../../../utils/panelPath";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { CalendarDays, Plus } from "lucide-react";
 
 import { useEffect, useState, useCallback } from "react";
@@ -280,9 +281,7 @@ export default function AppointmentListPage() {
       {/* Table */}
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center text-sm text-gray-500">
-          Loading appointments...
-        </div>
+        <TableSkeleton />
       ) : (
         <AppointmentTable
           appointments={appointments}

@@ -1,5 +1,6 @@
 import { Edit3, PackageSearch, Trash2 } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import type { Product } from "../types/product.types";
 import { usePermission } from "../../../hooks/usePermission";
 import Pagination from "../../../components/ui/Pagination";
@@ -33,9 +34,7 @@ export default function ProductTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
-        Loading products...
-      </div>
+      <TableSkeleton />
     );
   }
 

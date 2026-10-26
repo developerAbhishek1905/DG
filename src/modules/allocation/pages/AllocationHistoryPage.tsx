@@ -5,6 +5,7 @@ import {
   Search,
 } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   useEffect,
   useMemo,
@@ -206,9 +207,7 @@ export default function AllocationHistoryPage() {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center">
-          Loading allocation history...
-        </div>
+        <TableSkeleton />
       ) : (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="overflow-x-auto">

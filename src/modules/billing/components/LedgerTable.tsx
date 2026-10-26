@@ -2,6 +2,7 @@ import {
   getBillingTypeLabel,
   getLedgerStatusLabel,
 } from "../constants/billing.constants";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useState } from "react";
 import { CheckCircle2, Eye, Pencil } from "lucide-react";
 
@@ -88,9 +89,7 @@ export default function LedgerTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
-        Loading ledger...
-      </div>
+      <TableSkeleton />
     );
   }
 

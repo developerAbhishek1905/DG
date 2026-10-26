@@ -1,4 +1,5 @@
 import { Edit3, Trash2 } from "lucide-react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import type { CityMaster } from "../types/city.types";
 import { usePermission } from "../../../hooks/usePermission";
 import Pagination from "../../../components/ui/Pagination";
@@ -32,9 +33,7 @@ export default function CityTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
-        Loading cities...
-      </div>
+      <TableSkeleton />
     );
   }
 

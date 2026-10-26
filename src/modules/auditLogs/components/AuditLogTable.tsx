@@ -2,6 +2,7 @@ import {
   Eye,
 } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   useAppDispatch,
 } from "../../../app/hooks";
@@ -79,11 +80,7 @@ export default function AuditLogTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-        <p className="text-sm text-gray-500">
-          Loading audit logs...
-        </p>
-      </div>
+      <TableSkeleton />
     );
   }
 

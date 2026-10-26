@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ComplaintFilters from "../components/ComplaintFilters";
@@ -201,9 +202,7 @@ export default function ComplaintListPage() {
       ========================== */}
 
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-          <p className="text-sm text-gray-500">Loading complaints...</p>
-        </div>
+        <TableSkeleton />
       ) : complaints.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
           <p className="text-sm font-medium text-gray-700">

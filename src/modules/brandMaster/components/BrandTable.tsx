@@ -1,4 +1,5 @@
 import { Edit3, Trash2 } from "lucide-react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useEffect, useMemo, useState } from "react";
 import type { Brand } from "../types/brand.types";
 import { usePermission } from "../../../hooks/usePermission";
@@ -60,9 +61,7 @@ export default function BrandTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
-        Loading brands...
-      </div>
+      <TableSkeleton />
     );
   }
 

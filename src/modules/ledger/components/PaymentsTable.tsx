@@ -1,4 +1,5 @@
 import { useState } from "react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
   ChevronDown,
   ChevronUp,
@@ -75,9 +76,7 @@ export default function PaymentsTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
-        Loading dealer payments...
-      </div>
+      <TableSkeleton />
     );
   }
 

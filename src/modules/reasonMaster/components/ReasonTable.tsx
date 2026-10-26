@@ -1,4 +1,5 @@
 import { Edit3, Power, Trash2 } from "lucide-react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import type { Reason } from "../types/reason.types";
 import { usePermission } from "../../../hooks/usePermission";
 
@@ -25,9 +26,7 @@ export default function ReasonTable({
 
   if (loading) {
     return (
-      <div className="flex min-h-75 items-center justify-center">
-        <p className="text-sm text-gray-500">Loading reasons...</p>
-      </div>
+      <TableSkeleton />
     );
   }
 

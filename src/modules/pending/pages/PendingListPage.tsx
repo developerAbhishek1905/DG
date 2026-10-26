@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 // import { useCallback, useEffect, useState } from "react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
@@ -908,9 +909,7 @@ export default function PendingListPage() {
       {/* Table */}
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center text-sm text-gray-500">
-          Loading pending complaints...
-        </div>
+        <TableSkeleton />
       ) : (
         <>
           {/* <PendingTable

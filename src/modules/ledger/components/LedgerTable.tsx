@@ -1,5 +1,6 @@
 import { CheckCircle2, Eye } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import type { DealerLedger } from "../types/billing.types";
 
 interface Props {
@@ -119,9 +120,7 @@ export default function LedgerTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-        <p className="text-sm text-gray-500">Loading ledger transactions...</p>
-      </div>
+      <TableSkeleton />
     );
   }
 

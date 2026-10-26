@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
@@ -95,9 +96,7 @@ export default function RoleListPage() {
       </div>
 
 {    hasPermission("roles.view") && (loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center">
-          Loading roles...
-        </div>
+        <TableSkeleton />
       ) : (
         <RoleTable roles={filteredRoles} onDelete={deleteRole} />
       ))}

@@ -1,4 +1,5 @@
 import { Edit3, MapPin, Power } from "lucide-react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import type { Area } from "../types/area.types";
 import AreaStatusBadge from "./AreaStatusBadge";
 import { usePermission } from "../../../hooks/usePermission";
@@ -33,9 +34,7 @@ export default function AreaTable({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
-        Loading areas...
-      </div>
+      <TableSkeleton />
     );
   }
 

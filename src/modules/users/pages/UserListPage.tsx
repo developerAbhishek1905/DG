@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 
+import UserTableSkeleton from "../components/UserTableSkeleton";
 import { useNavigate } from "react-router-dom";
 
 import { useAppSelector } from "../../../app/hooks";
@@ -61,9 +62,7 @@ export default function UserListPage() {
       <UserFilters roles={roles} />
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-12 text-center text-sm text-gray-500">
-          Loading users...
-        </div>
+        <UserTableSkeleton />
       ) : (
         <UserTable users={filteredUsers} onDelete={deleteUser} />
       )}

@@ -2,6 +2,7 @@ import {
   BellOff,
 } from "lucide-react";
 
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import NotificationItem from "./NotificationItem";
 
 import type {
@@ -20,11 +21,7 @@ export default function NotificationList({
 }: Props) {
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-        <p className="text-sm text-gray-500">
-          Loading notifications...
-        </p>
-      </div>
+      <TableSkeleton />
     );
   }
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { ArrowLeft, History, Play, Save, Settings, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -204,9 +205,7 @@ export default function AllocationPage() {
         {view === "history" && <AllocationHistoryTable />}
 
         {view === "settings" && (loading ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
-            Loading settings...
-          </div>
+          <TableSkeleton />
         ) : (
           <div className="space-y-5">
             {/* Date range + on/off */}

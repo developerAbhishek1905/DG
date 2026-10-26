@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import TableSkeleton from "../../../components/ui/TableSkeleton";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -131,9 +132,7 @@ export default function DealerListPage() {
           {/* CONTENT */}
 
           {loading ? (
-            <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
-              Loading dealers...
-            </div>
+            <TableSkeleton />
           ) : dealers.length === 0 ? (
             <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
               <p className="text-sm font-medium text-gray-700">
