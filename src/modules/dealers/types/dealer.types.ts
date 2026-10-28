@@ -23,6 +23,7 @@ export interface DealerProductClosure {
   title: string;
   rate: number;
   autoBill: boolean;
+  defaultBill: boolean;
 }
 
 export interface DealerProductService {

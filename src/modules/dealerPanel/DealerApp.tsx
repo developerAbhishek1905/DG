@@ -1347,7 +1347,7 @@ export default function DealerApp() {
   const [billingBusy, setBillingBusy] = useState(false);
   const [closingReason, setClosingReason] = useState("");
   const [cats, setCats] = useState<{ _id: string; category: string }[]>([]);
-  const [closures, setClosures] = useState<{ closureId: string; title: string; rate: number; autoBill: boolean }[]>([]);
+  const [closures, setClosures] = useState<{ closureId: string; title: string; rate: number; autoBill: boolean; defaultBill: boolean }[]>([]);
   const [catsLoading, setCatsLoading] = useState(false);
   const [bf, setBf] = useState({ cat: "", customer: "", profit: "", wv: "", wu: "MONTHS" as "DAYS" | "MONTHS" });
 
@@ -1403,7 +1403,7 @@ export default function DealerApp() {
         const list = res.data?.data ?? [];
         setClosures(list);
         if (list.length > 0) {
-          setBf((p) => ({ ...p, cat: (list.find((x: { autoBill: boolean }) => x.autoBill) ?? list[0]).closureId }));
+          setBf((p) => ({ ...p, cat: (list.find((x: { defaultBill: boolean }) => x.defaultBill) ?? list[0]).closureId }));
           return undefined;
         }
         return searchCategories({ productId }).then((items) =>
@@ -1453,10 +1453,16 @@ export default function DealerApp() {
               warrantyAssured: v.warrantyAssured,
               closingReason,
             };
-      await updateAppointmentStatus(billingId, "CLOSE_ON_BILLING", payload);
+      const closed = await updateAppointmentStatus(billingId, "CLOSE_ON_BILLING", payload);
       setSheet(null);
       await loadCalls();
-      toast(billingType === "FIXED" ? "Complaint closed – sent for verification" : "Billing submitted for approval");
+      toast(
+        billingType === "FIXED"
+          ? closed?.status === "CLOSED"
+            ? "Complaint closed – bill approved automatically"
+            : "Complaint closed – sent for verification"
+          : "Billing submitted for approval",
+      );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast(err?.response?.data?.message || err?.response?.data?.error || "Failed to close the complaint");

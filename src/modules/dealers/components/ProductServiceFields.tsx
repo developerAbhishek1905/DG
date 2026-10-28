@@ -290,8 +290,13 @@ export default function ProductServiceFields({
                         {closure.rate > 0 && (
                           <span className="ml-1 font-semibold">₹{closure.rate}</span>
                         )}
-                        {closure.autoBill && (
+                        {closure.defaultBill && (
                           <span className="ml-1 rounded bg-emerald-600 px-1 text-[9px] font-semibold text-white">
+                            DEFAULT BILL
+                          </span>
+                        )}
+                        {closure.autoBill && (
+                          <span className="ml-1 rounded bg-blue-600 px-1 text-[9px] font-semibold text-white">
                             AUTO BILL
                           </span>
                         )}

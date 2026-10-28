@@ -124,6 +124,7 @@ export interface DealerClosureOption {
   title: string;
   rate: number;
   autoBill: boolean;
+  defaultBill: boolean;
 }
 
 export const getClosureOptions = async (

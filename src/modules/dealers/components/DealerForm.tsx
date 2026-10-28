@@ -347,6 +347,7 @@ export default function DealerForm({
               title: closure.title ?? "",
               rate: Number(closure.rate ?? 0),
               autoBill: Boolean(closure.autoBill),
+              defaultBill: Boolean(closure.defaultBill),
             })) ?? [],
         })) ?? [],
 
