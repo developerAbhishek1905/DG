@@ -341,6 +341,13 @@ export default function DealerForm({
               description: category.description ?? "",
               rate: Number(category.rate ?? 0),
             })) ?? [],
+          closures:
+            product.closures?.map((closure: any) => ({
+              closureId: String(closure.closureId ?? closure._id ?? ""),
+              title: closure.title ?? "",
+              rate: Number(closure.rate ?? 0),
+              autoBill: Boolean(closure.autoBill),
+            })) ?? [],
         })) ?? [],
 
       openingBalanceType: dealer.openingBalanceType,

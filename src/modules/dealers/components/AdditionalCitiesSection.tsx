@@ -1,4 +1,5 @@
 import { MapPin, Plus, Trash2, X } from "lucide-react";
+import ClosureMasterModal from "./ClosureMasterModal";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -23,7 +24,9 @@ interface Props {
 const emptyCity = (): DealerAdditionalCity => ({
   cityId: undefined,
   city: "",
-  productServices: [{ productId: undefined, productName: "", categories: [] }],
+  productServices: [
+    { productId: undefined, productName: "", categories: [], closures: [] },
+  ],
   combinedCapacity: { products: [], capacity: 0 },
   individualCapacities: [],
 });
@@ -68,6 +71,11 @@ export default function AdditionalCitiesSection({
   const [productsLoading, setProductsLoading] = useState(false);
 
   const [servicesModal, setServicesModal] = useState<{
+    cityIndex: number;
+    productIndex: number;
+  } | null>(null);
+
+  const [closureModal, setClosureModal] = useState<{
     cityIndex: number;
     productIndex: number;
   } | null>(null);
@@ -208,7 +216,7 @@ export default function AdditionalCitiesSection({
                         key={pIndex}
                         className="rounded-lg border border-gray-200 bg-gray-50/50 p-2.5"
                       >
-                        <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-end gap-2">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-end gap-2">
                           <SearchSelect
                             label={`Product ${pIndex + 1}`}
                             value={item.productName}
@@ -240,6 +248,7 @@ export default function AdditionalCitiesSection({
                                         productId: product.product_id,
                                         productName: product.product_name,
                                         categories: [],
+                                        closures: [],
                                       }
                                     : s,
                                 ),
@@ -253,6 +262,7 @@ export default function AdditionalCitiesSection({
                                         productId: undefined,
                                         productName: "",
                                         categories: [],
+                                        closures: [],
                                       }
                                     : s,
                                 ),
@@ -272,6 +282,20 @@ export default function AdditionalCitiesSection({
                             className="h-8 whitespace-nowrap rounded-md bg-blue-600 px-3 text-xs font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                           >
                             Services
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={!item.productId}
+                            onClick={() =>
+                              setClosureModal({
+                                cityIndex: index,
+                                productIndex: pIndex,
+                              })
+                            }
+                            className="h-8 whitespace-nowrap rounded-md bg-emerald-600 px-3 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                          >
+                            Closure
                           </button>
 
                           <button
@@ -335,6 +359,57 @@ export default function AdditionalCitiesSection({
                             ))}
                           </div>
                         )}
+
+                        {(item.closures?.length ?? 0) > 0 && (
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            <span className="mr-1 text-[10px] font-medium text-gray-500">
+                              Closures:
+                            </span>
+
+                            {item.closures?.map((closure) => (
+                              <div
+                                key={closure.closureId}
+                                className="flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-700"
+                              >
+                                <span>
+                        {closure.title}
+                        {closure.rate > 0 && (
+                          <span className="ml-1 font-semibold">₹{closure.rate}</span>
+                        )}
+                        {closure.autoBill && (
+                          <span className="ml-1 rounded bg-emerald-600 px-1 text-[9px] font-semibold text-white">
+                            AUTO BILL
+                          </span>
+                        )}
+                      </span>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setServices(
+                                      services.map((s, i) =>
+                                        i === pIndex
+                                          ? {
+                                              ...s,
+                                              closures: (s.closures ?? []).filter(
+                                                (c) =>
+                                                  c.closureId !==
+                                                  closure.closureId,
+                                              ),
+                                            }
+                                          : s,
+                                      ),
+                                    )
+                                  }
+                                  className="ml-0.5 text-emerald-400 hover:text-red-600"
+                                  title="Remove closure"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
 
@@ -347,6 +422,7 @@ export default function AdditionalCitiesSection({
                             productId: undefined,
                             productName: "",
                             categories: [],
+                            closures: [],
                           },
                         ])
                       }
@@ -627,6 +703,36 @@ export default function AdditionalCitiesSection({
         <Plus size={17} />
         Add City
       </button>
+
+      {closureModal &&
+        (() => {
+          const product =
+            value[closureModal.cityIndex]?.productServices[
+              closureModal.productIndex
+            ];
+
+          if (!product) return null;
+
+          return (
+            <ClosureMasterModal
+              productId={product.productId}
+              productName={product.productName}
+              selected={product.closures ?? []}
+              onClose={() => setClosureModal(null)}
+              onSave={(closures) => {
+                const city = value[closureModal.cityIndex];
+
+                updateCity(closureModal.cityIndex, {
+                  productServices: city.productServices.map((p, i) =>
+                    i === closureModal.productIndex ? { ...p, closures } : p,
+                  ),
+                });
+
+                setClosureModal(null);
+              }}
+            />
+          );
+        })()}
 
       {servicesModal &&
         (() => {

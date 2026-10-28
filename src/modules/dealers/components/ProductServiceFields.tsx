@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from "lucide-react";
+import ClosureMasterModal from "./ClosureMasterModal";
 import { useEffect, useState } from "react";
 
 import type {
@@ -55,6 +56,10 @@ export default function ProductServiceFields({
     number | null
   >(null);
 
+  const [closureModalProductIndex, setClosureModalProductIndex] = useState<
+    number | null
+  >(null);
+
   const loadProducts = async (search = "") => {
     try {
       setLoadingProducts(true);
@@ -100,8 +105,13 @@ export default function ProductServiceFields({
                 {...register(`productServices.${index}.categories`)}
               />
 
+              <input
+                type="hidden"
+                {...register(`productServices.${index}.closures`)}
+              />
+
               {/* Product row */}
-              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-end gap-2">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-end gap-2">
                 <SearchSelect
                   label={`Product ${index + 1}`}
                   value={item?.productName ?? ""}
@@ -149,6 +159,11 @@ export default function ProductServiceFields({
                       shouldValidate: true,
                       shouldDirty: true,
                     });
+
+                    setValue(`productServices.${index}.closures`, [], {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
                   }}
                   onClear={() => {
                     setValue(`productServices.${index}.productId`, undefined, {
@@ -159,6 +174,11 @@ export default function ProductServiceFields({
                     setValue(`productServices.${index}.productName`, "");
 
                     setValue(`productServices.${index}.categories`, [], {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+
+                    setValue(`productServices.${index}.closures`, [], {
                       shouldValidate: true,
                       shouldDirty: true,
                     });
@@ -177,6 +197,16 @@ export default function ProductServiceFields({
                   className="h-8 whitespace-nowrap rounded-md bg-blue-600 px-3 text-xs font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                 >
                   Services
+                </button>
+
+                {/* Closure Master */}
+                <button
+                  type="button"
+                  disabled={!item?.productId}
+                  onClick={() => setClosureModalProductIndex(index)}
+                  className="h-8 whitespace-nowrap rounded-md bg-emerald-600 px-3 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                >
+                  Closure
                 </button>
 
                 {/* Remove */}
@@ -243,6 +273,51 @@ export default function ProductServiceFields({
                 </div>
               )}
 
+              {/* Selected Closures */}
+              {(item?.closures?.length ?? 0) > 0 && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span className="mr-1 text-[10px] font-medium text-gray-500">
+                    Closures:
+                  </span>
+
+                  {item?.closures?.map((closure) => (
+                    <div
+                      key={closure.closureId}
+                      className="flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-700"
+                    >
+                      <span>
+                        {closure.title}
+                        {closure.rate > 0 && (
+                          <span className="ml-1 font-semibold">₹{closure.rate}</span>
+                        )}
+                        {closure.autoBill && (
+                          <span className="ml-1 rounded bg-emerald-600 px-1 text-[9px] font-semibold text-white">
+                            AUTO BILL
+                          </span>
+                        )}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setValue(
+                            `productServices.${index}.closures`,
+                            (item?.closures ?? []).filter(
+                              (c) => c.closureId !== closure.closureId,
+                            ),
+                            { shouldValidate: true, shouldDirty: true },
+                          )
+                        }
+                        className="ml-0.5 text-emerald-400 hover:text-red-600"
+                        title="Remove closure"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Validation */}
               {errors.productServices?.[index]?.categories && (
                 <p className="mt-1 text-[10px] text-red-600">
@@ -261,6 +336,7 @@ export default function ProductServiceFields({
               productId: undefined,
               productName: "",
               categories: [],
+              closures: [],
             })
           }
           className="inline-flex h-8 items-center gap-1.5 rounded-md border border-blue-600 px-3 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
@@ -269,6 +345,25 @@ export default function ProductServiceFields({
           Add Product
         </button>
       </div>
+
+      {/* Closure Master Modal */}
+      {closureModalProductIndex !== null && (
+        <ClosureMasterModal
+          productId={productServices[closureModalProductIndex]?.productId}
+          productName={productServices[closureModalProductIndex]?.productName}
+          selected={productServices[closureModalProductIndex]?.closures ?? []}
+          onClose={() => setClosureModalProductIndex(null)}
+          onSave={(closures) => {
+            setValue(
+              `productServices.${closureModalProductIndex}.closures`,
+              closures,
+              { shouldValidate: true, shouldDirty: true },
+            );
+
+            setClosureModalProductIndex(null);
+          }}
+        />
+      )}
 
       {/* Services Modal */}
       {servicesModalProductIndex !== null && (

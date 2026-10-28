@@ -28,7 +28,14 @@ const SECTIONS: { title: string; modules: string[] }[] = [
   { title: "Account Management", modules: ["Billing", "Dealer Ledger"] },
   {
     title: "Product Management",
-    modules: ["Product Master", "Category", "Brand", "Product Type", "Product"],
+    modules: [
+      "Product Master",
+      "Category",
+      "Brand",
+      "Product Type",
+      "Product",
+      "Closure Master",
+    ],
   },
   {
     title: "Address Master",

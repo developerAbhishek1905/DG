@@ -158,6 +158,13 @@ export interface ClosureRecord extends BaseClosure {
   // Category chosen by the dealer when closing / at verification
   dealerClosureCategoryId?: string | null;
   dealerClosureCategory?: string;
+  dealerClosureId?: string;
+  dealerClosureTitle?: string;
+  dealerClosureRate?: number;
+  closureId?: string;
+  closureTitle?: string;
+  closureRate?: number;
+  verifiedClosureTitle?: string;
   verifiedCategoryId?: string | null;
   verifiedCategory?: string;
 

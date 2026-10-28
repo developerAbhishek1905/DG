@@ -18,11 +18,20 @@ export interface DealerProductCategory {
   rate: number;
 }
 
+export interface DealerProductClosure {
+  closureId: string;
+  title: string;
+  rate: number;
+  autoBill: boolean;
+}
+
 export interface DealerProductService {
   productId: number | undefined;
   productName: string;
 
   categories: DealerProductCategory[];
+
+  closures?: DealerProductClosure[];
 }
 
 export interface DealerCapacityProduct {

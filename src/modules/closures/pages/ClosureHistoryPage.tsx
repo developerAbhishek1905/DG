@@ -22,6 +22,9 @@ import {
   approveClosure,
   createRatingReview,
   updateClosureCategory,
+  updateClosureChoice,
+  getClosureOptions,
+  type DealerClosureOption,
 } from "../services/closureApi";
 import { searchCategories } from "../../complaints/services/complaintApi";
 
@@ -252,6 +255,21 @@ const [citySearch, setCitySearch] = useState<string>("");
       toast.error(
         error?.response?.data?.message || "Failed to update category",
       );
+    }
+  };
+
+  const handleClosureChange = async (
+    closure: ClosureRecord,
+    closureId: string,
+  ) => {
+    try {
+      await updateClosureChoice(closure._id, closureId);
+
+      toast.success("Closure updated, bill amount recalculated");
+
+      await loadClosures(true);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to update closure");
     }
   };
 
@@ -903,6 +921,7 @@ useEffect(() => {
                       isApproving={approvingId === closure._id}
                       onApprove={handleApproveClosure}
                       onCategoryChange={handleCategoryChange}
+                      onClosureChange={handleClosureChange}
                       onNavigate={(id) => navigate(`/complaints/${id}`)}
                       onReview={setReviewClosure}
                     />
@@ -987,6 +1006,11 @@ interface ClosureRowProps {
     categoryId: string,
   ) => Promise<void>;
 
+  onClosureChange: (
+    closure: ClosureRecord,
+    closureId: string,
+  ) => Promise<void>;
+
   onNavigate: (id: string) => void;
 
   onReview: (closure: ClosureRecord) => void;
@@ -1026,6 +1050,7 @@ const ClosureRow = memo(function ClosureRow({
   isApproving,
   onApprove,
   onCategoryChange,
+  onClosureChange,
   onNavigate,
   onReview,
 }: ClosureRowProps) {
@@ -1059,6 +1084,25 @@ const ClosureRow = memo(function ClosureRow({
   // Categories of this complaint's product (billing is decided from the
   // category selected here)
   const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
+
+  // Dealer's configured closures for this complaint (preferred over category)
+  const [closureOptions, setClosureOptions] = useState<DealerClosureOption[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    getClosureOptions(closure._id)
+      .then((items) => {
+        if (active) setClosureOptions(items);
+      })
+      .catch(() => {
+        if (active) setClosureOptions([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [closure._id]);
 
   const descriptionOf = (id?: string | null) =>
     categoryOptions.find((option) => option._id === String(id || ""))
@@ -1455,9 +1499,11 @@ const ClosureRow = memo(function ClosureRow({
         {/* Dealer Closing Category */}
         <td className="px-3 py-3">
           <p className="text-xs font-medium text-gray-800">
-            {closure.dealerClosureCategory || "-"}
+            {closure.dealerClosureTitle
+              ? `${closure.dealerClosureTitle} - ₹${closure.dealerClosureRate ?? 0}`
+              : closure.dealerClosureCategory || "-"}
           </p>
-          {descriptionOf(closure.dealerClosureCategoryId) && (
+          {!closure.dealerClosureTitle && descriptionOf(closure.dealerClosureCategoryId) && (
             <p className="mt-0.5 max-w-[170px] whitespace-normal text-[10px] leading-4 text-gray-500">
               {descriptionOf(closure.dealerClosureCategoryId)}
             </p>
@@ -1466,7 +1512,30 @@ const ClosureRow = memo(function ClosureRow({
 
         {/* Verification Category */}
         <td className="px-3 py-3">
-          {categoryOptions.length > 0 ? (
+          {closureOptions.length > 0 ? (
+            <select
+              value={String(closure.closureId || "")}
+              disabled={isApproved}
+              onChange={(event) => {
+                if (event.target.value) {
+                  void onClosureChange(closure, event.target.value);
+                }
+              }}
+              title={
+                isApproved
+                  ? "Closure approved, it cannot be changed"
+                  : "Billing amount is decided from this closure"
+              }
+              className="w-full max-w-[170px] rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 outline-none focus:border-[#123B7A] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {!closure.closureId && <option value="">Select closure</option>}
+              {closureOptions.map((option) => (
+                <option key={option.closureId} value={option.closureId}>
+                  {`${option.title} - ₹${option.rate}`}
+                </option>
+              ))}
+            </select>
+          ) : categoryOptions.length > 0 ? (
             <select
               value={selectedCategoryId}
               disabled={isApproved}

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import RateListMasterPage from "../modules/rateMaster/pages/RateListMasterPage";
 import MainLayout from "../layouts/MainLayout/MainLayout";
 import DealerLayout from "../layouts/DealerLayout/DealerLayout";
 import DealerLegacyShell from "../layouts/DealerLayout/DealerLegacyShell";
@@ -351,6 +352,7 @@ export default function AppRoutes() {
             element={<CreateEditCategoryPage />}
           />
           <Route path="/product-master" element={<ProductMasterPage />} />
+          <Route path="/rate-master" element={<RateListMasterPage />} />
           <Route
             path="/product-type-master"
             element={<ProductTypeMasterPage />}

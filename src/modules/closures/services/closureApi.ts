@@ -119,6 +119,33 @@ export const updateClosureCategory = async (
   return response.data;
 };
 
+export interface DealerClosureOption {
+  closureId: string;
+  title: string;
+  rate: number;
+  autoBill: boolean;
+}
+
+export const getClosureOptions = async (
+  complaintId: string,
+): Promise<DealerClosureOption[]> => {
+  const response = await api.get(`/appointments/${complaintId}/closure-options`);
+
+  return response.data?.data ?? [];
+};
+
+export const updateClosureChoice = async (
+  complaintId: string,
+  closureId: string,
+) => {
+  const response = await api.patch(
+    `/appointments/complaints/${complaintId}/closure-category`,
+    { closureId },
+  );
+
+  return response.data;
+};
+
 interface CreateRatingReviewPayload {
   complaintId: string;
   rating: number;

@@ -28,6 +28,7 @@ import {
   UserRoundSearch,
   Wallet,
   Landmark,
+  IndianRupee,
 } from "lucide-react";
 
 import { useState, type MouseEvent } from "react";
@@ -184,6 +185,12 @@ const productManagementItems = [
     icon: Package,
     path: "/product-master",
     permission: "product.access",
+  },
+  {
+    label: "Closure Master",
+    icon: IndianRupee,
+    path: "/rate-master",
+    permission: "rate.access",
   },
 ];
 
@@ -599,7 +606,7 @@ export default function Sidebar({
 
                   ${
                     productOpen
-                      ? "mt-1 max-h-40 opacity-100"
+                      ? "mt-1 max-h-60 opacity-100"
                       : "max-h-0 opacity-0"
                   }
                 `}

@@ -20,6 +20,7 @@ import {
 } from "../notifications/services/notificationApi";
 import type { Notification } from "../notifications/types/notification.types";
 import { searchCategories } from "../complaints/services/complaintApi";
+import api from "../../services/api/axios";
 import { complaintTypeLabel } from "../appointments/utils/complaintTypeLabel";
 import { cancelLeave, getMyLeaves, registerLeave, type DealerLeave } from "./leaveApi";
 import { changePassword } from "../profile/services/profileApi";
@@ -1346,6 +1347,7 @@ export default function DealerApp() {
   const [billingBusy, setBillingBusy] = useState(false);
   const [closingReason, setClosingReason] = useState("");
   const [cats, setCats] = useState<{ _id: string; category: string }[]>([]);
+  const [closures, setClosures] = useState<{ closureId: string; title: string; rate: number; autoBill: boolean }[]>([]);
   const [catsLoading, setCatsLoading] = useState(false);
   const [bf, setBf] = useState({ cat: "", customer: "", profit: "", wv: "", wu: "MONTHS" as "DAYS" | "MONTHS" });
 
@@ -1392,10 +1394,21 @@ export default function DealerApp() {
     });
     const productId = Number(detail?.productId) || Number(detail?.categoryId?.product_id) || undefined;
     setCats([]);
+    setClosures([]);
     if (!productId) return;
     setCatsLoading(true);
-    searchCategories({ productId })
-      .then((items) => setCats(items.map((i) => ({ _id: i._id, category: i.category }))))
+    // Dealer's configured closures first; categories only as a fallback
+    api.get(`/appointments/${billingSheetId}/closure-options`)
+      .then((res) => {
+        const list = res.data?.data ?? [];
+        setClosures(list);
+        if (list.length > 0) {
+          setBf((p) => ({ ...p, cat: (list.find((x: { autoBill: boolean }) => x.autoBill) ?? list[0]).closureId }));
+          return undefined;
+        }
+        return searchCategories({ productId }).then((items) =>
+          setCats(items.map((i) => ({ _id: i._id, category: i.category }))));
+      })
       .catch(() => setCats([]))
       .finally(() => setCatsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1423,6 +1436,7 @@ export default function DealerApp() {
 
   const submitBilling = async (billingId: string, v: {
     closureCategoryId?: string;
+    closureId?: string;
     customerAmount?: number;
     profitAmount?: number;
     warrantyAssured: { value: number; unit: "DAYS" | "MONTHS" };
@@ -1434,6 +1448,7 @@ export default function DealerApp() {
           ? { ...v, closingReason }
           : {
               closureCategoryId: v.closureCategoryId,
+              closureId: v.closureId,
               customerAmount: v.customerAmount,
               warrantyAssured: v.warrantyAssured,
               closingReason,
@@ -1750,7 +1765,7 @@ export default function DealerApp() {
         billingType === "PROFIT_SHARING" &&
         (!bf.profit || Number(bf.profit) <= 0 || Number(bf.profit) > Number(bf.customer));
       const warrantyInvalid = bf.wv !== "" && (!Number.isFinite(Number(bf.wv)) || Number(bf.wv) < 0);
-      const catInvalid = cats.length > 0 && !bf.cat;
+      const catInvalid = (cats.length > 0 || closures.length > 0) && !bf.cat;
       const invalid = customerInvalid || profitInvalid || warrantyInvalid || catInvalid;
       const title =
         billingType === "FIXED" ? "Close Complaint" : billingType === "PARTIAL_PAYMENT" ? "Partial Payment Billing" : "Profit Sharing Billing";
@@ -1764,7 +1779,9 @@ export default function DealerApp() {
               e.preventDefault();
               if (invalid) return;
               submitBilling(c.id, {
-                closureCategoryId: bf.cat || undefined,
+                ...(closures.length > 0
+                  ? { closureId: bf.cat || undefined }
+                  : { closureCategoryId: bf.cat || undefined }),
                 customerAmount: Number(bf.customer),
                 ...(billingType === "PROFIT_SHARING" ? { profitAmount: Number(bf.profit) } : {}),
                 warrantyAssured: { value: bf.wv === "" ? 0 : Number(bf.wv), unit: bf.wu },
@@ -1774,7 +1791,19 @@ export default function DealerApp() {
             <div className="dr"><span>Complaint</span><b>{c.no} · {c.name}</b></div>
             <div className="dr"><span>Closing reason</span><b style={{ textAlign: "right" }}>{closingReason}</b></div>
 
-            {(cats.length > 0 || catsLoading) && (
+            {closures.length > 0 && (
+              <div className="field">
+                <label>Closure *</label>
+                <select value={bf.cat} disabled={billingBusy} onChange={(e) => setBf({ ...bf, cat: e.target.value })}>
+                  <option value="">Select the closure done</option>
+                  {closures.map((x) => (
+                    <option key={x.closureId} value={x.closureId}>{x.title} — ₹{x.rate}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {closures.length === 0 && (cats.length > 0 || catsLoading) && (
               <div className="field">
                 <label>Service category *</label>
                 <select value={bf.cat} disabled={billingBusy} onChange={(e) => setBf({ ...bf, cat: e.target.value })}>
