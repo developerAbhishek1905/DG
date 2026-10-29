@@ -20,7 +20,7 @@ export default function Button({
 }: ButtonProps) {
   const variants: Record<ButtonVariant, string> = {
     primary:
-      "bg-[#123B7A] text-white hover:bg-[#0B2854]",
+      "bg-[#6D28D9] text-white hover:bg-[#4C1D95]",
     secondary:
       "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50",
     success:

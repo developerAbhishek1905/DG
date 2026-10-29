@@ -245,7 +245,7 @@ export default function AuditLogTable({
                             )
                           )
                         }
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-blue-50 hover:text-[#6D28D9]"
                         title="View details"
                       >
                         <Eye

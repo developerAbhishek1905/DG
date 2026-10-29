@@ -46,7 +46,7 @@ const presets = [
 ];
 
 const inputClass =
-  "h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
+  "h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100";
 
 export default function DateRangeFilter({ from, to, onChange }: Props) {
   return (

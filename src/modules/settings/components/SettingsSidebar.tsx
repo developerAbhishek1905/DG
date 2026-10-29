@@ -103,7 +103,7 @@ export default function SettingsSidebar() {
                 }) =>
                   `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                     isActive
-                      ? "bg-blue-50 text-[#123B7A]"
+                      ? "bg-blue-50 text-[#6D28D9]"
                       : "text-gray-600 hover:bg-gray-50"
                   }`
                 }

@@ -1,3 +1,4 @@
+import { PanelSkeleton } from "../../../components/ui/Skeleton";
 import {
   useEffect,
 } from "react";
@@ -76,9 +77,7 @@ export default function StatusSettingsPage() {
         </div>
 
         {loading ? (
-          <div className="rounded-xl border bg-white p-10 text-center text-sm text-gray-500">
-            Loading statuses...
-          </div>
+          <PanelSkeleton />
         ) : (
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <table className="w-full min-w-[700px]">

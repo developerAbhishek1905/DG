@@ -22,7 +22,7 @@ const errorMessage = (error: unknown, fallback: string) =>
     ?.message || fallback;
 
 const inputClass =
-  "h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
+  "h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100";
 
 export default function AllocationPage() {
   const navigate = useNavigate();
@@ -165,7 +165,7 @@ export default function AllocationPage() {
                   navigate("/complaints");
                 }
               }}
-              className="mb-3 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#123B7A]"
+              className="mb-3 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#6D28D9]"
             >
               <ArrowLeft size={17} />
               {view !== "table" ? "Back to Dealer Allocation" : "Back"}
@@ -191,8 +191,8 @@ export default function AllocationPage() {
                 onClick={() => setView((current) => (current === key ? "table" : key))}
                 className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
                   view === key
-                    ? "border-[#123B7A] bg-[#123B7A] text-white"
-                    : "border-[#123B7A] bg-white text-[#123B7A] hover:bg-blue-50"
+                    ? "border-[#6D28D9] bg-[#6D28D9] text-white"
+                    : "border-[#6D28D9] bg-white text-[#6D28D9] hover:bg-blue-50"
                 }`}
               >
                 <Icon size={16} />
@@ -248,7 +248,7 @@ export default function AllocationPage() {
                     aria-checked={enabled}
                     onClick={() => setEnabled((value) => !value)}
                     className={`relative h-7 w-12 rounded-full transition ${
-                      enabled ? "bg-[#123B7A]" : "bg-gray-300"
+                      enabled ? "bg-[#6D28D9]" : "bg-gray-300"
                     }`}
                   >
                     <span
@@ -493,7 +493,7 @@ export default function AllocationPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saving || applying}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-5 py-2.5 text-sm font-semibold text-[#123B7A] hover:bg-blue-50 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] bg-white px-5 py-2.5 text-sm font-semibold text-[#6D28D9] hover:bg-blue-50 disabled:opacity-60"
               >
                 <Save size={16} />
                 {saving ? "Saving..." : "Save Settings"}
@@ -503,7 +503,7 @@ export default function AllocationPage() {
                 type="button"
                 onClick={handleApply}
                 disabled={saving || applying || !rangeValid}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#5B21B6] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Play size={16} />
                 {applying ? "Applying..." : "Apply to Allocation"}

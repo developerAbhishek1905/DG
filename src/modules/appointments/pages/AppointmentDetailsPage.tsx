@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { getPanelBase } from "../../../utils/panelPath";
 import PercentageClosureForm from "../components/PercentageClosureForm";
 import {
@@ -695,7 +696,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
         <button
           type="button"
           onClick={() => navigate(`${getPanelBase()}/appointments`)}
-          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-[#123B7A]"
+          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-[#6D28D9]"
         >
           <ArrowLeft size={17} />
           Back to Appointments
@@ -745,7 +746,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                 setSelectedTime("");
                 setScheduleOpen(true);
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-3 text-sm font-semibold text-white"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-3 text-sm font-semibold text-white"
             >
               <CalendarDays size={17} />
               Schedule Appointment
@@ -1011,7 +1012,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                 setSelectedTime("");
                 setScheduleOpen(true);
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-3 text-sm font-semibold text-white"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-3 text-sm font-semibold text-white"
             >
               <CalendarDays size={17} />
               Schedule Appointment
@@ -1037,7 +1038,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
               Complaint Number
             </p>
 
-            <h1 className="mt-1 break-all text-xl font-bold text-[#123B7A] sm:text-2xl">
+            <h1 className="mt-1 break-all text-xl font-bold text-[#6D28D9] sm:text-2xl">
               {appointment.complaintNumber || "-"}
             </h1>
 
@@ -1504,7 +1505,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                   onClick={() => setSelectedDate(todayValue)}
                   className={`rounded-xl border p-3 text-left transition ${
                     selectedDate === todayValue
-                      ? "border-[#123B7A] bg-blue-50"
+                      ? "border-[#6D28D9] bg-blue-50"
                       : "border-gray-200 bg-white"
                   }`}
                 >
@@ -1524,7 +1525,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                   onClick={() => setSelectedDate(tomorrowValue)}
                   className={`rounded-xl border p-3 text-left transition ${
                     selectedDate === tomorrowValue
-                      ? "border-[#123B7A] bg-blue-50"
+                      ? "border-[#6D28D9] bg-blue-50"
                       : "border-gray-200 bg-white"
                   }`}
                 >
@@ -1552,7 +1553,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                 type="time"
                 value={selectedTime}
                 onChange={(e) => setSelectedTime(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#123B7A] focus:ring-1 focus:ring-[#123B7A]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9]"
               />
             </div>
 
@@ -1594,7 +1595,7 @@ const [closingReasons, setClosingReasons] = useState<ReasonOption[]>([]);
                     setActionLoading(false);
                   }
                 }}
-                className="flex-1 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {actionLoading ? "Saving..." : "Schedule"}
               </button>
@@ -2061,9 +2062,7 @@ function ReasonModal({
 
         <div className="max-h-[400px] overflow-y-auto p-5">
           {loading ? (
-            <div className="py-8 text-center text-sm text-gray-500">
-              Loading reasons...
-            </div>
+            <ListSkeleton rows={5} />
           ) : reasons.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-500">
               No reasons available.

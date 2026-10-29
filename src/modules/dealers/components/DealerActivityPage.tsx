@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import { useCallback, useEffect, useState } from "react";
 import Pagination from "../../../components/ui/Pagination";
 import {
@@ -240,7 +241,7 @@ export default function DealerActivityPage() {
             bg-blue-50
             px-3 py-2
             text-xs font-medium
-            text-[#123B7A]
+            text-[#6D28D9]
           "
         >
           <CalendarDays size={15} />
@@ -319,7 +320,7 @@ export default function DealerActivityPage() {
                   outline-none
                   transition
                   placeholder:text-gray-400
-                  focus:border-[#123B7A]
+                  focus:border-[#6D28D9]
                   focus:ring-2
                   focus:ring-blue-100
                 "
@@ -366,7 +367,7 @@ export default function DealerActivityPage() {
                   text-gray-700
                   outline-none
                   transition
-                  focus:border-[#123B7A]
+                  focus:border-[#6D28D9]
                   focus:ring-2
                   focus:ring-blue-100
                 "
@@ -440,7 +441,7 @@ export default function DealerActivityPage() {
 
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <span className="rounded-md bg-[#123B7A] px-2 py-0.5 text-[11px] font-semibold text-white">
+            <span className="rounded-md bg-[#6D28D9] px-2 py-0.5 text-[11px] font-semibold text-white">
               {selectedDate === today ? "Today" : "Selected Day"}
             </span>
 
@@ -724,7 +725,7 @@ export default function DealerActivityPage() {
                             px-2.5 py-1.5
                             text-xs
                             font-medium
-                            text-[#123B7A]
+                            text-[#6D28D9]
                             transition
                             hover:bg-blue-100
                           "
@@ -856,34 +857,8 @@ function ProductList({ products }: { products: string[] }) {
 ===================================================== */
 
 function DealerStatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    ACTIVE: "bg-emerald-50 text-emerald-700",
-
-    LEAVE: "bg-amber-50 text-amber-700",
-
-    INACTIVE: "bg-gray-100 text-gray-600",
-
-    SUSPENDED: "bg-rose-50 text-rose-700",
-  };
-
-  return (
-    <span
-      className={`
-        inline-flex
-        whitespace-nowrap
-        rounded-full
-        px-2 py-1
-        text-[10px]
-        font-semibold
-
-        ${styles[status] || "bg-gray-100 text-gray-600"}
-      `}
-    >
-      {status?.replaceAll("_", " ") || "-"}
-    </span>
-  );
+  return <SharedStatusBadge status={status} size="sm" />;
 }
-
 /* =====================================================
    COUNT BADGE
 ===================================================== */

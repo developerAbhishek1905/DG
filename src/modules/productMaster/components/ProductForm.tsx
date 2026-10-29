@@ -129,7 +129,7 @@ export default function ProductForm({
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-50"
         >
           {loading && <Loader2 size={17} className="animate-spin" />}
           {loading ? "Saving..." : product ? "Update Product" : "Add Product"}

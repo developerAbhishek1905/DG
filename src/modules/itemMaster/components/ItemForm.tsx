@@ -534,7 +534,7 @@ export default function ItemForm({
           disabled={
             loading
           }
-          className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm text-white"
+          className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm text-white"
         >
           {loading
             ? "Saving..."

@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft, Save } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ export default function PermissionManagementPage() {
   }, [role]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <DetailsSkeleton />;
   }
 
   if (!role || !id) {
@@ -71,7 +72,7 @@ export default function PermissionManagementPage() {
         <button
           onClick={savePermissions}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
         >
           <Save size={17} />
 

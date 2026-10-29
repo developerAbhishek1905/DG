@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
 
               <Link
                 to="/login"
-                className="mt-5 block text-center text-sm font-medium text-[#123B7A]"
+                className="mt-5 block text-center text-sm font-medium text-[#6D28D9]"
               >
                 Continue to Login
               </Link>
@@ -161,7 +161,7 @@ export default function ResetPasswordPage() {
                 disabled={
                   isSubmitting
                 }
-                className="w-full rounded-lg bg-[#123B7A] py-3 text-sm font-semibold text-white disabled:opacity-60"
+                className="w-full rounded-lg bg-[#6D28D9] py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
                 {isSubmitting
                   ? "Updating..."

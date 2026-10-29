@@ -74,7 +74,7 @@ export default function AllocationHistoryTable() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search complaint or dealer..."
-          className="h-10 w-64 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100"
+          className="h-10 w-64 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100"
         />
       </div>
 

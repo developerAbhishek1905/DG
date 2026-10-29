@@ -3,6 +3,7 @@ import PermissionGuard from "../../routes/PermissionGuard";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import WaveBackground from "./WaveBackground";
 import { Menu } from "lucide-react";
 
 export default function MainLayout() {
@@ -27,7 +28,8 @@ export default function MainLayout() {
     });
   };
   return (
-    <div className="h-screen overflow-hidden bg-slate-50">
+    <div className="app-bg relative h-screen overflow-hidden">
+      <WaveBackground />
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -36,11 +38,11 @@ export default function MainLayout() {
       />
 {/* <Header></Header> */}
       {/* Main Section */}
-      <div className={`flex h-screen flex-col transition-[margin] duration-300 ${
+      <div className={`relative z-10 flex h-screen flex-col transition-[margin] duration-300 ${
           collapsed ? "lg:ml-20" : "lg:ml-64"
         }`}>
         {/* Mobile Header */}
-        <div className="flex h-16 shrink-0 items-center border-b border-gray-200 bg-white px-4 lg:hidden">
+        <div className="flex h-16 shrink-0 items-center border-b border-violet-100 bg-white/80 px-4 backdrop-blur lg:hidden">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}

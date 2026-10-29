@@ -84,7 +84,7 @@ export default function ClosurePage() {
         <div className="flex gap-3">
           <button
             onClick={() => navigate(`/complaints/${complaintId}`)}
-            className="rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white"
+            className="rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white"
           >
             Back to Complaint
           </button>
@@ -311,7 +311,7 @@ export default function ClosurePage() {
             <button
               onClick={submitCurrentForm}
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
             >
               <Save size={17} />
 

@@ -1,3 +1,4 @@
+import { DetailsSkeleton, ListSkeleton } from "../../../components/ui/Skeleton";
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -81,9 +82,7 @@ export default function DealerDetailsPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
-        Loading dealer...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -164,7 +163,7 @@ export default function DealerDetailsPage() {
           <button
             type="button"
             onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4C1D95]"
           >
             <Edit size={17} />
             Edit Dealer
@@ -231,7 +230,7 @@ export default function DealerDetailsPage() {
             <button
               type="button"
               onClick={() => navigate(`/dealers/${dealer._id}/edit`)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white"
             >
               <Edit size={16} />
               Edit Dealer
@@ -287,7 +286,7 @@ export default function DealerDetailsPage() {
 
           <div className="rounded-lg bg-blue-50 px-5 py-4">
             <p className="text-xs font-medium text-blue-600">Total Capacity</p>
-            <p className="mt-1 text-3xl font-bold text-[#123B7A]">
+            <p className="mt-1 text-3xl font-bold text-[#6D28D9]">
               {totalCapacity}
             </p>
           </div>
@@ -487,7 +486,7 @@ export default function DealerDetailsPage() {
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                   entry.isPrimary
-                    ? "bg-blue-50 text-[#123B7A]"
+                    ? "bg-blue-50 text-[#6D28D9]"
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
@@ -504,7 +503,7 @@ export default function DealerDetailsPage() {
                 Individual{" "}
                 <b className="text-gray-800">{entry.individualTotal}</b>
               </span>
-              <span className="rounded-md bg-blue-50 px-2 py-1 font-semibold text-[#123B7A]">
+              <span className="rounded-md bg-blue-50 px-2 py-1 font-semibold text-[#6D28D9]">
                 Total {entry.total}
               </span>
             </div>
@@ -801,7 +800,7 @@ export default function DealerDetailsPage() {
 
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <div className="flex items-center gap-2">
-            <Activity size={18} className="text-[#123B7A]" />
+            <Activity size={18} className="text-[#6D28D9]" />
 
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
@@ -832,9 +831,7 @@ export default function DealerDetailsPage() {
 
         <div className="p-5">
           {activityLoading ? (
-            <div className="py-8 text-center text-sm text-gray-500">
-              Loading activity...
-            </div>
+            <ListSkeleton rows={4} />
           ) : activityLogs.length === 0 ? (
             <div className="py-10 text-center">
               <Activity size={30} className="mx-auto mb-2 text-gray-300" />
@@ -1022,7 +1019,7 @@ function DocumentPreview({
                 href={url!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854]"
+                className="rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white hover:bg-[#4C1D95]"
               >
                 View Document
               </a>

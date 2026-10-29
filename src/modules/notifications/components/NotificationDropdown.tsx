@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { getPanelBase } from "../../../utils/panelPath";
 import {
   Bell,
@@ -183,7 +184,7 @@ export default function NotificationDropdown() {
                     readAllNotifications()
                   )
                 }
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#123B7A] hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6D28D9] hover:underline"
               >
                 <CheckCheck
                   size={14}
@@ -196,9 +197,7 @@ export default function NotificationDropdown() {
 
           <div className="max-h-[430px] overflow-y-auto">
             {loading ? (
-              <div className="p-8 text-center text-sm text-gray-500">
-                Loading...
-              </div>
+              <div className="p-4"><ListSkeleton rows={4} /></div>
             ) : recentNotifications.length ===
               0 ? (
               <div className="p-8 text-center text-sm text-gray-500">
@@ -240,7 +239,7 @@ export default function NotificationDropdown() {
                   `${getPanelBase()}/notifications`
                 );
               }}
-              className="text-sm font-medium text-[#123B7A] hover:underline"
+              className="text-sm font-medium text-[#6D28D9] hover:underline"
             >
               View all notifications
             </button>

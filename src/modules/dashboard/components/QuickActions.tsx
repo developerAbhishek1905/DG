@@ -99,7 +99,7 @@ export default function QuickActions() {
                 }
                 className="flex items-start gap-3 rounded-lg border border-gray-200 p-4 text-left transition hover:border-blue-300 hover:bg-blue-50/30"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
                   <Icon
                     size={17}
                   />

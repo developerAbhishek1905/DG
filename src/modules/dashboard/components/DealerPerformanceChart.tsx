@@ -71,7 +71,7 @@ export default function DealerPerformanceChart({
                           `/dealers/${dealer.dealerId}/performance`
                         )
                       }
-                      className="text-sm font-semibold text-[#123B7A] hover:underline"
+                      className="text-sm font-semibold text-[#6D28D9] hover:underline"
                     >
                       {
                         dealer.dealerName
@@ -131,7 +131,7 @@ function Metric({
     <div className="flex items-center gap-3">
       <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-100">
         <div
-          className="h-full rounded-full bg-[#123B7A]"
+          className="h-full rounded-full bg-[#6D28D9]"
           style={{
             width: `${Math.min(
               value,

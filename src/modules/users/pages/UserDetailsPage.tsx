@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft, Edit, Mail, Phone, Shield } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,9 +20,7 @@ const {hasPermission}= usePermission()
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading user...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -46,7 +45,7 @@ const {hasPermission}= usePermission()
 
 {  hasPermission("users.update") &&   <button
           onClick={() => navigate(`/users/${user.id}/edit`)}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white"
         >
           <Edit size={17} />
           Edit User

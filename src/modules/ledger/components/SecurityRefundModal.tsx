@@ -150,7 +150,7 @@ export default function SecurityRefundModal({
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0e3063] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0e3063] disabled:opacity-50"
             >
               <RotateCcw size={16} />
               {loading ? "Processing..." : "Confirm Refund"}

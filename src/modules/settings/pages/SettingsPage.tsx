@@ -119,7 +119,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#123B7A]">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#6D28D9]">
           Administration
         </p>
 
@@ -150,7 +150,7 @@ export default function SettingsPage() {
                 }
                 className="rounded-xl border border-gray-200 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
                   <Icon
                     size={21}
                   />

@@ -61,7 +61,7 @@ export default function AllocationRulesCard() {
                 key={rule.title}
                 className="flex gap-3"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
                   <Icon size={17} />
                 </div>
 

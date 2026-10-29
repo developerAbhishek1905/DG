@@ -149,7 +149,7 @@
 //           {/* CUSTOMER AMOUNT */}
 
 //           <div>
-//             <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+//             <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
 //               Customer Amount
 //             </label>
 
@@ -169,7 +169,7 @@
 //                   )
 //                 }
 //                 placeholder="Enter customer amount"
-//                 className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#123B7A]"
+//                 className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#6D28D9]"
 //               />
 //             </div>
 //           </div>
@@ -179,7 +179,7 @@
 //           {billingType ===
 //             "PROFIT_SHARING" && (
 //             <div>
-//               <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+//               <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
 //                 Profit Amount
 //               </label>
 
@@ -199,7 +199,7 @@
 //                     )
 //                   }
 //                   placeholder="Enter profit amount"
-//                   className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#123B7A]"
+//                   className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#6D28D9]"
 //                 />
 //               </div>
 
@@ -218,7 +218,7 @@
 //           {/* BILLING PERCENTAGE */}
 
 //           <div>
-//             <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+//             <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
 //               Billing Percentage
 //             </label>
 
@@ -247,7 +247,7 @@
 //               DG Billing Amount
 //             </p>
 
-//             <p className="mt-1 text-xl font-bold text-[#123B7A]">
+//             <p className="mt-1 text-xl font-bold text-[#6D28D9]">
 //               ₹{charge.toFixed(2)}
 //             </p>
 
@@ -284,7 +284,7 @@
 //             type="button"
 //             disabled={isInvalid || loading}
 //             onClick={handleSubmit}
-//             className="flex-1 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+//             className="flex-1 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 //           >
 //             {loading
 //               ? "Submitting..."
@@ -296,6 +296,7 @@
 //   );
 // }
 
+import { Skeleton } from "../../../components/ui/Skeleton";
 import { useEffect, useState } from "react";
 import { searchCategories } from "../../complaints/services/complaintApi";
 
@@ -540,14 +541,12 @@ export default function PercentageClosureModal({
 
           {(productId || categories.length > 0) && (
             <div>
-              <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+              <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
                 Service Category
               </label>
 
               {categoriesLoading && (
-                <p className="mb-1 text-xs text-gray-500">
-                  Loading categories...
-                </p>
+                <Skeleton className="mb-2 h-9 w-full rounded-lg" />
               )}
 
               {categoriesError && (
@@ -566,7 +565,7 @@ export default function PercentageClosureModal({
                 value={categoryId}
                 disabled={loading}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9] disabled:bg-gray-50"
               >
                 <option value="">Select the service done</option>
 
@@ -583,7 +582,7 @@ export default function PercentageClosureModal({
 
           {(
           <div>
-            <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+            <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
               Customer Amount
             </label>
 
@@ -600,7 +599,7 @@ export default function PercentageClosureModal({
                 disabled={loading}
                 onChange={(e) => setCustomerAmount(e.target.value)}
                 placeholder="Enter customer amount"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#6D28D9] disabled:bg-gray-50"
               />
             </div>
           </div>
@@ -610,7 +609,7 @@ export default function PercentageClosureModal({
           {/* WARRANTY ASSURED */}
 
           <div>
-            <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+            <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
               Warranty Assured{" "}
               <span className="font-normal text-gray-400">(optional)</span>
             </label>
@@ -624,7 +623,7 @@ export default function PercentageClosureModal({
                 disabled={loading}
                 onChange={(e) => setWarrantyValue(e.target.value)}
                 placeholder="Optional, e.g. 3"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9] disabled:bg-gray-50"
               />
 
               <select
@@ -633,7 +632,7 @@ export default function PercentageClosureModal({
                 onChange={(e) =>
                   setWarrantyUnit(e.target.value as "DAYS" | "MONTHS")
                 }
-                className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A]"
+                className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9]"
               >
                 <option value="DAYS">Days</option>
                 <option value="MONTHS">Months</option>
@@ -645,7 +644,7 @@ export default function PercentageClosureModal({
 
           {billingType === "PROFIT_SHARING" && (
             <div>
-              <label className="mb-2 block text-xs font-semibold text-[#123B7A]">
+              <label className="mb-2 block text-xs font-semibold text-[#6D28D9]">
                 Profit Amount
               </label>
 
@@ -662,7 +661,7 @@ export default function PercentageClosureModal({
                   disabled={loading}
                   onChange={(e) => setProfitAmount(e.target.value)}
                   placeholder="Enter profit amount"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-50"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-8 pr-3 text-sm outline-none focus:border-[#6D28D9] disabled:bg-gray-50"
                 />
               </div>
 
@@ -702,7 +701,7 @@ export default function PercentageClosureModal({
             type="button"
             disabled={isInvalid || loading}
             onClick={handleSubmit}
-            className="flex-1 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Submitting..." : billingType === "FIXED" ? "Close Complaint" : "Submit for Approval"}
           </button>

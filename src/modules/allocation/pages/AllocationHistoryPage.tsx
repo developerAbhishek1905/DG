@@ -249,7 +249,7 @@ export default function AllocationHistoryPage() {
                       className="hover:bg-gray-50"
                     >
                       <td className="px-5 py-4">
-                        <p className="text-sm font-semibold text-[#123B7A]">
+                        <p className="text-sm font-semibold text-[#6D28D9]">
                           {
                             item.complaintNumber
                           }

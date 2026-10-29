@@ -194,9 +194,9 @@ export default function RatingReviewModal({
                 text-sm text-gray-700
                 outline-none
                 placeholder:text-gray-400
-                focus:border-[#123B7A]
+                focus:border-[#6D28D9]
                 focus:ring-1
-                focus:ring-[#123B7A]
+                focus:ring-[#6D28D9]
               "
             />
 
@@ -231,7 +231,7 @@ export default function RatingReviewModal({
             }
             onClick={handleSubmit}
             className="
-              rounded-lg bg-[#123B7A]
+              rounded-lg bg-[#6D28D9]
               px-4 py-2
               text-sm font-medium text-white
               hover:bg-[#0f3268]

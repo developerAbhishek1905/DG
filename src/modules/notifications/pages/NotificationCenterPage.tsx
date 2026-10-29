@@ -144,7 +144,7 @@ export default function NotificationCenterPage() {
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
               <Bell
                 size={21}
               />
@@ -274,7 +274,7 @@ export default function NotificationCenterPage() {
                 )
               }
               placeholder="Search notifications..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#123B7A]"
+              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#6D28D9]"
             />
           </div>
 

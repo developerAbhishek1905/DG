@@ -104,7 +104,7 @@ export default function DealerRatingModal({
           </div>
 
           <div className="text-center">
-            <span className="text-2xl font-semibold text-[#123B7A]">
+            <span className="text-2xl font-semibold text-[#6D28D9]">
               {rating}
             </span>
 
@@ -129,7 +129,7 @@ export default function DealerRatingModal({
             type="button"
             onClick={handleSubmit}
             disabled={submitting || rating === 0}
-            className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {submitting && (
               <Loader2

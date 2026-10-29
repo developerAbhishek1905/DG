@@ -237,7 +237,7 @@ export default function AppointmentListPage() {
 
           {/* <button
             onClick={() => navigate(`${getPanelBase()}/appointments/create`)}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white"
           >
             <Plus size={17} />
             New Appointment

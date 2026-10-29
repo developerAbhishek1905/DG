@@ -35,7 +35,7 @@ export default function Header() {
 </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-[#123B7A]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-[#6D28D9]">
             <User size={18} />
           </div>
 

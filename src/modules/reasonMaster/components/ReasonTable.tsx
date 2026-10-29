@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import { Edit3, Power, Trash2 } from "lucide-react";
 import TableSkeleton from "../../../components/ui/TableSkeleton";
 import type { Reason } from "../types/reason.types";
@@ -84,15 +85,7 @@ export default function ReasonTable({
               </td>
 
               <td className="px-5 py-4">
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs ${
-                    reason.isActive
-                      ? "bg-green-50 text-green-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {reason.isActive ? "ACTIVE" : "INACTIVE"}
-                </span>
+                <StatusBadge status={reason.isActive ? "ACTIVE" : "INACTIVE"} />
               </td>
 
               <td className="px-5 py-4">

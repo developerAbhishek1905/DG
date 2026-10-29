@@ -1,3 +1,4 @@
+import { FormSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,9 +23,7 @@ export default function EditUserPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading user...
-      </div>
+      <FormSkeleton fields={6} />
     );
   }
 

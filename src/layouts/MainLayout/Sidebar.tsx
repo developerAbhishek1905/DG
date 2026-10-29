@@ -389,7 +389,7 @@ export default function Sidebar({
         className={`
           fixed left-0 top-0 z-40
           flex h-screen w-64 flex-col
-          border-r border-gray-200 bg-white
+          border-r border-white/10 bg-gradient-to-b from-[#1b1670] via-[#2c1d94] to-[#4a2bb5] shadow-xl
           transition-all duration-300 ease-in-out
           lg:translate-x-0
           ${collapsed ? "lg:w-20" : ""}
@@ -403,7 +403,7 @@ export default function Sidebar({
           onClick={onToggleCollapse}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="absolute -right-3 top-5 z-50 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-[#123B7A] lg:flex"
+          className="absolute -right-3 top-5 z-50 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-[#6D28D9] lg:flex"
         >
           {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
         </button>
@@ -413,7 +413,7 @@ export default function Sidebar({
         ====================================================== */}
 
         <div
-          className={`flex h-16 shrink-0 items-center border-b border-gray-200 px-5 ${
+          className={`flex h-16 shrink-0 items-center border-b border-white/10 px-5 ${
             collapsed ? "lg:justify-center lg:px-0" : ""
           }`}
         >
@@ -421,16 +421,16 @@ export default function Sidebar({
             <div
               className="
                 flex h-9 w-9 items-center justify-center
-                rounded-lg bg-[#123B7A] text-white
+                rounded-lg bg-white font-bold text-[#4c1d95]
               "
             >
               CM
             </div>
 
             <div className={labelCls}>
-              <h1 className="text-sm font-bold text-gray-900">Complaint</h1>
+              <h1 className="text-sm font-bold text-white">Complaint</h1>
 
-              <p className="text-xs text-gray-500">Management System</p>
+              <p className="text-xs text-indigo-200">Management System</p>
             </div>
           </div>
         </div>
@@ -461,8 +461,8 @@ export default function Sidebar({
 
                     ${
                       isActive
-                        ? "bg-blue-50 text-[#123B7A]"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+                        ? "bg-violet-400/40 text-white shadow-sm"
+                        : "text-indigo-100 hover:bg-white/10 hover:text-white"
                     }
                   `
                 }
@@ -491,8 +491,8 @@ export default function Sidebar({
 
         ${
           isDealerRoute
-            ? "bg-blue-50 text-[#123B7A]"
-            : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+            ? "bg-violet-400/40 text-white shadow-sm"
+            : "text-indigo-100 hover:bg-white/10 hover:text-white"
         }
       `}
               >
@@ -522,7 +522,7 @@ export default function Sidebar({
                 <div
                   className={`
           ml-4 space-y-1
-          border-l border-gray-200
+          border-l border-white/20
           pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
         `}
                 >
@@ -543,8 +543,8 @@ export default function Sidebar({
 
                   ${
                     isActive
-                      ? "bg-blue-50 font-medium text-[#123B7A]"
-                      : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
+                      ? "bg-violet-400/40 font-medium text-white shadow-sm"
+                      : "text-indigo-200 hover:bg-white/10 hover:text-white"
                   }
                 `
                         }
@@ -576,8 +576,8 @@ export default function Sidebar({
 
                   ${
                     isProductRoute
-                      ? "bg-blue-50 text-[#123B7A]"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+                      ? "bg-violet-400/40 text-white shadow-sm"
+                      : "text-indigo-100 hover:bg-white/10 hover:text-white"
                   }
                 `}
                 >
@@ -614,7 +614,7 @@ export default function Sidebar({
                   <div
                     className={`
                     ml-4 space-y-1
-                    border-l border-gray-200
+                    border-l border-white/20
                     pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
                   `}
                   >
@@ -635,8 +635,8 @@ export default function Sidebar({
 
                             ${
                               isActive
-                                ? "bg-blue-50 font-medium text-[#123B7A]"
-                                : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
+                                ? "bg-violet-400/40 font-medium text-white shadow-sm"
+                                : "text-indigo-200 hover:bg-white/10 hover:text-white"
                             }
                           `
                           }
@@ -670,8 +670,8 @@ export default function Sidebar({
 
                   ${
                     isAddressRoute
-                      ? "bg-blue-50 text-[#123B7A]"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+                      ? "bg-violet-400/40 text-white shadow-sm"
+                      : "text-indigo-100 hover:bg-white/10 hover:text-white"
                   }
                 `}
                 >
@@ -708,7 +708,7 @@ export default function Sidebar({
                   <div
                     className={`
                     ml-4 space-y-1
-                    border-l border-gray-200
+                    border-l border-white/20
                     pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
                   `}
                   >
@@ -729,8 +729,8 @@ export default function Sidebar({
 
                             ${
                               isActive
-                                ? "bg-blue-50 font-medium text-[#123B7A]"
-                                : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
+                                ? "bg-violet-400/40 font-medium text-white shadow-sm"
+                                : "text-indigo-200 hover:bg-white/10 hover:text-white"
                             }
                           `
                           }
@@ -765,8 +765,8 @@ export default function Sidebar({
 
         ${
           isAccountRoute
-            ? "bg-blue-50 text-[#123B7A]"
-            : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+            ? "bg-violet-400/40 text-white shadow-sm"
+            : "text-indigo-100 hover:bg-white/10 hover:text-white"
         }
       `}
               >
@@ -797,7 +797,7 @@ export default function Sidebar({
                 <div
                   className={`
           ml-4 space-y-1
-          border-l border-gray-200
+          border-l border-white/20
           pl-3 ${collapsed ? "lg:ml-0 lg:border-l-0 lg:pl-0" : ""}
         `}
                 >
@@ -817,8 +817,8 @@ export default function Sidebar({
 
                 ${
                   isActive
-                    ? "bg-blue-50 font-medium text-[#123B7A]"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-[#123B7A]"
+                    ? "bg-violet-400/40 font-medium text-white shadow-sm"
+                    : "text-indigo-200 hover:bg-white/10 hover:text-white"
                 }
               `}
                       >
@@ -849,8 +849,8 @@ export default function Sidebar({
 
                     ${
                       isActive
-                        ? "bg-blue-50 text-[#123B7A]"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-[#123B7A]"
+                        ? "bg-violet-400/40 text-white shadow-sm"
+                        : "text-indigo-100 hover:bg-white/10 hover:text-white"
                     }
                   `
                 }
@@ -889,13 +889,13 @@ export default function Sidebar({
     USER PROFILE + LOGOUT - SINGLE ROW
 ====================================================== */}
 
-        <div className="shrink-0 border-t border-gray-200 p-3">
+        <div className="shrink-0 border-t border-white/10 p-3">
           <div
             className={`
       flex items-center gap-2
       rounded-lg px-2 py-2
       transition
-      hover:bg-gray-50
+      hover:bg-white/10
       ${collapsed ? "lg:flex-col" : ""}
     `}
           >
@@ -920,7 +920,7 @@ export default function Sidebar({
                 className="
           flex h-9 w-9 shrink-0
           items-center justify-center
-          rounded-full bg-[#123B7A]
+          rounded-full bg-violet-400
           text-sm font-semibold text-white
         "
               >
@@ -935,11 +935,11 @@ export default function Sidebar({
               {/* User Details */}
 
               <div className={`min-w-0 flex-1 ${labelCls}`}>
-                <p className="truncate text-sm font-semibold text-gray-800">
+                <p className="truncate text-sm font-semibold text-white">
                   {auth.user?.name || "User"}
                 </p>
 
-                <p className="truncate text-xs text-gray-500">
+                <p className="truncate text-xs text-indigo-200">
                   {auth.user?.role?.name || "User"}
                 </p>
               </div>
@@ -951,7 +951,7 @@ export default function Sidebar({
               type="button"
               onClick={handleLogout}
               {...tip("Logout")}
-              className=" flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50 hover:text-red-600 "
+              className=" flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-rose-300 transition hover:bg-white/10 hover:text-rose-200 "
             >
               <LogOut size={18} />
             </button>
@@ -975,9 +975,9 @@ export default function Sidebar({
             }}
             className="pointer-events-none fixed z-[60] hidden lg:block"
           >
-            <div className="relative flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#123B7A] px-3 py-2 text-[13px] font-semibold tracking-tight text-white shadow-[0_8px_24px_-6px_rgba(18,59,122,0.55)] ring-1 ring-white/10">
+            <div className="relative flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#6D28D9] px-3 py-2 text-[13px] font-semibold tracking-tight text-white shadow-[0_8px_24px_-6px_rgba(109,40,217,0.55)] ring-1 ring-white/10">
               {/* Arrow */}
-              <span className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rotate-45 rounded-[2px] bg-[#123B7A]" />
+              <span className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rotate-45 rounded-[2px] bg-[#6D28D9]" />
               <span className="relative">{tooltip.label}</span>
             </div>
           </div>

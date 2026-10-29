@@ -611,7 +611,7 @@ export default function AccountPage() {
         <button
           type="button"
           onClick={openCreateAccount}
-          className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0d2d60]"
+          className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0d2d60]"
         >
           <Plus size={17} />
           Create Account
@@ -635,7 +635,7 @@ export default function AccountPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search accounts..."
-              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#123B7A]"
+              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#6D28D9]"
             />
           </div>
         </div>
@@ -667,7 +667,7 @@ export default function AccountPage() {
                   <tr key={account._id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <Wallet size={17} className="text-[#123B7A]" />
+                        <Wallet size={17} className="text-[#6D28D9]" />
                         {account.accountName}
                       </div>
                     </td>
@@ -723,7 +723,7 @@ export default function AccountPage() {
   type="button"
   title="View Account Dealers"
   onClick={() => navigate(`/accounts/${account._id}`)}
-  className="rounded-lg p-2 text-[#123B7A] transition hover:bg-blue-50"
+  className="rounded-lg p-2 text-[#6D28D9] transition hover:bg-blue-50"
 >
   <Eye size={17} />
 </button>
@@ -853,7 +853,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={() => openAddBalance(selectedAccount._id)}
-                    className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white"
+                    className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white"
                   >
                     <Plus size={16} />
                     Add Dealer Balance
@@ -876,8 +876,8 @@ export default function AccountPage() {
                   </div>
 
                   <div className="rounded-lg bg-blue-50 p-3">
-                    <p className="text-xs text-[#123B7A]">Net Balance</p>
-                    <p className="mt-1 font-bold text-[#123B7A]">
+                    <p className="text-xs text-[#6D28D9]">Net Balance</p>
+                    <p className="mt-1 font-bold text-[#6D28D9]">
                       {formatAmount(selectedAccount.summary.netAmount)}{" "}
                       {selectedAccount.summary.netType}
                     </p>
@@ -1002,7 +1002,7 @@ export default function AccountPage() {
                   placeholder="Enter account name"
                   required
                   autoFocus
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A]"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9]"
                 />
               </div>
 
@@ -1019,7 +1019,7 @@ export default function AccountPage() {
                 <button
                   type="submit"
                   disabled={savingAccount}
-                  className="rounded-lg bg-[#123B7A] px-5 py-2 text-sm font-medium text-white disabled:opacity-50"
+                  className="rounded-lg bg-[#6D28D9] px-5 py-2 text-sm font-medium text-white disabled:opacity-50"
                 >
                   {savingAccount
                     ? "Saving..."
@@ -1164,7 +1164,7 @@ export default function AccountPage() {
                 <button
                   type="submit"
                   disabled={savingBalance}
-                  className="rounded-lg bg-[#123B7A] px-5 py-2 text-sm font-medium text-white disabled:opacity-50"
+                  className="rounded-lg bg-[#6D28D9] px-5 py-2 text-sm font-medium text-white disabled:opacity-50"
                 >
                   {savingBalance
                     ? "Saving..."

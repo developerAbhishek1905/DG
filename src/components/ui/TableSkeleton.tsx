@@ -57,13 +57,13 @@ export default function TableSkeleton({ rows = 8, cols = 6, headings }: Props) {
       aria-label="Loading"
     >
       <div className="h-1 w-full overflow-hidden bg-blue-100">
-        <div className="h-full w-1/3 animate-[tsLoadBar_1.2s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-[#123B7A] to-blue-400" />
+        <div className="h-full w-1/3 animate-[tsLoadBar_1.2s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-[#6D28D9] to-blue-400" />
       </div>
 
       <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-2.5 text-xs font-medium text-gray-400">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#123B7A]" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#6D28D9]" />
         </span>
         Loading data...
       </div>

@@ -250,7 +250,7 @@ export default function LedgerOverviewPage() {
           <button
             type="button"
 onClick={() => navigate("/ledger/add-entry")}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-semibold text-[#123B7A] transition hover:bg-blue-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] bg-white px-4 py-2.5 text-sm font-semibold text-[#6D28D9] transition hover:bg-blue-50"
           >
             <BookPlus size={18} />
             Add Ledger
@@ -275,7 +275,7 @@ onClick={() => navigate("/ledger/add-entry")}
                     {card.value}
                   </p>
                 </div>
-                <div className="ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+                <div className="ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
                   <Icon size={21} />
                 </div>
               </div>
@@ -297,7 +297,7 @@ onClick={() => navigate("/ledger/add-entry")}
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
               placeholder="Search dealer name, code or phone..."
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
@@ -386,4 +386,4 @@ onClick={() => navigate("/ledger/add-entry")}
 }
 
 const filterClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100";

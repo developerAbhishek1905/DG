@@ -100,7 +100,7 @@
 
 //       <button
 //         disabled={isSubmitting}
-//         className="w-full rounded-lg bg-[#123B7A] py-3 text-sm font-semibold text-white disabled:opacity-60"
+//         className="w-full rounded-lg bg-[#6D28D9] py-3 text-sm font-semibold text-white disabled:opacity-60"
 //       >
 //         {isSubmitting
 //           ? "Sending..."
@@ -110,7 +110,7 @@
 //       <div className="text-center">
 //         <Link
 //           to="/login"
-//           className="text-sm font-medium text-[#123B7A]"
+//           className="text-sm font-medium text-[#6D28D9]"
 //         >
 //           ← Back to Login
 //         </Link>

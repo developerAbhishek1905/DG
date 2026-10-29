@@ -245,7 +245,7 @@ export default function CategoryMasterPage() {
               type="button"
               onClick={handleExport}
               disabled={actionLoading}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] px-4 py-2.5 text-sm font-medium text-[#123B7A] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] px-4 py-2.5 text-sm font-medium text-[#6D28D9] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FileSpreadsheet size={17} />
               Export Excel
@@ -270,7 +270,7 @@ export default function CategoryMasterPage() {
             <button
               type="button"
               onClick={() => navigate("/category-master/create")}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm text-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm text-white"
             >
               <Plus size={17} />
               Add Category

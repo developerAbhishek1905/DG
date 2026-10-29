@@ -205,7 +205,7 @@ export default function DistrictForm({
         <button
           type="submit"
           disabled={loading || stateLoading}
-          className="rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading
             ? district

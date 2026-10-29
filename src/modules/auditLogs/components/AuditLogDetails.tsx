@@ -80,7 +80,7 @@ export default function AuditLogDetails() {
 
         <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#123B7A]">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6D28D9]">
               Audit Record
             </p>
 
@@ -115,7 +115,7 @@ export default function AuditLogDetails() {
               <div className="flex gap-3">
                 <Activity
                   size={19}
-                  className="mt-0.5 text-[#123B7A]"
+                  className="mt-0.5 text-[#6D28D9]"
                 />
 
                 <div>

@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import { useState } from "react";
 import TableSkeleton from "../../../components/ui/TableSkeleton";
 import {
@@ -31,17 +32,6 @@ const formatDate = (date?: string) => {
     month: "short",
     year: "numeric",
   });
-};
-
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case "COMPLETED":
-      return "bg-green-50 text-green-700";
-    case "REVERSED":
-      return "bg-red-50 text-red-700";
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
 };
 
 const getPaymentModeClass = (mode: string) => {
@@ -153,7 +143,7 @@ function FragmentRow({
       <tr className="transition hover:bg-gray-50">
         {/* Payment Number / Date */}
         <td className="whitespace-nowrap px-3 py-3">
-          <p className="font-semibold text-[#123B7A]">
+          <p className="font-semibold text-[#6D28D9]">
             {payment.paymentNumber}
           </p>
           <p className="mt-1 text-xs text-gray-500">
@@ -198,13 +188,7 @@ function FragmentRow({
 
         {/* Status */}
         <td className="px-3 py-3">
-          <span
-            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(
-              payment.status,
-            )}`}
-          >
-            {payment.status}
-          </span>
+          <StatusBadge status={payment.status} />
         </td>
 
         {/* Remark */}
@@ -223,7 +207,7 @@ function FragmentRow({
             type="button"
             onClick={onToggle}
             aria-expanded={isExpanded}
-            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-[#123B7A] hover:bg-blue-50"
+            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-[#6D28D9] hover:bg-blue-50"
           >
             {payment.complaintBills?.length ?? 0}
             {isExpanded ? (
@@ -263,7 +247,7 @@ function FragmentRow({
                   <tbody className="divide-y divide-gray-100">
                     {payment.complaintBills.map((bill) => (
                       <tr key={bill._id}>
-                        <td className="px-3 py-2 font-medium text-[#123B7A]">
+                        <td className="px-3 py-2 font-medium text-[#6D28D9]">
                           {bill.complaintNumber}
                         </td>
                         <td className="px-3 py-2 text-right font-semibold text-gray-800">

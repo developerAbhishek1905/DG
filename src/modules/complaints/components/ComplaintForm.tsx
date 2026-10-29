@@ -1,3 +1,5 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import {
   CheckCircle2,
   History,
@@ -1132,7 +1134,7 @@ export default function ComplaintForm({
                     {/* MOBILE */}
 
                     <div>
-                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
                         Registered Mobile
                         <span className="ml-0.5 text-red-500">*</span>
                       </label>
@@ -1239,7 +1241,7 @@ export default function ComplaintForm({
                         type="button"
                         onClick={handleUpdateCustomer}
                         disabled={updatingCustomer}
-                        className="ml-2 shrink-0 text-[11px] font-medium text-[#123B7A] hover:underline"
+                        className="ml-2 shrink-0 text-[11px] font-medium text-[#6D28D9] hover:underline"
                       >
                         {updatingCustomer ? "Updating..." : "Update"}
                       </button>
@@ -1375,7 +1377,7 @@ export default function ComplaintForm({
                     {/* TYPE */}
 
                     <div>
-                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+                      <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
                         Type
                       </label>
 
@@ -1452,7 +1454,7 @@ export default function ComplaintForm({
                             value: "",
                           })
                         }
-                        className="h-8 rounded-md border border-dashed border-[#123B7A] px-3 text-xs font-medium text-[#123B7A] transition hover:bg-blue-50"
+                        className="h-8 rounded-md border border-dashed border-[#6D28D9] px-3 text-xs font-medium text-[#6D28D9] transition hover:bg-blue-50"
                       >
                         + Add Field
                       </button>
@@ -1470,7 +1472,7 @@ export default function ComplaintForm({
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#123B7A] px-4 text-xs font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#6D28D9] px-4 text-xs font-medium text-white transition hover:bg-[#4C1D95] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting && <Loader2 size={13} className="animate-spin" />}
                 {submitting ? "Saving..." : "Save Complaint"}
@@ -1524,7 +1526,7 @@ function ComplaintHistoryTable({
 
       <div className="flex shrink-0 items-center gap-2 border-b border-gray-200 px-3 py-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50">
-          <History size={14} className="text-[#123B7A]" />
+          <History size={14} className="text-[#6D28D9]" />
         </div>
 
         <div>
@@ -1541,9 +1543,8 @@ function ComplaintHistoryTable({
       {/* Loading */}
 
       {loading && (
-        <div className="flex items-center justify-center gap-2 py-12 text-sm text-gray-500">
-          <Loader2 size={19} className="animate-spin" />
-          Searching customer and complaint history...
+        <div className="py-8">
+          <ListSkeleton rows={4} />
         </div>
       )}
 
@@ -1629,12 +1630,12 @@ function ComplaintHistoryTable({
                           onClick={() => {
                             onWarrantySelect?.(complaint);
                           }}
-                          className="font-medium text-[#123B7A] underline-offset-2 hover:underline"
+                          className="font-medium text-[#6D28D9] underline-offset-2 hover:underline"
                         >
                           {complaint.complaintNumber}
                         </button>
                       ) : (
-                        <span className="text-[#123B7A]">
+                        <span className="text-[#6D28D9]">
                           {complaint.complaintNumber}
                         </span>
                       )}
@@ -1764,7 +1765,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 function Input({ label, error, required, className, ...props }: InputProps) {
   return (
     <div className="min-w-0">
-      <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+      <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
         {label}
 
         {required && <span className="ml-0.5 text-red-500">*</span>}
@@ -1805,49 +1806,8 @@ function ErrorText({ children }: { children: React.ReactNode }) {
 /*  STATUS BADGE */
 
 function StatusBadge({ status }: { status: string }) {
-  let className = "bg-gray-100 text-gray-700";
-
-  switch (status) {
-    case "REGISTERED":
-      className = "bg-blue-50 text-blue-700";
-      break;
-
-    case "ALLOCATED":
-    case "APPOINTMENT_SCHEDULED":
-      className = "bg-purple-50 text-purple-700";
-      break;
-
-    case "PENDING":
-      className = "bg-yellow-50 text-yellow-700";
-      break;
-
-    case "WORK_IN_PROGRESS":
-      className = "bg-orange-50 text-orange-700";
-      break;
-
-    case "WORK_COMPLETED":
-    case "DG_VERIFICATION":
-      className = "bg-cyan-50 text-cyan-700";
-      break;
-
-    case "CLOSED":
-      className = "bg-green-50 text-green-700";
-      break;
-
-    case "CANCELLED":
-      className = "bg-red-50 text-red-700";
-      break;
-  }
-
-  return (
-    <span
-      className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${className}`}
-    >
-      {formatEnum(status)}
-    </span>
-  );
+  return <SharedStatusBadge status={status} />;
 }
-
 /*  HELPERS */
 
 function formatEnum(value: string) {

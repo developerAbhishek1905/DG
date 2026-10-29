@@ -1,3 +1,4 @@
+import { Skeleton } from "../../../components/ui/Skeleton";
 import {
   Check,
   ChevronDown,
@@ -371,7 +372,7 @@ export default function AppointmentCalendar({
                     return (
                       <span
                         key={dealer.id}
-                        className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-[#123B7A]"
+                        className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-[#6D28D9]"
                       >
                         {dealer.name}
 
@@ -436,7 +437,7 @@ export default function AppointmentCalendar({
                     onClick={() =>
                       setSelectedDealerIds(dealers.map((dealer) => dealer.id))
                     }
-                    className="text-xs font-medium text-[#123B7A] hover:underline"
+                    className="text-xs font-medium text-[#6D28D9] hover:underline"
                   >
                     Select All
                   </button>
@@ -470,7 +471,7 @@ export default function AppointmentCalendar({
                             <p
                               className={`truncate text-sm ${
                                 selected
-                                  ? "font-medium text-[#123B7A]"
+                                  ? "font-medium text-[#6D28D9]"
                                   : "font-medium text-gray-800"
                               }`}
                             >
@@ -484,7 +485,7 @@ export default function AppointmentCalendar({
 
                           <div
                             className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                              selected ? "bg-[#123B7A] text-white" : ""
+                              selected ? "bg-[#6D28D9] text-white" : ""
                             }`}
                           >
                             {selected && <Check size={13} />}
@@ -509,7 +510,7 @@ export default function AppointmentCalendar({
                   <button
                     type="button"
                     onClick={() => setDealerDropdownOpen(false)}
-                    className="rounded-md bg-[#123B7A] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#0B2854]"
+                    className="rounded-md bg-[#6D28D9] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#4C1D95]"
                   >
                     Done
                   </button>
@@ -599,7 +600,7 @@ export default function AppointmentCalendar({
           </span>
 
           {loading && (
-            <span className="text-xs text-gray-400">Loading...</span>
+            <Skeleton className="h-4 w-16" />
           )}
 
           {selectedDealerIds.length > 0 && (
@@ -702,7 +703,7 @@ export default function AppointmentCalendar({
                 <p
                   className={`text-xs font-semibold ${
                     isToday
-                      ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#123B7A] text-white"
+                      ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6D28D9] text-white"
                       : "text-gray-500"
                   }`}
                 >
@@ -713,7 +714,7 @@ export default function AppointmentCalendar({
 
                 {dayAppointments.length > 0 && (
                   <div className="mt-1 md:hidden">
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-[#123B7A]">
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-[#6D28D9]">
                       {dayAppointments.length}
                     </span>
                   </div>
@@ -731,7 +732,7 @@ export default function AppointmentCalendar({
                     >
                       {/* Complaint Number */}
 
-                      <p className="truncate text-[10px] font-medium text-[#123B7A]">
+                      <p className="truncate text-[10px] font-medium text-[#6D28D9]">
                         {appointment.complaintNumber}
                       </p>
 
@@ -772,7 +773,7 @@ export default function AppointmentCalendar({
                     <button
                       type="button"
                       onClick={() => setExpandedDay(day)}
-                      className="text-[11px] font-semibold text-[#123B7A] hover:underline"
+                      className="text-[11px] font-semibold text-[#6D28D9] hover:underline"
                     >
                       +{dayAppointments.length - 3} more
                     </button>
@@ -836,7 +837,7 @@ export default function AppointmentCalendar({
                   className="w-full rounded-lg border border-gray-100 bg-gray-50 p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-xs font-medium text-[#123B7A]">
+                    <p className="text-xs font-medium text-[#6D28D9]">
                       {appointment.complaintNumber}
                     </p>
 

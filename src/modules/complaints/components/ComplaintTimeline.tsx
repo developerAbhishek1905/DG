@@ -16,7 +16,7 @@ export default function ComplaintTimeline({ timeline }: Props) {
         {timeline.map((item, index) => (
           <div key={item.id} className="relative flex gap-4">
             <div className="flex flex-col items-center">
-              <div className="h-3 w-3 rounded-full bg-[#123B7A]" />
+              <div className="h-3 w-3 rounded-full bg-[#6D28D9]" />
 
               {index !== timeline.length - 1 && (
                 <div className="mt-1 h-full w-px bg-gray-200" />

@@ -32,7 +32,7 @@ export default function DealerPerformanceCard({
         </div>
 
         <div className="text-right">
-          <p className="text-3xl font-bold text-[#123B7A]">
+          <p className="text-3xl font-bold text-[#6D28D9]">
             {performance.performanceScore}
           </p>
 
@@ -82,7 +82,7 @@ function Metric({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#123B7A]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#6D28D9]">
         <Icon size={18} />
       </div>
 

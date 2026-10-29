@@ -1,3 +1,4 @@
+import { PanelSkeleton } from "../../../components/ui/Skeleton";
 import {
   useEffect,
 } from "react";
@@ -109,8 +110,6 @@ function SettingsLayout({
 
 function Loading() {
   return (
-    <p className="py-10 text-center text-sm text-gray-500">
-      Loading settings...
-    </p>
+    <PanelSkeleton />
   );
 }

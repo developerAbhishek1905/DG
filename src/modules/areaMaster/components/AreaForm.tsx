@@ -704,7 +704,7 @@ export default function LocationForm({ onCancel, onSuccess }: Props) {
             type="button"
             onClick={handleAddToList}
             disabled={saving || !stateInput.trim()}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] px-4 py-2 text-sm font-medium text-[#123B7A] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] px-4 py-2 text-sm font-medium text-[#6D28D9] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus size={16} />
             Add to list
@@ -723,7 +723,7 @@ export default function LocationForm({ onCancel, onSuccess }: Props) {
               {queue.map((item) => (
                 <span
                   key={item.key}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 py-1 pl-3 pr-1.5 text-xs font-medium text-[#123B7A]"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 py-1 pl-3 pr-1.5 text-xs font-medium text-[#6D28D9]"
                 >
                   {item.label}
 
@@ -735,7 +735,7 @@ export default function LocationForm({ onCancel, onSuccess }: Props) {
                         prev.filter((entry) => entry.key !== item.key),
                       )
                     }
-                    className="flex h-4 w-4 items-center justify-center rounded-full text-[#123B7A] hover:bg-blue-200"
+                    className="flex h-4 w-4 items-center justify-center rounded-full text-[#6D28D9] hover:bg-blue-200"
                     aria-label="Remove location"
                   >
                     <X size={11} />
@@ -766,7 +766,7 @@ export default function LocationForm({ onCancel, onSuccess }: Props) {
         <button
           type="submit"
           disabled={saving || stateLoading}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving && <Loader2 size={17} className="animate-spin" />}
 

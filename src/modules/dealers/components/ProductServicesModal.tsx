@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { Check, Search, X } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -169,9 +170,7 @@ export default function ProductServicesModal({
 
         <div className="max-h-105 overflow-y-auto p-4">
           {loading ? (
-            <div className="py-10 text-center text-sm text-gray-500">
-              Loading services...
-            </div>
+            <ListSkeleton rows={6} />
           ) : categories.length === 0 ? (
             <div className="py-10 text-center text-sm text-gray-500">
               No services found

@@ -104,7 +104,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#123B7A]">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#6D28D9]">
           Analytics
         </p>
 
@@ -138,13 +138,13 @@ export default function ReportsPage() {
                 }
                 className="group rounded-xl border border-gray-200 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
                   <Icon
                     size={21}
                   />
                 </div>
 
-                <h2 className="mt-5 text-base font-semibold text-gray-900 group-hover:text-[#123B7A]">
+                <h2 className="mt-5 text-base font-semibold text-gray-900 group-hover:text-[#6D28D9]">
                   {
                     report.title
                   }
@@ -156,7 +156,7 @@ export default function ReportsPage() {
                   }
                 </p>
 
-                <p className="mt-5 text-sm font-medium text-[#123B7A]">
+                <p className="mt-5 text-sm font-medium text-[#6D28D9]">
                   View Report →
                 </p>
               </button>

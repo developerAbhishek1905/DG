@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft, CheckCircle2, Clock3, Star, XCircle } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,9 +20,7 @@ export default function DealerPerformancePage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading performance...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -103,7 +102,7 @@ export default function DealerPerformancePage() {
         <Card className="p-6 lg:col-span-1">
           <p className="text-sm text-gray-500">Overall Score</p>
 
-          <p className="mt-3 text-5xl font-bold text-[#123B7A]">
+          <p className="mt-3 text-5xl font-bold text-[#6D28D9]">
             {performance.performanceScore}
           </p>
 
@@ -111,7 +110,7 @@ export default function DealerPerformancePage() {
 
           <div className="mt-6 h-3 overflow-hidden rounded-full bg-gray-100">
             <div
-              className="h-full rounded-full bg-[#123B7A]"
+              className="h-full rounded-full bg-[#6D28D9]"
               style={{
                 width: `${performance.performanceScore}%`,
               }}
@@ -170,7 +169,7 @@ function KPI({
   return (
     <Card className="p-5">
       <div className="flex items-center gap-4">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
           <Icon size={21} />
         </div>
 
@@ -205,7 +204,7 @@ function Progress({ label, value }: { label: string; value: number }) {
 
       <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
         <div
-          className="h-full rounded-full bg-[#123B7A]"
+          className="h-full rounded-full bg-[#6D28D9]"
           style={{
             width: `${Math.min(value, 100)}%`,
           }}

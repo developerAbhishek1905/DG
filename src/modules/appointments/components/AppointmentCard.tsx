@@ -31,7 +31,7 @@ export default function AppointmentCard({
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium text-[#123B7A]">
+          <p className="text-xs font-medium text-[#6D28D9]">
             {
               appointment.complaintNumber
             }

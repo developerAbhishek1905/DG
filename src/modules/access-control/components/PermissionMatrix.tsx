@@ -81,8 +81,8 @@ function Box({
       onClick={onClick}
       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition ${
         on
-          ? "border-[#123B7A] bg-[#123B7A] text-white"
-          : "border-gray-300 bg-white hover:border-[#123B7A]"
+          ? "border-[#6D28D9] bg-[#6D28D9] text-white"
+          : "border-gray-300 bg-white hover:border-[#6D28D9]"
       } ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
     >
       {state === "all" && <Check size={13} strokeWidth={3} />}
@@ -169,12 +169,12 @@ export default function PermissionMatrix({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search module or permission..."
-            className="h-10 w-full rounded-lg border border-gray-300 pl-9 pr-3 text-sm outline-none focus:border-[#123B7A]"
+            className="h-10 w-full rounded-lg border border-gray-300 pl-9 pr-3 text-sm outline-none focus:border-[#6D28D9]"
           />
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-[#123B7A]">
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-[#6D28D9]">
             {totalSelected} of {total} selected
           </span>
 
@@ -183,7 +183,7 @@ export default function PermissionMatrix({
               <button
                 type="button"
                 onClick={() => setKeys(permissions.map((p) => p.key), true)}
-                className="text-xs font-medium text-[#123B7A] hover:underline"
+                className="text-xs font-medium text-[#6D28D9] hover:underline"
               >
                 Select all
               </button>
@@ -265,7 +265,7 @@ export default function PermissionMatrix({
                             className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                               count === 0
                                 ? "bg-gray-100 text-gray-500"
-                                : "bg-blue-100 text-[#123B7A]"
+                                : "bg-blue-100 text-[#6D28D9]"
                             }`}
                           >
                             {count}/{keys.length}

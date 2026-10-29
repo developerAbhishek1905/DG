@@ -231,7 +231,7 @@ export default function PaymentForm({
                 )
               }
               placeholder="Search dealer name, code, phone or city..."
-              className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm outline-none focus:border-[#123B7A]"
+              className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm outline-none focus:border-[#6D28D9]"
             />
 
             {dealerSearch.trim()
@@ -267,7 +267,7 @@ export default function PaymentForm({
                         }}
                         className="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left last:border-none hover:bg-gray-50"
                       >
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
                           <Building2
                             size={
                               17
@@ -309,7 +309,7 @@ export default function PaymentForm({
         ) : (
           <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50/50 p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-[#123B7A]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-[#6D28D9]">
                 <Building2
                   size={18}
                 />
@@ -545,7 +545,7 @@ export default function PaymentForm({
             submitting ||
             !selectedDealer
           }
-          className="rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-[#6D28D9] px-6 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting
             ? "Recording..."

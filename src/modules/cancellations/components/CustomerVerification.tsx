@@ -165,7 +165,7 @@ export default function CustomerVerification({
       <div className="flex items-center gap-3">
         <Phone
           size={19}
-          className="text-[#123B7A]"
+          className="text-[#6D28D9]"
         />
 
         <div>
@@ -312,7 +312,7 @@ export default function CustomerVerification({
           disabled={
             isSubmitting
           }
-          className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
         >
           {isSubmitting
             ? "Verifying..."

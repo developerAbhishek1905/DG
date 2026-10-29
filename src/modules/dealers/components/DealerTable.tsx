@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import {
   CheckCircle2,
   Edit,
@@ -131,7 +132,7 @@ export default function DealerTable({
                   {/* HEAD CODE */}
 
                   <td className="px-3 py-4">
-                    <span className="block truncate text-sm font-semibold text-[#123B7A]">
+                    <span className="block truncate text-sm font-semibold text-[#6D28D9]">
                       {dealer.headCode || "-"}
                     </span>
                   </td>
@@ -143,7 +144,7 @@ export default function DealerTable({
                       type="button"
                       title={dealer.technicianFirmName || ""}
                       onClick={() => navigate(`/dealers/${dealer._id}`)}
-                      className="block w-full truncate text-left text-sm font-medium text-gray-900 hover:text-[#123B7A]"
+                      className="block w-full truncate text-left text-sm font-medium text-gray-900 hover:text-[#6D28D9]"
                     >
                       {dealer.technicianFirmName || "-"}
                     </button>
@@ -257,7 +258,7 @@ export default function DealerTable({
                     {dealer.technicianFirmName || "-"}
                   </button>
 
-                  <p className="mt-1 text-xs font-medium text-[#123B7A]">
+                  <p className="mt-1 text-xs font-medium text-[#6D28D9]">
                     {dealer.headCode || "-"}
                   </p>
                 </div>
@@ -595,32 +596,9 @@ function DealerStatusBadge({
 }: {
   status?: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "LEAVE";
 }) {
-  const variants = {
-    ACTIVE: "bg-green-50 text-green-700",
-    INACTIVE: "bg-gray-100 text-gray-600",
-    SUSPENDED: "bg-red-50 text-red-700",
-    LEAVE: "bg-amber-50 text-amber-700",
-  };
-
-  const labels = {
-    ACTIVE: "Active",
-    INACTIVE: "Inactive",
-    SUSPENDED: "Suspended",
-    LEAVE: "On Leave",
-  };
-
-  const currentStatus = status ?? "INACTIVE";
-
-  return (
-    <span
-      className={`inline-flex shrink-0 rounded-full px-2 py-1 text-[11px] font-medium ${
-        variants[currentStatus]
-      }`}
-    >
-      {labels[currentStatus]}
-    </span>
-  );
+  return <StatusBadge status={status ?? "INACTIVE"} size="sm" />;
 }
+
 /* =========================================
    DESKTOP ACTIONS
 ========================================= */
@@ -741,7 +719,7 @@ function CapacityPopover({
           hover:border-blue-200 hover:bg-blue-50
         "
       >
-        <span className="text-sm font-bold text-[#123B7A]">
+        <span className="text-sm font-bold text-[#6D28D9]">
           {capacity.total}
         </span>
 
@@ -775,7 +753,7 @@ function CapacityPopover({
       >
         {/* HEADER */}
 
-        <div className="flex items-center justify-between rounded-lg bg-[#123B7A] px-3 py-2 text-white">
+        <div className="flex items-center justify-between rounded-lg bg-[#6D28D9] px-3 py-2 text-white">
           <div className="min-w-0">
             <p className="text-xs font-semibold">Capacity Information</p>
 
@@ -807,7 +785,7 @@ function CapacityPopover({
                   {c.city}
                 </span>
 
-                <span className="ml-2 rounded bg-white px-1.5 py-0.5 text-xs font-bold text-[#123B7A] shadow-sm">
+                <span className="ml-2 rounded bg-white px-1.5 py-0.5 text-xs font-bold text-[#6D28D9] shadow-sm">
                   {c.total}
                 </span>
               </div>

@@ -170,7 +170,7 @@ export default function RescheduleModal({
                     "You can reschedule only within 7 days",
                 },
               })}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] focus:ring-1 focus:ring-[#123B7A]"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9]"
             />
 
             {errors.appointmentDate && (
@@ -194,7 +194,7 @@ export default function RescheduleModal({
               {...register("appointmentTime", {
                 required: "New time is required",
               })}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] focus:ring-1 focus:ring-[#123B7A]"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9]"
             />
 
             {errors.appointmentTime && (
@@ -210,7 +210,7 @@ export default function RescheduleModal({
             <div className="rounded-lg bg-blue-50 p-3">
               <p className="text-xs text-blue-700">New appointment</p>
 
-              <p className="mt-1 text-sm font-semibold text-[#123B7A]">
+              <p className="mt-1 text-sm font-semibold text-[#6D28D9]">
                 {selectedDate}
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function RescheduleModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? "Rescheduling..." : "Confirm Reschedule"}
             </button>

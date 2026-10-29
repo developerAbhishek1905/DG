@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import { RotateCcw, Search, X } from "lucide-react";
 
 import TableSkeleton from "../../../components/ui/TableSkeleton";
@@ -581,7 +582,7 @@ export default function CancellationListPage() {
             }}
             className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${
               cancelType === tab.key
-                ? "border-[#123B7A] bg-[#123B7A] text-white"
+                ? "border-[#6D28D9] bg-[#6D28D9] text-white"
                 : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
@@ -659,7 +660,7 @@ export default function CancellationListPage() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {/* Search */}
           <div className="flex flex-col">
-            <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+            <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
               Search
             </label>
 
@@ -684,7 +685,7 @@ export default function CancellationListPage() {
 
           {/* From Date */}
           <div className="min-w-0">
-            <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+            <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
               From Date
             </label>
 
@@ -702,7 +703,7 @@ export default function CancellationListPage() {
 
           {/* To Date */}
           <div className="min-w-0">
-            <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+            <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
               To Date
             </label>
 
@@ -893,9 +894,7 @@ export default function CancellationListPage() {
             {/* Body */}
             <div className="max-h-[75vh] overflow-y-auto p-4">
               {assignmentLoading ? (
-                <div className="py-12 text-center text-sm text-gray-500">
-                  Loading complaint...
-                </div>
+                <DetailsSkeleton />
               ) : assignmentComplaint ? (
                 <DealerInfoCard
                   complaintId={assignmentComplaint._id}

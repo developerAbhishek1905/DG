@@ -344,7 +344,7 @@ export default function CancellationTable({
                       <button
                         type="button"
                         onClick={() => navigate(`/complaints/${row._id}`)}
-                        className="whitespace-nowrap text-left text-[11px] font-semibold text-[#123B7A] hover:underline"
+                        className="whitespace-nowrap text-left text-[11px] font-semibold text-[#6D28D9] hover:underline"
                       >
                         {row.complaintNumber}
                       </button>

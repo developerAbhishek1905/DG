@@ -150,7 +150,7 @@ export default function LoginForm() {
 
         <Link
           to="/forgot-password"
-          className="text-sm font-medium text-[#123B7A] hover:underline"
+          className="text-sm font-medium text-[#6D28D9] hover:underline"
         >
           Forgot password?
         </Link>
@@ -159,7 +159,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-[#123B7A] py-3 text-sm font-semibold text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-lg bg-[#6D28D9] py-3 text-sm font-semibold text-white transition hover:bg-[#4C1D95] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Signing in..." : "Sign In"}
       </button>

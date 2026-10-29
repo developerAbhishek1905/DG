@@ -93,7 +93,7 @@ export default function DealerSuspendModal({
             </div>
 
             <div className="mt-4">
-              <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+              <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
                 Suspension Reason *
               </label>
 

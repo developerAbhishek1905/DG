@@ -55,7 +55,7 @@ interface Props {
   onReset: () => void;
 }
 
-const labelCls = "mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]";
+const labelCls = "mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]";
 
 const controlCls =
   "h-8 w-full rounded-md border border-gray-300 bg-white px-2.5 text-xs text-gray-700 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-100";

@@ -1,3 +1,4 @@
+import { FormSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -114,9 +115,7 @@ const handleSubmit = async (data: CategoryFormData) => {
 
   if (isEdit && pageLoading) {
     return (
-      <div className="rounded-xl border bg-white p-10 text-center">
-        Loading category...
-      </div>
+      <FormSkeleton fields={4} />
     );
   }
 

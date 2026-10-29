@@ -106,7 +106,7 @@
 //           {/* Allocation Rules */}
 
 //           <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-//             <h4 className="text-sm font-semibold text-[#123B7A]">
+//             <h4 className="text-sm font-semibold text-[#6D28D9]">
 //               Allocation Priority
 //             </h4>
 
@@ -149,7 +149,7 @@
 //                     onClick={() => onSelectDealer(dealer.id)}
 //                     className={`w-full rounded-xl border p-4 text-left transition ${
 //                       selected
-//                         ? "border-[#123B7A] bg-blue-50 ring-1 ring-[#123B7A]"
+//                         ? "border-[#6D28D9] bg-blue-50 ring-1 ring-[#6D28D9]"
 //                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
 //                     } ${
 //                       !dealer.available ? "cursor-not-allowed opacity-50" : ""
@@ -219,11 +219,11 @@
 
 //                       <div
 //                         className={`h-5 w-5 shrink-0 rounded-full border-2 ${
-//                           selected ? "border-[#123B7A]" : "border-gray-300"
+//                           selected ? "border-[#6D28D9]" : "border-gray-300"
 //                         }`}
 //                       >
 //                         {selected && (
-//                           <div className="m-0.75 h-2.5 w-2.5 rounded-full bg-[#123B7A]" />
+//                           <div className="m-0.75 h-2.5 w-2.5 rounded-full bg-[#6D28D9]" />
 //                         )}
 //                       </div>
 //                     </div>
@@ -250,7 +250,7 @@
 //             type="button"
 //             disabled={!selectedDealerId || loading}
 //             onClick={onAllocate}
-//             className="rounded-lg bg-[#123B7A] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854] disabled:cursor-not-allowed disabled:opacity-50"
+//             className="rounded-lg bg-[#6D28D9] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#4C1D95] disabled:cursor-not-allowed disabled:opacity-50"
 //           >
 //             {loading ? "Allocating..." : "Allocate Dealer"}
 //           </button>
@@ -271,7 +271,7 @@
 // }) {
 //   return (
 //     <div className="rounded-xl border border-gray-200 p-4">
-//       <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+//       <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
 //         {icon}
 //       </div>
 //       <p className="text-sm font-semibold text-gray-900">{title}</p>
@@ -282,7 +282,7 @@
 
 // function CriteriaBadge({ children }: { children: React.ReactNode }) {
 //   return (
-//     <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-medium text-[#123B7A]">
+//     <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-medium text-[#6D28D9]">
 //       {children}
 //     </span>
 //   );
@@ -317,6 +317,7 @@
 // }
 
 
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import {
   Building2,
   Check,
@@ -451,7 +452,7 @@ const handleAssign = async () => {
 
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <div>
-            <h2 className="text-base font-semibold text-[#123B7A]">
+            <h2 className="text-base font-semibold text-[#6D28D9]">
               {currentDealerId
                 ? "Reassign Dealer"
                 : "Assign Dealer"}
@@ -476,12 +477,7 @@ const handleAssign = async () => {
 
         <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
-            <div className="flex h-40 items-center justify-center">
-              <Loader2
-                size={24}
-                className="animate-spin text-[#123B7A]"
-              />
-            </div>
+            <ListSkeleton rows={5} />
           ) : error ? (
             <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
               {error}
@@ -525,14 +521,14 @@ const handleAssign = async () => {
                     }
                     className={`relative rounded-lg border p-4 text-left transition ${
                       selected
-                        ? "border-[#123B7A] bg-blue-50"
+                        ? "border-[#6D28D9] bg-blue-50"
                         : current
                           ? "cursor-not-allowed border-green-200 bg-green-50"
-                          : "border-gray-200 hover:border-[#123B7A]"
+                          : "border-gray-200 hover:border-[#6D28D9]"
                     }`}
                   >
                     {selected && (
-                      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-[#123B7A] text-white">
+                      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-[#6D28D9] text-white">
                         <Check size={12} />
                       </div>
                     )}
@@ -632,7 +628,7 @@ const handleAssign = async () => {
               submitting
             }
             onClick={handleAssign}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting && (
               <Loader2

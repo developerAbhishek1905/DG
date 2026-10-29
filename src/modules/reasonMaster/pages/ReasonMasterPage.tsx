@@ -354,7 +354,7 @@ export default function ReasonMasterPage() {
           <button
             type="button"
             onClick={handleAddReason}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#032963]"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#032963]"
           >
             <Plus size={18} />
             Add Reason
@@ -381,14 +381,14 @@ export default function ReasonMasterPage() {
                       onClick={() => handleTabChange(tab.value)}
                       className={`relative whitespace-nowrap px-5 py-4 text-sm font-medium transition ${
                         isActive
-                          ? "text-[#123B7A]"
+                          ? "text-[#6D28D9]"
                           : "text-gray-500 hover:text-gray-800"
                       }`}
                     >
                       {tab.label}
 
                       {isActive && (
-                        <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#123B7A]" />
+                        <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#6D28D9]" />
                       )}
                     </button>
                   );

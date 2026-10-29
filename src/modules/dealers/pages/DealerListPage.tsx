@@ -97,10 +97,10 @@ export default function DealerListPage() {
             onClick={() => navigate("/dealers/create")}
             className="
               inline-flex items-center justify-center gap-2
-              rounded-lg bg-[#123B7A]
+              rounded-lg bg-[#6D28D9]
               px-4 py-2.5
               text-sm font-medium text-white
-              transition hover:bg-[#0B2854]
+              transition hover:bg-[#4C1D95]
             "
           >
             <Plus size={18} />

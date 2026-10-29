@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import {
   getBillingTypeLabel,
   getLedgerStatusLabel,
@@ -68,28 +69,6 @@ export default function LedgerTable({
       month: "short",
       year: "numeric",
     });
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "bg-green-50 text-green-700";
-
-      case "PENDING":
-        return "bg-yellow-50 text-yellow-700";
-
-      case "BILLED":
-        return "bg-blue-50 text-blue-700";
-
-      case "REVERSED":
-        return "bg-purple-50 text-purple-700";
-
-      case "CANCELLED":
-        return "bg-red-50 text-red-700";
-
-      default:
-        return "bg-gray-100 text-gray-600";
-    }
   };
 
   if (loading) {
@@ -188,7 +167,7 @@ export default function LedgerTable({
                   </td>
 
                   <td className="px-4 py-3">
-                    <p className="whitespace-nowrap text-sm font-semibold text-[#123B7A]">
+                    <p className="whitespace-nowrap text-sm font-semibold text-[#6D28D9]">
                       {ledger.complaintNumber || "-"}
                     </p>
 
@@ -285,13 +264,7 @@ export default function LedgerTable({
                   </td>
 
                   <td className="px-4 py-3 text-center">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(
-                        ledger.status,
-                      )}`}
-                    >
-                      {getLedgerStatusLabel(ledger.status)}
-                    </span>
+                    <StatusBadge status={ledger.status} label={getLedgerStatusLabel(ledger.status)} />
                   </td>
 
                 <td className="px-4 py-3">
@@ -352,7 +325,7 @@ export default function LedgerTable({
           }}
           className="pointer-events-none z-[100] rounded-lg border border-gray-200 bg-white p-3 shadow-xl"
         >
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#123B7A]">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6D28D9]">
             Closing Remark
           </p>
 

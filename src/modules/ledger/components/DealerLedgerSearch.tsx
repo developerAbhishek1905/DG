@@ -61,7 +61,7 @@ export default function DealerLedgerSearch({
           }
           onFocus={() => setFocused(true)}
           placeholder="Search dealer by name, code, phone or city..."
-          className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-11 text-sm outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-11 text-sm outline-none transition focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100"
         />
 
         {search && (
@@ -93,7 +93,7 @@ export default function DealerLedgerSearch({
                   className="flex w-full items-center justify-between gap-4 border-b border-gray-100 px-4 py-3 text-left last:border-b-0 hover:bg-gray-50"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
                       <Building2 size={18} />
                     </div>
 

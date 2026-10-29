@@ -48,7 +48,7 @@ export default function RecommendedDealerCard({
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-blue-100 bg-blue-50 px-6 py-4">
-        <div className="flex items-center gap-2 text-[#123B7A]">
+        <div className="flex items-center gap-2 text-[#6D28D9]">
           <Award size={20} />
 
           <h3 className="font-semibold">
@@ -135,7 +135,7 @@ export default function RecommendedDealerCard({
             onClick={() =>
               onAssign(dealer)
             }
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-60"
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-60"
           >
             <CheckCircle2 size={17} />
 

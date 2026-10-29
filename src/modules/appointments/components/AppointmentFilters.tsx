@@ -30,10 +30,10 @@ interface AppointmentFiltersProps {
 }
 
 const labelCls =
-  "mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]";
+  "mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]";
 
 const controlCls =
-  "h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
+  "h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100";
 
 export default function AppointmentFilters({
   search,

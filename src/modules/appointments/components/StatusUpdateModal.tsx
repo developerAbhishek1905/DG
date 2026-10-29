@@ -269,7 +269,7 @@ export default function StatusUpdateModal({
                     e.target.value,
                   )
                 }
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-[#123B7A]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-[#6D28D9]"
               />
 
               <p className="mt-1 text-xs text-gray-400">
@@ -290,7 +290,7 @@ export default function StatusUpdateModal({
                     e.target.value,
                   )
                 }
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-[#123B7A]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-[#6D28D9]"
               />
             </div>
           </div>
@@ -309,7 +309,7 @@ export default function StatusUpdateModal({
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${
                     pendingReason ===
                     reason.value
-                      ? "border-[#123B7A] bg-blue-50"
+                      ? "border-[#6D28D9] bg-blue-50"
                       : "border-gray-200"
                   }`}
                 >
@@ -356,7 +356,7 @@ export default function StatusUpdateModal({
                       className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${
                         cancellationReason ===
                         reason.value
-                          ? "border-[#123B7A] bg-blue-50"
+                          ? "border-[#6D28D9] bg-blue-50"
                           : "border-gray-200"
                       }`}
                     >
@@ -400,7 +400,7 @@ export default function StatusUpdateModal({
                       className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${
                         cancellationReason ===
                         reason.value
-                          ? "border-[#123B7A] bg-blue-50"
+                          ? "border-[#6D28D9] bg-blue-50"
                           : "border-gray-200"
                       }`}
                     >
@@ -449,7 +449,7 @@ export default function StatusUpdateModal({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
           >
             {loading
               ? "Updating..."

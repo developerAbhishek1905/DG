@@ -1,3 +1,5 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import {
   ArrowLeft,
   Building2,
@@ -138,9 +140,7 @@ export default function ReconciliationDetailsPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading reconciliation...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -178,7 +178,7 @@ export default function ReconciliationDetailsPage() {
                 true
               )
             }
-            className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white"
+            className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white"
           >
             Reconcile Difference
           </button>
@@ -206,7 +206,7 @@ export default function ReconciliationDetailsPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <div className="flex flex-col justify-between gap-5 md:flex-row">
           <div>
-            <p className="text-xs font-semibold uppercase text-[#123B7A]">
+            <p className="text-xs font-semibold uppercase text-[#6D28D9]">
               Reconciliation
             </p>
 
@@ -476,35 +476,9 @@ function Info({
   );
 }
 
-function StatusBadge({
-  status,
-}: {
-  status:
-    Reconciliation["status"];
-}) {
-  const styles = {
-    PENDING:
-      "border-amber-200 bg-amber-50 text-amber-700",
-
-    MATCHED:
-      "border-green-200 bg-green-50 text-green-700",
-
-    MISMATCH:
-      "border-red-200 bg-red-50 text-red-700",
-
-    RECONCILED:
-      "border-blue-200 bg-blue-50 text-blue-700",
-  };
-
-  return (
-    <span
-      className={`h-fit rounded-full border px-3 py-1 text-xs font-medium ${styles[status]}`}
-    >
-      {status}
-    </span>
-  );
+function StatusBadge({ status }: { status: string }) {
+  return <SharedStatusBadge status={status} />;
 }
-
 function formatDate(
   date: string
 ) {

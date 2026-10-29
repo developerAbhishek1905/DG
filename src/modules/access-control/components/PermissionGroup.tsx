@@ -56,7 +56,7 @@ export default function PermissionGroup({
               permissions
             )
           }
-          className="text-xs font-medium text-[#123B7A]"
+          className="text-xs font-medium text-[#6D28D9]"
         >
           {allSelected
             ? "Remove All"

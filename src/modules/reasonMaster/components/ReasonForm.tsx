@@ -172,7 +172,7 @@ export default function ReasonForm({
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-[#123B7A] px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-[#6D28D9] px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
                 ? "Saving..."

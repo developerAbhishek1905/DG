@@ -69,7 +69,7 @@ export default function AreaTable({
           <tbody className="divide-y divide-gray-100">
             {areas.map((area) => (
               <tr key={area._id} className="hover:bg-gray-50">
-                <td className="px-5 py-4 font-medium text-[#123B7A]">
+                <td className="px-5 py-4 font-medium text-[#6D28D9]">
                   {area.areaCode}
                 </td>
 

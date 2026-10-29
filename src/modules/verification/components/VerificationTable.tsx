@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import {
   CheckCircle2,
   Eye,
@@ -111,7 +112,7 @@ export default function VerificationTable({
                             `/verification/${record.id}`
                           )
                         }
-                        className="font-medium text-[#123B7A] hover:underline"
+                        className="font-medium text-[#6D28D9] hover:underline"
                       >
                         {
                           record.complaintNumber
@@ -352,37 +353,6 @@ function SLAStatusBadge({
   );
 }
 
-function StatusBadge({
-  status,
-}: {
-  status:
-    VerificationRecord["status"];
-}) {
-  const styles = {
-    PENDING:
-      "bg-gray-50 text-gray-700 border-gray-200",
-
-    IN_REVIEW:
-      "bg-blue-50 text-blue-700 border-blue-200",
-
-    VERIFIED:
-      "bg-green-50 text-green-700 border-green-200",
-
-    REJECTED:
-      "bg-red-50 text-red-700 border-red-200",
-
-    CORRECTION_REQUIRED:
-      "bg-purple-50 text-purple-700 border-purple-200",
-  };
-
-  return (
-    <span
-      className={`rounded-full border px-2.5 py-1 text-xs font-medium ${styles[status]}`}
-    >
-      {status.replaceAll(
-        "_",
-        " "
-      )}
-    </span>
-  );
+function StatusBadge({ status }: { status: string }) {
+  return <SharedStatusBadge status={status} />;
 }

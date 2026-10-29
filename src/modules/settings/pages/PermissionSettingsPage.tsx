@@ -1,3 +1,4 @@
+import { PanelSkeleton } from "../../../components/ui/Skeleton";
 import {
   useEffect,
   useState,
@@ -97,7 +98,7 @@ export default function PermissionSettingsPage() {
             disabled={
               saving
             }
-            className="h-fit rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            className="h-fit rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
           >
             {saving
               ? "Saving..."
@@ -107,9 +108,7 @@ export default function PermissionSettingsPage() {
 
         <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
           {loading ? (
-            <p className="py-10 text-center text-sm text-gray-500">
-              Loading permissions...
-            </p>
+            <PanelSkeleton />
           ) : (
             <PermissionMatrix
               permissions={

@@ -107,14 +107,14 @@ export default function ClosureTypeSelector({
               }
               className={`rounded-xl border p-4 text-left transition ${
                 selected
-                  ? "border-[#123B7A] bg-blue-50 ring-1 ring-[#123B7A]"
+                  ? "border-[#6D28D9] bg-blue-50 ring-1 ring-[#6D28D9]"
                   : "border-gray-200 bg-white hover:border-blue-300"
               }`}
             >
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-lg ${
                   selected
-                    ? "bg-[#123B7A] text-white"
+                    ? "bg-[#6D28D9] text-white"
                     : "bg-gray-100 text-gray-600"
                 }`}
               >

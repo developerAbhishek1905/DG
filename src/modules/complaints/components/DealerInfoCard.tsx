@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import {
   Building2,
   MapPin,
@@ -51,12 +52,12 @@ export default function DealerInfoCard({
 
         <div className="flex items-center justify-between border-b border-blue-100 bg-blue-50/70 px-4 py-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#123B7A] text-white">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#6D28D9] text-white">
               <Building2 size={15} />
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-[#123B7A]">
+              <h3 className="text-sm font-bold text-[#6D28D9]">
                 Dealer Information
               </h3>
 
@@ -82,7 +83,7 @@ export default function DealerInfoCard({
 
               <div className="mb-3 flex items-center justify-between rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50/80 to-white px-3 py-2.5">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#123B7A] text-white">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#6D28D9] text-white">
                     <UserRound size={17} />
                   </div>
 
@@ -97,7 +98,7 @@ export default function DealerInfoCard({
 
                     {dealer.firmName && (
                       <p
-                        className="truncate text-[11px] font-medium text-[#123B7A]"
+                        className="truncate text-[11px] font-medium text-[#6D28D9]"
                         title={dealer.firmName}
                       >
                         {dealer.firmName}
@@ -163,7 +164,7 @@ export default function DealerInfoCard({
                 <button
                   type="button"
                   onClick={() => setOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#123B7A] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#123B7A] shadow-sm transition hover:bg-[#123B7A] hover:text-white"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#6D28D9] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6D28D9] shadow-sm transition hover:bg-[#6D28D9] hover:text-white"
                 >
                   <RefreshCw size={13} />
                   Reassign Dealer
@@ -177,7 +178,7 @@ export default function DealerInfoCard({
 
             <div className="flex items-center justify-between gap-4 rounded-lg border border-dashed border-blue-200 bg-blue-50/40 p-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-[#123B7A]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-[#6D28D9]">
                   <UserRoundSearch size={19} />
                 </div>
 
@@ -195,7 +196,7 @@ export default function DealerInfoCard({
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#123B7A] px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#0B2854]"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#6D28D9] px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#4C1D95]"
               >
                 <UserRoundSearch size={14} />
                 Assign Dealer
@@ -252,7 +253,7 @@ function DealerField({
       }`}
     >
       <div className="flex items-center gap-1.5">
-        {icon && <span className="shrink-0 text-[#123B7A]">{icon}</span>}
+        {icon && <span className="shrink-0 text-[#6D28D9]">{icon}</span>}
 
         <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-400">
           {label}
@@ -276,62 +277,15 @@ function DealerField({
 function DealerStatus({ status }: { status?: string }) {
   if (!status) return null;
 
-  const isActive = status === "ACTIVE";
-
-  return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-bold ${
-        isActive
-          ? "border-green-200 bg-green-50 text-green-700"
-          : "border-gray-200 bg-gray-50 text-gray-600"
-      }`}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-
-      {status}
-    </span>
-  );
+  return <SharedStatusBadge status={status} size="sm" />;
 }
-
 /* =========================================================
    ALLOCATION STATUS
 ========================================================= */
 
-function AllocationStatusBadge({
-  status,
-}: {
-  status: "UNASSIGNED" | "ASSIGNED" | "REASSIGNMENT_REQUIRED";
-}) {
-  const config = {
-    UNASSIGNED: {
-      label: "Unassigned",
-      className: "border-amber-200 bg-amber-50 text-amber-700",
-    },
-
-    ASSIGNED: {
-      label: "Assigned",
-      className: "border-green-200 bg-green-50 text-green-700",
-    },
-
-    REASSIGNMENT_REQUIRED: {
-      label: "Reassignment Required",
-      className: "border-red-200 bg-red-50 text-red-700",
-    },
-  };
-
-  const item = config[status];
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${item.className}`}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-
-      {item.label}
-    </span>
-  );
+function AllocationStatusBadge({ status }: { status: "UNASSIGNED" | "ASSIGNED" | "REASSIGNMENT_REQUIRED" }) {
+  return <SharedStatusBadge status={status} size="sm" />;
 }
-
 /* =========================================================
    DEALER FIELD
 ========================================================= */

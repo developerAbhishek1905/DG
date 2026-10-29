@@ -79,7 +79,7 @@ export default function PaymentTable({
                           `/payments/${payment.id}`
                         )
                       }
-                      className="text-sm font-semibold text-[#123B7A] hover:underline"
+                      className="text-sm font-semibold text-[#6D28D9] hover:underline"
                     >
                       {
                         payment.paymentNumber
@@ -165,7 +165,7 @@ export default function PaymentTable({
                           `/payments/${payment.id}`
                         )
                       }
-                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#6D28D9]"
                     >
                       <Eye
                         size={17}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { TableSkeletonRows } from "../../../components/ui/TableSkeleton";
+import StatusBadge from "../../../components/ui/StatusBadge";
 import DateRangeFilter from "./DateRangeFilter";
 import { getDealerAllBills, type DealerAllBills } from "../services/ledgerApi";
 
@@ -16,23 +17,6 @@ const showDate = (value: string) => {
   if (Number.isNaN(date.getTime())) return "-";
 
   return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-};
-
-const paymentBadge: Record<string, { label: string; className: string }> = {
-  PAID: { label: "Paid", className: "bg-green-50 text-green-700" },
-  PARTIALLY_PAID: {
-    label: "Partially Paid",
-    className: "bg-amber-50 text-amber-700",
-  },
-  UNPAID: { label: "Unpaid", className: "bg-red-50 text-red-700" },
-};
-
-const approvalBadge: Record<string, string> = {
-  APPROVED: "bg-green-50 text-green-700",
-  BILLED: "bg-blue-50 text-blue-700",
-  PENDING: "bg-yellow-50 text-yellow-700",
-  CANCELLED: "bg-gray-100 text-gray-600",
-  REVERSED: "bg-gray-100 text-gray-600",
 };
 
 export default function AllBillsTab({ dealerId }: { dealerId: string }) {
@@ -90,7 +74,7 @@ export default function AllBillsTab({ dealerId }: { dealerId: string }) {
           <select
             value={paymentStatus}
             onChange={(e) => setPaymentStatus(e.target.value)}
-            className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100"
+            className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100"
           >
             <option value="ALL">All</option>
             <option value="UNPAID">Unpaid</option>
@@ -134,7 +118,6 @@ export default function AllBillsTab({ dealerId }: { dealerId: string }) {
                 </tr>
               ) : (
                 data.rows.map((bill) => {
-                  const badge = paymentBadge[bill.paymentStatus] ?? paymentBadge.UNPAID;
 
                   return (
                     <tr key={bill._id} className="hover:bg-gray-50">
@@ -178,21 +161,11 @@ export default function AllBillsTab({ dealerId }: { dealerId: string }) {
                       </td>
 
                       <td className="px-4 py-2.5 text-center">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            approvalBadge[bill.status] ?? "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {bill.status.charAt(0) + bill.status.slice(1).toLowerCase()}
-                        </span>
+                        <StatusBadge status={bill.status} size="sm" />
                       </td>
 
                       <td className="px-4 py-2.5 text-center">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${badge.className}`}
-                        >
-                          {badge.label}
-                        </span>
+                        <StatusBadge status={bill.paymentStatus} size="sm" />
                       </td>
                     </tr>
                   );

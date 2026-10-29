@@ -698,7 +698,7 @@ export default function PendingListPage() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {/* Search */}
           <div className="flex flex-col">
-            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#123B7A]">
+            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#6D28D9]">
               Search
             </label>
 
@@ -816,7 +816,7 @@ export default function PendingListPage() {
 
           {/* Start Date */}
           <div className="flex flex-col">
-            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#123B7A]">
+            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#6D28D9]">
               From Date
             </label>
 
@@ -839,7 +839,7 @@ export default function PendingListPage() {
 
           {/* End Date */}
           <div className="flex flex-col">
-            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#123B7A]">
+            <label className="mb-0.5 text-[11px] font-medium leading-4 text-[#6D28D9]">
               To Date
             </label>
 

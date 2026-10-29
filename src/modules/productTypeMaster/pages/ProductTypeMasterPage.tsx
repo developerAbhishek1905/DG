@@ -183,7 +183,7 @@ export default function ProductTypeMasterPage() {
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <PackageOpen size={23} className="text-[#123B7A]" />
+            <PackageOpen size={23} className="text-[#6D28D9]" />
 
             <h1 className="text-2xl font-bold text-gray-900">
               Product Type Master
@@ -207,7 +207,7 @@ export default function ProductTypeMasterPage() {
                 setSelectedProductType(null);
                 setFormOpen(true);
               }}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-50"
             >
               <Plus size={17} />
               Add Product Type

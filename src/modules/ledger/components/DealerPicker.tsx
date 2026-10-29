@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { useEffect, useRef, useState } from "react";
 
 import { useDebounce } from "../../../hooks/useDebounce";
@@ -116,7 +117,7 @@ export default function DealerPicker({
       {open && (
         <div className="absolute z-30 mt-1 max-h-56 w-full min-w-[260px] overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
           {loading ? (
-            <p className="p-3 text-xs text-gray-500">Loading dealers...</p>
+            <div className="p-3"><ListSkeleton rows={3} /></div>
           ) : visible.length === 0 ? (
             <p className="p-3 text-xs text-gray-500">No dealers found</p>
           ) : (

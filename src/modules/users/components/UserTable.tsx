@@ -95,7 +95,7 @@ export default function UserTable({ users, onDelete }: Props) {
                 <td className="px-5 py-4">
                   <button
                     onClick={() => navigate(`/users/${user.id}`)}
-                    className="font-medium text-[#123B7A] hover:underline"
+                    className="font-medium text-[#6D28D9] hover:underline"
                   >
                     {user.name}
                   </button>
@@ -219,7 +219,7 @@ export default function UserTable({ users, onDelete }: Props) {
               <button
                 onClick={handleSetPassword}
                 disabled={savingPw}
-                className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm text-white disabled:opacity-60"
+                className="rounded-lg bg-[#6D28D9] px-4 py-2 text-sm text-white disabled:opacity-60"
               >
                 {savingPw ? "Saving..." : "Save"}
               </button>

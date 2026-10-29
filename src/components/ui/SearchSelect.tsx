@@ -114,7 +114,7 @@ export default function SearchSelect({
       {/* Label */}
       <label
         htmlFor={browserSafeInputName}
-        className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]"
+        className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]"
       >
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}

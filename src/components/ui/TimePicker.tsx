@@ -186,8 +186,8 @@ export function TimeSlotGrid({
           onClick={() => onPick(slot)}
           className={`rounded-md px-1 py-1.5 text-[11px] font-medium transition ${
             slot === value
-              ? "bg-[#123B7A] text-white"
-              : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-[#123B7A]"
+              ? "bg-[#6D28D9] text-white"
+              : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-[#6D28D9]"
           }`}
         >
           {shortLabel(slot)}

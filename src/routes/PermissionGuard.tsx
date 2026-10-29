@@ -91,7 +91,7 @@ export default function PermissionGuard({ children }: { children: ReactNode }) {
       </p>
       <Link
         to="/profile"
-        className="mt-5 inline-block rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white"
+        className="mt-5 inline-block rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white"
       >
         Go to my profile
       </Link>

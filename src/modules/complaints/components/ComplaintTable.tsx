@@ -197,7 +197,7 @@ export default function ComplaintTable({
                     title={complaint.complaintNumber}
                     disabled={!hasPermission("complaints.view")}
                     onClick={() => navigate(`/complaints/${complaint.id}`)}
-                    className="block max-w-full truncate text-xs font-semibold text-[#123B7A] hover:underline disabled:cursor-default disabled:text-gray-700 disabled:no-underline"
+                    className="block max-w-full truncate text-xs font-semibold text-[#6D28D9] hover:underline disabled:cursor-default disabled:text-gray-700 disabled:no-underline"
                   >
                     {complaint.complaintNumber}
                   </button>
@@ -245,7 +245,7 @@ export default function ComplaintTable({
                         type="button"
                         title="Copy mobile"
                         onClick={() => handleCopyMobile(complaint.phone)}
-                        className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-blue-50 hover:text-[#123B7A]"
+                        className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-blue-50 hover:text-[#6D28D9]"
                       >
                         <Copy size={10} />
                       </button>
@@ -267,7 +267,7 @@ export default function ComplaintTable({
                         onClick={() =>
                           handleCopyMobile(complaint.alternatePhone!)
                         }
-                        className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-blue-50 hover:text-[#123B7A]"
+                        className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-blue-50 hover:text-[#6D28D9]"
                       >
                         <Copy size={10} />
                       </button>

@@ -126,7 +126,7 @@ export default function AdditionalCitiesSection({
   return (
     <div className="mt-6 border-t border-gray-200 pt-5">
       <div className="mb-1 flex items-center gap-2">
-        <MapPin size={18} className="text-[#123B7A]" />
+        <MapPin size={18} className="text-[#6D28D9]" />
 
         <h3 className="text-base font-semibold text-gray-900">
           Other Operating Cities
@@ -685,7 +685,7 @@ export default function AdditionalCitiesSection({
                               },
                             ])
                           }
-                          className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
+                          className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] bg-white px-4 py-2.5 text-sm font-medium text-[#6D28D9] transition hover:bg-blue-50"
                         >
                           <Plus size={17} />
                           Add Product
@@ -703,7 +703,7 @@ export default function AdditionalCitiesSection({
       <button
         type="button"
         onClick={() => onChange([...value, emptyCity()])}
-        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] bg-white px-4 py-2.5 text-sm font-medium text-[#6D28D9] transition hover:bg-blue-50"
       >
         <Plus size={17} />
         Add City

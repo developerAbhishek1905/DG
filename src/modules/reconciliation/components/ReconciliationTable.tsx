@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import {
   Eye,
 } from "lucide-react";
@@ -81,7 +82,7 @@ export default function ReconciliationTable({
                           `/reconciliation/${item.id}`
                         )
                       }
-                      className="text-sm font-semibold text-[#123B7A] hover:underline"
+                      className="text-sm font-semibold text-[#6D28D9] hover:underline"
                     >
                       {
                         item.reconciliationNumber
@@ -182,7 +183,7 @@ export default function ReconciliationTable({
                           `/reconciliation/${item.id}`
                         )
                       }
-                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#123B7A]"
+                      className="rounded-lg p-2 text-gray-500 hover:bg-blue-50 hover:text-[#6D28D9]"
                     >
                       <Eye
                         size={17}
@@ -199,34 +200,9 @@ export default function ReconciliationTable({
   );
 }
 
-function StatusBadge({
-  status,
-}: {
-  status: ReconciliationStatus;
-}) {
-  const styles = {
-    PENDING:
-      "border-amber-200 bg-amber-50 text-amber-700",
-
-    MATCHED:
-      "border-green-200 bg-green-50 text-green-700",
-
-    MISMATCH:
-      "border-red-200 bg-red-50 text-red-700",
-
-    RECONCILED:
-      "border-blue-200 bg-blue-50 text-blue-700",
-  };
-
-  return (
-    <span
-      className={`rounded-full border px-2.5 py-1 text-xs font-medium ${styles[status]}`}
-    >
-      {status}
-    </span>
-  );
+function StatusBadge({ status }: { status: string }) {
+  return <SharedStatusBadge status={status} />;
 }
-
 function formatDate(
   date: string
 ) {

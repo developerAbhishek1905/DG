@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { X, Save, Loader2 } from "lucide-react";
 import type { DealerLedger } from "../types/billing.types";
@@ -118,7 +119,7 @@ const defaultValues: BillFormValues = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100";
 
 const labelClass = "mb-1.5 block text-xs font-semibold text-gray-600";
 
@@ -537,9 +538,7 @@ export default function BillForm({
                   {dealerOpen && (
                     <div className="absolute z-30 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
                       {dealerLoading ? (
-                        <p className="p-3 text-xs text-gray-500">
-                          Loading dealers...
-                        </p>
+                        <div className="p-3"><ListSkeleton rows={3} /></div>
                       ) : dealers.length ? (
                         dealers.map((dealer) => {
                           const dealerName =
@@ -636,9 +635,7 @@ export default function BillForm({
                   {categoryOpen && (
                     <div className="absolute z-30 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
                       {categoryLoading ? (
-                        <p className="p-3 text-xs text-gray-500">
-                          Loading categories...
-                        </p>
+                        <div className="p-3"><ListSkeleton rows={3} /></div>
                       ) : categories.length ? (
                         categories.map((item) => {
                           const label = `${item.category} - ${item.description || ""}`;
@@ -787,7 +784,7 @@ export default function BillForm({
                     readOnly={isPercentageBilling}
                     onChange={(num) => updateField("amount", num)}
                     className={`${inputClass} font-semibold ${
-                      isPercentageBilling ? "bg-gray-50 text-[#123B7A]" : ""
+                      isPercentageBilling ? "bg-gray-50 text-[#6D28D9]" : ""
                     }`}
                   />
                 </div>
@@ -846,7 +843,7 @@ export default function BillForm({
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064] disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#5B21B6] disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 size={16} className="animate-spin" />

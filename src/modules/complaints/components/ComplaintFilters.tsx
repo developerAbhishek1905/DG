@@ -290,7 +290,7 @@ export default function ComplaintFilters({
   //       ========================================= */}
 
   //       <div className="w-full lg:min-w-[280px] lg:flex-1">
-  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
   //           Search
   //         </label>
 
@@ -359,7 +359,7 @@ export default function ComplaintFilters({
   //       </div>
 
   //       <div className="w-full lg:w-[155px] lg:shrink-0">
-  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
   //           Complaint Type
   //         </label>
 
@@ -397,7 +397,7 @@ export default function ComplaintFilters({
   //       ========================================= */}
 
   //       <div className="w-full lg:w-[155px] lg:shrink-0">
-  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
   //           Status
   //         </label>
 
@@ -435,7 +435,7 @@ export default function ComplaintFilters({
   //       ========================================= */}
 
   //       <div className="w-full lg:w-[140px] lg:shrink-0">
-  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
   //           From Date
   //         </label>
 
@@ -467,7 +467,7 @@ export default function ComplaintFilters({
   //       ========================================= */}
 
   //       <div className="w-full lg:w-[140px] lg:shrink-0">
-  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+  //         <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
   //           To Date
   //         </label>
 
@@ -536,7 +536,7 @@ return (
 
       {/* SEARCH */}
       <div className="lg:col-span-4">
-        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
           Search
         </label>
 
@@ -604,7 +604,7 @@ return (
 
       {/* COMPLAINT TYPE */}
       <div className="lg:col-span-2">
-        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
           Complaint Type
         </label>
 
@@ -660,7 +660,7 @@ return (
 
       {/* STATUS */}
       <div className="lg:col-span-3">
-        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
           Status
         </label>
 
@@ -699,7 +699,7 @@ return (
 
       {/* FROM DATE */}
       <div className="lg:col-span-3">
-        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
           From Date
         </label>
 
@@ -728,7 +728,7 @@ return (
 
       {/* TO DATE */}
       <div className="lg:col-span-3">
-        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#123B7A]">
+        <label className="mb-0.5 block text-[11px] font-medium leading-4 text-[#6D28D9]">
           To Date
         </label>
 

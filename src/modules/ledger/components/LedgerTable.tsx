@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import { CheckCircle2, Eye } from "lucide-react";
 
 import TableSkeleton from "../../../components/ui/TableSkeleton";
@@ -58,28 +59,6 @@ export default function LedgerTable({
   | Status
   |--------------------------------------------------------------------------
   */
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "bg-green-50 text-green-700";
-
-      case "PENDING":
-        return "bg-amber-50 text-amber-700";
-
-      case "BILLED":
-        return "bg-blue-50 text-blue-700";
-
-      case "REVERSED":
-        return "bg-purple-50 text-purple-700";
-
-      case "CANCELLED":
-        return "bg-red-50 text-red-700";
-
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
 
   /*
   |--------------------------------------------------------------------------
@@ -217,7 +196,7 @@ export default function LedgerTable({
                   {/* Complaint */}
 
                   <td className="px-4 py-4">
-                    <p className="whitespace-nowrap text-sm font-medium text-[#123B7A]">
+                    <p className="whitespace-nowrap text-sm font-medium text-[#6D28D9]">
                       {ledger.complaintNumber || "-"}
                     </p>
                   </td>
@@ -293,13 +272,7 @@ export default function LedgerTable({
                   {/* Status */}
 
                   <td className="px-4 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(
-                        ledger.status,
-                      )}`}
-                    >
-                      {ledger.status}
-                    </span>
+                    <StatusBadge status={ledger.status} />
                   </td>
 
                   {/* Action */}
@@ -311,7 +284,7 @@ export default function LedgerTable({
                           type="button"
                           title="View Ledger"
                           onClick={() => onView(ledger)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-50 hover:text-[#123B7A]"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-50 hover:text-[#6D28D9]"
                         >
                           <Eye size={15} />
                         </button>

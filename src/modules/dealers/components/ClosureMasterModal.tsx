@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -161,7 +162,7 @@ export default function ClosureMasterModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
           {loading ? (
-            <p className="py-6 text-center text-xs text-gray-500">Loading...</p>
+            <ListSkeleton rows={5} />
           ) : failed ? (
             <p className="py-6 text-center text-xs text-red-600">
               Failed to load Closure Master.
@@ -178,7 +179,7 @@ export default function ClosureMasterModal({
                   type="checkbox"
                   checked={allSelected}
                   onChange={toggleAll}
-                  className="h-5 w-5 accent-[#123B7A]"
+                  className="h-5 w-5 accent-[#6D28D9]"
                 />
                 Closure
               </label>
@@ -190,7 +191,7 @@ export default function ClosureMasterModal({
                   disabled={chosen.length === 0}
                   checked={allAutoBill}
                   onChange={toggleAllAutoBill}
-                  className="h-4 w-4 accent-[#123B7A]"
+                  className="h-4 w-4 accent-[#6D28D9]"
                 />
                 Auto Bill
               </label>
@@ -213,7 +214,7 @@ export default function ClosureMasterModal({
                       <span
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                           on
-                            ? "border-[#123B7A] bg-[#123B7A] text-white"
+                            ? "border-[#6D28D9] bg-[#6D28D9] text-white"
                             : "border-gray-300 bg-white"
                         }`}
                       >
@@ -256,7 +257,7 @@ export default function ClosureMasterModal({
                               ? toggleDefaultBill(item._id)
                               : toggleAutoBill(item._id)
                           }
-                          className="h-4 w-4 accent-[#123B7A]"
+                          className="h-4 w-4 accent-[#6D28D9]"
                         />
                       </label>
                     ))}
@@ -285,7 +286,7 @@ export default function ClosureMasterModal({
             <button
               type="button"
               onClick={handleSave}
-              className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854]"
+              className="rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white hover:bg-[#4C1D95]"
             >
               Save
             </button>

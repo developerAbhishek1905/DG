@@ -6,10 +6,10 @@ import {
 
 export default function AuthBranding() {
   return (
-    <div className="relative hidden min-h-screen overflow-hidden bg-[#123B7A] p-12 text-white lg:flex lg:flex-col lg:justify-between">
+    <div className="relative hidden min-h-screen overflow-hidden bg-[#6D28D9] p-12 text-white lg:flex lg:flex-col lg:justify-between">
       <div>
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white font-bold text-[#123B7A]">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white font-bold text-[#6D28D9]">
             DG
           </div>
 

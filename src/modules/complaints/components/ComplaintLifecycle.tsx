@@ -38,7 +38,7 @@ export default function ComplaintLifecycle({ currentStatus }: Props) {
                       rounded-full text-xs font-bold
                       ${
                         completed
-                          ? "bg-[#123B7A] text-white"
+                          ? "bg-[#6D28D9] text-white"
                           : "bg-gray-100 text-gray-400"
                       }
                     `}
@@ -55,7 +55,7 @@ export default function ComplaintLifecycle({ currentStatus }: Props) {
                   <div
                     className={`
                       mt-4 h-0.5 flex-1
-                      ${index < currentIndex ? "bg-[#123B7A]" : "bg-gray-200"}
+                      ${index < currentIndex ? "bg-[#6D28D9]" : "bg-gray-200"}
                     `}
                   />
                 )}

@@ -84,7 +84,7 @@ export default function Pagination({
             onClick={() => onPageChange(pageNumber)}
             className={`h-9 min-w-9 rounded-lg border px-3 text-sm font-medium transition ${
               page === pageNumber
-                ? "border-[#123B7A] bg-[#123B7A] text-white"
+                ? "border-[#6D28D9] bg-[#6D28D9] text-white"
                 : "border-gray-300 text-gray-600 hover:bg-gray-50"
             }`}
           >

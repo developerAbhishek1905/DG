@@ -92,7 +92,7 @@ export default function DealerLeaveModal({
           <div className="flex items-center gap-2">
             <CalendarDays
               size={20}
-              className="text-[#123B7A]"
+              className="text-[#6D28D9]"
             />
 
             <h2 className="text-base font-semibold text-gray-900">
@@ -115,7 +115,7 @@ export default function DealerLeaveModal({
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 p-5">
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+              <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
                 Leave From *
               </label>
 
@@ -123,12 +123,12 @@ export default function DealerLeaveModal({
                 type="date"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#123B7A]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#6D28D9]"
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+              <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
                 Leave To *
               </label>
 
@@ -137,12 +137,12 @@ export default function DealerLeaveModal({
                 value={to}
                 min={from || undefined}
                 onChange={(e) => setTo(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#123B7A]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#6D28D9]"
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+              <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
                 Reason
               </label>
 
@@ -151,7 +151,7 @@ export default function DealerLeaveModal({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Enter leave reason..."
-                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#123B7A]"
+                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#6D28D9]"
               />
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function DealerLeaveModal({
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
             >
               {submitting && (
                 <Loader2

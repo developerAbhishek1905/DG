@@ -60,7 +60,7 @@ import { getPanelBase } from "../../../utils/panelPath";
 //                 <td className="px-5 py-4">
 //                   <button
 //                     onClick={() => navigate(`${getPanelBase()}/appointments/${appointment.id}`)}
-//                     className="font-medium text-[#123B7A] hover:underline"
+//                     className="font-medium text-[#6D28D9] hover:underline"
 //                   >
 //                     {appointment.complaintNumber}
 //                   </button>
@@ -190,7 +190,7 @@ function RemarkBell({ complaintId }: { complaintId: string }) {
         unread.forEach((item) => dispatch(readNotification(item.id)));
         navigate(`${getPanelBase()}/appointments/${complaintId}`);
       }}
-      className="relative shrink-0 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-[#123B7A]"
+      className="relative shrink-0 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-[#6D28D9]"
     >
       <Bell size={15} className={unread.length ? "text-amber-500" : ""} />
 
@@ -323,7 +323,7 @@ export default function AppointmentTable({
                   <button
                     type="button"
                     onClick={() => navigate(`${getPanelBase()}/appointments/${appointment._id}`)}
-                    className="break-all text-left text-sm font-bold text-[#123B7A]"
+                    className="break-all text-left text-sm font-bold text-[#6D28D9]"
                   >
                     {appointment.complaintNumber}
                   </button>
@@ -557,7 +557,7 @@ export default function AppointmentTable({
 
                           onStatusChange?.(appointment._id, selectedStatus);
                         }}
-                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-sm font-medium text-gray-700 outline-none transition focus:border-[#123B7A] focus:ring-1 focus:ring-[#123B7A]"
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-sm font-medium text-gray-700 outline-none transition focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9]"
                       >
                         <option value="">Select New Status</option>
 
@@ -749,7 +749,7 @@ export default function AppointmentTable({
             </p>
 
 <div className="mt-0.5 flex items-center gap-1.5">
-            <p className="truncate text-sm font-bold text-[#123B7A]">
+            <p className="truncate text-sm font-bold text-[#6D28D9]">
               {appointment.complaintNumber || "-"}
             </p>
 <RemarkBell complaintId={appointment._id} />
@@ -1004,7 +1004,7 @@ export default function AppointmentTable({
                       onClick={() =>
                         navigate(`${getPanelBase()}/appointments/${appointment._id}`)
                       }
-                      className="block max-w-full truncate text-left text-xs font-bold text-[#123B7A] hover:underline"
+                      className="block max-w-full truncate text-left text-xs font-bold text-[#6D28D9] hover:underline"
                     >
                       {appointment.complaintNumber}
                     </button>

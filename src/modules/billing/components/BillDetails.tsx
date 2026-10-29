@@ -22,7 +22,7 @@ export default function BillDetails({
           <div className="flex items-center gap-2">
             <ReceiptText
               size={20}
-              className="text-[#123B7A]"
+              className="text-[#6D28D9]"
             />
 
             <h2 className="text-xl font-bold text-gray-900">

@@ -68,7 +68,7 @@ export default function DealerRejoinModal({
           <div className="flex items-center gap-2">
             <RotateCcw
               size={20}
-              className="text-[#123B7A]"
+              className="text-[#6D28D9]"
             />
 
             <h2 className="text-base font-semibold text-gray-900">
@@ -95,7 +95,7 @@ export default function DealerRejoinModal({
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+              <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
                 Rejoining Date *
               </label>
 
@@ -105,7 +105,7 @@ export default function DealerRejoinModal({
                 onChange={(e) =>
                   setRejoiningDate(e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#123B7A]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#6D28D9]"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function DealerRejoinModal({
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
             >
               {submitting && (
                 <Loader2

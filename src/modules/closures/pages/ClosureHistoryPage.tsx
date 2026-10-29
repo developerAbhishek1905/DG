@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 // import { ArrowLeft, Eye, RotateCcw, Search } from "lucide-react";
 
 import { usePermission } from "../../../hooks/usePermission";
@@ -654,7 +655,7 @@ useEffect(() => {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {/* Search */}
           <div className="flex flex-col">
-            <label className="mb-1 block text-[11px] font-medium text-[#123B7A]">
+            <label className="mb-1 block text-[11px] font-medium text-[#6D28D9]">
               Search
             </label>
 
@@ -679,7 +680,7 @@ useEffect(() => {
 
           {/* From Date */}
           <div>
-            <label className="mb-1 block text-[11px] font-medium text-[#123B7A]">
+            <label className="mb-1 block text-[11px] font-medium text-[#6D28D9]">
               From Date
             </label>
 
@@ -697,7 +698,7 @@ useEffect(() => {
 
           {/* To Date */}
           <div>
-            <label className="mb-1 block text-[11px] font-medium text-[#123B7A]">
+            <label className="mb-1 block text-[11px] font-medium text-[#6D28D9]">
               To Date
             </label>
 
@@ -974,26 +975,9 @@ function ClosureTypeBadge({ type }: { type: ClosureType }) {
   );
 }
 
-function ClosureStatusBadge({ status }: { status: ClosureStatus }) {
-  const styles = {
-    DRAFT: "border-gray-200 bg-gray-50 text-gray-600",
-
-    SUBMITTED: "border-blue-200 bg-blue-50 text-blue-700",
-
-    VERIFIED: "border-green-200 bg-green-50 text-green-700",
-
-    REJECTED: "border-red-200 bg-red-50 text-red-700",
-  };
-
-  return (
-    <span
-      className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${styles[status]}`}
-    >
-      {status}
-    </span>
-  );
+function ClosureStatusBadge({ status }: { status: string }) {
+  return <SharedStatusBadge status={status} size="sm" />;
 }
-
 interface ClosureRowProps {
   closure: ClosureRecord;
 
@@ -1158,7 +1142,7 @@ const ClosureRow = memo(function ClosureRow({
             className="
             whitespace-nowrap
             text-[11px] font-semibold
-            text-[#123B7A]
+            text-[#6D28D9]
             hover:underline
           "
           >
@@ -1303,7 +1287,7 @@ const ClosureRow = memo(function ClosureRow({
               px-2 text-[10px]
               outline-none
               placeholder:text-gray-400
-              focus:border-[#123B7A]
+              focus:border-[#6D28D9]
             "
             />
           )}
@@ -1387,7 +1371,7 @@ const ClosureRow = memo(function ClosureRow({
             type="button"
             disabled={!hasPermission("closures.view")}
             onClick={() => onNavigate(closure._id)}
-            className="text-xs font-semibold text-[#123B7A] hover:underline"
+            className="text-xs font-semibold text-[#6D28D9] hover:underline"
           >
             {closure.complaintNumber || "-"}
           </button>
@@ -1526,7 +1510,7 @@ const ClosureRow = memo(function ClosureRow({
                   ? "Closure approved, it cannot be changed"
                   : "Billing amount is decided from this closure"
               }
-              className="w-full max-w-[170px] rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 outline-none focus:border-[#123B7A] disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full max-w-[170px] rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 outline-none focus:border-[#6D28D9] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {!closure.closureId && <option value="">Select closure</option>}
               {closureOptions.map((option) => (
@@ -1549,7 +1533,7 @@ const ClosureRow = memo(function ClosureRow({
                   ? "Closure approved, category cannot be changed"
                   : "Billing amount is decided from this category"
               }
-              className="w-full max-w-[170px] rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 outline-none focus:border-[#123B7A] disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full max-w-[170px] rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 outline-none focus:border-[#6D28D9] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {!selectedCategoryId && <option value="">Select category</option>}
               {categoryOptions.map((option) => (
@@ -1617,7 +1601,7 @@ const ClosureRow = memo(function ClosureRow({
               placeholder="Enter remark..."
               onMouseEnter={(event) => showRemarkTip(event, remark)}
               onMouseLeave={() => setRemarkTip(null)}
-              className="h-9 w-[200px] rounded-md border border-gray-300 px-3 text-xs outline-none focus:border-[#123B7A]"
+              className="h-9 w-[200px] rounded-md border border-gray-300 px-3 text-xs outline-none focus:border-[#6D28D9]"
             />
           )}
 
@@ -1631,7 +1615,7 @@ const ClosureRow = memo(function ClosureRow({
               }}
               className="pointer-events-none z-[100] rounded-lg border border-gray-200 bg-white p-3 shadow-xl"
             >
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#123B7A]">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6D28D9]">
                 Remark
               </p>
 

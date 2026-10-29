@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import { useCallback, useEffect, useState } from "react";
 import { Pencil, Plus, Power, RotateCcw, Search, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
@@ -152,7 +153,7 @@ export default function RateListMasterPage() {
   };
 
   const controlClass =
-    "h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#123B7A]";
+    "h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#6D28D9]";
 
   const showActions =
     hasPermission("rate.update") || hasPermission("rate.delete");
@@ -167,7 +168,7 @@ export default function RateListMasterPage() {
           <button
             type="button"
             onClick={openAdd}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#0B2854]"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4C1D95]"
           >
             <Plus size={18} />
             Add
@@ -273,15 +274,7 @@ export default function RateListMasterPage() {
                       {rate.productName || "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          rate.status === "ACTIVE"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {rate.status === "ACTIVE" ? "Active" : "Inactive"}
-                      </span>
+                      <StatusBadge status={rate.status} />
                     </td>
 
                     {showActions && (

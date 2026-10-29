@@ -259,7 +259,7 @@ return (
                   transition-colors
                   ${
                     isActive
-                      ? "text-[#123B7A]"
+                      ? "text-[#6D28D9]"
                       : "text-gray-500 hover:text-gray-800"
                   }
                 `}
@@ -273,7 +273,7 @@ return (
                     className="
                       absolute bottom-0 left-0
                       h-[3px] w-full
-                      rounded-t-full bg-[#123B7A]
+                      rounded-t-full bg-[#6D28D9]
                     "
                   />
                 )}
@@ -348,7 +348,7 @@ return (
 //           transition-colors
 //           ${
 //             isActive
-//               ? "text-[#123B7A]"
+//               ? "text-[#6D28D9]"
 //               : "text-gray-500 hover:text-gray-800"
 //           }
 //         `}
@@ -361,7 +361,7 @@ return (
 //             text-xs font-semibold
 //             ${
 //               isActive
-//                 ? "bg-blue-100 text-[#123B7A]"
+//                 ? "bg-blue-100 text-[#6D28D9]"
 //                 : "bg-gray-100 text-gray-500"
 //             }
 //           `}
@@ -370,7 +370,7 @@ return (
 //         </span>
 
 //         {isActive && (
-//           <span className="absolute bottom-0 left-0 h-[3px] w-full rounded-t-full bg-[#123B7A]" />
+//           <span className="absolute bottom-0 left-0 h-[3px] w-full rounded-t-full bg-[#6D28D9]" />
 //         )}
 //       </button>
 //     );

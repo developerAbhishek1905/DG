@@ -1,8 +1,6 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import {
   CalendarDays,
-  Clock3,
-  CheckCircle2,
-  XCircle,
 } from "lucide-react";
 
 import type { DealerLeave } from "../types/dealer.types";
@@ -28,7 +26,7 @@ export default function LeaveHistoryCard({
         <div className="flex items-center gap-2">
           <CalendarDays
             size={18}
-            className="text-[#123B7A]"
+            className="text-[#6D28D9]"
           />
 
           <h2 className="text-sm font-semibold text-gray-900">
@@ -131,55 +129,21 @@ export default function LeaveHistoryCard({
    LEAVE STATUS
 ======================================== */
 
-function LeaveStatusBadge({
-  status,
-}: {
-  status: DealerLeave["status"];
-}) {
-  const config = {
-    SCHEDULED: {
-      label: "Scheduled",
-      className:
-        "bg-blue-50 text-blue-700 border-blue-200",
-      icon: Clock3,
-    },
-
-    ACTIVE: {
-      label: "On Leave",
-      className:
-        "bg-amber-50 text-amber-700 border-amber-200",
-      icon: CalendarDays,
-    },
-
-    COMPLETED: {
-      label: "Completed",
-      className:
-        "bg-green-50 text-green-700 border-green-200",
-      icon: CheckCircle2,
-    },
-
-    CANCELLED: {
-      label: "Cancelled",
-      className:
-        "bg-red-50 text-red-700 border-red-200",
-      icon: XCircle,
-    },
-  };
-
-  const current = config[status];
-  const Icon = current.icon;
-
+function LeaveStatusBadge({ status }: { status: string }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${current.className}`}
-    >
-      <Icon size={12} />
-
-      {current.label}
-    </span>
+    <SharedStatusBadge
+      status={status}
+      tone={
+        status === "ACTIVE"
+          ? "warning"
+          : status === "SCHEDULED"
+            ? "info"
+            : undefined
+      }
+      label={status === "ACTIVE" ? "On Leave" : undefined}
+    />
   );
 }
-
 /* ========================================
    FORMAT DATE
 ======================================== */

@@ -1,3 +1,4 @@
+import { FormSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -20,7 +21,7 @@ export default function EditRolePage() {
   const { permissions } = useRoles();
 
   if (loading) {
-    return <div>Loading role...</div>;
+    return <FormSkeleton fields={4} />;
   }
 
   if (!role || !id) {

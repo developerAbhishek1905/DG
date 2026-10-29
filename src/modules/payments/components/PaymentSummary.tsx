@@ -93,7 +93,7 @@ export default function PaymentSummary({
                   </p>
                 </div>
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
                   <Icon
                     size={21}
                   />

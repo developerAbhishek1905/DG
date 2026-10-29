@@ -255,7 +255,7 @@ export default function AuditLogPage() {
 
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#123B7A]">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#6D28D9]">
             Administration
           </p>
 
@@ -381,7 +381,7 @@ function StatCard({
           </p>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
           {icon}
         </div>
       </div>

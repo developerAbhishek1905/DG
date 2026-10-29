@@ -135,7 +135,7 @@ export default function KPIGrid({
                   </p>
                 </div>
 
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
                   <Icon
                     size={19}
                   />

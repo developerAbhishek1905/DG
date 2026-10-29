@@ -214,8 +214,8 @@ export function CalendarPanel({ value, min, max, onPick }: CalendarPanelProps) {
                 onClick={() => pick(shortcut.key)}
                 className={`rounded-md py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
                   value === shortcut.key
-                    ? "bg-[#123B7A] text-white"
-                    : "bg-blue-50 text-[#123B7A] hover:bg-blue-100"
+                    ? "bg-[#6D28D9] text-white"
+                    : "bg-blue-50 text-[#6D28D9] hover:bg-blue-100"
                 }`}
               >
                 {shortcut.label}
@@ -281,9 +281,9 @@ export function CalendarPanel({ value, min, max, onPick }: CalendarPanelProps) {
                   onClick={() => pick(key)}
                   className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-xs transition ${
                     selected
-                      ? "bg-[#123B7A] font-semibold text-white"
+                      ? "bg-[#6D28D9] font-semibold text-white"
                       : key === todayKey
-                        ? "font-semibold text-[#123B7A] ring-1 ring-[#123B7A]/40 hover:bg-blue-50"
+                        ? "font-semibold text-[#6D28D9] ring-1 ring-[#6D28D9]/40 hover:bg-blue-50"
                         : "text-gray-700 hover:bg-blue-50"
                   } ${blocked ? "cursor-not-allowed opacity-30 hover:bg-transparent" : ""}`}
                 >

@@ -11,7 +11,7 @@ type Props = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100";
+  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100";
 
 const labelClass = "mb-1.5 block text-xs font-semibold text-gray-600";
 
@@ -212,7 +212,7 @@ export default function DummyBillForm({ onClose, onSubmit }: Props) {
             <button
               type="submit"
               disabled={saving || !dealer}
-              className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#5B21B6] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Saving..." : "Create Dummy Bill"}
             </button>

@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import { getPanelBase } from "../../../utils/panelPath";
 import {
   Eye,
@@ -30,7 +31,7 @@ export default function TransactionRow({
               `${getPanelBase()}/ledger/transactions/${transaction.id}`
             )
           }
-          className="text-sm font-semibold text-[#123B7A] hover:underline"
+          className="text-sm font-semibold text-[#6D28D9] hover:underline"
         >
           {
             transaction.transactionNumber
@@ -156,28 +157,6 @@ function TypeBadge({
   );
 }
 
-function StatusBadge({
-  status,
-}: {
-  status:
-    LedgerTransaction["status"];
-}) {
-  const styles = {
-    POSTED:
-      "border-green-200 bg-green-50 text-green-700",
-
-    PENDING:
-      "border-amber-200 bg-amber-50 text-amber-700",
-
-    REVERSED:
-      "border-red-200 bg-red-50 text-red-700",
-  };
-
-  return (
-    <span
-      className={`rounded-full border px-2.5 py-1 text-xs font-medium ${styles[status]}`}
-    >
-      {status}
-    </span>
-  );
+function StatusBadge({ status }: { status: string }) {
+  return <SharedStatusBadge status={status} />;
 }

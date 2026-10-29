@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -106,9 +107,7 @@ export default function VerificationDetailsPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading verification...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -446,7 +445,7 @@ export default function VerificationDetailsPage() {
                   }
                   className="flex items-center gap-3 rounded-lg border border-gray-200 p-4"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
                     <FileImage
                       size={18}
                     />

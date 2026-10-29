@@ -121,7 +121,7 @@ export default function DealerLedgerPage() {
       <button
         type="button"
         onClick={() => navigate(`${getPanelBase()}/ledger`)}
-        className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#123B7A]"
+        className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#6D28D9]"
       >
         <ArrowLeft size={17} />
         Back to Ledger
@@ -131,7 +131,7 @@ export default function DealerLedgerPage() {
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
         <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#123B7A]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#6D28D9]">
               <Building2 size={23} />
             </div>
 
@@ -201,7 +201,7 @@ export default function DealerLedgerPage() {
                 refundLoading || refundSubmitting || !refundData?.canRefund
               }
               title={refundData?.reason || "Refund security amount"}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3063] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3063] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RotateCcw size={16} />
               Refund Amount
@@ -225,7 +225,7 @@ export default function DealerLedgerPage() {
             onClick={() => setActiveTab(key)}
             className={`flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-all ${
               activeTab === key
-                ? "bg-[#123B7A] text-white shadow-sm"
+                ? "bg-[#6D28D9] text-white shadow-sm"
                 : "bg-gray-50 text-gray-600 hover:bg-gray-100"
             }`}
           >

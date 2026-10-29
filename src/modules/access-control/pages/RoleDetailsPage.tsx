@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft, Edit, KeyRound } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,7 +19,7 @@ export default function RoleDetailsPage() {
   const { role, loading } = useRoleDetails(id);
 
   if (loading) {
-    return <div>Loading role...</div>;
+    return <DetailsSkeleton />;
   }
 
   if (!role) {
@@ -50,7 +51,7 @@ export default function RoleDetailsPage() {
           {hasPermission("roles.update") && (
             <button
               onClick={() => navigate(`/roles/${role.id}/edit`)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2 text-sm text-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm text-white"
             >
               <Edit size={17} />
               Edit

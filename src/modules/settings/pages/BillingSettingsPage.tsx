@@ -1,3 +1,4 @@
+import { PanelSkeleton } from "../../../components/ui/Skeleton";
 import {
   useEffect,
 } from "react";
@@ -73,9 +74,7 @@ export default function BillingSettingsPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-6">
           {loading ||
           !billing ? (
-            <p className="py-10 text-center text-sm text-gray-500">
-              Loading settings...
-            </p>
+            <PanelSkeleton />
           ) : (
             <BillingRulesForm
               settings={

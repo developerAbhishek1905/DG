@@ -13,7 +13,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-8">
             <div className="mb-8 flex items-center gap-3 lg:hidden">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#123B7A] font-bold text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#6D28D9] font-bold text-white">
                 DG
               </div>
 

@@ -85,7 +85,7 @@ export default function CategoryTable({
           <tbody className="divide-y divide-gray-100">
             {paginatedCategories.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-5 py-4 font-medium text-[#123B7A]">
+                <td className="px-5 py-4 font-medium text-[#6D28D9]">
                   {item.product_name || "-"}
                 </td>
 

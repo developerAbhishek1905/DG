@@ -1,4 +1,5 @@
 
+import { FormSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,9 +41,7 @@ export default function EditComplaintPage() {
 
   if (loading) {
     return (
-      <div className="p-10 text-center text-sm text-gray-500">
-        Loading complaint...
-      </div>
+      <FormSkeleton />
     );
   }
 
@@ -70,7 +69,7 @@ export default function EditComplaintPage() {
           Edit Complaint
         </h1>
 
-        <p className="mt-1 text-xs text-[#123B7A]">
+        <p className="mt-1 text-xs text-[#6D28D9]">
           {complaint.complaintNumber}
         </p>
       </div>

@@ -56,7 +56,7 @@ export default function BillingTable({ bills }: Props) {
                 <td className="px-5 py-4">
                   <button
                     onClick={() => navigate(`${getPanelBase()}/billing/${bill.id}`)}
-                    className="text-sm font-semibold text-[#123B7A] hover:underline"
+                    className="text-sm font-semibold text-[#6D28D9] hover:underline"
                   >
                     {bill.billNumber}
                   </button>

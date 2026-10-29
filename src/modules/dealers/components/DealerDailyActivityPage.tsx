@@ -1,3 +1,4 @@
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -146,7 +147,7 @@ export default function DealerDailyActivityPage() {
         <button
           type="button"
           onClick={() => navigate("/dealer-activity")}
-          className="mt-4 text-sm font-medium text-[#123B7A]"
+          className="mt-4 text-sm font-medium text-[#6D28D9]"
         >
           Back to Dealer Activity
         </button>
@@ -177,7 +178,7 @@ export default function DealerDailyActivityPage() {
             text-gray-600
             transition
             hover:bg-gray-50
-            hover:text-[#123B7A]
+            hover:text-[#6D28D9]
           "
           title="Back"
         >
@@ -317,7 +318,7 @@ export default function DealerDailyActivityPage() {
                     text-sm text-gray-700
                     outline-none
                     transition
-                    focus:border-[#123B7A]
+                    focus:border-[#6D28D9]
                     focus:ring-2
                     focus:ring-blue-100
                   "
@@ -357,7 +358,7 @@ export default function DealerDailyActivityPage() {
                     text-sm text-gray-700
                     outline-none
                     transition
-                    focus:border-[#123B7A]
+                    focus:border-[#6D28D9]
                     focus:ring-2
                     focus:ring-blue-100
                   "
@@ -523,7 +524,7 @@ export default function DealerDailyActivityPage() {
               bg-blue-50
               px-3 py-2
               text-xs font-medium
-              text-[#123B7A]
+              text-[#6D28D9]
             "
           >
             <CalendarDays size={14} />
@@ -857,32 +858,8 @@ function CountBadge({
 ===================================================== */
 
 function DealerStatusBadge({ status }: { status: string }) {
-  let className = "bg-gray-100 text-gray-700";
-
-  if (status === "ACTIVE") {
-    className = "bg-emerald-50 text-emerald-700";
-  } else if (status === "ON_LEAVE") {
-    className = "bg-amber-50 text-amber-700";
-  } else if (status === "SUSPENDED") {
-    className = "bg-rose-50 text-rose-700";
-  }
-
-  return (
-    <span
-      className={`
-        inline-flex
-        whitespace-nowrap
-        rounded-full
-        px-2.5 py-1
-        text-xs font-medium
-        ${className}
-      `}
-    >
-      {status.replaceAll("_", " ")}
-    </span>
-  );
+  return <SharedStatusBadge status={status} />;
 }
-
 /* =====================================================
    TABLE
 ===================================================== */

@@ -289,7 +289,7 @@ export default function ReassignDealerModal({
               disabled={
                 isSubmitting
               }
-              className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+              className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-50"
             >
               {isSubmitting
                 ? "Reassigning..."

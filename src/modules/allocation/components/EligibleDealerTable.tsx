@@ -224,7 +224,7 @@ export default function EligibleDealerTable({
                                 dealer
                               )
                             }
-                            className="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-3 py-2 text-xs font-medium text-[#123B7A] hover:bg-blue-50"
+                            className="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-3 py-2 text-xs font-medium text-[#6D28D9] hover:bg-blue-50"
                           >
                             <Eye
                               size={14}

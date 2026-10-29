@@ -399,7 +399,7 @@ export default function ComplaintAddressFields({
         {/* ADDRESS */}
 
         <div className="md:col-span-2">
-          <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+          <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
             Customer Address
             {/* <span className="ml-1 text-red-500">*</span> */}
           </label>
@@ -542,7 +542,7 @@ export default function ComplaintAddressFields({
         /> */}
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-[#123B7A]">
+          <label className="mb-1 block text-xs font-medium text-[#6D28D9]">
             PIN Code
           </label>
 

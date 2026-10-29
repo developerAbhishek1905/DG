@@ -63,7 +63,7 @@ export default function ReportChart({
 
                 <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-[#123B7A]"
+                    className="h-full rounded-full bg-[#6D28D9]"
                     style={{
                       width: `${percentage}%`,
                     }}

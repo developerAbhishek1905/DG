@@ -1,3 +1,4 @@
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import {
   CalendarDays,
   Clock3,
@@ -44,7 +45,7 @@ export default function ComplaintActivityModal({
             <div className="flex items-center gap-2">
               <History
                 size={20}
-                className="text-[#123B7A]"
+                className="text-[#6D28D9]"
               />
 
               <h2 className="text-lg font-bold text-gray-900">
@@ -72,11 +73,7 @@ export default function ComplaintActivityModal({
 
         <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
-            <div className="py-12 text-center">
-              <p className="text-sm text-gray-500">
-                Loading activity...
-              </p>
-            </div>
+            <ListSkeleton rows={5} />
           ) : activities.length === 0 ? (
             <div className="py-12 text-center">
               <History
@@ -110,7 +107,7 @@ export default function ComplaintActivityModal({
                         className={`z-10 flex h-9 w-9 items-center justify-center rounded-full ${
                           activity.activityType === "ALLOCATION_FAILED"
                             ? "bg-red-50 text-red-600"
-                            : "bg-blue-50 text-[#123B7A]"
+                            : "bg-blue-50 text-[#6D28D9]"
                         }`}
                       >
                         <History
@@ -173,7 +170,7 @@ export default function ComplaintActivityModal({
                             )}
 
                           {activity.newStatus && (
-                            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-[#123B7A]">
+                            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-[#6D28D9]">
                               {
                                 activity.newStatus
                               }
@@ -317,7 +314,7 @@ export default function ComplaintActivityModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0B2854]"
+            className="rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4C1D95]"
           >
             Close
           </button>

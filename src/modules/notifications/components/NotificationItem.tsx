@@ -161,7 +161,7 @@ export default function NotificationItem({
               : notification.priority ===
                 "HIGH"
               ? "bg-amber-100 text-amber-600"
-              : "bg-blue-50 text-[#123B7A]"
+              : "bg-blue-50 text-[#6D28D9]"
           }`}
         >
           <Icon

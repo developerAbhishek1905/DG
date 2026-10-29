@@ -1,3 +1,4 @@
+import { DashboardSkeleton } from "../../../components/ui/Skeleton";
 import {
   useEffect,
   useState,
@@ -69,11 +70,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center rounded-xl border border-gray-200 bg-white">
-        <p className="text-sm text-gray-500">
-          Loading dashboard...
-        </p>
-      </div>
+      <DashboardSkeleton />
     );
   }
 
@@ -92,7 +89,7 @@ export default function DashboardPage() {
           onClick={
             loadDashboard
           }
-          className="mt-4 rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white"
+          className="mt-4 rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white"
         >
           Retry
         </button>

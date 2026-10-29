@@ -629,7 +629,7 @@ export default function DealerForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+          className="rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-50"
         >
           {isSubmitting ? "Saving..." : submitLabel}
         </button>
@@ -649,14 +649,14 @@ export default function DealerForm({
                 className={`relative flex min-w-0 items-center justify-center gap-1 border-b-2 px-0.5 py-2 text-[9px] font-medium transition sm:gap-1.5 sm:px-1 sm:text-[10px] md:gap-2 md:px-2 md:py-2.5 md:text-xs lg:px-3 lg:text-sm
                             ${
                               active
-                                ? "border-[#123B7A] text-[#123B7A]"
+                                ? "border-[#6D28D9] text-[#6D28D9]"
                                 : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                             }
                           `}
               >
                 {/* Number */}
                 <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold sm:h-4.5 sm:w-4.5 sm:text-[9px] md:h-5 md:w-5 md:text-[10px] ${active ? "bg-[#123B7A] text-white" : "bg-gray-100 text-gray-500"}`}
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold sm:h-4.5 sm:w-4.5 sm:text-[9px] md:h-5 md:w-5 md:text-[10px] ${active ? "bg-[#6D28D9] text-white" : "bg-gray-100 text-gray-500"}`}
                 >
                   {tab.number}
                 </span>
@@ -868,7 +868,7 @@ export default function DealerForm({
                         value: "",
                       })
                     }
-                    className="h-8 w-full rounded-md border border-dashed border-[#123B7A] px-3 text-xs font-medium text-[#123B7A] transition hover:bg-blue-50"
+                    className="h-8 w-full rounded-md border border-dashed border-[#6D28D9] px-3 text-xs font-medium text-[#6D28D9] transition hover:bg-blue-50"
                   >
                     + Add Field
                   </button>
@@ -1377,7 +1377,7 @@ export default function DealerForm({
               ).map((option) => (
                 <label
                   key={option.value}
-                  className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-xs ${watch("billingType") === option.value ? "border-[#123B7A] bg-blue-50 text-[#123B7A]" : "border-gray-300 text-gray-600"}`}
+                  className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-xs ${watch("billingType") === option.value ? "border-[#6D28D9] bg-blue-50 text-[#6D28D9]" : "border-gray-300 text-gray-600"}`}
                 >
                   <input
                     type="radio"
@@ -1385,7 +1385,7 @@ export default function DealerForm({
                     {...register("billingType", {
                       required: "Choose a billing method",
                     })}
-                    className="mt-0.5 accent-[#123B7A]"
+                    className="mt-0.5 accent-[#6D28D9]"
                   />
                   <span>
                     <span className="block font-semibold">{option.label}</span>
@@ -1409,7 +1409,7 @@ export default function DealerForm({
                 <button
                   type="button"
                   onClick={() => setActiveTab("service")}
-                  className="mt-2 font-medium text-[#123B7A] underline"
+                  className="mt-2 font-medium text-[#6D28D9] underline"
                 >
                   Configure service rates
                 </button>
@@ -1444,7 +1444,7 @@ export default function DealerForm({
                 <input
                   type="checkbox"
                   {...register("cancellationBillingEnabled")}
-                  className="accent-[#123B7A]"
+                  className="accent-[#6D28D9]"
                 />
                 Also charge for cancelled complaints
               </label>
@@ -1613,7 +1613,7 @@ export default function DealerForm({
 
       {activeTab === "service" && (
         <>
-          <div className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-[#123B7A]">
+          <div className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-[#6D28D9]">
             Primary city:{" "}
             <b>
               {watch("businessAddress.city") ||
@@ -1975,7 +1975,7 @@ export default function DealerForm({
                             capacity: 0,
                           })
                         }
-                        className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-medium text-[#123B7A] transition hover:bg-blue-50"
+                        className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] bg-white px-4 py-2.5 text-sm font-medium text-[#6D28D9] transition hover:bg-blue-50"
                       >
                         <Plus size={17} />
                         Add Product

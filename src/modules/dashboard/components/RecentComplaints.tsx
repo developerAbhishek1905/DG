@@ -39,7 +39,7 @@ export default function RecentComplaints({
               "/complaints"
             )
           }
-          className="inline-flex items-center gap-1 text-sm font-medium text-[#123B7A]"
+          className="inline-flex items-center gap-1 text-sm font-medium text-[#6D28D9]"
         >
           View All
 
@@ -92,7 +92,7 @@ export default function RecentComplaints({
                           `/complaints/${complaint.id}`
                         )
                       }
-                      className="text-sm font-semibold text-[#123B7A] hover:underline"
+                      className="text-sm font-semibold text-[#6D28D9] hover:underline"
                     >
                       {
                         complaint.complaintNumber

@@ -223,7 +223,7 @@ export default function BrandMasterPage() {
               type="button"
               onClick={handleExport}
               disabled={exportLoading}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#123B7A] px-4 py-2.5 text-sm font-medium text-[#123B7A] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-[#6D28D9] px-4 py-2.5 text-sm font-medium text-[#6D28D9] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FileSpreadsheet size={17} />
               {exportLoading ? "Exporting..." : "Export Excel"}
@@ -247,7 +247,7 @@ export default function BrandMasterPage() {
             <button
               type="button"
               onClick={handleCreate}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95]"
             >
               <Plus size={17} />
               Add Brand

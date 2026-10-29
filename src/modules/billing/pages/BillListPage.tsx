@@ -362,7 +362,7 @@ const handleSubmitBill = async (values: BillFormValues) => {
         <button
           type="button"
           onClick={handleCreateBill}
-          className="flex items-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0e3064]"
+          className="flex items-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#5B21B6]"
         >
           <Plus size={17} />
           Create Bill
@@ -373,7 +373,7 @@ const handleSubmitBill = async (values: BillFormValues) => {
         <button
           type="button"
           onClick={() => setDummyBillOpen(true)}
-          className="flex items-center gap-2 rounded-lg border border-[#123B7A] bg-white px-4 py-2.5 text-sm font-semibold text-[#123B7A] hover:bg-blue-50"
+          className="flex items-center gap-2 rounded-lg border border-[#6D28D9] bg-white px-4 py-2.5 text-sm font-semibold text-[#6D28D9] hover:bg-blue-50"
         >
           <Plus size={17} />
           Create Dummy Bill
@@ -411,7 +411,7 @@ const handleSubmitBill = async (values: BillFormValues) => {
         <div className="rounded-xl border border-gray-200 bg-white p-4">
           <p className="text-xs font-medium text-gray-500">Balance</p>
 
-          <p className="mt-2 text-xl font-bold text-[#123B7A]">
+          <p className="mt-2 text-xl font-bold text-[#6D28D9]">
             ₹{summary.balance.toLocaleString("en-IN")}
           </p>
         </div>

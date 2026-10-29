@@ -284,7 +284,7 @@ export default function AreaMasterPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <MapPin size={23} className="text-[#123B7A]" />
+            <MapPin size={23} className="text-[#6D28D9]" />
 
             <h1 className="text-2xl font-bold text-gray-900">Area Master</h1>
           </div>
@@ -305,7 +305,7 @@ export default function AreaMasterPage() {
               type="button"
               onClick={() => navigate("/area-master/create")}
               disabled={actionLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#123B7A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#6D28D9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-50"
             >
               <Plus size={17} />
               Add Area

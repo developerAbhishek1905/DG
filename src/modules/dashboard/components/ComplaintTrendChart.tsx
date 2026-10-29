@@ -44,7 +44,7 @@ export default function ComplaintTrendChart({
               <div className="flex h-48 items-end gap-1">
                 <div
                   title={`Created: ${item.created}`}
-                  className="w-4 rounded-t bg-[#123B7A]"
+                  className="w-4 rounded-t bg-[#6D28D9]"
                   style={{
                     height: `${
                       (item.created /
@@ -78,7 +78,7 @@ export default function ComplaintTrendChart({
       <div className="mt-4 flex gap-5 text-xs text-gray-500">
         <Legend
           label="Created"
-          className="bg-[#123B7A]"
+          className="bg-[#6D28D9]"
         />
 
         <Legend

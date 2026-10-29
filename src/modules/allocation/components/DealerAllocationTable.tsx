@@ -141,7 +141,7 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search dealer name or code..."
-            className="h-10 w-64 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100"
+            className="h-10 w-64 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100"
           />
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
                             type="button"
                             disabled={savingRating}
                             onClick={() => saveRating(row.dealerId, Number(ratingDraft))}
-                            className="rounded bg-[#123B7A] px-2 py-1 text-xs font-semibold text-white disabled:opacity-60"
+                            className="rounded bg-[#6D28D9] px-2 py-1 text-xs font-semibold text-white disabled:opacity-60"
                           >
                             Save
                           </button>
@@ -244,7 +244,7 @@ export default function DealerAllocationTable({ refreshKey }: { refreshKey: numb
                           title="Click to change rating"
                           className={`rounded-full px-2 py-0.5 text-xs font-semibold hover:ring-2 hover:ring-blue-200 ${
                             row.ratingOverridden
-                              ? "bg-blue-50 text-[#123B7A]"
+                              ? "bg-blue-50 text-[#6D28D9]"
                               : "bg-amber-50 text-amber-700"
                           }`}
                         >

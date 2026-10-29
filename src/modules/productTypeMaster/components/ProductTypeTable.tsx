@@ -69,7 +69,7 @@ export default function ProductTypeTable({
                   {item.product_name ?? "-"}
                 </td>
 
-                {/* <td className="px-5 py-4 text-[#123B7A]">{item.product_id}</td> */}
+                {/* <td className="px-5 py-4 text-[#6D28D9]">{item.product_id}</td> */}
                 <td className="px-5 py-4">{item.product_type}</td>
 
                 <td className="px-5 py-4">

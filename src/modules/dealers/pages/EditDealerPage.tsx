@@ -1,5 +1,6 @@
 
 
+import { FormSkeleton } from "../../../components/ui/Skeleton";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -19,9 +20,7 @@ export default function EditDealerPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading dealer...
-      </div>
+      <FormSkeleton fields={9} />
     );
   }
 

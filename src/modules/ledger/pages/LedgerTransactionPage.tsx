@@ -1,3 +1,5 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
+import SharedStatusBadge from "../../../components/ui/StatusBadge";
 import { getPanelBase } from "../../../utils/panelPath";
 import {
   ArrowDownCircle,
@@ -77,9 +79,7 @@ export default function LedgerTransactionPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading transaction...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -111,7 +111,7 @@ export default function LedgerTransactionPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <div className="flex flex-col justify-between gap-4 md:flex-row">
           <div>
-            <p className="text-xs font-medium text-[#123B7A]">
+            <p className="text-xs font-medium text-[#6D28D9]">
               {
                 transaction.transactionNumber
               }
@@ -320,7 +320,7 @@ function AmountCard({
         {Icon && (
           <Icon
             size={22}
-            className="text-[#123B7A]"
+            className="text-[#6D28D9]"
           />
         )}
       </div>
@@ -328,28 +328,6 @@ function AmountCard({
   );
 }
 
-function StatusBadge({
-  status,
-}: {
-  status:
-    LedgerTransaction["status"];
-}) {
-  const styles = {
-    POSTED:
-      "border-green-200 bg-green-50 text-green-700",
-
-    PENDING:
-      "border-amber-200 bg-amber-50 text-amber-700",
-
-    REVERSED:
-      "border-red-200 bg-red-50 text-red-700",
-  };
-
-  return (
-    <span
-      className={`h-fit rounded-full border px-3 py-1 text-xs font-medium ${styles[status]}`}
-    >
-      {status}
-    </span>
-  );
+function StatusBadge({ status }: { status: string }) {
+  return <SharedStatusBadge status={status} />;
 }

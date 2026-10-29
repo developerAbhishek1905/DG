@@ -1,3 +1,4 @@
+import StatusBadge from "../../../components/ui/StatusBadge";
 import { Edit3, PackageSearch, Trash2 } from "lucide-react";
 
 import TableSkeleton from "../../../components/ui/TableSkeleton";
@@ -67,7 +68,7 @@ export default function ProductTable({
           <tbody className="divide-y divide-gray-100">
             {products.map((product) => (
               <tr key={product._id} className="hover:bg-gray-50">
-                <td className="px-5 py-4 font-medium text-[#123B7A]">
+                <td className="px-5 py-4 font-medium text-[#6D28D9]">
                   {product.product_id}
                 </td>
 
@@ -76,15 +77,7 @@ export default function ProductTable({
                 </td>
 
                 <td className="px-5 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                      product.status === "ACTIVE"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {product.status === "ACTIVE" ? "Active" : "Inactive"}
-                  </span>
+                  <StatusBadge status={product.status} />
                 </td>
 
                 <td className="px-5 py-4">

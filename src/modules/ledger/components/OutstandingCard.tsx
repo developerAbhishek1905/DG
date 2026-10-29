@@ -43,12 +43,12 @@ export default function OutstandingCard({ summary }: Props) {
   };
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border-2 border-[#123B7A] bg-white p-5">
+    <div className="flex h-full flex-col rounded-2xl border-2 border-[#6D28D9] bg-white p-5">
       {/* Dealer Header */}
 
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#123B7A]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#6D28D9]">
             <Building2 size={18} />
           </div>
 

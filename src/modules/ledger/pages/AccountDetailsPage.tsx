@@ -209,7 +209,7 @@ export default function AccountDetailsPage() {
       <div className="space-y-4">
         <button
           onClick={() => navigate("/accounts")}
-          className="flex items-center gap-2 text-sm text-[#123B7A]"
+          className="flex items-center gap-2 text-sm text-[#6D28D9]"
         >
           <ArrowLeft size={17} />
           Back to Accounts
@@ -231,7 +231,7 @@ export default function AccountDetailsPage() {
           <button
             type="button"
             onClick={() => navigate("/accounts")}
-            className="mb-2 flex items-center gap-2 text-sm text-gray-500 hover:text-[#123B7A]"
+            className="mb-2 flex items-center gap-2 text-sm text-gray-500 hover:text-[#6D28D9]"
           >
             <ArrowLeft size={16} />
             Back to Accounts
@@ -294,7 +294,7 @@ export default function AccountDetailsPage() {
             Net Balance
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold text-[#123B7A]">
+          <h2 className="mt-2 text-2xl font-bold text-[#6D28D9]">
             {formatAmount(summary.netAmount)}
             <span className="ml-2 text-sm">
               {summary.netType === "BALANCED"
@@ -332,7 +332,7 @@ export default function AccountDetailsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search dealer..."
-              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#123B7A]"
+              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#6D28D9]"
             />
           </div>
         </div>
@@ -445,7 +445,7 @@ export default function AccountDetailsPage() {
                     )}
                   </td>
 
-                  <td className="px-4 py-3 text-right text-[#123B7A]">
+                  <td className="px-4 py-3 text-right text-[#6D28D9]">
                     {formatAmount(
                       Math.abs(
                         filteredDealers.reduce(

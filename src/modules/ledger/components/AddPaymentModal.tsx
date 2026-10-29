@@ -1,4 +1,5 @@
 
+import { ListSkeleton } from "../../../components/ui/Skeleton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
@@ -88,7 +89,7 @@ const getLocalDate = () => {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#123B7A] focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#6D28D9] focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100";
 
 const labelClass =
   "mb-1.5 block text-sm font-medium text-gray-700";
@@ -481,7 +482,7 @@ export default function AddPaymentModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-50 p-2.5 text-[#123B7A]">
+            <div className="rounded-xl bg-blue-50 p-2.5 text-[#6D28D9]">
               <Wallet size={21} />
             </div>
 
@@ -553,9 +554,7 @@ export default function AddPaymentModal({
                 {dealerOpen && !saving && (
                   <div className="absolute z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
                     {dealersLoading ? (
-                      <p className="p-4 text-sm text-gray-500">
-                        Loading dealers...
-                      </p>
+                      <div className="p-3"><ListSkeleton rows={3} /></div>
                     ) : filteredDealers.length === 0 ? (
                       <p className="p-4 text-sm text-gray-500">
                         No dealers found
@@ -583,7 +582,7 @@ export default function AddPaymentModal({
                           {dealerId === dealer.dealerId && (
                             <Check
                               size={17}
-                              className="text-[#123B7A]"
+                              className="text-[#6D28D9]"
                             />
                           )}
                         </button>
@@ -796,7 +795,7 @@ export default function AddPaymentModal({
                                 onChange={() =>
                                   handleToggleBill(bill)
                                 }
-                                className="h-4 w-4 accent-[#123B7A]"
+                                className="h-4 w-4 accent-[#6D28D9]"
                               />
                             </td>
 
@@ -840,7 +839,7 @@ export default function AddPaymentModal({
                                     [bill._id]: e.target.value,
                                   }))
                                 }
-                                className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#123B7A] disabled:bg-gray-100"
+                                className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#6D28D9] disabled:bg-gray-100"
                               />
                             </td>
                           </tr>
@@ -907,7 +906,7 @@ export default function AddPaymentModal({
               <div className="mb-4 flex items-center gap-2">
                 <ReceiptText
                   size={18}
-                  className="text-[#123B7A]"
+                  className="text-[#6D28D9]"
                 />
                 <h3 className="text-sm font-bold text-gray-900">
                   Payment Allocation Summary
@@ -1012,7 +1011,7 @@ export default function AddPaymentModal({
                 billsLoading ||
                 !validPayment
               }
-              className="inline-flex items-center gap-2 rounded-lg bg-[#123B7A] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e3064] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#6D28D9] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5B21B6] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={17} />
               {saving ? "Saving..." : "Save Payment"}

@@ -638,7 +638,7 @@ export default function AddLedgerEntryPage() {
             onClick={() => switchTab(item.key)}
             className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
               tab === item.key
-                ? "bg-[#123B7A] text-white"
+                ? "bg-[#6D28D9] text-white"
                 : "bg-white text-gray-600 hover:bg-gray-100"
             }`}
           >
@@ -1301,7 +1301,7 @@ export default function AddLedgerEntryPage() {
             type="button"
             onClick={save}
             disabled={saving}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#123B7A] px-4 text-xs font-semibold text-white hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#6D28D9] px-4 text-xs font-semibold text-white hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save size={14} />
             {saving

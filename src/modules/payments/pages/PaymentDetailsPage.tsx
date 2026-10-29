@@ -1,3 +1,4 @@
+import { DetailsSkeleton } from "../../../components/ui/Skeleton";
 import {
   ArrowLeft,
   Building2,
@@ -121,9 +122,7 @@ export default function PaymentDetailsPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        Loading payment...
-      </div>
+      <DetailsSkeleton />
     );
   }
 
@@ -192,7 +191,7 @@ export default function PaymentDetailsPage() {
       <div className="rounded-xl border border-gray-200 bg-white">
         <div className="flex flex-col justify-between gap-4 border-b p-6 md:flex-row">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-[#123B7A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-[#6D28D9]">
               Payment
             </p>
 

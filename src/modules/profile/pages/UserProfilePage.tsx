@@ -111,7 +111,7 @@ console.log(user)
                 className="
                   flex h-16 w-16
                   items-center justify-center
-                  rounded-full bg-[#123B7A]
+                  rounded-full bg-[#6D28D9]
                   text-xl font-bold text-white
                 "
               >
@@ -162,7 +162,7 @@ console.log(user)
         <div className="rounded-xl border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-6 py-4">
             <div className="flex items-center gap-2">
-              <LockKeyhole size={19} className="text-[#123B7A]" />
+              <LockKeyhole size={19} className="text-[#6D28D9]" />
 
               <h2 className="text-base font-semibold text-gray-900">
                 Change Password
@@ -199,7 +199,7 @@ console.log(user)
                 type="submit"
                 disabled={loading}
                 className="
-                  rounded-lg bg-[#123B7A]
+                  rounded-lg bg-[#6D28D9]
                   px-5 py-2.5
                   text-sm font-medium text-white
                   transition
@@ -293,7 +293,7 @@ function PasswordInput({
             px-3 py-2.5 pr-10
             text-sm outline-none
             transition
-            focus:border-[#123B7A]
+            focus:border-[#6D28D9]
             focus:ring-2 focus:ring-blue-100
           "
         />

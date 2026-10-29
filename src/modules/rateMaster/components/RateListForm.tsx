@@ -83,7 +83,7 @@ export default function RateListForm({ rate, saving, onClose, onSubmit }: Props)
   };
 
   const inputClass =
-    "h-10 w-full rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#123B7A]";
+    "h-10 w-full rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#6D28D9]";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -158,7 +158,7 @@ export default function RateListForm({ rate, saving, onClose, onSubmit }: Props)
             type="button"
             disabled={saving}
             onClick={handleSubmit}
-            className="rounded-lg bg-[#123B7A] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B2854] disabled:opacity-60"
+            className="rounded-lg bg-[#6D28D9] px-4 py-2 text-sm font-medium text-white hover:bg-[#4C1D95] disabled:opacity-60"
           >
             {saving ? "Saving..." : isEdit ? "Update" : "Add"}
           </button>
