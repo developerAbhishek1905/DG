@@ -60,10 +60,11 @@ const toDealerSummary = (
 ): OverviewDealerSummary => ({
   dealer: {
     id: row.dealerId,
-    name: row.dealerName || "-",
+    name: row.technicianName || row.dealerName || "-",
+    firmName: row.technicianName ? row.firmName || "" : "",
     dealerCode: row.headCode || "",
     phone: row.mobileNumber || "",
-    city: "",
+    city: row.city || "",
   },
   // Compatibility with the existing OutstandingCard props.
   // The running balance is NOT calculated from ledger transaction totals.

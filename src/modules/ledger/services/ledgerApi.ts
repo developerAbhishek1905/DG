@@ -181,6 +181,9 @@ export interface DealerLedgerOverviewItem {
   dealerId: string;
   headCode: string;
   dealerName: string;
+  technicianName?: string;
+  firmName?: string;
+  city?: string;
   mobileNumber: string;
   unpaidBillsCount: number;
   unpaidBillsAmount: number;

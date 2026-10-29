@@ -9,8 +9,6 @@ import {
 
 import type { DealerProductCategory } from "../types/dealer.types";
 
-import { toast } from "react-toastify";
-
 interface Props {
   productIndex: number;
 
@@ -81,21 +79,6 @@ export default function ProductServicesModal({
 
   const isSelected = (categoryId: string | number) =>
     selected.some((item) => String(item.categoryId) === String(categoryId));
-
-  const [rateDraft, setRateDraft] = useState<Record<string, string>>({});
-
-  const updateServiceRate = (categoryId: string | number, rate: number) => {
-    setSelected((prev) =>
-      prev.map((item) =>
-        String(item.categoryId) === String(categoryId)
-          ? {
-              ...item,
-              rate,
-            }
-          : item,
-      ),
-    );
-  };
 
   const toggleCategory = (category: CategoryDropdownOption) => {
     const categoryId =
@@ -202,10 +185,6 @@ export default function ProductServicesModal({
 
                 const checked = isSelected(categoryId);
 
-                const selectedService = selected.find(
-                  (item) => String(item.categoryId) === String(categoryId),
-                );
-
                 return (
                   <div
                     key={String(categoryId)}
@@ -237,61 +216,6 @@ export default function ProductServicesModal({
                             </p>
                           )}
                         </div>
-
-                        {checked && (
-                          <div className="ml-auto mr-4 shrink-0">
-                            <div className="relative w-40">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                                ₹
-                              </span>
-
-                              <input
-                                type="text"
-                                inputMode="decimal"
-                                value={
-                                  rateDraft[String(categoryId)] ??
-                                  (selectedService?.rate
-                                    ? String(selectedService.rate)
-                                    : "")
-                                }
-                                placeholder="Enter rate"
-                                onClick={(event) => event.stopPropagation()}
-                                onChange={(event) => {
-                                  let value = event.target.value.replace(
-                                    /[^\d.]/g,
-                                    "",
-                                  );
-
-                                  // only one decimal point, max 2 decimals
-                                  const parts = value.split(".");
-                                  if (parts.length > 2) {
-                                    value = `${parts[0]}.${parts.slice(1).join("")}`;
-                                  }
-                                  const [intPart, decPart] = value.split(".");
-                                  // remove leading zeros (0500 -> 500, 00.5 -> 0.5)
-                                  const cleanInt = intPart.replace(
-                                    /^0+(?=\d)/,
-                                    "",
-                                  );
-                                  value =
-                                    decPart !== undefined
-                                      ? `${cleanInt || "0"}.${decPart.slice(0, 2)}`
-                                      : cleanInt;
-
-                                  setRateDraft((prev) => ({
-                                    ...prev,
-                                    [String(categoryId)]: value,
-                                  }));
-                                  updateServiceRate(
-                                    categoryId,
-                                    Number(value) || 0,
-                                  );
-                                }}
-                                className="w-full rounded-lg border border-gray-300 py-2 pl-7 pr-3 text-right text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                              />
-                            </div>
-                          </div>
-                        )}
 
                         <div
                           className={`flex h-5 w-5 items-center justify-center rounded border ${
@@ -329,18 +253,6 @@ export default function ProductServicesModal({
               type="button"
               //   onClick={() => onSave(selected)}
               onClick={() => {
-                const invalidService = selected.find(
-                  (service) => !service.rate || service.rate <= 0,
-                );
-
-                if (invalidService) {
-                  toast.error(
-                    `Please enter rate for ${invalidService.categoryName}`,
-                  );
-
-                  return;
-                }
-
                 onSave(selected);
               }}
               className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"

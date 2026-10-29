@@ -18,6 +18,7 @@ const HIGH_OUTSTANDING = 2000;
 
 const headings = [
   { label: "Dealer", align: "text-left" },
+  { label: "City", align: "text-left" },
   { label: "Unpaid Bills", align: "text-right" },
   { label: "Current Outstanding", align: "text-right" },
   { label: "Balance", align: "text-right" },
@@ -66,8 +67,14 @@ export default function OutstandingTable({ summaries }: Props) {
                     </p>
 
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {dealer?.dealerCode || "-"}
+                      {[dealer?.firmName, dealer?.dealerCode]
+                        .filter(Boolean)
+                        .join(" · ") || "-"}
                     </p>
+                  </td>
+
+                  <td className="min-w-[120px] px-4 py-3 text-gray-700">
+                    {dealer?.city || "-"}
                   </td>
 
                   <td className="px-4 py-3 text-right text-gray-700">

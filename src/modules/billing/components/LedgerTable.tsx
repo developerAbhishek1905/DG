@@ -129,6 +129,10 @@ export default function LedgerTable({
               </th>
 
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                City
+              </th>
+
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">
                 Product
               </th>
 
@@ -195,15 +199,31 @@ export default function LedgerTable({
 
                   <td className="px-4 py-3">
                     <p className="whitespace-nowrap text-sm font-medium text-gray-800">
-                      {ledger.dealerName ||
+                      {dealer?.technicianName ||
                         dealer?.technicianFirmName ||
-                        dealer?.technicianName ||
+                        ledger.dealerName ||
                         "-"}
                     </p>
 
                     <p className="mt-0.5 text-xs text-gray-400">
-                      {ledger.dealerCode || dealer?.headCode || "-"}
+                      {[
+                        dealer?.technicianName ? dealer?.technicianFirmName : "",
+                        ledger.dealerCode || dealer?.headCode,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "-"}
                     </p>
+                  </td>
+
+                  <td className="min-w-[120px] px-4 py-3 text-sm text-gray-600">
+                    {[
+                      ...new Set(
+                        [
+                          dealer?.businessAddress?.city,
+                          ...(dealer?.additionalCities ?? []).map((c) => c?.city),
+                        ].filter(Boolean),
+                      ),
+                    ].join(", ") || "-"}
                   </td>
 
                   <td className="px-4 py-3 text-sm text-gray-600">

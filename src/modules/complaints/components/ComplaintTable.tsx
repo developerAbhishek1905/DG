@@ -1,4 +1,5 @@
-import { Eye, Ban, Copy, Trash2, Pencil } from "lucide-react";
+import { Eye, Ban, Copy, Trash2, Pencil, MessageSquare, X } from "lucide-react";
+import api from "../../../services/api/axios";
 import { usePermission } from "../../../hooks/usePermission";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +24,31 @@ export default function ComplaintTable({
   const { hasPermission } = usePermission();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [suspendingId, setSuspendingId] = useState<string | null>(null);
+  const [msgTarget, setMsgTarget] = useState<Complaint | null>(null);
+  const [msgText, setMsgText] = useState("");
+  const [msgSending, setMsgSending] = useState(false);
+
+  const sendMessage = async () => {
+    if (!msgTarget) return;
+    const text = msgText.trim();
+    if (!text) {
+      toast.error("Please type a message");
+      return;
+    }
+    try {
+      setMsgSending(true);
+      await api.post(`/appointments/complaints/${msgTarget.id}/message-to-dealer`, {
+        message: text,
+      });
+      toast.success("Message sent to dealer");
+      setMsgTarget(null);
+      setMsgText("");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to send message");
+    } finally {
+      setMsgSending(false);
+    }
+  };
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this complaint?",
@@ -382,6 +408,21 @@ export default function ComplaintTable({
                     </button>
                     )}
 
+                    {/* Message to dealer */}
+                    {hasPermission("complaints.view") && complaint.allocatedDealerId && (
+                    <button
+                      type="button"
+                      title="Send message to dealer"
+                      onClick={() => {
+                        setMsgText("");
+                        setMsgTarget(complaint);
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white"
+                    >
+                      <MessageSquare size={14} strokeWidth={2} />
+                    </button>
+                    )}
+
                     {/* Suspend */}
                     {hasPermission("complaints.suspend") && (
                     <button
@@ -422,6 +463,64 @@ export default function ComplaintTable({
           </tbody>
         </table>
       </div>
+
+      {msgTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-4 shadow-xl">
+            <div className="mb-3 flex items-start justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Message to dealer
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {msgTarget.complaintNumber} ·{" "}
+                  {msgTarget.allocatedDealerId?.technicianFirmName ||
+                    msgTarget.allocatedDealerId?.technicianName ||
+                    "Dealer"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMsgTarget(null)}
+                className="text-gray-400 hover:text-gray-700"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <textarea
+              value={msgText}
+              onChange={(e) => setMsgText(e.target.value)}
+              maxLength={1000}
+              rows={4}
+              autoFocus
+              placeholder="Type your message for the dealer..."
+              className="w-full resize-none rounded-lg border border-gray-300 p-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+            <p className="mt-1 text-right text-[11px] text-gray-400">
+              {msgText.length}/1000
+            </p>
+
+            <div className="mt-3 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setMsgTarget(null)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={msgSending}
+                onClick={sendMessage}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              >
+                {msgSending ? "Sending..." : "Send to Dealer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

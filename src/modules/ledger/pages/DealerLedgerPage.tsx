@@ -137,17 +137,21 @@ export default function DealerLedgerPage() {
 
             <div className="min-w-0">
               <h1 className="truncate text-lg font-bold text-gray-900">
-                {dealer?.technicianFirmName || "Dealer Ledger"}
+                {dealer?.technicianName ||
+                  dealer?.technicianFirmName ||
+                  "Dealer Ledger"}
               </h1>
 
               <p className="mt-1 text-xs font-medium text-gray-500">
-                {dealer?.headCode || "-"}
+                {[
+                  dealer?.technicianName ? dealer?.technicianFirmName : "",
+                  dealer?.headCode,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || "-"}
               </p>
 
               <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-600">
-                {dealer?.technicianName && (
-                  <span className="font-medium">{dealer.technicianName}</span>
-                )}
 
                 {dealer?.mobileNumber && (
                   <div className="flex items-center gap-1.5">

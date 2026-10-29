@@ -218,6 +218,8 @@ export interface LedgerDealer {
   headCode?: string;
   technicianFirmName?: string;
   technicianName?: string;
+  businessAddress?: { city?: string };
+  additionalCities?: { city?: string }[];
   mobileNumber?: string;
   email?: string;
   billingType?: string;

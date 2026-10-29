@@ -72,6 +72,7 @@ export interface DealerLedgerSummary {
     id: string;
     name: string;
     dealerCode: string;
+    firmName?: string;
     phone?: string;
     city?: string;
   };
