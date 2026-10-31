@@ -389,7 +389,9 @@ export default function Sidebar({
         className={`
           fixed left-0 top-0 z-40
           flex h-screen w-64 flex-col
-          border-r border-white/10 bg-gradient-to-b from-[#1b1670] via-[#2c1d94] to-[#4a2bb5] shadow-xl
+          border-r border-white/10 
+          bg-[#2c1d94]
+           shadow-xl
           transition-all duration-300 ease-in-out
           lg:translate-x-0
           ${collapsed ? "lg:w-20" : ""}
